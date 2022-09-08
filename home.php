@@ -28,6 +28,8 @@ $posts = Post::getLast(10);
 <head>
     <title>Twatter - Home</title>
 
+    <link rel="favicon" href="/assets/favicons/favicon.ico">
+
     <link href="/styles/index.css" rel="stylesheet" />
     <link href="/styles/post.css" rel="stylesheet" />
     <link href="/styles/global.css" rel="stylesheet" />
@@ -36,10 +38,23 @@ $posts = Post::getLast(10);
 <body>
     <div class="parent">
         <div class="navigation">
-            <div style="margin-right:5px;height:100%">
+            <div class="navigation__container">
+                <div class="navigation__twatter">
+                    <img src="/assets/favicons/android-chrome-512x512.png" style="width: 45px;" />
+                </div>
+                <div class="navigation__button">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" style="width:55%;height:55%;color:white;">
+                        <path style="fill:black;" d="M575.8 255.5c0 18-15 32.1-32 32.1h-32l.7 160.2c0 2.7-.2 5.4-.5 8.1V472c0 22.1-17.9 40-40 40H456c-1.1 0-2.2 0-3.3-.1c-1.4 .1-2.8 .1-4.2 .1H416 392c-22.1 0-40-17.9-40-40V448 384c0-17.7-14.3-32-32-32H256c-17.7 0-32 14.3-32 32v64 24c0 22.1-17.9 40-40 40H160 128.1c-1.5 0-3-.1-4.5-.2c-1.2 .1-2.4 .2-3.6 .2H104c-22.1 0-40-17.9-40-40V360c0-.9 0-1.9 .1-2.8V287.6H32c-18 0-32-14-32-32.1c0-9 3-17 10-24L266.4 8c7-7 15-8 22-8s15 2 21 7L564.8 231.5c8 7 12 15 11 24z" />
+                    </svg>
+                </div>
+                <div class="navigation__button">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" style="width:55%;height:55%;color:white;">
+                        <path d="M272 304h-96C78.8 304 0 382.8 0 480c0 17.67 14.33 32 32 32h384c17.67 0 32-14.33 32-32C448 382.8 369.2 304 272 304zM48.99 464C56.89 400.9 110.8 352 176 352h96c65.16 0 119.1 48.95 127 112H48.99zM224 256c70.69 0 128-57.31 128-128c0-70.69-57.31-128-128-128S96 57.31 96 128C96 198.7 153.3 256 224 256zM224 48c44.11 0 80 35.89 80 80c0 44.11-35.89 80-80 80S144 172.1 144 128C144 83.89 179.9 48 224 48z" />
+                    </svg>
+                </div>
+
                 <div class="navigation__post">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="width:55%;height:55%;color:white;">
-                        <!--! Font Awesome Pro 6.1.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2022 Fonticons, Inc. -->
                         <path style="fill:white;" d="M467.1 241.1L351.1 288h94.34c-7.711 14.85-16.29 29.28-25.87 43.01l-132.5 52.99h85.65c-59.34 52.71-144.1 80.34-264.5 52.82l-68.13 68.13c-9.38 9.38-24.56 9.374-33.94 0c-9.375-9.375-9.375-24.56 0-33.94l253.4-253.4c4.846-6.275 4.643-15.19-1.113-20.95c-6.25-6.25-16.38-6.25-22.62 0l-168.6 168.6C24.56 58 366.9 8.118 478.9 .0846c18.87-1.354 34.41 14.19 33.05 33.05C508.7 78.53 498.5 161.8 467.1 241.1z" />
                     </svg>
                 </div>
