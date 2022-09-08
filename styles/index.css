@@ -36,12 +36,26 @@
 	display: flex;
 	justify-content: right;
 
-	background-color: red;
+	background-color: white;
+
+	border-right: 1px solid gray;
+}
+
+.navigation__container {
+	display: flex;
+	flex-direction: column;
+
+	align-items: center;
+
+	margin-right: 5px;
+	height: 100%;
 }
 
 .navigation__button {
-	width: 60px;
-	height: 60px;
+	width: 45px;
+	height: 45px;
+
+	margin-block: 5px;
 
 	border-radius: 100%;
 
@@ -64,6 +78,8 @@
 	width: 60px;
 	height: 60px;
 
+	margin-block: 5px;
+
 	border-radius: 100%;
 
 	transition-property: background-color;
@@ -80,6 +96,30 @@
 
 .navigation__post:hover {
 	background-color: rgb(27, 142, 219);
+}
+
+.navigation__twatter {
+	width: 60px;
+	height: 60px;
+
+	margin-bottom: 5px;
+
+	border-radius: 100%;
+
+	transition-property: background-color;
+	transition-duration: 0.1s;
+	transition-timing-function: ease-out;
+
+	display: flex;
+	justify-content: center;
+	align-items: center;
+
+	color: white;
+	background-color: rgba(240, 29, 29, 0);
+}
+
+.navigation__twatter:hover {
+	background-color: rgba(240, 29, 29, 0.25);
 }
 
 .content {
