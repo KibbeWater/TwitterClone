@@ -26,6 +26,8 @@ $posts = Post::getLast(10);
 <html>
 
 <head>
+    <title>Twatter - Home</title>
+
     <link href="/styles/index.css" rel="stylesheet" />
     <link href="/styles/post.css" rel="stylesheet" />
     <link href="/styles/global.css" rel="stylesheet" />
