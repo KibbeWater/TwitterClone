@@ -69,19 +69,34 @@ $posts = Post::getLast(10);
         </nav>
         <main class="container">
             <div class="container__header">
-                <h1 class="container__header_title">Home</h1>
+                <h3 class="container__header_title">Home</h3>
             </div>
-            <form action="/index.php" method="post">
-                <textarea name="post" class="container__post__textarea" placeholder="What's on your mind?"></textarea>
-                <input type="submit" class="container__post__button" value="Post" />
-            </form>
-            <div class="container__post">
-                <?php
-                foreach ($posts as $post) {
-                    echo generatePost($post);
-                }
-                ?>
+            <div class="container__content">
+                <form action="/index.php" method="post">
+                    <textarea name="post" class="container__post__textarea" placeholder="What's on your mind?"></textarea>
+                    <input type="submit" class="container__post__button" value="Post" />
+                </form>
+                <div class="container__post">
+                    <?php
+                    foreach ($posts as $post) {
+                        echo generatePost($post);
+                    }
+                    foreach ($posts as $post) {
+                        echo generatePost($post);
+                    }
+                    foreach ($posts as $post) {
+                        echo generatePost($post);
+                    }
+                    foreach ($posts as $post) {
+                        echo generatePost($post);
+                    }
+                    foreach ($posts as $post) {
+                        echo generatePost($post);
+                    }
+                    ?>
+                </div>
             </div>
+
         </main>
         <div class="filters">
             <div class="filters__container">
@@ -103,7 +118,7 @@ $posts = Post::getLast(10);
             </div>
         </div>
     </div>
-    <script src="/js/home.js"></script>
+    <script src="/js/home.js" />
 </body>
 
 </html>

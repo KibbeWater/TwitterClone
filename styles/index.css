@@ -2,6 +2,8 @@
 	width: 100vw;
 	height: 100vh;
 	display: flex;
+
+	overflow: hidden;
 }
 
 .container {
@@ -10,6 +12,10 @@
 
 .container__header {
 	height: 50px;
+	padding-inline: 10px;
+
+	display: flex;
+	align-items: center;
 
 	background-color: white;
 }
@@ -19,8 +25,12 @@
 	margin: 0;
 }
 
-.container__post {
+.container__content {
+	overflow: auto;
 	height: 100%;
+}
+
+.container__post {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
