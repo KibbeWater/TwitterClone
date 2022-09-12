@@ -19,6 +19,7 @@
     <input id="input_pass" type="password" name="password" placeholder="Password" />
     <button id="loginBtn">Login</button>
 
+    <script src="/js/login.js"></script>
 </body>
 
 </html>

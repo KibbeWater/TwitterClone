@@ -1,6 +1,8 @@
 <?php
-include './private/users.php';
-include './private/sessions.php';
+require_once './private/users.php';
+require_once './private/sessions.php';
+
+error_reporting(0);
 
 function Login()
 {
@@ -46,6 +48,8 @@ function Login()
 
 function Auth()
 {
+    header('Content-Type: application/json; charset=utf-8');
+
     if (isset($_SERVER['HTTP_AUTHORIZATION'])) {
         http_response_code(401);
         die(json_encode(array('success' => false, 'error' => 'No authentication token provided')));

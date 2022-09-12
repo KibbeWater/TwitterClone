@@ -63,14 +63,12 @@ class User
     {
         global $db;
 
-        $stmt = $db->prepare('SELECT * FROM users WHERE username = ?');
+        $stmt = $db->prepare('SELECT * FROM users WHERE tag = ?');
         $stmt->bind_param('s', $username);
         $stmt->execute();
         $result = $stmt->get_result();
 
-        if ($result->num_rows === 0) {
-            return null;
-        }
+        if ($result->num_rows === 0) return null;
 
         $row = $result->fetch_assoc();
         return new User($row['id'], $row['password'], $row['tag'], $row['username'], $row['group'], $row['avatar']);

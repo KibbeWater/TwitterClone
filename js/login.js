@@ -8,8 +8,9 @@ $('#loginBtn').click(function () {
 		type: 'POST',
 		data: JSON.stringify({ username: input_user, password: input_pass }),
 		contentType: 'application/json',
-		success: function (data) {
-			if (data.status === 'success') window.location.replace('/home');
+		success: function (resp) {
+			const data = JSON.parse(resp);
+			if (data.success) return window.location.replace('/home');
 			else alert('Invalid username or password');
 		},
 		error: (data) => alert('An error occurred'),
