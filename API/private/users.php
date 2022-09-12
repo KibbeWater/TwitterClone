@@ -26,6 +26,22 @@ class User
     }
 
     // We want to be able to fetch users with their ID/username
+    public static function authenticate()
+    {
+        // We need to get the session token from the current auth headers and then get the session token from the database to check if it exists
+
+        // Get auth headers
+        $auth_token = $_SERVER['HTTP_AUTHORIZATION'];
+        $auth_token = substr($auth_token, 7);
+
+        // Get session from database
+        $session = Session::fetchByToken($auth_token);
+        if ($session === null) return null;
+
+        // Return the user
+        return $session->owner;
+    }
+
     public static function fetch(int $id)
     {
         global $db;

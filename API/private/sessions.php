@@ -8,7 +8,7 @@ class Session
     private $_date;
 
     public $token;
-    public $author;
+    public $owner;
     public $timestamp;
 
     public function __construct(int $id, int $userId, int $date, string $token)
@@ -18,7 +18,7 @@ class Session
         $this->_date = $date;
 
         $this->token = $token;
-        $this->author = User::fetch($userId);
+        $this->owner = User::fetch($userId);
         $this->timestamp = date('Y-m-d H:i:s', $date);
     }
 

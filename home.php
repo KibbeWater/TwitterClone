@@ -21,6 +21,12 @@ function generatePost(Post $post)
 }
 
 $posts = Post::getLast(10);
+$user = User::authenticate();
+
+if ($user == null) {
+    header('Location: login');
+    die();
+}
 
 ?>
 <html>
@@ -72,15 +78,24 @@ $posts = Post::getLast(10);
                 <h3 class="container__header_title">Home</h3>
             </div>
             <div class="container__content">
-                <form action="/index.php" method="post">
-                    <textarea name="post" class="container__post__textarea" placeholder="What's on your mind?"></textarea>
-                    <input type="submit" class="container__post__button" value="Post" />
-                </form>
+                <div class="post__form">
+                    <div class="post__form_header">
+                        <?php
+                        echo <<<HTML
+                            <img src="{$user->avatar}" alt="{$user->username}'s avatar" class="post__form_avatar"> .
+                        HTML;
+                        ?>
+                        <div class="post__form_input">
+                            <input type="text" placeholder="What's happening?" class="post__form_input_text">
+                        </div>
+                    </div>
+                </div>
                 <div class="container__post">
                     <?php
                     foreach ($posts as $post) {
                         echo generatePost($post);
                     }
+                    /* Debug */
                     foreach ($posts as $post) {
                         echo generatePost($post);
                     }
@@ -96,7 +111,6 @@ $posts = Post::getLast(10);
                     ?>
                 </div>
             </div>
-
         </main>
         <div class="filters">
             <div class="filters__container">

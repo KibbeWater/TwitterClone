@@ -51,7 +51,7 @@ function Auth()
     }
 
     http_response_code(200);
-    die(json_encode(array('success' => true, 'user' => $session->author->toArray())));
+    die(json_encode(array('success' => true, 'user' => $session->owner->toArray())));
 }
 
 // If post then Login, else, get Auth
