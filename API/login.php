@@ -4,9 +4,19 @@ include './private/sessions.php';
 
 function Login()
 {
-    // We need the username and password to be sent in the body form encoded
-    $username = $_POST['username'];
-    $password = $_POST['password'];
+    $content_type = $_SERVER['CONTENT_TYPE'];
+
+    if ($content_type == 'application/x-www-form-urlencoded') {
+        $username = $_POST['username'];
+        $password = $_POST['password'];
+    } else if ($content_type == 'application/json') {
+        $json = json_decode(file_get_contents('php://input'), true);
+        $username = $json['username'];
+        $password = $json['password'];
+    } else {
+        http_response_code(400);
+        die(json_encode(array('success' => false, 'error' => 'Invalid content type')));
+    }
 
     if (empty($username) || empty($password)) {
         http_response_code(400);

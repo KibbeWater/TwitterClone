@@ -14,6 +14,11 @@
 
 <body>
     <h1>Hi lol</h1>
+
+    <input id="input_user" type="text" name="username" placeholder="Username" />
+    <input id="input_pass" type="password" name="password" placeholder="Password" />
+    <button id="loginBtn">Login</button>
+
 </body>
 
 </html>
