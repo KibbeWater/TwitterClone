@@ -22,6 +22,21 @@ class Session
         $this->timestamp = date('Y-m-d H:i:s', $date);
     }
 
+    // Automatically get the authoization token from the header and return the session
+    public static function authenticate(): ?Session
+    {
+        // is the token cookie set?
+        if (!isset($_COOKIE['token'])) return null;
+        $token = $_COOKIE['token'];
+
+        // Get session from database
+        $session = Session::fetchByToken($token);
+        if ($session === null) return null;
+
+        // Return the session
+        return $session;
+    }
+
     // Fetch a session by its ID
     public static function fetch(int $id)
     {
@@ -72,6 +87,12 @@ class Session
     public function getDate()
     {
         return $this->_date;
+    }
+
+    public function isExired()
+    {
+        // is the session more than 1 day old?
+        return $this->_date < time() - 86400;
     }
 
     // Static function to make a new session

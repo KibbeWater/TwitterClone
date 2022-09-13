@@ -21,9 +21,10 @@ function generatePost(Post $post)
 }
 
 $posts = Post::getLast(10);
-$user = User::authenticate();
+$session = Session::authenticate();
+$user = $session->owner;
 
-if ($user == null) {
+if ($session == null || $session->isExired()) {
     header('Location: login');
     die();
 }
@@ -82,12 +83,12 @@ if ($user == null) {
                     <div class="post__form_header">
                         <?php
                         echo <<<HTML
-                            <img src="{$user->avatar}" alt="{$user->username}'s avatar" class="post__form_avatar"> .
+                            <img src="{$user->avatar}" alt="{$user->username}'s avatar" class="post__form_avatar">
                         HTML;
                         ?>
-                        <div class="post__form_input">
-                            <input type="text" placeholder="What's happening?" class="post__form_input_text">
-                        </div>
+                    </div>
+                    <div class="post__form_input">
+                        <input type="text" placeholder="What's happening?" class="post__form_input_text">
                     </div>
                 </div>
                 <div class="container__post">

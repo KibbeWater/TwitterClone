@@ -30,12 +30,13 @@ class User
     {
         // We need to get the session token from the current auth headers and then get the session token from the database to check if it exists
 
-        // Get auth headers
-        $auth_token = $_SERVER['HTTP_AUTHORIZATION'];
-        $auth_token = substr($auth_token, 7);
+        if (!isset($_COOKIE['token'])) return null;
+
+        // Get token
+        $token = $_COOKIE['token'];
 
         // Get session from database
-        $session = Session::fetchByToken($auth_token);
+        $session = Session::fetchByToken($token);
         if ($session === null) return null;
 
         // Return the user

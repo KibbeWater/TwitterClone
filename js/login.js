@@ -10,8 +10,8 @@ $('#loginBtn').click(function () {
 		contentType: 'application/json',
 		success: function (resp) {
 			const data = JSON.parse(resp);
-			if (data.success) return window.location.replace('/home');
-			else alert('Invalid username or password');
+			if (!data.success) return alert('Invalid username or password');
+			window.location.replace('/home');
 		},
 		error: (data) => alert('An error occurred'),
 	});

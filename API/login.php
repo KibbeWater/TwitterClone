@@ -37,11 +37,18 @@ function Login()
     }
 
     http_response_code(200);
+
+    $session = $user->createSession();
+    //header('Authorization: Bearer ' . $session->token);
+
+    // Set the cookie called 'token' which will be stored for 1 day as http only
+    setcookie('token', $session->token, time() + 86400, '/', null, null, true);
+
     die(json_encode(
         array(
             'success' => true,
             'user' => $user->toArray(),
-            'token' => $user->createSession()->token
+            'token' => $session->token
         )
     ));
 }
@@ -50,15 +57,14 @@ function Auth()
 {
     header('Content-Type: application/json; charset=utf-8');
 
-    if (isset($_SERVER['HTTP_AUTHORIZATION'])) {
+    // Check if the token is set in the cookie
+    $token = $_COOKIE['token'];
+    if (!isset($_COOKIE['token'])) {
         http_response_code(401);
-        die(json_encode(array('success' => false, 'error' => 'No authentication token provided')));
+        die(json_encode(array('success' => false, 'error' => 'No token provided')));
     }
 
-    $auth_token = $_SERVER['HTTP_AUTHORIZATION'];
-    $auth_token = substr($auth_token, 7);
-
-    $session = Session::fetchByToken($auth_token);
+    $session = Session::fetchByToken($token);
     if ($session === null) {
         http_response_code(401);
         die(json_encode(array('success' => false, 'error' => 'Invalid authentication token')));

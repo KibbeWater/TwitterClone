@@ -14,8 +14,3 @@ if (empty($post_message)) {
 }
 
 // Get the authentication token from the header
-$auth_token = $_SERVER['HTTP_AUTHORIZATION'];
-if ($auth_token == null) {
-    http_response_code(401);
-    die(json_encode(array('success' => false, 'error' => 'No authentication token provided')));
-}
