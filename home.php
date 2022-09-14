@@ -100,7 +100,7 @@ if ($session == null || $session->isExired()) {
                         </div>
                     </div>
                 </div>
-                <div class="container__post">
+                <div class="feed">
                     <?php
                     foreach ($posts as $post) {
                         echo generatePost($post);
