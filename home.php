@@ -88,8 +88,16 @@ if ($session == null || $session->isExired()) {
                         ?>
                     </div>
                     <div class="post__form_content">
-                        <textarea type="text" placeholder="What's happening?" class="post__form_input"></textarea>
-                        <div></div>
+                        <textarea type="text" rows="1" placeholder="What's happening?" class="post__form_input"></textarea>
+                        <div class="separator"></div>
+                        <div class="post__form_content_footer">
+                            <div>
+                                <p style="margin: 0;">There might be a button here</p>
+                            </div>
+                            <div>
+                                <button class="post__form_submit">Post</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="container__post">
@@ -118,11 +126,11 @@ if ($session == null || $session->isExired()) {
             <div class="filters__container">
                 <div class="searchbar">
                     <div class="searchbar__search">
-                        <!-- <i>
-                            <svg xmlns="http://www.w3.org/2000/svg" style="height: 55%;width:55%;" viewBox="0 0 20 20">
+                        <i>
+                            <svg xmlns="http://www.w3.org/2000/svg" style="height: 75%;width:75%;" viewBox="0 0 20 20">
                                 <path fill="currentColor" d="m17.545 15.467l-3.779-3.779a6.15 6.15 0 0 0 .898-3.21c0-3.417-2.961-6.377-6.378-6.377A6.185 6.185 0 0 0 2.1 8.287c0 3.416 2.961 6.377 6.377 6.377a6.15 6.15 0 0 0 3.115-.844l3.799 3.801a.953.953 0 0 0 1.346 0l.943-.943c.371-.371.236-.84-.135-1.211zM4.004 8.287a4.282 4.282 0 0 1 4.282-4.283c2.366 0 4.474 2.107 4.474 4.474a4.284 4.284 0 0 1-4.283 4.283c-2.366-.001-4.473-2.109-4.473-4.474z" />
                             </svg>
-                        </i> -->
+                        </i>
                     </div>
                     <div style="width:100%;height:100%">
                         <input type="text" class="searchbar__input" placeholder="Search Twatter" />

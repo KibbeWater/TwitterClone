@@ -1,10 +1,26 @@
 .post {
-	margin-bottom: 30px;
+	padding-block: 10px;
+	padding-inline: 10px;
+	margin-bottom: 1px;
+	width: 100%;
 
-	background-color: aqua;
-	width: auto;
+	background-color: rgb(255, 255, 255);
+	transition: background-color 0.3s;
+
+	cursor: pointer;
+
+	box-sizing: border-box;
+	border-bottom: 1px solid gray;
 
 	display: flex;
+}
+
+.post:hover {
+	background-color: rgb(245, 245, 245);
+}
+
+.post__content {
+	padding-left: 10px;
 }
 
 .post__author {

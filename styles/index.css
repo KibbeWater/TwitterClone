@@ -51,10 +51,15 @@ html {
 .post__form {
 	display: flex;
 
+	box-sizing: border-box;
+
 	width: 100%;
 	padding-inline: 20px;
+	padding-bottom: 10px;
+	margin-bottom: 5px;
 
 	box-sizing: border-box;
+	border-bottom: 1px solid gray;
 }
 
 .post__form_avatar {
@@ -68,29 +73,62 @@ html {
 	display: flex;
 	flex-direction: column;
 
+	padding-inline: 20px;
+
 	width: 100%;
+}
+
+.post__form_content_footer {
+	display: flex;
+	justify-content: space-between;
+
+	margin-top: 20px;
+
+	height: min-content;
+}
+
+.separator {
+	height: 1px;
+	width: 100%;
+
+	box-sizing: border-box;
+
+	opacity: 0.5;
+	background-color: gray;
 }
 
 .post__form_input {
 	width: 100%;
-	margin-inline: 10px;
 
+	outline: 0;
 	border: 0;
 
-	padding-inline: 10px;
+	margin-bottom: 15px;
 
 	box-sizing: border-box;
 
 	resize: none;
-	font-size: large;
+	font-size: x-large;
 }
 
 .post__form_input:focus {
 	border: 0;
 
 	outline: none;
-	border-radius: 7px;
-	border-bottom: 1px solid gray;
+}
+
+.post__form_submit {
+	padding-block: 6px;
+	padding-inline: 18px;
+
+	border-radius: 99999px;
+	border: 0;
+
+	background-color: rgb(240, 29, 29);
+	color: white;
+
+	font-size: medium;
+	font-weight: bold;
 }
 
 .navigation {
