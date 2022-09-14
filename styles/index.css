@@ -20,7 +20,7 @@ html {
 	height: 50px;
 
 	padding-inline: 10px;
-	position: absolute;
+	position: sticky;
 
 	backdrop-filter: blur(10px);
 
@@ -38,8 +38,6 @@ html {
 .container__content {
 	overflow: auto;
 	height: 100%;
-
-	padding-top: 50px;
 }
 
 .container__post {
