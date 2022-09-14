@@ -29,7 +29,6 @@ class User
     public static function authenticate()
     {
         // We need to get the session token from the current auth headers and then get the session token from the database to check if it exists
-
         if (!isset($_COOKIE['token'])) return null;
 
         // Get token
@@ -58,6 +57,29 @@ class User
 
         $row = $result->fetch_assoc();
         return new User($row['id'], $row['password'], $row['tag'], $row['username'], $row['group'], $row['avatar']);
+    }
+
+    public static function register(string $username, string $password)
+    {
+        global $db;
+
+        // Check if the username is already taken
+        $stmt = $db->prepare('SELECT * FROM users WHERE tag = ?');
+        $stmt->bind_param('s', $username);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        if ($result->num_rows !== 0) {
+            return null;
+        }
+
+        // Create the user
+        $stmt = $db->prepare('INSERT INTO users (tag, username, password, `group`) VALUES (?, ?, ?, ?)');
+        $stmt->bind_param('sssi', $username, $username, password_hash($password, PASSWORD_DEFAULT), 0);
+        $stmt->execute();
+
+        // Return the user
+        return self::fetch($db->insert_id);
     }
 
     public static function fetchByUsername(string $username)
@@ -192,6 +214,9 @@ class User
         $stmt = $db->prepare('INSERT INTO sessions (userId, date, token) VALUES (?, ?, ?)');
         $stmt->bind_param('iis', $this->_id, time(), $token);
         $stmt->execute();
+
+        // Set the cookie when the session is created
+        setcookie('token', $token, time() + 86400, '/', null, true, true);
 
         return new Session($db->insert_id, $this->_id, time(), $token);
     }

@@ -39,10 +39,6 @@ function Login()
     http_response_code(200);
 
     $session = $user->createSession();
-    //header('Authorization: Bearer ' . $session->token);
-
-    // Set the cookie called 'token' which will be stored for 1 day as http only
-    setcookie('token', $session->token, time() + 86400, '/', null, null, true);
 
     die(json_encode(
         array(

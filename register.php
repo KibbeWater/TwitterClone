@@ -1,7 +1,7 @@
 <html>
 
 <head>
-    <title>Twatter - Login</title>
+    <title>Twatter - Register</title>
 
     <link rel="favicon" href="/assets/favicons/favicon.ico">
     <link href="/styles/global.css" rel="stylesheet" />
@@ -10,13 +10,14 @@
 </head>
 
 <body>
-    <h1>Login</h1>
+    <h1>Register</h1>
 
     <input id="input_user" type="text" name="username" placeholder="Username" />
     <input id="input_pass" type="password" name="password" placeholder="Password" />
-    <button id="loginBtn">Login</button>
+    <input id="input_confirm" type="password" name="confirm" placeholder="Confirm Password" />
+    <button id="registerBtn">Register</button>
 
-    <script src="/js/login.js"></script>
+    <script src="/js/register.js"></script>
 </body>
 
 </html>

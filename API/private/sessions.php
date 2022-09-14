@@ -106,6 +106,9 @@ class Session
         $stmt->bind_param('is', $user->getId(), $token);
         $stmt->execute();
 
+        // Set the cookie when the session is created
+        setcookie('token', $token, time() + 86400, '/', null, true, true);
+
         return Session::fetchByToken($token);
     }
 
