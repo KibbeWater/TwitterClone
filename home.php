@@ -87,8 +87,9 @@ if ($session == null || $session->isExired()) {
                         HTML;
                         ?>
                     </div>
-                    <div class="post__form_input">
-                        <input type="text" placeholder="What's happening?" class="post__form_input_text">
+                    <div class="post__form_content">
+                        <textarea type="text" placeholder="What's happening?" class="post__form_input"></textarea>
+                        <div></div>
                     </div>
                 </div>
                 <div class="container__post">
@@ -133,7 +134,8 @@ if ($session == null || $session->isExired()) {
             </div>
         </div>
     </div>
-    <script src="/js/home.js" />
+    <script src="/js/autosize.js"></script>
+    <script src="/js/home.js"></script>
 </body>
 
 </html>

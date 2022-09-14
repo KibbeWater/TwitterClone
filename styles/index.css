@@ -22,6 +22,8 @@ html {
 	padding-inline: 10px;
 	position: sticky;
 
+	box-sizing: border-box;
+
 	backdrop-filter: blur(10px);
 
 	display: flex;
@@ -48,6 +50,47 @@ html {
 
 .post__form {
 	display: flex;
+
+	width: 100%;
+	padding-inline: 20px;
+
+	box-sizing: border-box;
+}
+
+.post__form_avatar {
+	width: 55px;
+	height: 55px;
+
+	border-radius: 100%;
+}
+
+.post__form_content {
+	display: flex;
+	flex-direction: column;
+
+	width: 100%;
+}
+
+.post__form_input {
+	width: 100%;
+	margin-inline: 10px;
+
+	border: 0;
+
+	padding-inline: 10px;
+
+	box-sizing: border-box;
+
+	resize: none;
+	font-size: large;
+}
+
+.post__form_input:focus {
+	border: 0;
+
+	outline: none;
+	border-radius: 7px;
+	border-bottom: 1px solid gray;
 }
 
 .navigation {
@@ -238,5 +281,11 @@ html {
 @media only screen and (max-width: 800px) {
 	.filters {
 		display: none;
+	}
+
+	.container {
+		border-right: 1px solid gray;
+		width: 100%;
+		max-width: 100%;
 	}
 }

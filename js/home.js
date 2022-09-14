@@ -1,5 +1,3 @@
-// When .searchbar__input is focused we wanna give searchbar a new class searchbar__active using jQuery
-
 $(document).ready(function () {
 	console.log($('.searchbar__input'));
 	$('.searchbar__input').focus(function () {
@@ -10,4 +8,5 @@ $(document).ready(function () {
 		$('.searchbar').removeClass('searchbar__active');
 		$('.searchbar__input').removeClass('searchbar__input__active');
 	});
+	autosize($('textarea'));
 });
