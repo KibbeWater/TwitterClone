@@ -69,13 +69,11 @@ class User
         $stmt->execute();
         $result = $stmt->get_result();
 
-        if ($result->num_rows !== 0) {
-            return null;
-        }
+        if ($result->num_rows !== 0) return null;
 
         // Create the user
-        $stmt = $db->prepare('INSERT INTO users (tag, username, password, `group`) VALUES (?, ?, ?, ?)');
-        $stmt->bind_param('sssi', $username, $username, password_hash($password, PASSWORD_DEFAULT), 0);
+        $stmt = $db->prepare('INSERT INTO users (tag, username, password) VALUES (?, ?, ?)');
+        $stmt->bind_param('sss', $username, $username, password_hash($password, PASSWORD_DEFAULT));
         $stmt->execute();
 
         // Return the user
@@ -216,7 +214,7 @@ class User
         $stmt->execute();
 
         // Set the cookie when the session is created
-        setcookie('token', $token, time() + 86400, '/', null, true, true);
+        setcookie('token', $token, time() + 86400, '/', null, false, true);
 
         return new Session($db->insert_id, $this->_id, time(), $token);
     }

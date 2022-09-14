@@ -15,8 +15,8 @@ $('#registerBtn').click(function () {
 		contentType: 'application/json',
 		success: function (resp) {
 			const data = JSON.parse(resp);
-			if (!data.success) return alert('Invalid username or password');
-			window.location.replace('/home');
+			if (!data.success) return alert(data.error);
+			window.location.href = '/home';
 		},
 		error: (data) => alert('An error occurred'),
 	});

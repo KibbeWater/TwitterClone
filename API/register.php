@@ -3,7 +3,7 @@
 include_once 'private/database.php';
 include_once 'private/users.php';
 
-error_reporting(0);
+error_reporting(1);
 
 // Is the request method POST?
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
