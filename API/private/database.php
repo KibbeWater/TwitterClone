@@ -49,5 +49,15 @@ try {
         )";
 
         if ($db->query($sql) !== TRUE) echo "Error creating table: " . $db->error;
+
+        $sql = "CREATE TABLE relationships (
+            id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+            author_id INT(11) NOT NULL,
+            target_id INT(11) NOT NULL,
+            `type` INT(11) NOT NULL,
+            `date` BIGINT(20) DEFAULT 0
+        )";
+
+        if ($db->query($sql) !== TRUE) echo "Error creating table: " . $db->error;
     }
 }
