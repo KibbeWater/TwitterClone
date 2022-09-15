@@ -1,33 +1,21 @@
 <?php
-require_once 'API/private/posts.php';
+require_once 'API/private/users.php';
 
-function generatePost(Post $post)
-{
-    $postHtml = <<<HTML
-    <div class="post">
-        <img src="{$post->author->avatar}" alt="{$post->author->username}'s avatar" class="post__author_avatar">
-        <div class="post__content">
-            <div class="post__header">
-                <span class="post__author_username">{$post->author->username}</span>
-                <span class="post__author_tag">@{$post->author->tag} ·</span>
-                <span class="post__timestamp">{$post->timestamp}</span>
-            </div>
-            {$post->content}
-        </div>
-    </div>
-    HTML;
-
-    return $postHtml;
+if (!isset($_GET['tag'])) {
+    header('Location: /');
+    exit();
 }
 
-$posts = Post::getLast(10);
-$session = Session::authenticate();
-$user = $session->owner;
+$tag = $_GET['tag'];
+$tag = substr($tag, 0, -4);
 
-if ($session == null || $session->isExired()) {
-    header('Location: login');
-    die();
+$profile = User::fetchByTag($tag);
+if ($profile == null) {
+    header('Location: /');
+    exit();
 }
+
+$user = User::authenticate();
 
 ?>
 <html>
@@ -37,7 +25,7 @@ if ($session == null || $session->isExired()) {
 
     <link rel="favicon" href="/assets/favicons/favicon.ico">
 
-    <link href="/styles/index.css" rel="stylesheet" />
+    <link href="/styles/profile.css" rel="stylesheet" />
     <link href="/styles/post.css" rel="stylesheet" />
     <link href="/styles/global.css" rel="stylesheet" />
 
@@ -54,14 +42,14 @@ if ($session == null || $session->isExired()) {
                 <div class="navigation__button">
                     <a href="/home">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" style="width:55%;height:55%;color:white;">
-                            <path style="fill:black;" d="M575.8 255.5c0 18-15 32.1-32 32.1h-32l.7 160.2c0 2.7-.2 5.4-.5 8.1V472c0 22.1-17.9 40-40 40H456c-1.1 0-2.2 0-3.3-.1c-1.4 .1-2.8 .1-4.2 .1H416 392c-22.1 0-40-17.9-40-40V448 384c0-17.7-14.3-32-32-32H256c-17.7 0-32 14.3-32 32v64 24c0 22.1-17.9 40-40 40H160 128.1c-1.5 0-3-.1-4.5-.2c-1.2 .1-2.4 .2-3.6 .2H104c-22.1 0-40-17.9-40-40V360c0-.9 0-1.9 .1-2.8V287.6H32c-18 0-32-14-32-32.1c0-9 3-17 10-24L266.4 8c7-7 15-8 22-8s15 2 21 7L564.8 231.5c8 7 12 15 11 24z" />
+                            <path d="M575.8 255.5c0 18-15 32.1-32 32.1h-32l.7 160.2c0 2.7-.2 5.4-.5 8.1V472c0 22.1-17.9 40-40 40H456c-1.1 0-2.2 0-3.3-.1c-1.4 .1-2.8 .1-4.2 .1H416 392c-22.1 0-40-17.9-40-40V448 384c0-17.7-14.3-32-32-32H256c-17.7 0-32 14.3-32 32v64 24c0 22.1-17.9 40-40 40H160 128.1c-1.5 0-3-.1-4.5-.2c-1.2 .1-2.4 .2-3.6 .2H104c-22.1 0-40-17.9-40-40V360c0-.9 0-1.9 .1-2.8V287.6H32c-18 0-32-14-32-32.1c0-9 3-17 10-24L266.4 8c7-7 15-8 22-8s15 2 21 7L564.8 231.5c8 7 12 15 11 24z" />
                         </svg>
                     </a>
                 </div>
                 <div class="navigation__button">
                     <a href="<?php echo "/@" . $user->tag ?>">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" style="width:55%;height:55%;color:white;">
-                            <path d="M272 304h-96C78.8 304 0 382.8 0 480c0 17.67 14.33 32 32 32h384c17.67 0 32-14.33 32-32C448 382.8 369.2 304 272 304zM48.99 464C56.89 400.9 110.8 352 176 352h96c65.16 0 119.1 48.95 127 112H48.99zM224 256c70.69 0 128-57.31 128-128c0-70.69-57.31-128-128-128S96 57.31 96 128C96 198.7 153.3 256 224 256zM224 48c44.11 0 80 35.89 80 80c0 44.11-35.89 80-80 80S144 172.1 144 128C144 83.89 179.9 48 224 48z" />
+                            <path d="M224 256c70.7 0 128-57.3 128-128S294.7 0 224 0S96 57.3 96 128s57.3 128 128 128zm-45.7 48C79.8 304 0 383.8 0 482.3C0 498.7 13.3 512 29.7 512H418.3c16.4 0 29.7-13.3 29.7-29.7C448 383.8 368.2 304 269.7 304H178.3z" />
                         </svg>
                     </a>
                 </div>
@@ -76,29 +64,11 @@ if ($session == null || $session->isExired()) {
         </nav>
         <main class="container">
             <div class="container__header">
-                <h3 class="container__header_title">Home</h3>
+                <h3 class="container__header_title"><?php echo $profile->username ?></h3>
             </div>
             <div class="container__content">
-                <div class="post__form">
-                    <div class="post__form_header">
-                        <?php
-                        echo <<<HTML
-                            <img src="{$user->avatar}" alt="{$user->username}'s avatar" class="post__form_avatar">
-                        HTML;
-                        ?>
-                    </div>
-                    <div class="post__form_content">
-                        <textarea type="text" rows="1" placeholder="What's happening?" class="post__form_input"></textarea>
-                        <div class="separator"></div>
-                        <div class="post__form_content_footer">
-                            <div>
-                                <p style="margin: 0;">There might be a button here</p>
-                            </div>
-                            <div>
-                                <button id="btn_post" class="post__form_submit">Post</button>
-                            </div>
-                        </div>
-                    </div>
+                <div class="profile">
+
                 </div>
                 <div id="feed" class="feed">
                     <?php

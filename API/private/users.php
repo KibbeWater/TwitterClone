@@ -95,6 +95,21 @@ class User
         return new User($row['id'], $row['password'], $row['tag'], $row['username'], $row['group'], $row['avatar']);
     }
 
+    public static function fetchByTag(string $tag)
+    {
+        global $db;
+
+        $stmt = $db->prepare('SELECT * FROM users WHERE tag = ?');
+        $stmt->bind_param('s', $tag);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        if ($result->num_rows === 0) return null;
+
+        $row = $result->fetch_assoc();
+        return new User($row['id'], $row['password'], $row['tag'], $row['username'], $row['group'], $row['avatar']);
+    }
+
     // Getters
     public function getId()
     {

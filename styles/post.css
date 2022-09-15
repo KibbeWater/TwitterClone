@@ -3,6 +3,7 @@
 	padding-inline: 10px;
 	margin-bottom: 1px;
 	width: 100%;
+	max-width: 100%;
 
 	background-color: rgb(255, 255, 255);
 	transition: background-color 0.3s;
