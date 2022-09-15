@@ -127,6 +127,8 @@ html {
 	background-color: rgb(240, 29, 29);
 	color: white;
 
+	cursor: pointer;
+
 	font-size: medium;
 	font-weight: bold;
 }

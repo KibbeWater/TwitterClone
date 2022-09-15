@@ -236,6 +236,7 @@ class User
             'id' => $this->_id,
             'username' => $this->username,
             'tag' => $this->tag,
+            'avatar' => $this->avatar,
             'group' => $this->group
         );
     }

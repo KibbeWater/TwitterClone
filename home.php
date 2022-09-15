@@ -95,12 +95,12 @@ if ($session == null || $session->isExired()) {
                                 <p style="margin: 0;">There might be a button here</p>
                             </div>
                             <div>
-                                <button class="post__form_submit">Post</button>
+                                <button id="btn_post" class="post__form_submit">Post</button>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="feed">
+                <div id="feed" class="feed">
                     <?php
                     foreach ($posts as $post) {
                         echo generatePost($post);

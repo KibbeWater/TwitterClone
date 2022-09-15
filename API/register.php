@@ -1,7 +1,7 @@
 <?php
 
-include_once 'private/database.php';
-include_once 'private/users.php';
+require_once 'private/database.php';
+require_once 'private/users.php';
 
 error_reporting(1);
 

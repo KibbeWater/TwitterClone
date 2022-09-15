@@ -151,4 +151,17 @@ class Post
 
         return $posts;
     }
+
+    public function toArray()
+    {
+        return array(
+            'id' => $this->_id,
+            'userId' => $this->_userId,
+            'content' => $this->content,
+            'date' => $this->_date,
+            'timestamp' => $this->timestamp,
+            'author' => $this->author->toArray(),
+            'reference' => $this->reference == null ? null : $this->reference->toArray()
+        );
+    }
 }
