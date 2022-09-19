@@ -1,6 +1,7 @@
 function GeneratePost(post) {
 	let postDiv = document.createElement('div');
 	postDiv.classList.add('post');
+	postDiv.setAttribute('data-id', post.id);
 
 	let postAuthorAvatar = document.createElement('img');
 	postAuthorAvatar.src = post.author.avatar;
@@ -70,4 +71,55 @@ $(document).ready(function () {
 		});
 	});
 	autosize($('textarea'));
+});
+
+let disableObserver = null;
+
+function Observe() {
+	if (disableObserver) {
+		disableObserver();
+		disableObserver = null;
+	}
+
+	const feed = document.getElementById('feed');
+	const observer = new IntersectionObserver(
+		(entries) => {
+			if (entries[0].isIntersecting) {
+				const lastPost = feed.lastElementChild;
+				const lastPostId = parseInt(lastPost.getAttribute('data-id'));
+				if (isNaN(lastPostId)) return;
+
+				console.log('Fetching posts before ' + lastPostId);
+
+				$.ajax({
+					url: '/api/post',
+					type: 'GET',
+					data: { lastPost: lastPostId },
+					success: (data) => {
+						const json = JSON.parse(data);
+						if (!json.success) return alert(json.error);
+						for (const post of json.posts) {
+							feed.appendChild(GeneratePost(post));
+						}
+					},
+				});
+			}
+		},
+		{ threshold: 1 }
+	);
+	observer.observe(feed.lastElementChild);
+
+	// Return a function to disconnect the observer
+	return () => observer.disconnect();
+}
+
+$(document).ready(function () {
+	disableObserver = Observe();
+
+	const feed = document.getElementById('feed');
+	const observer = new MutationObserver(() => {
+		disableObserver = Observe();
+	});
+	observer.observe(feed, { childList: true });
+	return () => observer.disconnect();
 });

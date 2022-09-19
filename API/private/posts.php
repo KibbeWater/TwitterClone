@@ -138,12 +138,13 @@ class Post
     /**
      * @return Post[]
      */
-    public static function getLast(int $count): array
+    public static function getLast(int $count, int $postsAfter = -1): array
     {
         global $db;
 
-        $stmt = $db->prepare('SELECT * FROM posts ORDER BY date DESC LIMIT ?');
-        $stmt->bind_param('i', $count);
+        // Get last x posts and if $postsAfter is set, get posts with an ID greater than $postsAfter
+        $stmt = $db->prepare('SELECT * FROM posts WHERE id > ? ORDER BY id DESC LIMIT ?');
+        $stmt->bind_param('ii', $count, $postsAfter);
         $stmt->execute();
         $result = $stmt->get_result();
 

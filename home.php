@@ -4,7 +4,7 @@ require_once 'API/private/posts.php';
 function generatePost(Post $post)
 {
     $postHtml = <<<HTML
-    <div class="post">
+    <div class="post" data-id="{$post->getId()}">
         <img src="{$post->author->avatar}" alt="{$post->author->username}'s avatar" class="post__author_avatar">
         <div class="post__content">
             <div class="post__header">

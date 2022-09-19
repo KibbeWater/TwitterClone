@@ -5,31 +5,54 @@ require_once 'private/posts.php';
 
 error_reporting(0);
 
-// Is the request method POST?
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    die(json_encode(array("success" => false, "error" => "Invalid request method")));
+function GET()
+{
+    // Get the count and lastPost from the query and parse their GET values
+    $count = isset($_GET['count']) ? intval($_GET['count']) : 10;
+    $lastPost = isset($_GET['lastPost']) ? intval($_GET['lastPost']) : -1;
+
+    // Get the posts
+    $posts = Post::getLast($count, $lastPost);
+
+    // Remake the posts array to be an array of arrays
+    $postsArray = array();
+    foreach ($posts as $post)
+        $postsArray[] = $post->toArray();
+
+    // Return the posts
+    die(json_encode(array(
+        "success" => true,
+        "posts" => $postsArray
+    )));
 }
 
-// Get the request body
-$body = file_get_contents('php://input');
-$json = json_decode($body);
-if ($json == null)
-    die(json_encode(array("success" => false, "error" => "Invalid JSON")));
+function POST()
+{
+    // Get the request body
+    $body = file_get_contents('php://input');
+    $json = json_decode($body);
+    if ($json == null)
+        die(json_encode(array("success" => false, "error" => "Invalid JSON")));
 
-// Check if the request body has the required fields
-if (!isset($json->post))
-    die(json_encode(array("success" => false, "error" => "Missing message")));
+    // Check if the user is logged in
+    $user = User::authenticate();
+    if ($user == null)
+        die(json_encode(array("success" => false, "error" => "Not logged in")));
 
-// Check if the user is logged in
-$user = User::authenticate();
-if ($user == null)
-    die(json_encode(array("success" => false, "error" => "Not logged in")));
+    // Create the post
+    $post = Post::make($user->getId(), $json->post);
 
-// Create the post
-$post = Post::make($user->getId(), $json->post);
+    // Return the post
+    die(json_encode(array(
+        "success" => true,
+        "post" => $post->toArray()
+    )));
+}
 
-// Return the post
-die(json_encode(array(
-    "success" => true,
-    "post" => $post->toArray()
-)));
+// Is the request method POST?
+if ($_SERVER['REQUEST_METHOD'] === 'POST')
+    POST();
+else if ($_SERVER['REQUEST_METHOD'] === 'GET')
+    GET();
+else
+    die(json_encode(array("success" => false, "error" => "Invalid request method")));
