@@ -15,6 +15,7 @@
     <input id="input_user" type="text" name="username" placeholder="Username" />
     <input id="input_pass" type="password" name="password" placeholder="Password" />
     <button id="loginBtn">Login</button>
+    <button id="registerBtn">Goto Register</button>
 
     <script src="/js/login.js"></script>
 </body>

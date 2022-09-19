@@ -16,6 +16,7 @@
     <input id="input_pass" type="password" name="password" placeholder="Password" />
     <input id="input_confirm" type="password" name="confirm" placeholder="Confirm Password" />
     <button id="registerBtn">Register</button>
+    <button id="loginBtn">Goto Login</button>
 
     <script src="/js/register.js"></script>
 </body>

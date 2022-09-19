@@ -26,13 +26,15 @@ class Post
     private $_userId;
     private $_date;
     private $_ref;
+    private $_parent;
 
     public User $author;
     public string $content;
     public ?Post $reference;
+    public ?Post $parent;
     public $timestamp;
 
-    public function __construct(int $id, int $userId, string $content, int $date, int $ref = -1)
+    public function __construct(int $id, int $userId, string $content, int $date, int $ref = -1, int $parent = -1)
     {
         $this->_id = $id;
         $this->_userId = $userId;
@@ -41,6 +43,7 @@ class Post
         $this->author = User::fetch($userId);
         $this->content = $content;
         $this->reference = $ref == -1 ? null : Post::fetch($ref);
+        $this->parent = $parent == null ? null : Post::fetch($parent);
         $this->timestamp = GenerateTimestamp($date); // Might need to fix this for JS compatibility later
     }
 

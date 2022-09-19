@@ -16,3 +16,7 @@ $('#loginBtn').click(function () {
 		error: (data) => alert('An error occurred'),
 	});
 });
+
+$('#registerBtn').click(function () {
+	window.location.replace('/register');
+});
