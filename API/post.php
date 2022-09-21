@@ -3,7 +3,7 @@ require_once 'private/database.php';
 require_once 'private/users.php';
 require_once 'private/posts.php';
 
-error_reporting(0);
+error_reporting(1);
 
 function GET()
 {
@@ -39,8 +39,12 @@ function POST()
     if ($user == null)
         die(json_encode(array("success" => false, "error" => "Not logged in")));
 
+    $ref = isset($json->ref) ? intval($json->ref) : -1;
+    $parent = isset($json->parent) ? intval($json->parent) : -1;
+    $content = isset($json->post) ? $json->post : "";
+
     // Create the post
-    $post = Post::make($user->getId(), $json->post);
+    $post = Post::make($user->getId(), $content, $ref, $parent);
 
     // Return the post
     die(json_encode(array(

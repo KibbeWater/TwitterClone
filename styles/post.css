@@ -66,3 +66,17 @@
 .post__timestamp {
 	color: gray;
 }
+
+.post__footer_button {
+	/* Remove the button styling and set height to 90% */
+	border: 0;
+	height: 90%;
+	width: auto;
+
+	cursor: pointer;
+}
+
+.post__footer {
+	margin-top: 10px;
+	height: 25px;
+}

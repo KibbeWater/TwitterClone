@@ -104,12 +104,12 @@ class Post
     }
 
     // Static function to make a new post
-    public static function make(int $userId, string $content, int $parent = -1)
+    public static function make(int $userId, string $content, int $reference = -1, int $parent = -1)
     {
         global $db;
 
-        $stmt = $db->prepare('INSERT INTO posts (userId, content, date, parent) VALUES (?, ?, ?, ?)');
-        $stmt->bind_param('isii', $userId, $content, time(), $parent);
+        $stmt = $db->prepare('INSERT INTO posts (userId, content, date, parent, ref) VALUES (?, ?, ?, ?, ?)');
+        $stmt->bind_param('isiii', $userId, $content, time(), $parent, $reference);
         $stmt->execute();
 
         return Post::fetch($db->insert_id);
@@ -145,7 +145,7 @@ class Post
         global $db;
 
         // if $postsAfter is -1, get the last $count posts, otherwise get the last $count posts with an id lower than $postsAfter
-        $stmt = $db->prepare('SELECT * FROM posts WHERE parent = -1' . ($postsAfter == -1 ? '' : ' id < ?') . ' ORDER BY id DESC LIMIT ?');
+        $stmt = $db->prepare('SELECT * FROM posts WHERE parent = -1' . ($postsAfter == -1 ? '' : ' AND id < ?') . ' ORDER BY id DESC LIMIT ?');
         if ($postsAfter != -1) $stmt->bind_param('ii', $postsAfter, $count);
         else $stmt->bind_param('i', $count);
 
