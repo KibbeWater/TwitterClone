@@ -20,6 +20,23 @@
 	background-color: rgb(245, 245, 245);
 }
 
+.post__reference {
+	margin-top: 5px;
+
+	padding: 2px;
+	border-radius: 7px;
+	border: 1px solid gray;
+}
+
+.post__reference div {
+	border: 0;
+	background-color: rgba(0, 0, 0, 0);
+}
+
+.post__reference div:hover {
+	background-color: rgba(225, 225, 225) !important;
+}
+
 .post__content {
 	padding-left: 10px;
 }

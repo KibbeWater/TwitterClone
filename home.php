@@ -1,24 +1,6 @@
 <?php
 require_once 'API/private/posts.php';
-
-function generatePost(Post $post)
-{
-    $postHtml = <<<HTML
-    <div class="post" data-id="{$post->getId()}">
-        <img src="{$post->author->avatar}" alt="{$post->author->username}'s avatar" class="post__author_avatar">
-        <div class="post__content">
-            <div class="post__header">
-                <span class="post__author_username">{$post->author->username}</span>
-                <span class="post__author_tag">@{$post->author->tag} ·</span>
-                <span class="post__timestamp">{$post->timestamp}</span>
-            </div>
-            {$post->content}
-        </div>
-    </div>
-    HTML;
-
-    return $postHtml;
-}
+require_once 'API/private/utils.php';
 
 $posts = Post::getLast(10);
 $session = Session::authenticate();

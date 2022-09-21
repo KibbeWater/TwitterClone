@@ -45,6 +45,7 @@ try {
             userId INT(11) NOT NULL,
             content TEXT NOT NULL,
             ref INT(11) NOT NULL DEFAULT -1,
+            parent INT(11) NOT NULL DEFAULT -1,
             `date` BIGINT(20) DEFAULT 0
         )";
 

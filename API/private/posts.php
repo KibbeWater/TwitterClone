@@ -39,11 +39,13 @@ class Post
         $this->_id = $id;
         $this->_userId = $userId;
         $this->_date = $date;
+        $this->_ref = $ref;
+        $this->_parent = $parent;
 
         $this->author = User::fetch($userId);
         $this->content = $content;
-        $this->reference = $ref == -1 ? null : Post::fetch($ref);
-        $this->parent = $parent == null ? null : Post::fetch($parent);
+        $this->reference = $this->_ref == -1 ? null : Post::fetch($this->_ref);
+        $this->parent = $this->_parent == -1 ? null : Post::fetch($this->_parent);
         $this->timestamp = GenerateTimestamp($date); // Might need to fix this for JS compatibility later
     }
 
@@ -62,7 +64,7 @@ class Post
         }
 
         $row = $result->fetch_assoc();
-        return new Post($row['id'], $row['userId'], $row['content'], $row['date']);
+        return new Post($row['id'], $row['userId'], $row['content'], $row['date'], $row['ref'], $row['parent']);
     }
 
     // Setters
@@ -102,12 +104,12 @@ class Post
     }
 
     // Static function to make a new post
-    public static function make(int $userId, string $content)
+    public static function make(int $userId, string $content, int $parent = -1)
     {
         global $db;
 
-        $stmt = $db->prepare('INSERT INTO posts (userId, content, date) VALUES (?, ?, ?)');
-        $stmt->bind_param('isi', $userId, $content, time());
+        $stmt = $db->prepare('INSERT INTO posts (userId, content, date, parent) VALUES (?, ?, ?, ?)');
+        $stmt->bind_param('isii', $userId, $content, time(), $parent);
         $stmt->execute();
 
         return Post::fetch($db->insert_id);
@@ -122,13 +124,13 @@ class Post
     {
         global $db;
 
-        $stmt = $db->prepare('SELECT * FROM posts');
+        $stmt = $db->prepare('SELECT * FROM posts WHERE parent = -1');
         $stmt->execute();
         $result = $stmt->get_result();
 
         $posts = [];
         while ($row = $result->fetch_assoc()) {
-            $posts[] = new Post($row['id'], $row['userId'], $row['content'], $row['date']);
+            $posts[] = new Post($row['id'], $row['userId'], $row['content'], $row['date'], $row['ref'], $row['parent']);
         }
 
         return $posts;
@@ -142,15 +144,17 @@ class Post
     {
         global $db;
 
-        // Get last x posts and if $postsAfter is set, get posts with an ID greater than $postsAfter
-        $stmt = $db->prepare('SELECT * FROM posts WHERE id > ? ORDER BY id DESC LIMIT ?');
-        $stmt->bind_param('ii', $count, $postsAfter);
+        // if $postsAfter is -1, get the last $count posts, otherwise get the last $count posts with an id lower than $postsAfter
+        $stmt = $db->prepare('SELECT * FROM posts WHERE parent = -1' . ($postsAfter == -1 ? '' : ' id < ?') . ' ORDER BY id DESC LIMIT ?');
+        if ($postsAfter != -1) $stmt->bind_param('ii', $postsAfter, $count);
+        else $stmt->bind_param('i', $count);
+
         $stmt->execute();
         $result = $stmt->get_result();
 
         $posts = [];
         while ($row = $result->fetch_assoc()) {
-            $posts[] = new Post($row['id'], $row['userId'], $row['content'], $row['date']);
+            $posts[] = new Post($row['id'], $row['userId'], $row['content'], $row['date'], $row['ref'], $row['parent']);
         }
 
         return $posts;
