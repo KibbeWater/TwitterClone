@@ -109,7 +109,7 @@ class Post
         global $db;
 
         $stmt = $db->prepare('INSERT INTO posts (userId, content, date, parent, ref) VALUES (?, ?, ?, ?, ?)');
-        $stmt->bind_param('isiii', $userId, $content, time(), $parent, $reference);
+        $stmt->bind_param('isiii', $userId, htmlspecialchars($content), time(), $parent, $reference);
         $stmt->execute();
 
         return Post::fetch($db->insert_id);

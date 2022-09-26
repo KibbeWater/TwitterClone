@@ -98,7 +98,7 @@ $(document).ready(function () {
 				console.log(json);
 				if (!json.success) return alert(json.error);
 				$('.post__form_input').val('');
-				$('#feed').prepend(GeneratePost(json.post));
+				$('#feed').prepend(GeneratePost({ ...json.post, content: post }));
 			},
 		});
 	});
