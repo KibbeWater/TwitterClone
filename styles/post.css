@@ -70,13 +70,37 @@
 .post__footer_button {
 	/* Remove the button styling and set height to 90% */
 	border: 0;
-	height: 90%;
-	width: auto;
+	height: 30px;
+	width: 30px;
+	padding: 0;
+
+	border-radius: 100%;
+
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	/* transition background color */
+	transition: background-color 0.3s;
+	background-color: rgba(0, 0, 0, 0);
 
 	cursor: pointer;
 }
 
+.post__footer_button svg {
+	height: 20px;
+	width: 20px;
+}
+
+.post__footer_button:hover {
+	background-color: rgba(255, 60, 60, 0.4);
+}
+
+.post__footer_button:hover svg image {
+	filter: invert(38%) sepia(62%) saturate(2447%) hue-rotate(335deg) brightness(100%) contrast(115%);
+}
+
 .post__footer {
 	margin-top: 10px;
-	height: 25px;
+	height: 30px;
 }

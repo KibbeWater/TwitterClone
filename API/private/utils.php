@@ -10,7 +10,7 @@ function generatePost(Post $post, bool $isRef = false)
     $footerHtml = <<<HTML
         <div class="post__footer">
             <button id="btnRetwat" class="post__footer_button">
-                <svg height="90%">       
+                <svg>       
                     <image xlink:href="/assets/svg/repeat-solid.svg" height="100%"/>    
                 </svg>
             </button>

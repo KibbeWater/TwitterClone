@@ -58,7 +58,6 @@ function GeneratePost(post, isRef) {
 
 		// Create the retweet button svg
 		let postFooterRetweetButtonSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-		postFooterRetweetButtonSvg.setAttribute('height', '90%');
 		postFooterRetweetButton.appendChild(postFooterRetweetButtonSvg);
 
 		// Create the retweet button svg image
