@@ -1,3 +1,17 @@
+function unescapeHtml(text) {
+	var map = {
+		'&amp;': '&',
+		'&lt;': '<',
+		'&gt;': '>',
+		'&quot;': '"',
+		'&#039;': "'",
+	};
+
+	return text.replace(/&amp;|&lt;|&gt;|&quot;|&#039;/g, function (m) {
+		return map[m];
+	});
+}
+
 function GeneratePost(post, isRef) {
 	let postDiv = document.createElement('div');
 	postDiv.classList.add('post');
@@ -70,6 +84,36 @@ function GeneratePost(post, isRef) {
 	return postDiv;
 }
 
+function Retwat(e) {
+	// Get the '.post' parent element of the button
+	const post = e.target.closest('.post');
+
+	// Get the post ID from the data-id attribute
+	const postId = parseInt(post.getAttribute('data-id')) || -1;
+
+	console.log('Posting retweet with ID ' + postId);
+
+	// Send a JSON request to the API
+	$.ajax({
+		url: '/api/post.php',
+		type: 'POST',
+		data: JSON.stringify({
+			ref: postId,
+		}),
+		contentType: 'application/json',
+		success: function (data) {
+			const json = JSON.parse(data);
+			console.log(json);
+			if (!json.success) return alert(json.error);
+
+			const retwat = json.post;
+
+			retwat.reference.content = unescapeHtml(retwat.reference.content);
+			$('#feed').prepend(GeneratePost(retwat));
+		},
+	});
+}
+
 $(document).ready(function () {
 	$('.searchbar__input').focus(function () {
 		$('.searchbar').addClass('searchbar__active');
@@ -101,31 +145,7 @@ $(document).ready(function () {
 			},
 		});
 	});
-	$('#btnRetwat').click(function (e) {
-		// Get the '.post' parent element of the button
-		const post = e.target.closest('.post');
-
-		// Get the post ID from the data-id attribute
-		const postId = parseInt(post.getAttribute('data-id')) || -1;
-
-		console.log('Posting retweet with ID ' + postId);
-
-		// Send a JSON request to the API
-		$.ajax({
-			url: '/api/post.php',
-			type: 'POST',
-			data: JSON.stringify({
-				ref: postId,
-			}),
-			contentType: 'application/json',
-			success: function (data) {
-				const json = JSON.parse(data);
-				console.log(json);
-				if (!json.success) return alert(json.error);
-				$('#feed').prepend(GeneratePost(json.post));
-			},
-		});
-	});
+	$('#feed').on('click', '#btnRetwat', null, Retwat);
 	autosize($('textarea'));
 });
 
