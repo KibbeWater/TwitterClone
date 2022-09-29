@@ -24,9 +24,14 @@ if ($session == null || $session->isExired()) {
     <link href="/styles/global.css" rel="stylesheet" />
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
 </head>
 
 <body>
+    <div id="modal_root" class="active_modal">
+        <div></div>
+    </div>
     <div class="parent">
         <nav class="navigation">
             <div class="navigation__container">
@@ -111,6 +116,7 @@ if ($session == null || $session->isExired()) {
             </div>
         </div>
     </div>
+    <script src="/js/modals.js"></script>
     <script src="/js/autosize.js"></script>
     <script src="/js/home.js"></script>
 </body>
