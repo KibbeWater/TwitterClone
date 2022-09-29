@@ -30,7 +30,7 @@ body {
 	height: 100%;
 	z-index: 100;
 
-	display: flex;
+	display: none;
 	align-items: center;
 	justify-content: center;
 
@@ -40,4 +40,6 @@ body {
 .active_modal {
 	background-color: rgba(0, 0, 0, 0.5) !important;
 	backdrop-filter: blur(2px);
+
+	display: flex !important;
 }

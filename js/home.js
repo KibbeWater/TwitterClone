@@ -91,8 +91,6 @@ function Retwat(e) {
 	// Get the post ID from the data-id attribute
 	const postId = parseInt(post.getAttribute('data-id')) || -1;
 
-	console.log('Posting retweet with ID ' + postId);
-
 	// Send a JSON request to the API
 	$.ajax({
 		url: '/api/post.php',
@@ -103,7 +101,6 @@ function Retwat(e) {
 		contentType: 'application/json',
 		success: function (data) {
 			const json = JSON.parse(data);
-			console.log(json);
 			if (!json.success) return alert(json.error);
 
 			const retwat = json.post;
@@ -138,16 +135,23 @@ $(document).ready(function () {
 			contentType: 'application/json',
 			success: function (data) {
 				const json = JSON.parse(data);
-				console.log(json);
 				if (!json.success) return alert(json.error);
 				$('.post__form_input').val('');
 				$('#feed').prepend(GeneratePost({ ...json.post, content: post }));
 			},
 		});
 	});
+	$('#btnPost').click(function () {
+		console.log('Click');
+		ShowPostModal();
+	});
 	$('#feed').on('click', '#btnRetwat', null, Retwat);
 	autosize($('textarea'));
 });
+
+function ShowPostModal() {
+	ShowModal(React.createElement(PostModal));
+}
 
 let disableObserver = null;
 
@@ -164,8 +168,6 @@ function Observe() {
 				const lastPost = feed.lastElementChild;
 				const lastPostId = parseInt(lastPost.getAttribute('data-id'));
 				if (isNaN(lastPostId)) return;
-
-				console.log('Fetching posts before ' + lastPostId);
 
 				$.ajax({
 					url: '/api/post',

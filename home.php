@@ -23,15 +23,17 @@ if ($session == null || $session->isExired()) {
     <link href="/styles/post.css" rel="stylesheet" />
     <link href="/styles/global.css" rel="stylesheet" />
 
+    <link href="/styles/modals/post.css" rel="stylesheet" />
+
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+
+    <script src="/components/post.js"></script>
 </head>
 
 <body>
-    <div id="modal_root" class="active_modal">
-        <div></div>
-    </div>
+    <div id="modal_root"></div>
     <div class="parent">
         <nav class="navigation">
             <div class="navigation__container">
@@ -54,7 +56,7 @@ if ($session == null || $session->isExired()) {
                 </div>
                 <!-- We'll have to add some JS to this later to be able to show a post prompt 
                 like on Twitte.. I.. I mea.. I mean, theres no copying going on here, Twatter is 100% original -->
-                <div class="navigation__post">
+                <div class="navigation__post" id="btnPost">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" style="width:55%;height:55%;color:white;">
                         <path style="fill:white;" d="M467.1 241.1L351.1 288h94.34c-7.711 14.85-16.29 29.28-25.87 43.01l-132.5 52.99h85.65c-59.34 52.71-144.1 80.34-264.5 52.82l-68.13 68.13c-9.38 9.38-24.56 9.374-33.94 0c-9.375-9.375-9.375-24.56 0-33.94l253.4-253.4c4.846-6.275 4.643-15.19-1.113-20.95c-6.25-6.25-16.38-6.25-22.62 0l-168.6 168.6C24.56 58 366.9 8.118 478.9 .0846c18.87-1.354 34.41 14.19 33.05 33.05C508.7 78.53 498.5 161.8 467.1 241.1z" />
                     </svg>
@@ -116,8 +118,9 @@ if ($session == null || $session->isExired()) {
             </div>
         </div>
     </div>
-    <script src="/js/modals.js"></script>
+    <script src="/js/user.js"></script>
     <script src="/js/autosize.js"></script>
+    <script src="/js/modals.js"></script>
     <script src="/js/home.js"></script>
 </body>
 

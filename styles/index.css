@@ -206,6 +206,8 @@ html {
 
 	color: white;
 	background-color: rgb(240, 29, 29);
+
+	cursor: pointer;
 }
 
 .navigation__post:hover {
