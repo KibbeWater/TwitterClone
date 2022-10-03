@@ -11,6 +11,14 @@ function GET()
     $count = isset($_GET['count']) ? intval($_GET['count']) : 10;
     $lastPost = isset($_GET['lastPost']) ? intval($_GET['lastPost']) : -1;
 
+    if (isset($_GET['id']))
+        die(json_encode(
+            array(
+                "success" => true,
+                "post" => Post::fetch(intval($_GET['id']))->toArray()
+            )
+        ));
+
     // Get the posts
     $posts = Post::getLast($count, $lastPost);
 

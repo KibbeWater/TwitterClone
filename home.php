@@ -29,7 +29,9 @@ if ($session == null || $session->isExired()) {
     <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
 
-    <script src="/components/post.js"></script>
+    <script src="/components/Post.js"></script>
+
+    <script src="/components/PostModal.js"></script>
 </head>
 
 <body>

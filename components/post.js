@@ -1,77 +1,34 @@
-const e = React.createElement;
-
-class PostModal extends React.Component {
+class PostUI extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			user: GetUser(),
-			ref: null,
-			text: '',
+			post: null,
 		};
 
-		if (props.ref) this.state.ref = props.ref;
-	}
-
-	post() {
-		var post = this.state.text;
-
-		if (post == '') return alert('You cannot post an empty message');
-
-		const setState = this.setState.bind(this);
-		const closeModal = this.closeModal.bind(this);
-
-		//JSON request
-		$.ajax({
-			url: '/api/post.php',
-			type: 'POST',
-			data: JSON.stringify({
-				post: post,
-			}),
-			contentType: 'application/json',
-			success: function (data) {
-				const json = JSON.parse(data);
-				if (!json.success) return alert(json.error);
-				setState({ text: '' });
-				closeModal();
-				$('#feed').prepend(GeneratePost({ ...json.post, content: post }));
-			},
-		});
-	}
-
-	closeModal() {
-		HideModal();
+		if (props.post) this.state.post = props.post;
 	}
 
 	render() {
-		return e('div', { className: 'mpost' }, [
-			e('div', { className: 'mpost_header' }, [
-				e('div', { className: 'mpost_header__close', onClick: () => this.closeModal() }, [
-					e('svg', {}, [e('image', { xlinkHref: '/assets/svg/xmark-solid.svg', height: '100%' })]),
+		return e('div', { className: 'post', 'data-id': this.state.post.id }, [
+			e('img', {
+				src: this.state.post.author.avatar,
+				alt: this.state.post.author.username + "'s avatar",
+				className: 'post__author_avatar',
+			}),
+			e('div', { className: 'post__content' }, [
+				e('div', { className: 'post__header' }, [
+					e('span', { className: 'post__author_username' }, this.state.post.author.username),
+					e('span', { className: 'post__author_tag' }, '@' + this.state.post.author.tag + ' ·'),
+					e('span', { className: 'post__timestamp' }, this.state.post.timestamp),
 				]),
-			]),
-			e('div', { className: 'mpost__content' }, [
-				e('div', { className: 'mp_content__sidebar' }, [
-					e('div', { className: 'mp_content__sidebar_avatar' }, [
-						e('img', { src: this.state.user.avatar || null, alt: (this.state.user.username || 'null') + "'s avatar" }),
-					]),
-				]),
-				e('div', { className: 'mp_content__post' }, [
-					e('textarea', {
-						rows: 1,
-						className: 'mp_content__post_textarea',
-						placeholder: "What's happening?",
-						onChange: (e) => {
-							console.log(e.target.value);
-							this.setState({ text: e.target.value });
-						},
-						value: this.state.text,
-					}),
-					e('div', { className: 'mp__separator' }),
-					e('div', { className: 'mp_content__footer' }, [
-						e('div', {}, [e('p', {}, 'There might be buttons here')]),
-						e('div', {}, [e('button', { className: 'mp_footer__post', onClick: () => this.post() }, 'Post')]),
-					]),
-				]),
+				this.state.post.content,
+				!this.props.hideFooter
+					? e('div', { className: 'post__footer' }, [
+							e('button', { id: 'btnRetwat', className: 'post__footer_button' }, [
+								e('svg', {}, [e('image', { xlinkHref: '/assets/svg/repeat-solid.svg', height: '100%' })]),
+							]),
+					  ])
+					: null,
 			]),
 		]);
 	}

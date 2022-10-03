@@ -93,11 +93,8 @@ function Retwat(e) {
 
 	// Send a JSON request to the API
 	$.ajax({
-		url: '/api/post.php',
-		type: 'POST',
-		data: JSON.stringify({
-			ref: postId,
-		}),
+		url: '/api/post.php?id=' + postId,
+		type: 'GET',
 		contentType: 'application/json',
 		success: function (data) {
 			const json = JSON.parse(data);
@@ -105,8 +102,10 @@ function Retwat(e) {
 
 			const retwat = json.post;
 
-			retwat.reference.content = unescapeHtml(retwat.reference.content);
-			$('#feed').prepend(GeneratePost(retwat));
+			ShowModal(React.createElement(PostModal, { postRef: retwat }));
+
+			/* retwat.reference.content = unescapeHtml(retwat.reference.content);
+			$('#feed').prepend(GeneratePost(retwat)); */
 		},
 	});
 }
