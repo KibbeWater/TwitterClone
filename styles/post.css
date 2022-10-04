@@ -5,7 +5,7 @@
 	width: 100%;
 	max-width: 100%;
 
-	background-color: rgb(255, 255, 255);
+	background-color: rgba(0, 0, 0, 0);
 	transition: background-color 0.3s;
 
 	cursor: pointer;
@@ -17,7 +17,7 @@
 }
 
 .post:hover {
-	background-color: rgb(245, 245, 245);
+	background-color: rgba(0, 0, 0, 0.03);
 }
 
 .post__reference {
@@ -26,6 +26,13 @@
 	padding: 2px;
 	border-radius: 7px;
 	border: 1px solid gray;
+
+	transition: background-color 0.3s;
+	background-color: rgba(0, 0, 0, 0);
+}
+
+.post__reference:hover {
+	background-color: rgba(0, 0, 0, 0.03);
 }
 
 .post__reference div {
@@ -34,7 +41,7 @@
 }
 
 .post__reference div:hover {
-	background-color: rgba(225, 225, 225) !important;
+	background-color: rgba(0, 0, 0, 0);
 }
 
 .post__content {

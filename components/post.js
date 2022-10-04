@@ -8,6 +8,20 @@ class PostUI extends React.Component {
 		if (props.post) this.state.post = props.post;
 	}
 
+	unescape(text) {
+		var map = {
+			'&amp;': '&',
+			'&lt;': '<',
+			'&gt;': '>',
+			'&quot;': '"',
+			'&#039;': "'",
+		};
+
+		return text.replace(/&amp;|&lt;|&gt;|&quot;|&#039;/g, function (m) {
+			return map[m];
+		});
+	}
+
 	render() {
 		return e('div', { className: 'post', 'data-id': this.state.post.id }, [
 			e('img', {
@@ -21,7 +35,7 @@ class PostUI extends React.Component {
 					e('span', { className: 'post__author_tag' }, '@' + this.state.post.author.tag + ' ·'),
 					e('span', { className: 'post__timestamp' }, this.state.post.timestamp),
 				]),
-				this.state.post.content,
+				unescape(this.state.post.content),
 				!this.props.hideFooter
 					? e('div', { className: 'post__footer' }, [
 							e('button', { id: 'btnRetwat', className: 'post__footer_button' }, [

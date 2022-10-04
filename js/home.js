@@ -47,7 +47,7 @@ function GeneratePost(post, isRef) {
 	postHeader.appendChild(postTimestamp);
 
 	let postContentText = document.createElement('span');
-	postContentText.innerText = post.content;
+	postContentText.innerText = unescapeHtml(post.content);
 	postContent.appendChild(postContentText);
 
 	// If we have a reference defined, create a new div with the class post__reference and add it into the postContent. Then make it's innerHTML a recursive call to GeneratePost with the reference as the parameter.
