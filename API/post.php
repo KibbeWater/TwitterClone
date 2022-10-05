@@ -14,9 +14,14 @@ function GET()
     if (isset($_GET['latestPost'])) {
         $latestPosts = Post::getLatest(PHP_INT_MAX, intval($_GET['latestPost']));
 
+        // Remake the posts array to be an array of arrays
+        $postsArray = array();
+        foreach ($latestPosts as $post)
+            $postsArray[] = $post->toArray();
+
         die(json_encode(array(
             'success' => true,
-            'posts' => $latestPosts
+            'posts' => $postsArray
         )));
     }
 

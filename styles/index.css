@@ -60,7 +60,7 @@ html {
 	transition: background-color 0.2s ease;
 
 	/* This is usually hidden below a element above */
-	z-index: -1;
+	z-index: 1;
 	position: relative;
 	top: -31px;
 
@@ -93,6 +93,9 @@ html {
 	padding-bottom: 15px;
 
 	background-color: white;
+
+	position: relative;
+	z-index: 2;
 
 	box-sizing: border-box;
 	border-bottom: 1px solid gray;

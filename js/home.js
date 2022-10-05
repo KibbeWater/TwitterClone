@@ -157,7 +157,6 @@ $(document).ready(function () {
 		});
 	});
 	$('#btnPost').click(function () {
-		console.log('Click');
 		ShowPostModal();
 	});
 	$('#feed').on('click', '#btnRetwat', null, Retwat);
@@ -169,8 +168,6 @@ $(document).ready(function () {
 		// Check the data-unread attribute, this is the number of unread posts
 		const unread = parseInt($('#unread').attr('data-unread')) || 0;
 
-		console.log('Mutation: We have ' + unread + ' unread posts');
-
 		// if there are no unread posts, make sure the data attribute is hidden, otherwise 'visible'
 		const newData = unread > 0 ? 'visible' : 'hidden';
 		if (newData !== $('#unread').attr('data')) $('#unread').attr('data', newData);
@@ -179,6 +176,31 @@ $(document).ready(function () {
 		$('#unread_txt').children('span').text(unread);
 	});
 	unreadObserver.observe($('#unread')[0], { attributes: true });
+
+	$('#unread').click(function () {
+		// Get the latest post ID
+		const latestId = parseInt($('#feed').children().first().attr('data-id')) || -1;
+
+		$.ajax({
+			url: '/api/post?latestPost=' + latestId,
+			type: 'GET',
+			contentType: 'application/json',
+			success: function (data) {
+				const json = JSON.parse(data);
+				if (!json.success) return alert(json.error);
+
+				const posts = json.posts;
+
+				// Loop through the posts in reverse and prepend them to the feed
+				for (let i = posts.length - 1; i >= 0; i--) {
+					$('#feed').prepend(GeneratePost(posts[i]));
+				}
+
+				// Set the data-unread attribute to 0
+				$('#unread').attr('data-unread', 0);
+			},
+		});
+	});
 
 	// Set up a timer for every 5 seconds to get the first element in #feed and get the ID
 	setInterval(function () {
