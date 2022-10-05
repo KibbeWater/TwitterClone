@@ -50,6 +50,39 @@ html {
 	padding-bottom: 50px;
 }
 
+.feed__unread {
+	width: 100%;
+	height: 0px;
+
+	cursor: pointer;
+	border-bottom: 1px solid gray;
+
+	transition: background-color 0.2s ease;
+
+	/* This is usually hidden below a element above */
+	z-index: -1;
+	position: relative;
+	top: -31px;
+
+	transition: all 0.8s ease;
+}
+
+.feed__unread[data='visible'] {
+	/* We want to animate this to slide down from the above element */
+	height: 30px;
+	top: 0px;
+}
+
+.feed__unread:hover {
+	background-color: rgba(0, 0, 0, 0.03);
+}
+
+.feed__unread p {
+	text-align: center;
+
+	margin-block: 5px;
+}
+
 .post__form {
 	display: flex;
 
@@ -58,6 +91,8 @@ html {
 	width: 100%;
 	padding-inline: 20px;
 	padding-bottom: 15px;
+
+	background-color: white;
 
 	box-sizing: border-box;
 	border-bottom: 1px solid gray;

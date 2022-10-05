@@ -110,6 +110,22 @@ function Retwat(e) {
 	});
 }
 
+function GetUnreadPosts(latestId) {
+	return new Promise((resolve, reject) => {
+		// Fetch /API/unread with GET with latestPost as the query parameter
+		$.ajax({
+			url: '/api/unread.php?latestPost=' + latestId,
+			type: 'GET',
+			contentType: 'application/json',
+			success: function (data) {
+				const json = JSON.parse(data);
+				if (!json.success) return reject(json.error);
+				resolve(json.posts);
+			},
+		});
+	});
+}
+
 $(document).ready(function () {
 	$('.searchbar__input').focus(function () {
 		$('.searchbar').addClass('searchbar__active');
@@ -146,6 +162,43 @@ $(document).ready(function () {
 	});
 	$('#feed').on('click', '#btnRetwat', null, Retwat);
 	autosize($('textarea'));
+
+	const unreadObserver = new MutationObserver(function (mutations) {
+		if (mutations[0].type !== 'attributes' || mutations[0].attributeName !== 'data-unread') return;
+
+		// Check the data-unread attribute, this is the number of unread posts
+		const unread = parseInt($('#unread').attr('data-unread')) || 0;
+
+		console.log('Mutation: We have ' + unread + ' unread posts');
+
+		// if there are no unread posts, make sure the data attribute is hidden, otherwise 'visible'
+		const newData = unread > 0 ? 'visible' : 'hidden';
+		if (newData !== $('#unread').attr('data')) $('#unread').attr('data', newData);
+
+		// Get the span inside #unread_txt
+		$('#unread_txt').children('span').text(unread);
+	});
+	unreadObserver.observe($('#unread')[0], { attributes: true });
+
+	// Set up a timer for every 5 seconds to get the first element in #feed and get the ID
+	setInterval(function () {
+		// Get the first element in #feed which has the class post
+		const firstPost = document.querySelector('#feed .post');
+		if (!firstPost) return;
+
+		// Get the data-id attribute of the first post
+		const firstPostId = parseInt(firstPost.getAttribute('data-id')) || -1;
+
+		// If the first post ID is -1, return
+		if (firstPostId === -1) return;
+
+		// Get the unread posts
+		GetUnreadPosts(firstPostId).then((num) => {
+			console.log('Got unread posts: ' + num);
+			// Set the data-unread attribute to the number of posts
+			$('#unread').attr('data-unread', num);
+		});
+	}, 5000);
 });
 
 function ShowPostModal() {

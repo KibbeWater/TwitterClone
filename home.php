@@ -91,6 +91,9 @@ if ($session == null || $session->isExired()) {
                         </div>
                     </div>
                 </div>
+                <div class="feed__unread" id="unread">
+                    <p id="unread_txt">You have <span>0</span> new unread posts</p>
+                </div>
                 <div id="feed" class="feed">
                     <?php
                     foreach ($posts as $post) {

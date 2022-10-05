@@ -17,7 +17,7 @@ if ($profile == null) {
 }
 
 $user = User::authenticate();
-$posts = $user->getPosts();
+$posts = $profile->getPosts();
 
 ?>
 <html>

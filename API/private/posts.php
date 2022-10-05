@@ -160,6 +160,46 @@ class Post
         return $posts;
     }
 
+    /**
+     * @return Post[]
+     */
+    public static function getLatest(int $count, int $latestPost = -1): array
+    {
+        global $db;
+
+        // if $latestPost is -1, get the last $count posts, otherwise get the last $count posts with an id lower than $postsAfter
+        $stmt = $db->prepare('SELECT * FROM posts WHERE parent = -1' . ($latestPost == -1 ? '' : ' AND id > ?') . ' ORDER BY id DESC LIMIT ?');
+        if ($latestPost != -1) $stmt->bind_param('ii', $latestPost, $count);
+        else $stmt->bind_param('i', $count);
+
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        $posts = [];
+        while ($row = $result->fetch_assoc()) {
+            $posts[] = new Post($row['id'], $row['userId'], $row['content'], $row['date'], $row['ref'], $row['parent']);
+        }
+
+        return $posts;
+    }
+
+    // Get the count of posts since the latest post
+    /**
+     * @return Post[]
+     */
+    public static function getSince(int $latestPost): int
+    {
+        global $db;
+
+        $stmt = $db->prepare('SELECT COUNT(*) FROM posts WHERE parent = -1 AND id > ?');
+        $stmt->bind_param('i', $latestPost);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        $row = $result->fetch_assoc();
+        return $row['COUNT(*)'];
+    }
+
     public function toArray()
     {
         return array(

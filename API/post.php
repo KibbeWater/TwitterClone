@@ -11,6 +11,15 @@ function GET()
     $count = isset($_GET['count']) ? intval($_GET['count']) : 10;
     $lastPost = isset($_GET['lastPost']) ? intval($_GET['lastPost']) : -1;
 
+    if (isset($_GET['latestPost'])) {
+        $latestPosts = Post::getLatest(PHP_INT_MAX, intval($_GET['latestPost']));
+
+        die(json_encode(array(
+            'success' => true,
+            'posts' => $latestPosts
+        )));
+    }
+
     if (isset($_GET['id']))
         die(json_encode(
             array(
