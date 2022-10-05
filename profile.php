@@ -1,5 +1,6 @@
 <?php
 require_once 'API/private/users.php';
+require_once 'API/private/utils.php';
 
 if (!isset($_GET['tag'])) {
     header('Location: /');
@@ -16,6 +17,7 @@ if ($profile == null) {
 }
 
 $user = User::authenticate();
+$posts = $user->getPosts();
 
 ?>
 <html>

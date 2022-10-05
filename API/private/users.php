@@ -131,7 +131,7 @@ class User
 
         $posts = array();
         while ($row = $result->fetch_assoc()) {
-            $posts[] = new Post($row['id'], $row['userId'], $row['content'], $row['timestamp']);
+            $posts[] = new Post($row['id'], $row['userId'], $row['content'], $row['date'], $row['ref'], $row['parent']);
         }
 
         return $posts;

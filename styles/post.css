@@ -99,6 +99,10 @@
 	width: 20px;
 }
 
+.post__footer_button svg image {
+	filter: invert(25%) sepia(1%) saturate(0%) hue-rotate(189deg) brightness(99%) contrast(88%);
+}
+
 .post__footer_button:hover {
 	background-color: rgba(255, 60, 60, 0.4);
 }
