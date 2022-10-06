@@ -18,6 +18,7 @@ if ($profile == null) {
 
 $user = User::authenticate();
 $posts = $profile->getPosts();
+$posts = array_reverse($posts);
 
 ?>
 <html>
