@@ -4,12 +4,11 @@ require_once 'API/private/utils.php';
 
 $posts = Post::getLast(10);
 $session = Session::authenticate();
-$user = $session->owner;
 
-if ($session == null || $session->isExired()) {
-    header('Location: login');
-    die();
-}
+$loggedIn = !($session == null || $session->isExired());
+
+if ($loggedIn)
+    $user = $session->owner;
 
 ?>
 <html>
@@ -19,19 +18,24 @@ if ($session == null || $session->isExired()) {
 
     <link rel="favicon" href="/assets/favicons/favicon.ico">
 
+    <!-- Load required site styles -->
     <link href="/styles/index.css" rel="stylesheet" />
     <link href="/styles/post.css" rel="stylesheet" />
     <link href="/styles/global.css" rel="stylesheet" />
 
+    <!-- Load component styles -->
     <link href="/styles/modals/post.css" rel="stylesheet" />
+    <link href="/styles/modals/login.css" rel="stylesheet" />
 
+    <!-- Load external dependencies -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
 
+    <!-- Load ReactJS components -->
     <script src="/components/Post.js"></script>
-
     <script src="/components/PostModal.js"></script>
+    <script src="/components/LoginModal.js"></script>
 </head>
 
 <body>
@@ -40,7 +44,9 @@ if ($session == null || $session->isExired()) {
         <nav class="navigation">
             <div class="navigation__container">
                 <div class="navigation__twatter">
-                    <img src="/assets/favicons/android-chrome-512x512.png" style="width: 45px;" />
+                    <a href="#">
+                        <img src="/assets/favicons/android-chrome-512x512.png" style="width: 45px;" />
+                    </a>
                 </div>
                 <div class="navigation__button">
                     <a href="/home">
@@ -50,7 +56,7 @@ if ($session == null || $session->isExired()) {
                     </a>
                 </div>
                 <div class="navigation__button">
-                    <a href="<?php echo "/@" . $user->tag ?>">
+                    <a href="<?php echo $loggedIn ? "/@" . $user->tag : "/login" ?>">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" style="width:55%;height:55%;color:white;">
                             <path d="M272 304h-96C78.8 304 0 382.8 0 480c0 17.67 14.33 32 32 32h384c17.67 0 32-14.33 32-32C448 382.8 369.2 304 272 304zM48.99 464C56.89 400.9 110.8 352 176 352h96c65.16 0 119.1 48.95 127 112H48.99zM224 256c70.69 0 128-57.31 128-128c0-70.69-57.31-128-128-128S96 57.31 96 128C96 198.7 153.3 256 224 256zM224 48c44.11 0 80 35.89 80 80c0 44.11-35.89 80-80 80S144 172.1 144 128C144 83.89 179.9 48 224 48z" />
                         </svg>
@@ -70,27 +76,28 @@ if ($session == null || $session->isExired()) {
                 <h3 class="container__header_title">Home</h3>
             </div>
             <div class="container__content">
-                <div class="post__form">
-                    <div class="post__form_header">
-                        <?php
-                        echo <<<HTML
-                            <img src="{$user->avatar}" alt="{$user->username}'s avatar" class="post__form_avatar">
-                        HTML;
-                        ?>
-                    </div>
-                    <div class="post__form_content">
-                        <textarea type="text" rows="1" placeholder="What's happening?" class="post__form_input"></textarea>
-                        <div class="separator"></div>
-                        <div class="post__form_content_footer">
-                            <div>
-                                <p style="margin: 0;">There might be a button here</p>
+                <?php
+                if ($loggedIn)
+                    echo <<<HTML
+                        <div class="post__form">
+                            <div class="post__form_header">
+                                <img src="{$user->avatar}" alt="{$user->username}'s avatar" class="post__form_avatar">
                             </div>
-                            <div>
-                                <button id="btn_post" class="post__form_submit">Post</button>
+                            <div class="post__form_content">
+                                <textarea type="text" rows="1" placeholder="What's happening?" class="post__form_input"></textarea>
+                                <div class="separator"></div>
+                                <div class="post__form_content_footer">
+                                    <div>
+                                        <p style="margin: 0;">There might be a button here</p>
+                                    </div>
+                                    <div>
+                                        <button id="btn_post" class="post__form_submit">Post</button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </div>
+                    HTML;
+                ?>
                 <div class="feed__unread" id="unread">
                     <p id="unread_txt">You have <span>0</span> new unread posts</p>
                 </div>
@@ -123,9 +130,13 @@ if ($session == null || $session->isExired()) {
             </div>
         </div>
     </div>
+
+    <!-- Load dependency scripts -->
     <script src="/js/user.js"></script>
     <script src="/js/autosize.js"></script>
     <script src="/js/modals.js"></script>
+
+    <!-- Load scripts -->
     <script src="/js/home.js"></script>
 </body>
 

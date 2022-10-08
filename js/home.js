@@ -221,6 +221,14 @@ $(document).ready(function () {
 			$('#unread').attr('data-unread', num);
 		});
 	}, 5000);
+
+	GetUser()
+		.then((user) => {
+			console.log('Logged in as ' + user.username);
+		})
+		.catch((err) => {
+			ShowModal(React.createElement(LoginModal));
+		});
 });
 
 function ShowPostModal() {

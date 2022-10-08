@@ -1,24 +1,23 @@
-let GetUser = () => {
-	return {
-		id: 1,
-		username: 'Snow',
-		tag: 'snow',
-		avatar: '/assets/imgs/default_avatar.png',
-		group: 0,
-	};
-};
+let user;
+let loadingUser = false;
 
-// Get the user from the server /api/login GET
-$.ajax({
-	url: '/api/login',
-	type: 'GET',
-	contentType: 'application/json',
-	success: function (json) {
-		if (!json.success) return alert(json.error);
-		let user = json.user;
+function GetUser() {
+	return new Promise((resolve, reject) => {
+		if (user) return resolve(user);
 
-		GetUser = () => {
-			return user;
-		};
-	},
-});
+		// If we're already loading the user, wait for it to finish
+		$.ajax({
+			url: '/api/login',
+			type: 'GET',
+			contentType: 'application/json',
+			success: function (json) {
+				if (!json.success) return reject(json.error);
+				user = json.user;
+				resolve(user);
+			},
+			error: function (resp) {
+				reject(resp.responseJSON.error);
+			},
+		});
+	});
+}

@@ -40,7 +40,9 @@ $posts = array_reverse($posts);
         <nav class="navigation">
             <div class="navigation__container">
                 <div class="navigation__twatter">
-                    <img src="/assets/favicons/android-chrome-512x512.png" style="width: 45px;" />
+                    <a href="/home">
+                        <img src="/assets/favicons/android-chrome-512x512.png" style="width: 45px;" />
+                    </a>
                 </div>
                 <div class="navigation__button">
                     <a href="/home">
