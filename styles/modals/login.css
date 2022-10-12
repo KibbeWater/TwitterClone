@@ -99,3 +99,7 @@
 	flex-grow: 1;
 	margin-inline: 0.5rem;
 }
+
+.mlogin_separator__text {
+	margin: 0;
+}

@@ -4,12 +4,16 @@ class PostModal extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			user: GetUser(),
+			user: {},
 			ref: null,
 			text: '',
 		};
 
 		if (this.props.postRef) this.state.ref = this.props.postRef;
+
+		GetUser().then((user) => {
+			this.setState({ user });
+		});
 	}
 
 	post() {
@@ -58,7 +62,7 @@ class PostModal extends React.Component {
 			e('div', { className: 'mpost__content' }, [
 				e('div', { className: 'mp_content__sidebar' }, [
 					e('div', { className: 'mp_content__sidebar_avatar' }, [
-						e('img', { src: this.state.user.avatar || null, alt: (this.state.user.username || 'null') + "'s avatar" }),
+						e('img', { src: this.state.user.avatar || '', alt: (this.state.user.username || 'null') + "'s avatar" }),
 					]),
 				]),
 				e('div', { className: 'mp_content__post' }, [
