@@ -17,34 +17,36 @@ class PostModal extends React.Component {
 	}
 
 	post() {
-		var post = this.state.text;
+		LoadUnread().then(() => {
+			var post = this.state.text;
 
-		if (post == '') return alert('You cannot post an empty message');
+			if (post == '') return alert('You cannot post an empty message');
 
-		const setState = this.setState.bind(this);
-		const closeModal = this.closeModal.bind(this);
+			const setState = this.setState.bind(this);
+			const closeModal = this.closeModal.bind(this);
 
-		const data = {
-			post: post,
-		};
+			const data = {
+				post: post,
+			};
 
-		if (this.state.ref) data.ref = this.state.ref.id;
+			if (this.state.ref) data.ref = this.state.ref.id;
 
-		console.log(data, this.state);
+			console.log(data, this.state);
 
-		//JSON request
-		$.ajax({
-			url: '/api/post.php',
-			type: 'POST',
-			data: JSON.stringify(data),
-			contentType: 'application/json',
-			success: function (data) {
-				const json = JSON.parse(data);
-				if (!json.success) return alert(json.error);
-				setState({ text: '' });
-				closeModal();
-				$('#feed').prepend(GeneratePost({ ...json.post, content: post }));
-			},
+			//JSON request
+			$.ajax({
+				url: '/api/post.php',
+				type: 'POST',
+				data: JSON.stringify(data),
+				contentType: 'application/json',
+				success: function (data) {
+					const json = JSON.parse(data);
+					if (!json.success) return alert(json.error);
+					setState({ text: '' });
+					closeModal();
+					$('#feed').prepend(GeneratePost({ ...json.post, content: post }));
+				},
+			});
 		});
 	}
 

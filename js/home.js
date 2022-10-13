@@ -126,6 +126,37 @@ function GetUnreadPosts(latestId) {
 	});
 }
 
+function LoadUnread() {
+	return new Promise((resolve, reject) => {
+		// Get the latest post ID
+		const latestId = parseInt($('#feed').children().first().attr('data-id')) || -1;
+
+		$.ajax({
+			url: '/api/post?latestPost=' + latestId,
+			type: 'GET',
+			contentType: 'application/json',
+			success: function (data) {
+				const json = JSON.parse(data);
+				if (!json.success) return reject(json.error);
+
+				const posts = json.posts;
+
+				// Loop through the posts in reverse and prepend them to the feed
+				for (let i = posts.length - 1; i >= 0; i--) {
+					$('#feed').prepend(GeneratePost(posts[i]));
+				}
+
+				// Set the data-unread attribute to 0
+				$('#unread').attr('data-unread', 0);
+				resolve();
+			},
+			error: function (err) {
+				reject(err);
+			},
+		});
+	});
+}
+
 $(document).ready(function () {
 	$('.searchbar__input').focus(function () {
 		$('.searchbar').addClass('searchbar__active');
@@ -136,24 +167,26 @@ $(document).ready(function () {
 		$('.searchbar__input').removeClass('searchbar__input__active');
 	});
 	$('#btn_post').click(function () {
-		var post = $('.post__form_input').val();
+		LoadUnread().then(() => {
+			var post = $('.post__form_input').val();
 
-		if (post == '') return alert('You cannot post an empty message');
+			if (post == '') return alert('You cannot post an empty message');
 
-		//JSON request
-		$.ajax({
-			url: '/api/post.php',
-			type: 'POST',
-			data: JSON.stringify({
-				post: post,
-			}),
-			contentType: 'application/json',
-			success: function (data) {
-				const json = JSON.parse(data);
-				if (!json.success) return alert(json.error);
-				$('.post__form_input').val('');
-				$('#feed').prepend(GeneratePost({ ...json.post, content: post }));
-			},
+			//JSON request
+			$.ajax({
+				url: '/api/post.php',
+				type: 'POST',
+				data: JSON.stringify({
+					post: post,
+				}),
+				contentType: 'application/json',
+				success: function (data) {
+					const json = JSON.parse(data);
+					if (!json.success) return alert(json.error);
+					$('.post__form_input').val('');
+					$('#feed').prepend(GeneratePost({ ...json.post, content: post }));
+				},
+			});
 		});
 	});
 	$('#btnPost').click(function () {
@@ -177,30 +210,7 @@ $(document).ready(function () {
 	});
 	unreadObserver.observe($('#unread')[0], { attributes: true });
 
-	$('#unread').click(function () {
-		// Get the latest post ID
-		const latestId = parseInt($('#feed').children().first().attr('data-id')) || -1;
-
-		$.ajax({
-			url: '/api/post?latestPost=' + latestId,
-			type: 'GET',
-			contentType: 'application/json',
-			success: function (data) {
-				const json = JSON.parse(data);
-				if (!json.success) return alert(json.error);
-
-				const posts = json.posts;
-
-				// Loop through the posts in reverse and prepend them to the feed
-				for (let i = posts.length - 1; i >= 0; i--) {
-					$('#feed').prepend(GeneratePost(posts[i]));
-				}
-
-				// Set the data-unread attribute to 0
-				$('#unread').attr('data-unread', 0);
-			},
-		});
-	});
+	$('#unread').click(() => LoadUnread());
 
 	// Set up a timer for every 5 seconds to get the first element in #feed and get the ID
 	setInterval(function () {
