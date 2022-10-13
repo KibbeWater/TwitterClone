@@ -107,6 +107,11 @@ html {
 	align-items: center;
 }
 
+.navigation__button a i {
+	font-size: 25px;
+	color: black;
+}
+
 .navigation__button:hover {
 	background-color: rgba(90, 90, 90, 0.5);
 }
