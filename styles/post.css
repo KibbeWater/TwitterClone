@@ -94,21 +94,17 @@
 	cursor: pointer;
 }
 
-.post__footer_button svg {
-	height: 20px;
-	width: 20px;
-}
-
-.post__footer_button svg image {
-	filter: invert(25%) sepia(1%) saturate(0%) hue-rotate(189deg) brightness(99%) contrast(88%);
+.post__footer_button i {
+	color: black;
+	transition: color 0.3s;
 }
 
 .post__footer_button:hover {
 	background-color: rgba(255, 60, 60, 0.4);
 }
 
-.post__footer_button:hover svg image {
-	filter: invert(38%) sepia(62%) saturate(2447%) hue-rotate(335deg) brightness(100%) contrast(115%);
+.post__footer_button:hover i {
+	color: red;
 }
 
 .post__footer {

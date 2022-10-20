@@ -70,15 +70,10 @@ function GeneratePost(post, isRef) {
 		postFooterRetweetButton.id = 'btnRetwat';
 		postFooter.appendChild(postFooterRetweetButton);
 
-		// Create the retweet button svg
-		let postFooterRetweetButtonSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-		postFooterRetweetButton.appendChild(postFooterRetweetButtonSvg);
-
-		// Create the retweet button svg image
-		let postFooterRetweetButtonSvgImage = document.createElementNS('http://www.w3.org/2000/svg', 'image');
-		postFooterRetweetButtonSvgImage.setAttributeNS('http://www.w3.org/1999/xlink', 'href', '/assets/svg/repeat-solid.svg');
-		postFooterRetweetButtonSvgImage.setAttribute('height', '100%');
-		postFooterRetweetButtonSvg.appendChild(postFooterRetweetButtonSvgImage);
+		// Create the i tag
+		let postFooterRetweetButtonIcon = document.createElement('i');
+		postFooterRetweetButtonIcon.classList.add('fas', 'fa-repeat', 'fa-xl');
+		postFooterRetweetButton.appendChild(postFooterRetweetButtonIcon);
 	}
 
 	return postDiv;
