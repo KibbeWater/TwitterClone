@@ -60,5 +60,13 @@ try {
         )";
 
         if ($db->query($sql) !== TRUE) echo "Error creating table: " . $db->error;
+
+        $sql = "CREATE TABLE likes (
+            id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+            author_id INT(11) NOT NULL,
+            post_id INT(11) NOT NULL
+        )";
+
+        if ($db->query($sql) !== TRUE) echo "Error creating table: " . $db->error;
     }
 }

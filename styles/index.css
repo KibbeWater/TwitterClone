@@ -323,7 +323,6 @@ html {
 	align-items: center;
 
 	border: 1px solid rgba(226, 97, 97, 0) !important;
-
 	background-color: rgb(239, 243, 244);
 }
 
@@ -334,6 +333,10 @@ html {
 
 .searchbar__active .searchbar__search i {
 	color: rgb(226, 97, 97);
+}
+
+.searchbar__active .searchbar__result {
+	display: flex !important;
 }
 
 .searchbar__search {
@@ -361,18 +364,26 @@ html {
 }
 
 .searchbar__result {
+	display: none;
 	position: absolute;
 
 	top: 45px;
 
-	width: 300px;
+	width: 350px;
 	height: 100px;
-
-	display: flex;
 
 	background-color: white;
 	box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 	border-radius: 1rem;
+
+	justify-content: center;
+}
+
+.searchbar__result_hint {
+	color: gray;
+	font-size: 0.9rem;
+
+	text-align: center;
 }
 
 .content {

@@ -111,7 +111,7 @@ if ($loggedIn)
             <div class="filters__container">
                 <div class="searchbar">
                     <div class="searchbar__result">
-
+                        <p class="searchbar__result_hint">Try searching for people, topics or keywords</p>
                     </div>
                     <div class="searchbar__search">
                         <i class="fa-solid fa-magnifying-glass"></i>

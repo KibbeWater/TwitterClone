@@ -92,6 +92,11 @@ class Post
         $this->content = $content;
     }
 
+    public function like(User $usr): Like
+    {
+        return Like::create($usr->getId(), $this->_id);
+    }
+
     // Getters
     public function getId()
     {
@@ -101,6 +106,16 @@ class Post
     public function getDate()
     {
         return $this->_date;
+    }
+
+    public function getLikes()
+    {
+        return Like::postLikeCount($this);
+    }
+
+    public function hasLiked(User $usr)
+    {
+        return Like::hasLiked($usr, $this);
     }
 
     // Static function to make a new post
