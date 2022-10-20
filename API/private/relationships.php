@@ -33,6 +33,24 @@ class Relationship
         $this->timestamp = GenerateTimestamp($date); // Might need to fix this for JS compatibility later
     }
 
+    public static function create(int $userId, int $targetId, int $type)
+    {
+        // Check if the relationship already exists, if it does, set the type to the new type
+        $relationship = Relationship::fetch($userId, $targetId);
+        if ($relationship != null) {
+            $relationship->setType($type);
+            return $relationship;
+        }
+
+        global $db;
+
+        $stmt = $db->prepare('INSERT INTO relationships (userId, targetId, type) VALUES (?, ?, ?)');
+        $stmt->bind_param('iii', $userId, $targetId, $type);
+        $stmt->execute();
+
+        return Relationship::fetch($userId, $targetId);
+    }
+
     // Fetch a relationship by its ID
     public static function fetch(int $id)
     {
@@ -40,6 +58,23 @@ class Relationship
 
         $stmt = $db->prepare('SELECT * FROM relationships WHERE id = ?');
         $stmt->bind_param('i', $id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        if ($result->num_rows === 0) {
+            return null;
+        }
+
+        $row = $result->fetch_assoc();
+        return new Relationship($row['id'], $row['author_id'], $row['target_id'], $row['type'], $row['date']);
+    }
+
+    public static function fetchPair(int $authorId, int $targetId)
+    {
+        global $db;
+
+        $stmt = $db->prepare('SELECT * FROM relationships WHERE author_id = ? AND target_id = ?');
+        $stmt->bind_param('ii', $authorId, $targetId);
         $stmt->execute();
         $result = $stmt->get_result();
 
@@ -69,13 +104,29 @@ class Relationship
         return $relationships;
     }
 
-    // Fetch all targetted relationships for a user
-    public static function fetchAllTargetted(int $userId)
+    public static function fetchFollowers(int $userId)
     {
         global $db;
 
-        $stmt = $db->prepare('SELECT * FROM relationships WHERE target_id = ?');
-        $stmt->bind_param('i', $userId);
+        $stmt = $db->prepare('SELECT * FROM relationships WHERE target_id = ? AND type = ?');
+        $stmt->bind_param('ii', $userId, RelationshipType::FOLLOW);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        $relationships = array();
+        while ($row = $result->fetch_assoc()) {
+            $relationships[] = new Relationship($row['id'], $row['author_id'], $row['target_id'], $row['type'], $row['date']);
+        }
+
+        return $relationships;
+    }
+
+    public static function fetchFollowing(int $userId)
+    {
+        global $db;
+
+        $stmt = $db->prepare('SELECT * FROM relationships WHERE author_id = ? AND type = ?');
+        $stmt->bind_param('ii', $userId, RelationshipType::FOLLOW);
         $stmt->execute();
         $result = $stmt->get_result();
 
@@ -99,7 +150,7 @@ class Relationship
         return Relationship::fetch($db->insert_id);
     }
 
-    function toArray()
+    public function toArray()
     {
         return array(
             'id' => $this->_id,
@@ -109,5 +160,17 @@ class Relationship
             'type' => $this->type,
             'timestamp' => $this->timestamp
         );
+    }
+
+    // Setters
+    public function setType(int $type)
+    {
+        global $db;
+
+        $stmt = $db->prepare('UPDATE relationships SET type = ? WHERE id = ?');
+        $stmt->bind_param('ii', $type, $this->_id);
+        $stmt->execute();
+
+        $this->type = $type;
     }
 }

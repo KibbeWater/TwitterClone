@@ -116,6 +116,27 @@ class User
         return $this->_id;
     }
 
+    public function getFollowers(): int
+    {
+        return count(Relationship::fetchFollowers($this->getId()));
+    }
+
+    public function getFollowing(): int
+    {
+        return count(Relationship::fetchFollowing($this->getId()));
+    }
+
+    public function isFollowing(User $usr): bool
+    {
+        return Relationship::fetchPair($usr->getId(), $this->getId()) !== null;
+    }
+
+    // Setters
+    public function follow(User $usr)
+    {
+        Relationship::create($this->getId(), $usr->getId(), RelationshipType::FOLLOW);
+    }
+
     // Get all posts made by user from posts -> userId in database
     /**
      * @return Post[]
