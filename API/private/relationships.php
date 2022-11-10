@@ -1,4 +1,7 @@
 <?php
+
+use function PHPSTORM_META\type;
+
 require_once 'posts.php';
 
 abstract class RelationshipType
@@ -108,8 +111,10 @@ class Relationship
     {
         global $db;
 
+        $relationship_follow = RelationshipType::FOLLOW;
+
         $stmt = $db->prepare('SELECT * FROM relationships WHERE target_id = ? AND type = ?');
-        $stmt->bind_param('ii', $userId, RelationshipType::FOLLOW);
+        $stmt->bind_param('ii', $userId, $relationship_follow);
         $stmt->execute();
         $result = $stmt->get_result();
 
@@ -125,8 +130,10 @@ class Relationship
     {
         global $db;
 
+        $relationship_follow = RelationshipType::FOLLOW;
+
         $stmt = $db->prepare('SELECT * FROM relationships WHERE author_id = ? AND type = ?');
-        $stmt->bind_param('ii', $userId, RelationshipType::FOLLOW);
+        $stmt->bind_param('ii', $userId, $relationship_follow);
         $stmt->execute();
         $result = $stmt->get_result();
 

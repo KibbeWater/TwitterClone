@@ -40,6 +40,13 @@ html {
 .container__content {
 	overflow: auto;
 	height: 100%;
+
+	-ms-overflow-style: none;
+	scrollbar-width: none;
+}
+
+.container__content::-webkit-scrollbar {
+	display: none;
 }
 
 .feed {

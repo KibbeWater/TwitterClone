@@ -16,7 +16,7 @@ html {
 }
 
 .container__header {
-	width: 100%;
+	width: calc(100% - 10px);
 	height: 50px;
 
 	padding-inline: 10px;
@@ -24,12 +24,12 @@ html {
 
 	box-sizing: border-box;
 
-	backdrop-filter: blur(10px);
+	backdrop-filter: blur(1px);
 
 	display: flex;
 	align-items: center;
 
-	background-color: rgb(255, 255, 255, 0.85);
+	background-color: rgb(255, 255, 255, 0.15);
 }
 
 .container__header_title {
@@ -40,6 +40,13 @@ html {
 .container__content {
 	overflow: auto;
 	height: 100%;
+
+	-ms-overflow-style: none;
+	scrollbar-width: none;
+}
+
+.container__content::-webkit-scrollbar {
+	display: none;
 }
 
 .feed {
@@ -246,6 +253,100 @@ html {
 .posts {
 	display: flex;
 	flex-direction: column;
+}
+
+.profile__header {
+	border-bottom: 1px solid gray;
+}
+
+.profile__header__banner {
+	/* 3:1 aspect ratio */
+	width: 100%;
+	padding-bottom: calc(100% / 3);
+	background-color: gray;
+
+	position: relative;
+
+	display: flex;
+	justify-content: center;
+}
+
+.profile__header__banner img {
+	position: absolute;
+	object-fit: contain;
+
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+
+	height: 100%;
+	width: 100%;
+
+	padding: auto;
+}
+
+.profile__header__avatar {
+	position: relative;
+	height: 50px;
+}
+
+.profile__header__avatar div {
+	width: 100px;
+	height: 100px;
+
+	position: absolute;
+	left: 20px;
+	top: -50px;
+}
+
+.profile__header__avatar div img {
+	object-fit: fill;
+
+	width: 100%;
+	height: 100%;
+
+	border-radius: 100%;
+
+	border: white 4px solid;
+}
+
+.profile__header__info {
+	margin-inline: 10px;
+	padding-bottom: 10px;
+}
+
+.profile__header__info__name {
+	margin-bottom: 2px;
+}
+
+.profile__header__info__tag {
+	margin-top: 2px;
+
+	color: gray;
+	font-weight: normal;
+}
+
+.profile__header__info__bio {
+	font-size: 15px;
+
+	margin-block: 5px;
+}
+
+.profile__header__info__following {
+	display: flex;
+	margin-block: 8px;
+}
+
+.profile__header__info__following p {
+	margin: 0;
+	margin-right: 5px;
+
+	font-size: 15px;
+}
+
+.profile__header__info__following p span {
+	font-weight: bold;
 }
 
 @media only screen and (max-width: 900px) {

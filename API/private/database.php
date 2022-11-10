@@ -26,6 +26,8 @@ try {
             username VARCHAR(255) NOT NULL,
             password VARCHAR(255) NOT NULL,
             avatar VARCHAR(255) NOT NULL,
+            banner VARCHAR(255) NOT NULL,
+            `bio` text NOT NULL,
             `group` INT(11) NOT NULL
         )";
 

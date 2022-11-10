@@ -70,7 +70,25 @@ $posts = array_reverse($posts);
             </div>
             <div class="container__content">
                 <div class="profile">
-
+                    <div class="profile__header">
+                        <div class="profile__header__banner">
+                            <img src="<?php echo $profile->banner ?>" />
+                        </div>
+                        <div class="profile__header__avatar">
+                            <div>
+                                <img src="<?php echo $profile->avatar ?>" />
+                            </div>
+                        </div>
+                        <div class="profile__header__info">
+                            <h3 class="profile__header__info__name"><?php echo $profile->username ?></h3>
+                            <h4 class="profile__header__info__tag">@<?php echo $profile->tag ?></h4>
+                            <p class="profile__header__info__bio"><?php echo $profile->bio ?></p>
+                            <div class="profile__header__info__following">
+                                <p><span><?php echo $profile->getFollowing() ?></span> Following</p>
+                                <p><span><?php echo $profile->getFollowers() ?></span> Followers</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div id="feed" class="feed">
                     <?php

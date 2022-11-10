@@ -2,6 +2,7 @@
 require_once 'database.php';
 require_once 'posts.php';
 require_once 'sessions.php';
+require_once 'relationships.php';
 
 //$DEFAULT_AVATAR = "/assets/imgs/default_avatar.png";
 
@@ -14,8 +15,10 @@ class User
     public $username;
     public $group;
     public $avatar;
+    public $banner;
+    public $bio;
 
-    public function __construct(int $id, string $password, string $tag, string $username, int $group, ?string $avatar)
+    public function __construct(int $id, string $password, string $tag, string $username, int $group, ?string $avatar, ?string $banner, string $bio)
     {
         $this->_id = $id;
         $this->_password = $password;
@@ -23,6 +26,8 @@ class User
         $this->username = $username;
         $this->group = $group;
         $this->avatar = $avatar == null ? "/assets/imgs/default_avatar.png" : $avatar;
+        $this->banner = $banner == null ? "/assets/imgs/default_banner.png" : $banner;
+        $this->bio = $bio;
     }
 
     // We want to be able to fetch users with their ID/username
@@ -56,7 +61,7 @@ class User
         }
 
         $row = $result->fetch_assoc();
-        return new User($row['id'], $row['password'], $row['tag'], $row['username'], $row['group'], $row['avatar']);
+        return new User($row['id'], $row['password'], $row['tag'], $row['username'], $row['group'], $row['avatar'], $row['banner'], $row['bio']);
     }
 
     public static function register(string $username, string $password)
@@ -92,7 +97,7 @@ class User
         if ($result->num_rows === 0) return null;
 
         $row = $result->fetch_assoc();
-        return new User($row['id'], $row['password'], $row['tag'], $row['username'], $row['group'], $row['avatar']);
+        return new User($row['id'], $row['password'], $row['tag'], $row['username'], $row['group'], $row['avatar'], $row['banner'], $row['bio']);
     }
 
     public static function fetchByTag(string $tag)
@@ -107,7 +112,7 @@ class User
         if ($result->num_rows === 0) return null;
 
         $row = $result->fetch_assoc();
-        return new User($row['id'], $row['password'], $row['tag'], $row['username'], $row['group'], $row['avatar']);
+        return new User($row['id'], $row['password'], $row['tag'], $row['username'], $row['group'], $row['avatar'], $row['banner'], $row['bio']);
     }
 
     // Getters
@@ -135,6 +140,39 @@ class User
     public function follow(User $usr)
     {
         Relationship::create($this->getId(), $usr->getId(), RelationshipType::FOLLOW);
+    }
+
+    public function setBio(string $newBio)
+    {
+        global $db;
+
+        $stmt = $db->prepare('UPDATE users SET bio = ? WHERE id = ?');
+        $stmt->bind_param('si', $newBio, $this->getId());
+        $stmt->execute();
+
+        $this->bio = $newBio;
+    }
+
+    public function setAvatar(string $newAvatar)
+    {
+        global $db;
+
+        $stmt = $db->prepare('UPDATE users SET avatar = ? WHERE id = ?');
+        $stmt->bind_param('si', $newAvatar, $this->getId());
+        $stmt->execute();
+
+        $this->avatar = $newAvatar;
+    }
+
+    public function setBanner(string $newBanner)
+    {
+        global $db;
+
+        $stmt = $db->prepare('UPDATE users SET banner = ? WHERE id = ?');
+        $stmt->bind_param('si', $newBanner, $this->getId());
+        $stmt->execute();
+
+        $this->banner = $newBanner;
     }
 
     // Get all posts made by user from posts -> userId in database
@@ -273,7 +311,8 @@ class User
             'username' => $this->username,
             'tag' => $this->tag,
             'avatar' => $this->avatar,
-            'group' => $this->group
+            'group' => $this->group,
+            'bio' => $this->bio
         );
     }
 }
