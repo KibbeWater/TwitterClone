@@ -83,11 +83,23 @@ $posts = array_reverse($posts);
                         <div class="profile__header__banner">
                             <img src="<?php echo $profile->banner ?>" onerror="hideBannerImg(this)" />
                         </div>
-                        <div class="profile__header__avatar">
-                            <div>
-                                <img src="<?php echo $profile->avatar ?>" />
+                        <div class="profile__header__avatardiv">
+                            <div class="profile__header__avatar">
+                                <div>
+                                    <img src="<?php echo $profile->avatar ?>" />
+                                </div>
+                            </div>
+                            <div class="profile__header__controls">
+                                <?php
+                                $isMe = $user->getId() == $profile->getId();
+
+                                if ($isMe) echo '<button class="profile__header__control_edit" onClick="editProfile()">Edit profile</button>';
+                                else echo '<button class="profile__header__control_follow" data-followStatus="' . $user->isFollowing($profile) ? 'following' : 'follow' . '">';
+
+                                ?>
                             </div>
                         </div>
+
                         <div class="profile__header__info">
                             <h3 class="profile__header__info__name"><?php echo $profile->username ?></h3>
                             <h4 class="profile__header__info__tag">@<?php echo $profile->tag ?></h4>

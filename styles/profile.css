@@ -291,6 +291,17 @@ html {
 	height: 50px;
 }
 
+.profile__header__avatardiv {
+	display: flex;
+	width: 100%;
+
+	justify-content: space-between;
+}
+
+.profile__header__controls {
+	margin-block: 5px;
+}
+
 .profile__header__avatar div {
 	width: 100px;
 	height: 100px;
