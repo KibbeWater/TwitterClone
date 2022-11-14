@@ -32,6 +32,15 @@ $posts = array_reverse($posts);
     <link href="/styles/post.css" rel="stylesheet" />
     <link href="/styles/global.css" rel="stylesheet" />
 
+    <!-- Load external dependencies -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://kit.fontawesome.com/2822739062.js" crossorigin="anonymous"></script>
+
+    <!-- Load site scripts -->
+    <script src="/js/profile.js"></script>
+
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://kit.fontawesome.com/2822739062.js" crossorigin="anonymous"></script>
 </head>
@@ -72,7 +81,7 @@ $posts = array_reverse($posts);
                 <div class="profile">
                     <div class="profile__header">
                         <div class="profile__header__banner">
-                            <img src="<?php echo $profile->banner ?>" />
+                            <img src="<?php echo $profile->banner ?>" onerror="hideBannerImg(this)" />
                         </div>
                         <div class="profile__header__avatar">
                             <div>
@@ -120,7 +129,6 @@ $posts = array_reverse($posts);
         </div>
     </div>
     <script src="/js/autosize.js"></script>
-    <script src="/js/home.js"></script>
 </body>
 
 </html>
