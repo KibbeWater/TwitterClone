@@ -1,4 +1,5 @@
 <?php
+
 require_once 'API/private/users.php';
 require_once 'API/private/utils.php';
 
@@ -93,9 +94,8 @@ $posts = array_reverse($posts);
                                 <?php
                                 $isMe = $user->getId() == $profile->getId();
 
-                                if ($isMe) echo '<button class="profile__header__control_edit" onClick="editProfile()">Edit profile</button>';
-                                else echo '<button class="profile__header__control_follow" data-followStatus="' . $user->isFollowing($profile) ? 'following' : 'follow' . '">';
-
+                                if ($isMe) echo '<button id="btnEdit" class="profile__header__control_edit" onClick="editProfile()">Edit profile</button>';
+                                else echo '<button id="btnFollow" class="profile__header__control_follow" data-followStatus="' . ($user->isFollowing($profile) ? 'following' : 'follow') . '">' . ($user->isFollowing($profile) ? 'Following' : 'Follow') . '</button>';
                                 ?>
                             </div>
                         </div>

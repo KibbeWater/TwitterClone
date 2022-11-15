@@ -47,11 +47,11 @@ class Relationship
 
         global $db;
 
-        $stmt = $db->prepare('INSERT INTO relationships (userId, targetId, type) VALUES (?, ?, ?)');
+        $stmt = $db->prepare('INSERT INTO relationships (author_id, target_id, type) VALUES (?, ?, ?)');
         $stmt->bind_param('iii', $userId, $targetId, $type);
         $stmt->execute();
 
-        return Relationship::fetch($userId, $targetId);
+        return Relationship::fetchPair($userId, $targetId);
     }
 
     // Fetch a relationship by its ID
@@ -179,5 +179,16 @@ class Relationship
         $stmt->execute();
 
         $this->type = $type;
+    }
+
+    public function remove()
+    {
+        global $db;
+
+        $stmt = $db->prepare('DELETE FROM relationships WHERE id = ?');
+        $stmt->bind_param('i', $this->_id);
+        $stmt->execute();
+
+        $this->_id = null;
     }
 }

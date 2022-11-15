@@ -133,7 +133,7 @@ class User
 
     public function isFollowing(User $usr): bool
     {
-        return Relationship::fetchPair($usr->getId(), $this->getId()) !== null;
+        return Relationship::fetchPair($this->getId(), $usr->getId()) !== null;
     }
 
     // Setters
@@ -300,7 +300,9 @@ class User
             'id' => $this->_id,
             'username' => $this->username,
             'tag' => $this->tag,
-            'group' => $this->group
+            'avatar' => $this->avatar,
+            'group' => $this->group,
+            'bio' => $this->bio
         ));
     }
 

@@ -299,7 +299,78 @@ html {
 }
 
 .profile__header__controls {
-	margin-block: 5px;
+	margin-block: 10px;
+	margin-right: 10px;
+}
+
+.profile__header__control_edit {
+	background-color: rgba(0, 0, 0, 0);
+
+	padding-inline: 15px;
+	padding-block: 8px;
+	font-weight: 600;
+	font-size: medium;
+
+	border-color: rgb(207, 217, 222);
+	border-width: 1px;
+	border-style: solid;
+
+	min-width: 36px;
+
+	transition-property: background-color;
+	transition-duration: 0.2s;
+
+	border-radius: 9999px;
+}
+
+.profile__header__control_edit:hover {
+	background-color: rgba(15, 20, 25, 0.1);
+}
+
+.profile__header__control_follow[data-followStatus='following'] {
+	background-color: rgba(0, 0, 0, 0);
+
+	padding-inline: 15px;
+	padding-block: 8px;
+	font-weight: 600;
+	font-size: medium;
+
+	border-color: rgb(207, 217, 222);
+	border-width: 1px;
+	border-style: solid;
+
+	min-width: 36px;
+
+	transition-property: background-color;
+	transition-duration: 0.2s;
+
+	border-radius: 9999px;
+}
+
+.profile__header__control_follow[data-followStatus='following']:hover {
+	background-color: rgba(244, 33, 46, 0.1);
+	color: red;
+
+	cursor: pointer;
+
+	border-color: rgb(253, 201, 206);
+	border-width: 1px;
+	border-style: solid;
+}
+
+.profile__header__control_follow[data-followStatus='follow'] {
+	background-color: rgb(0, 0, 0);
+	color: white;
+
+	padding-inline: 15px;
+	padding-block: 8px;
+	font-weight: bold;
+	font-size: medium;
+
+	cursor: pointer;
+
+	border-radius: 99999px;
+	box-sizing: border-box;
 }
 
 .profile__header__avatar div {
