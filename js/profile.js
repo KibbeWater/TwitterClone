@@ -140,4 +140,8 @@ $(document).ready(function () {
 			}
 		});
 	});
+
+	$('#btnEdit').click(function () {
+		ShowModal(React.createElement(EditProfile));
+	});
 });

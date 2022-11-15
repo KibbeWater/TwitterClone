@@ -1,5 +1,3 @@
-let e = React.createElement;
-
 class PostModal extends React.Component {
 	constructor(props) {
 		super(props);
@@ -55,6 +53,7 @@ class PostModal extends React.Component {
 	}
 
 	render() {
+		let e = React.createElement;
 		return e('div', { className: 'mpost' }, [
 			e('div', { className: 'mpost_header' }, [
 				e('div', { className: 'mpost_header__close', onClick: () => this.closeModal() }, [

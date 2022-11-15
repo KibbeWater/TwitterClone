@@ -142,6 +142,17 @@ class User
         Relationship::create($this->getId(), $usr->getId(), RelationshipType::FOLLOW);
     }
 
+    public function setName(string $newName)
+    {
+        global $db;
+
+        $stmt = $db->prepare('UPDATE users SET username = ? WHERE id = ?');
+        $stmt->bind_param('si', $newName, $this->getId());
+        $stmt->execute();
+
+        $this->username = $newName;
+    }
+
     public function setBio(string $newBio)
     {
         global $db;
@@ -301,6 +312,7 @@ class User
             'username' => $this->username,
             'tag' => $this->tag,
             'avatar' => $this->avatar,
+            'banner' => $this->banner,
             'group' => $this->group,
             'bio' => $this->bio
         ));
@@ -313,6 +325,7 @@ class User
             'username' => $this->username,
             'tag' => $this->tag,
             'avatar' => $this->avatar,
+            'banner' => $this->banner,
             'group' => $this->group,
             'bio' => $this->bio
         );

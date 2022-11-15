@@ -23,6 +23,7 @@ class PostUI extends React.Component {
 	}
 
 	render() {
+		let e = React.createElement;
 		return e('div', { className: 'post', 'data-id': this.state.post.id }, [
 			e('img', {
 				src: this.state.post.author.avatar,

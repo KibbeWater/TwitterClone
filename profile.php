@@ -29,9 +29,13 @@ $posts = array_reverse($posts);
 
     <link rel="favicon" href="/assets/favicons/favicon.ico">
 
+    <!-- Load required site styles -->
     <link href="/styles/profile.css" rel="stylesheet" />
     <link href="/styles/post.css" rel="stylesheet" />
     <link href="/styles/global.css" rel="stylesheet" />
+
+    <!-- Load component styles -->
+    <link href="/styles/modals/edit.css" rel="stylesheet" />
 
     <!-- Load external dependencies -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
@@ -42,11 +46,12 @@ $posts = array_reverse($posts);
     <!-- Load site scripts -->
     <script src="/js/profile.js"></script>
 
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script src="https://kit.fontawesome.com/2822739062.js" crossorigin="anonymous"></script>
+    <!-- Load ReactJS components -->
+    <script src="/components/EditProfileModal.js"></script>
 </head>
 
 <body>
+    <div id="modal_root"></div>
     <div class="parent">
         <nav class="navigation">
             <div class="navigation__container">
@@ -94,7 +99,7 @@ $posts = array_reverse($posts);
                                 <?php
                                 $isMe = $user->getId() == $profile->getId();
 
-                                if ($isMe) echo '<button id="btnEdit" class="profile__header__control_edit" onClick="editProfile()">Edit profile</button>';
+                                if ($isMe) echo '<button id="btnEdit" class="profile__header__control_edit">Edit profile</button>';
                                 else echo '<button id="btnFollow" class="profile__header__control_follow" data-followStatus="' . ($user->isFollowing($profile) ? 'following' : 'follow') . '">' . ($user->isFollowing($profile) ? 'Following' : 'Follow') . '</button>';
                                 ?>
                             </div>
@@ -140,7 +145,11 @@ $posts = array_reverse($posts);
             </div>
         </div>
     </div>
+
+    <!-- Load dependency scripts -->
+    <script src="/js/user.js"></script>
     <script src="/js/autosize.js"></script>
+    <script src="/js/modals.js"></script>
 </body>
 
 </html>

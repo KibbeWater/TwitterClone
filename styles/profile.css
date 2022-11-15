@@ -273,7 +273,7 @@ html {
 
 .profile__header__banner img {
 	position: absolute;
-	object-fit: contain;
+	object-fit: cover;
 
 	top: 0;
 	bottom: 0;
@@ -319,6 +319,8 @@ html {
 
 	transition-property: background-color;
 	transition-duration: 0.2s;
+
+	cursor: pointer;
 
 	border-radius: 9999px;
 }

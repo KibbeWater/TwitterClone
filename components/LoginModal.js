@@ -65,6 +65,7 @@ class LoginModal extends React.Component {
 	}
 
 	render() {
+		let e = React.createElement;
 		return e('div', { className: 'modal__login' }, [
 			e('h1', { className: 'mlogin__title' }, 'Sign-In'),
 			e('p', { className: 'mlogin__subtitle' }, 'Please sign in to continue'),
