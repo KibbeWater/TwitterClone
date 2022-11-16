@@ -114,15 +114,26 @@
 	margin-bottom: 20px;
 }
 
-.medit__body__avatar img {
+.medit__body__avatar_container {
 	position: absolute;
 
 	top: -50px;
 	left: 0;
 	right: 0;
 
-	height: 100px;
 	width: 100px;
+	height: 100px;
+
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.medit__body__avatar_container img {
+	object-fit: cover;
+
+	width: 100;
+	height: 100;
 
 	border-radius: 100%;
 	border-width: 3px;

@@ -19,6 +19,7 @@ class EditProfile extends React.Component {
 
 		this.removeBanner = this.removeBanner.bind(this);
 		this.uploadBanner = this.uploadBanner.bind(this);
+		this.uploadAvatar = this.uploadAvatar.bind(this);
 
 		this.bannerRef = React.createRef();
 
@@ -44,14 +45,16 @@ class EditProfile extends React.Component {
 	saveAndClose() {
 		// Check if banner is a data url
 		let banner = this.state.banner;
+		let avatar = this.state.avatar;
 		let t = this;
 
-		if (banner.startsWith('data:')) {
+		if (banner.startsWith('data:') || avatar.startsWith('data:')) {
 			$.ajax({
 				url: '/api/profile/upload',
 				type: 'POST',
 				data: {
-					banner: banner,
+					...(banner.startsWith('data:') ? { banner } : {}),
+					...(avatar.startsWith('data:') ? { avatar } : {}),
 				},
 				success: function (data) {
 					t.setState({ banner: JSON.parse(data).url });
@@ -83,6 +86,7 @@ class EditProfile extends React.Component {
 					username: this.state.username,
 					bio: this.state.bio,
 					...(!this.state.banner ? { banner: this.state.banner } : {}),
+					...(!this.state.avatar ? { avatar: this.state.avatar } : {}),
 				},
 				success: function (data) {
 					resolve();
@@ -111,6 +115,21 @@ class EditProfile extends React.Component {
 			let reader = new FileReader();
 			reader.onload = (e) => {
 				this.setState({ banner: e.target.result });
+			};
+			reader.readAsDataURL(file);
+		};
+		fileInput.click();
+	}
+
+	uploadAvatar() {
+		let fileInput = document.createElement('input');
+		fileInput.type = 'file';
+		fileInput.accept = 'image/*';
+		fileInput.onchange = (e) => {
+			let file = e.target.files[0];
+			let reader = new FileReader();
+			reader.onload = (e) => {
+				this.setState({ avatar: e.target.result });
 			};
 			reader.readAsDataURL(file);
 		};
@@ -147,7 +166,14 @@ class EditProfile extends React.Component {
 							: null,
 					]),
 				]),
-				e('div', { className: 'medit__body__avatar' }, [e('img', { src: this.state.avatar }, null)]),
+				e('div', { className: 'medit__body__avatar' }, [
+					e('div', { className: 'medit__body__avatar_container' }, [
+						e('div', { className: 'medit__set_image', style: { position: 'absolute' }, onClick: this.uploadAvatar }, [
+							e('i', { className: 'fa-solid fa-image' }, null),
+						]),
+						e('img', { src: this.state.avatar }, null),
+					]),
+				]),
 				e('div', { className: 'medit__input', key: 'input-name' }, [
 					e('p', { className: 'medit__input__label' }, 'Name'),
 					e(

@@ -8,6 +8,7 @@ function UpdateInfo()
     $name = $_POST['username'];
     $bio = $_POST['bio'];
     $banner = $_POST['banner'];
+    $avatar = $_POST['avatar'];
 
     $authedUser = User::authenticate();
 
@@ -19,6 +20,7 @@ function UpdateInfo()
     if (isset($name)) $authedUser->setName($name);
     if (isset($bio)) $authedUser->setBio($bio);
     if (isset($banner)) $authedUser->setBanner($banner);
+    if (isset($avatar)) $authedUser->setAvatar($avatar);
 
     http_response_code(200);
     die(json_encode(array('success' => true)));
