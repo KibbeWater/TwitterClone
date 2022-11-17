@@ -102,14 +102,49 @@
 }
 
 .post__footer_button:hover {
-	background-color: rgba(255, 60, 60, 0.4);
+	background-color: rgba(60, 255, 60, 0.4);
 }
 
 .post__footer_button:hover i {
+	color: green;
+}
+
+.post__footer_button__like {
+	/* Remove the button styling and set height to 90% */
+	border: 0;
+	height: 30px;
+	width: 30px;
+	padding: 0;
+
+	border-radius: 100%;
+
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	/* transition background color */
+	transition: background-color 0.3s;
+	background-color: rgba(0, 0, 0, 0);
+
+	cursor: pointer;
+}
+
+.post__footer_button__like[data='liked'] i {
+	color: red;
+	transition: color 0.3s;
+}
+
+.post__footer_button__like:hover {
+	background-color: rgba(255, 60, 60, 0.4);
+}
+
+.post__footer_button__like:hover i {
 	color: red;
 }
 
 .post__footer {
 	margin-top: 10px;
 	height: 30px;
+
+	display: flex;
 }

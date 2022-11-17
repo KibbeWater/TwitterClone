@@ -42,7 +42,7 @@ class PostModal extends React.Component {
 					if (!json.success) return alert(json.error);
 					setState({ text: '' });
 					closeModal();
-					$('#feed').prepend(GeneratePost({ ...json.post, content: post }));
+					$('#feed').prepend(GeneratePost({ ...json.post, content: post }, false, true));
 				},
 			});
 		});

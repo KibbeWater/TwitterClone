@@ -101,7 +101,7 @@ if ($loggedIn)
                 <div id="feed" class="feed">
                     <?php
                     foreach ($posts as $post) {
-                        echo generatePost($post);
+                        echo generatePost($post, false, $user);
                     }
                     ?>
                 </div>

@@ -32,14 +32,14 @@ class Like
             return null;
 
         $row = $result->fetch_assoc();
-        return new Like($row['id'], $row['authorId'], $row['postId']);
+        return new Like($row['id'], $row['author_id'], $row['post_id']);
     }
 
     public static function fetchByPost(int $postId)
     {
         global $db;
 
-        $stmt = $db->prepare('SELECT * FROM likes WHERE postId = ?');
+        $stmt = $db->prepare('SELECT * FROM likes WHERE post_id = ?');
         $stmt->bind_param('i', $postId);
         $stmt->execute();
         $result = $stmt->get_result();
@@ -47,7 +47,7 @@ class Like
         $likes = array();
 
         while ($row = $result->fetch_assoc()) {
-            $likes[] = new Like($row['id'], $row['authorId'], $row['postId']);
+            $likes[] = new Like($row['id'], $row['author_id'], $row['post_id']);
         }
 
         return $likes;
@@ -57,7 +57,7 @@ class Like
     {
         global $db;
 
-        $stmt = $db->prepare('SELECT * FROM likes WHERE authorId = ?');
+        $stmt = $db->prepare('SELECT * FROM likes WHERE post_id = ?');
         $stmt->bind_param('i', $userId);
         $stmt->execute();
         $result = $stmt->get_result();
@@ -65,17 +65,34 @@ class Like
         $likes = array();
 
         while ($row = $result->fetch_assoc()) {
-            $likes[] = new Like($row['id'], $row['authorId'], $row['postId']);
+            $likes[] = new Like($row['id'], $row['author_id'], $row['post_id']);
         }
 
         return $likes;
+    }
+
+    public static function fetchPair(int $authorId, int $postId)
+    {
+        // Fetch a like by its author and post IDs
+        global $db;
+
+        $stmt = $db->prepare('SELECT * FROM likes WHERE author_id = ? AND post_id = ?');
+        $stmt->bind_param('ii', $authorId, $postId);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        if ($result->num_rows == 0)
+            return null;
+
+        $row = $result->fetch_assoc();
+        return new Like($row['id'], $row['author_id'], $row['post_id']);
     }
 
     public static function postLikeCount(Post $post)
     {
         global $db;
 
-        $stmt = $db->prepare('SELECT COUNT(*) FROM likes WHERE postId = ?');
+        $stmt = $db->prepare('SELECT COUNT(*) FROM likes WHERE post_id = ?');
         $stmt->bind_param('i', $postId);
         $stmt->execute();
         $result = $stmt->get_result();
@@ -88,8 +105,11 @@ class Like
     {
         global $db;
 
-        $stmt = $db->prepare('SELECT COUNT(*) FROM likes WHERE authorId = ? AND postId = ?');
-        $stmt->bind_param('ii', $user->id, $post->id);
+        $userId = $user->getId();
+        $postId = $post->getId();
+
+        $stmt = $db->prepare('SELECT COUNT(*) FROM likes WHERE author_id = ? AND post_id = ?');
+        $stmt->bind_param('ii', $userId, $postId);
         $stmt->execute();
         $result = $stmt->get_result();
 
@@ -101,14 +121,14 @@ class Like
     {
         global $db;
 
-        $stmt = $db->prepare('INSERT INTO likes (authorId, postId) VALUES (?, ?)');
+        $stmt = $db->prepare('INSERT INTO likes (author_id, post_id) VALUES (?, ?)');
         $stmt->bind_param('ii', $authorId, $postId);
         $stmt->execute();
 
         return new Like($db->insert_id, $authorId, $postId);
     }
 
-    public function delete()
+    public function remove()
     {
         global $db;
 

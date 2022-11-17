@@ -7,6 +7,8 @@ error_reporting(1);
 
 function GET()
 {
+    $user = User::authenticate();
+
     // Get the count and lastPost from the query and parse their GET values
     $count = isset($_GET['count']) ? intval($_GET['count']) : 10;
     $lastPost = isset($_GET['lastPost']) ? intval($_GET['lastPost']) : -1;
@@ -38,8 +40,16 @@ function GET()
 
     // Remake the posts array to be an array of arrays
     $postsArray = array();
-    foreach ($posts as $post)
-        $postsArray[] = $post->toArray();
+    foreach ($posts as $post) {
+        $postArr = $post->toArray();
+
+        $isLiked = false;
+        if ($user != null)
+            $isLiked = $post->hasLiked($user);
+
+        $postArr['isLiked'] = $isLiked;
+        $postsArray[] = $postArr;
+    }
 
     // Return the posts
     die(json_encode(array(
@@ -71,7 +81,9 @@ function POST()
     // Return the post
     die(json_encode(array(
         "success" => true,
-        "post" => $post->toArray()
+        "post" => $post->toArray(),
+        "likes" => $post->getLikes(),
+        "isLiked" => false
     )));
 }
 

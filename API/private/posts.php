@@ -1,6 +1,7 @@
 <?php
 require_once 'database.php';
 require_once 'users.php';
+require_once 'likes.php';
 
 function GenerateTimestamp($date)
 {
@@ -95,6 +96,11 @@ class Post
     public function like(User $usr): Like
     {
         return Like::create($usr->getId(), $this->_id);
+    }
+
+    public function unlike(User $usr)
+    {
+        return Like::fetchPair($usr->getId(), $this->_id)->remove();
     }
 
     // Getters

@@ -1,21 +1,34 @@
 <?php
+require_once 'users.php';
 
-function generatePost(Post $post, bool $isRef = false)
+function generatePost(Post $post, bool $isRef = false, User $usr = null)
 {
     $refHtml = "";
 
     if ($post->reference != null && !$isRef)
         $refHtml = '<div class="post__reference">' . generatePost($post->reference, true) . '</div>';
 
+    $isLiked = false;
+    if ($usr != null)
+        $isLiked = $post->hasLiked($usr);
+
+    $likeBtn = "<button id=\"btnLike\" class=\"post__footer_button__like\" data=\"" . ($isLiked ? 'liked' : 'unliked') . "\">
+        <i class=\"" . ($isLiked ? 'fas' : 'far') . " fa-heart fa-xl\"></i>
+    </button>";
+
     $footerHtml = <<<HTML
         <div class="post__footer">
             <button id="btnRetwat" class="post__footer_button">
                 <i class="fa-solid fa-repeat fa-xl"></i>
             </button>
+            {$likeBtn}
         </div>
     HTML;
 
     if ($isRef)
+        $footerHtml = "";
+
+    if ($usr == false)
         $footerHtml = "";
 
     $postHtml = <<<HTML
