@@ -12,7 +12,7 @@ function unescapeHtml(text) {
 	});
 }
 
-function GeneratePost(post, isRef) {
+function GeneratePost(post, isRef, isLoggedIn = false) {
 	let postDiv = document.createElement('div');
 	postDiv.classList.add('post');
 	postDiv.setAttribute('data-id', post.id);
@@ -55,10 +55,10 @@ function GeneratePost(post, isRef) {
 		let postReference = document.createElement('div');
 		postReference.classList.add('post__reference');
 		postContent.appendChild(postReference);
-		postReference.appendChild(GeneratePost(post.reference, true));
+		postReference.appendChild(GeneratePost(post.reference, true, isLoggedIn));
 	}
 
-	if (!isRef) {
+	if (!isRef && isLoggedIn) {
 		// Create the post footer
 		let postFooter = document.createElement('div');
 		postFooter.classList.add('post__footer');
@@ -74,9 +74,57 @@ function GeneratePost(post, isRef) {
 		let postFooterRetweetButtonIcon = document.createElement('i');
 		postFooterRetweetButtonIcon.classList.add('fas', 'fa-repeat', 'fa-xl');
 		postFooterRetweetButton.appendChild(postFooterRetweetButtonIcon);
+
+		// Create the like button
+		let postFooterLikeButton = document.createElement('button');
+		postFooterLikeButton.classList.add('post__footer_button__like');
+		postFooterLikeButton.id = 'btnLike';
+		postFooter.appendChild(postFooterLikeButton);
+
+		// Create the i tag
+		let postFooterLikeButtonIcon = document.createElement('i');
+		postFooterLikeButtonIcon.classList.add(!post.isLiked ? 'far' : 'fas', 'fa-heart', 'fa-xl');
+		$(postFooterLikeButton).attr('data', post.isLiked ? 'liked' : 'unliked');
+		postFooterLikeButton.appendChild(postFooterLikeButtonIcon);
+
+		// Add like counter
+		let postFooterLikeCounter = document.createElement('span');
+		postFooterLikeCounter.classList.add('post__footer_like_counter');
 	}
 
 	return postDiv;
+}
+
+function Like(e) {
+	// Get the '.post' parent element of the button
+	const post = e.target.closest('.post');
+
+	// Get the post ID from the data-id attribute
+	const postId = parseInt(post.getAttribute('data-id')) || -1;
+
+	// Send a JSON request to the API
+	$.ajax({
+		url: '/api/like',
+		type: 'POST',
+
+		data: JSON.stringify({
+			id: postId,
+		}),
+
+		success: function (data) {
+			const json = JSON.parse(data);
+			if (!json.success) return alert(json.error);
+
+			// Update the post's like button
+			const likeButton = e.target.closest('.post__footer_button__like');
+
+			// toggle fas and far in the i based on the json.liked
+			likeButton.querySelector('i').classList.toggle('fas');
+			likeButton.querySelector('i').classList.toggle('far');
+
+			$(likeButton).attr('data', json.liked ? 'liked' : 'unliked');
+		},
+	});
 }
 
 function Retwat(e) {
@@ -136,14 +184,16 @@ function LoadUnread() {
 
 				const posts = json.posts;
 
-				// Loop through the posts in reverse and prepend them to the feed
-				for (let i = posts.length - 1; i >= 0; i--) {
-					$('#feed').prepend(GeneratePost(posts[i]));
-				}
+				GetUser().then((user) => {
+					// Loop through the posts in reverse and prepend them to the feed
+					for (let i = posts.length - 1; i >= 0; i--) {
+						$('#feed').prepend(GeneratePost(posts[i], false, user));
+					}
 
-				// Set the data-unread attribute to 0
-				$('#unread').attr('data-unread', 0);
-				resolve();
+					// Set the data-unread attribute to 0
+					$('#unread').attr('data-unread', 0);
+					resolve();
+				});
 			},
 			error: function (err) {
 				reject(err);
@@ -162,25 +212,27 @@ $(document).ready(function () {
 		$('.searchbar__input').removeClass('searchbar__input__active');
 	});
 	$('#btn_post').click(function () {
-		LoadUnread().then(() => {
-			var post = $('.post__form_input').val();
+		GetUser().then((user) => {
+			LoadUnread().then(() => {
+				var post = $('.post__form_input').val();
 
-			if (post == '') return alert('You cannot post an empty message');
+				if (post == '') return alert('You cannot post an empty message');
 
-			//JSON request
-			$.ajax({
-				url: '/api/post.php',
-				type: 'POST',
-				data: JSON.stringify({
-					post: post,
-				}),
-				contentType: 'application/json',
-				success: function (data) {
-					const json = JSON.parse(data);
-					if (!json.success) return alert(json.error);
-					$('.post__form_input').val('');
-					$('#feed').prepend(GeneratePost({ ...json.post, content: post }));
-				},
+				//JSON request
+				$.ajax({
+					url: '/api/post.php',
+					type: 'POST',
+					data: JSON.stringify({
+						post: post,
+					}),
+					contentType: 'application/json',
+					success: function (data) {
+						const json = JSON.parse(data);
+						if (!json.success) return alert(json.error);
+						$('.post__form_input').val('');
+						$('#feed').prepend(GeneratePost({ ...json.post, content: post }, false, user != null));
+					},
+				});
 			});
 		});
 	});
@@ -188,6 +240,7 @@ $(document).ready(function () {
 		ShowPostModal();
 	});
 	$('#feed').on('click', '#btnRetwat', null, Retwat);
+	$('#feed').on('click', '#btnLike', null, Like);
 	autosize($('textarea'));
 
 	const unreadObserver = new MutationObserver(function (mutations) {
@@ -263,9 +316,11 @@ function Observe() {
 					success: (data) => {
 						const json = JSON.parse(data);
 						if (!json.success) return alert(json.error);
-						for (const post of json.posts) {
-							feed.appendChild(GeneratePost(post));
-						}
+						GetUser().then((user) => {
+							for (const post of json.posts) {
+								feed.appendChild(GeneratePost(post, false, user != null));
+							}
+						});
 					},
 				});
 			}
