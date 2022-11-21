@@ -185,6 +185,7 @@ class RegModal extends React.Component {
 	handle;
 
 	render() {
+		let e = React.createElement;
 		return e('div', { className: 'modal__login' }, [
 			e('h1', { className: 'mlogin__title' }, 'Register'),
 			e('p', { className: 'mlogin__subtitle' }, 'Please sign up to continue'),

@@ -8,7 +8,7 @@ class PostUI extends React.Component {
 		if (props.post) this.state.post = props.post;
 	}
 
-	unescape(text) {
+	unescapeHTML(text) {
 		var map = {
 			'&amp;': '&',
 			'&lt;': '<',
@@ -36,7 +36,7 @@ class PostUI extends React.Component {
 					e('span', { className: 'post__author_tag' }, '@' + this.state.post.author.tag + ' ·'),
 					e('span', { className: 'post__timestamp' }, this.state.post.timestamp),
 				]),
-				unescape(this.state.post.content),
+				this.unescapeHTML(this.state.post.content),
 				!this.props.hideFooter
 					? e('div', { className: 'post__footer' }, [
 							e('button', { id: 'btnRetwat', className: 'post__footer_button' }, [
