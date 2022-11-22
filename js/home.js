@@ -31,14 +31,16 @@ function GeneratePost(post, isRef, isLoggedIn = false) {
 	postHeader.classList.add('post__header');
 	postContent.appendChild(postHeader);
 
-	let postAuthorUsername = document.createElement('span');
+	let postAuthorUsername = document.createElement('a');
 	postAuthorUsername.classList.add('post__author_username');
 	postAuthorUsername.innerText = post.author.username;
+	postAuthorUsername.href = '/@' + post.author.tag;
 	postHeader.appendChild(postAuthorUsername);
 
-	let postAuthorTag = document.createElement('span');
+	let postAuthorTag = document.createElement('a');
 	postAuthorTag.classList.add('post__author_tag');
 	postAuthorTag.innerText = ' @' + post.author.tag + ' · ';
+	postAuthorTag.href = '/@' + post.author.tag;
 	postHeader.appendChild(postAuthorTag);
 
 	let postTimestamp = document.createElement('span');
@@ -241,6 +243,14 @@ $(document).ready(function () {
 	});
 	$('#feed').on('click', '#btnRetwat', null, Retwat);
 	$('#feed').on('click', '#btnLike', null, Like);
+	$('#feed').on('click', '.post__author_avatar', null, (e) => {
+		// Get the post__author_tag under e's parent
+		const parent = e.target.closest('.post');
+		const tag = parent.querySelector('.post__author_tag').innerText;
+
+		// Redirect to /profile.php?tag=tag
+		window.location.href = '/@' + tag;
+	});
 	autosize($('textarea'));
 
 	const unreadObserver = new MutationObserver(function (mutations) {

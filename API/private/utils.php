@@ -36,8 +36,8 @@ function generatePost(Post $post, bool $isRef = false, User $usr = null)
         <img src="{$post->author->avatar}" alt="{$post->author->username}'s avatar" class="post__author_avatar">
         <div class="post__content">
             <div class="post__header">
-                <span class="post__author_username">{$post->author->username}</span>
-                <span class="post__author_tag">@{$post->author->tag} ·</span>
+                <a class="post__author_username" href="/@{$post->author->tag}">{$post->author->username}</a>
+                <a class="post__author_tag" href="/@{$post->author->tag}">@{$post->author->tag} ·</a>
                 <span class="post__timestamp">{$post->timestamp}</span>
             </div>
             {$post->content}
