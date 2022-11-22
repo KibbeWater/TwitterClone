@@ -10,23 +10,23 @@ export default function Navbar() {
 			<div className={'flex flex-col items-center mr-4 h-full'}>
 				<div
 					className={
-						'w-16 h-16 mb-1 rounded-full transition-all flex justify-center items-center text-white opacity-0 hover:opacity-25'
+						'w-16 h-16 mb-1 rounded-full transition-all flex justify-center items-center bg-transparent hover:bg-accent-primary-500/25'
 					}
 				>
 					<Link href='/'>
 						<Image src='/assets/favicons/android-chrome-512x512.png' alt='Home' width={45} height={45} />
 					</Link>
 				</div>
-				<div className={'w-12 h-12 mb-1 rounded-full bg-black opacity-0 hover:bg-gray-600 hover:opacity-50'}>
+				<div className={'w-12 h-12 mb-2 rounded-full bg-transparent hover:bg-gray-600/25'}>
 					<Link href='/home' className={'w-full h-full flex justify-center items-center'}>
-						<FontAwesomeIcon icon={faHome} size={'lg'} color={'black'} />
+						<FontAwesomeIcon icon={faHome} size={'xl'} color={'black'} />
 					</Link>
 				</div>
-				<div className={'w-12 h-12 mb-1 rounded-full bg-black opacity-0 hover:bg-gray-600 hover:opacity-50'}>
-					<a href=''>
+				<div className={'w-12 h-12 mb-2 rounded-full bg-transparent hover:bg-gray-600/25'}>
+					<Link href='' className={'w-full h-full flex justify-center items-center'}>
 						{/* href="/$(username)" */}
-						<FontAwesomeIcon icon={faUser} size={'lg'} color={'black'} />
-					</a>
+						<FontAwesomeIcon icon={faUser} size={'xl'} color={'black'} />
+					</Link>
 				</div>
 				<div
 					className={
