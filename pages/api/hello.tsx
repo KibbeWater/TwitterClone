@@ -10,15 +10,15 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
 		s3Client,
 		new GetObjectCommand({
 			Bucket: 'kibbewater-twatter',
-			Key: '/avatars/7fe0e69f09798fc7c774d21b21641490.jpg',
+			Key: 'avatars/7fe0e69f09798fc7c774d21b21641490.jpg',
 		}),
-		{ expiresIn: 3600 }
+		{ expiresIn: 60 }
 	)
 		.then((url) => {
 			res.status(200).json({ url });
 		})
 		.catch((err) => {
 			console.error(err);
-			res.status(500).json({ err });
+			res.status(500).json({ err, env: process.env });
 		});
 }
