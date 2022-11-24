@@ -8,8 +8,8 @@ function Connect() {
 	if (connectionPromise) return connectionPromise;
 
 	const promise = new Promise<Mongoose>((resolve, reject) => {
-		if (!process.env.MONGO_URL) return reject(new Error('Missing MONGO_URL env variable'));
-		const connectURL = process.env.MONGO_URL;
+		if (!process.env.MONGO_URI) return reject(new Error('Missing MONGO_URI env variable'));
+		const connectURL = process.env.MONGO_URI;
 
 		connect(connectURL)
 			.then((db) => {
