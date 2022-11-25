@@ -12,17 +12,23 @@ interface IUser {
 	group: number;
 }
 
-const userSchema = new Schema<IUser>({
-	tag: { type: String, required: true, unique: true },
-	username: { type: String, required: true, unique: true },
-	password: { type: String, required: true },
+const userSchema = new Schema<IUser>(
+	{
+		tag: { type: String, required: true, unique: true },
+		username: { type: String, required: true, unique: true },
+		password: { type: String, required: true },
 
-	avatar: { type: String, default: null },
-	banner: { type: String, default: null },
-	bio: { type: String, default: '' },
+		avatar: { type: String, default: null },
+		banner: { type: String, default: null },
+		bio: { type: String, default: '' },
 
-	group: { type: Number, default: 0 },
-});
+		group: { type: Number, default: 0 },
+	},
+	{
+		methods: {},
+		statics: {},
+	}
+);
 
 const UserModel = model<IUser>('User', userSchema);
 
