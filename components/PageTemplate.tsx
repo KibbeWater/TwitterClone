@@ -1,4 +1,4 @@
-export default function PageTemplate({ children, name }: { children: React.ReactNode; name: string }) {
+export default function PageTemplate({ children, name }: { children?: React.ReactNode; name: string }) {
 	return (
 		<>
 			<header className={'w-full h-12 px-3 sticky backdrop-blur-sm flex items-center bg-white/20'}>
