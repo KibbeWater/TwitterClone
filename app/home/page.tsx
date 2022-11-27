@@ -13,7 +13,7 @@ import { IPost } from '../../schemas/IPost';
 export default function Page() {
 	const [text, setText] = useState('');
 
-	const { data, size, setSize } = useSWRInfinite<{ success: boolean; posts: IPost[]; pages: number }>(
+	const { data, size, setSize, mutate } = useSWRInfinite<{ success: boolean; posts: IPost[]; pages: number }>(
 		(index, previousPageData) => {
 			if (previousPageData && previousPageData.pages < index) return null;
 			return `/api/post?page=${index}`;
@@ -21,11 +21,12 @@ export default function Page() {
 		(url) => fetch(url).then((res) => res.json())
 	);
 
-	const posts = data ? data.map((page) => page.posts).flat() : [];
+	let posts = data ? data.map((page) => page.posts).flat() : [];
 
 	const btnPostClick = () => {
 		SendPost(text).then((res) => {
 			setText('');
+			mutate();
 		});
 	};
 
