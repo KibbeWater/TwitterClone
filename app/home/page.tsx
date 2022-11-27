@@ -16,6 +16,16 @@ export default function Page() {
 						className={'w-full outline-none border-0 mb-4 resize-none text-xl bg-transparent'}
 					/>
 					<div className='h-px w-full opacity-50 bg-gray-900' />
+					<div className='flex justify-between items-center mt-5 h-min'>
+						<div>
+							<p className='m-0 text-black'>* Upload Button *</p>
+						</div>
+						<div>
+							<button className='py-2 px-5 rounded-full border-0 bg-accent-primary-500 text-white cursor-pointer text-md font-bold'>
+								Post
+							</button>
+						</div>
+					</div>
 				</div>
 			</div>
 		</PageTemplate>
