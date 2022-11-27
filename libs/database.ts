@@ -4,7 +4,7 @@ let connected = false;
 let connection: Mongoose | null = null;
 let connectionPromise: Promise<Mongoose> | null = null;
 
-function Connect() {
+export function Connect() {
 	if (connectionPromise) return connectionPromise;
 
 	const promise = new Promise<Mongoose>((resolve, reject) => {
@@ -24,7 +24,7 @@ function Connect() {
 	return promise;
 }
 
-export default async function Run(code: () => void) {
+export default async function DB(code: () => void) {
 	await Connect();
 	code();
 }

@@ -1,4 +1,5 @@
-import { model, Schema, Types } from 'mongoose';
+import { Model, model, Schema, Types } from 'mongoose';
+import { compareSync, hashSync } from 'bcryptjs';
 
 interface IUser {
 	tag: string;
@@ -14,7 +15,14 @@ interface IUser {
 	group: number;
 }
 
-export const userSchema = new Schema<IUser>(
+interface UserModel extends Model<IUser> {
+	getUser: (tag: string) => Promise<IUser | null>;
+	register: (tag: string, username: string, password: string) => Promise<IUser | null>;
+	authorize: (tag: string, password: string) => Promise<IUser | null>;
+	authenticate: (token: string) => Promise<IUser | null>;
+}
+
+export const userSchema = new Schema<IUser, UserModel>(
 	{
 		tag: { type: String, required: true, unique: true },
 		username: { type: String, required: true, unique: true },
@@ -28,38 +36,40 @@ export const userSchema = new Schema<IUser>(
 		group: { type: Number, default: 0 },
 	},
 	{
-		methods: {
-			getSessions: function () {
-				return this.sessions;
-			},
-			setUsername: function (username: string) {
-				this.username = username;
-			},
-			setPassword: function (password: string) {
-				this.password = password;
-			},
-			setAvatar: function (avatar: string) {
-				this.avatar = avatar;
-			},
-			setBanner: function (banner: string) {
-				this.banner = banner;
-			},
-		},
 		statics: {
 			getUser: function (tag: string) {
 				return this.findOne({ tag });
 			},
 
-			authorize: function (tag: string, password: string) {
-				return this.findOne({ tag, password });
+			register: function (tag: string, username: string, password: string) {
+				const saltRounds = parseInt(process.env.SALT_ROUNDS || '') || 10;
+				const hash = hashSync(password, saltRounds);
+
+				return this.create({
+					tag,
+					username,
+					password: hash,
+				});
 			},
-			authenticate: function (token: string) {
-				return this.findOne({ 'sessions.token': token });
+
+			authorize: async function (tag: string, password: string) {
+				const usr = await this.findOne({ tag }).exec();
+				if (!usr) return null;
+
+				const saltRounds = parseInt(process.env.SALT_ROUNDS || '') || 10;
+				const hash = hashSync(password, saltRounds);
+
+				if (compareSync(password, hash)) return usr;
+				else return null;
+			},
+
+			authenticate: async function (token: string) {
+				return await this.findOne({ 'sessions.token': token }).exec();
 			},
 		},
 	}
 );
 
-const UserModel = model<IUser>('User', userSchema);
+const User = model<IUser, UserModel>('User', userSchema);
 
-export default UserModel;
+export default User;

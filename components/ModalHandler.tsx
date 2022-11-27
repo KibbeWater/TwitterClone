@@ -3,8 +3,9 @@ import React from 'react';
 
 import { useModal } from '../libs/modal';
 
-export default function ModalHandler({ children }: { children?: React.ReactNode }) {
-	const modal = useModal();
+export default function ModalHandler({ children, modalOverride }: { children?: React.ReactNode; modalOverride?: React.ReactNode }) {
+	let modal = useModal();
+	if (modalOverride) modal = modalOverride;
 
 	return (
 		<div

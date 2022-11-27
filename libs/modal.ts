@@ -1,5 +1,5 @@
-import React, { createElement } from 'react';
-import UserAuth from '../components/Modals/UserAuth';
+'use client';
+import React from 'react';
 
 let currentModal: React.ReactNode = null;
 

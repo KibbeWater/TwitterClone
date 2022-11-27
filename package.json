@@ -19,6 +19,7 @@
     "@types/react": "18.0.25",
     "@types/react-dom": "18.0.9",
     "axios": "^1.2.0",
+    "bcryptjs": "^2.4.3",
     "eslint": "8.28.0",
     "eslint-config-next": "13.0.4",
     "framer-motion": "^7.6.12",
@@ -31,6 +32,7 @@
     "typescript": "4.9.3"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.2",
     "autoprefixer": "^10.4.13",
     "postcss": "^8.4.19",
     "tailwindcss": "^3.2.4"
