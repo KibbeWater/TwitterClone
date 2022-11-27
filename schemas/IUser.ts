@@ -2,7 +2,7 @@ import { Model, model, Schema, Types } from 'mongoose';
 import { compareSync, hashSync } from 'bcryptjs';
 import Session, { ISession } from './ISession';
 
-interface IUser {
+export interface IUser {
 	tag: string;
 	username: string;
 	password: string;
@@ -23,7 +23,7 @@ interface IUserMethods {
 interface UserModel extends Model<IUser, {}, IUserMethods> {
 	getUser: (tag: string) => Promise<IUser | null>;
 	register: (tag: string, username: string, password: string) => Promise<IUser | null>;
-	authorize: (tag: string, password: string) => Promise<IUser | null>;
+	authorize: (tag: string, password: string, ip?: string) => Promise<{ user: IUser; token: string } | null>;
 	authenticate: (token: string) => Promise<IUser | null>;
 }
 
@@ -57,15 +57,20 @@ export const userSchema = new Schema<IUser, UserModel, IUserMethods>(
 				});
 			},
 
-			authorize: async function (tag: string, password: string) {
+			authorize: async function (tag: string, password: string, ip?: string) {
 				const usr = await this.findOne({ tag }).exec();
 				if (!usr) return null;
 
 				const saltRounds = parseInt(process.env.SALT_ROUNDS || '') || 10;
 				const hash = hashSync(password, saltRounds);
 
-				if (compareSync(password, hash)) return usr;
-				else return null;
+				if (!compareSync(password, hash)) return null;
+
+				const session = await Session.createSession(usr._id, ip);
+				usr.sessions.push(session._id);
+				await usr.save();
+
+				return { user: usr, token: session.token };
 			},
 
 			authenticate: async function (token: string) {
@@ -81,6 +86,8 @@ userSchema.methods.authorize = async function (ip?: string) {
 	await this.save();
 	return session;
 };
+
+userSchema.method;
 
 const User = model<IUser, UserModel>('User', userSchema);
 

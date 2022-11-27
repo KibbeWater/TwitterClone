@@ -1,25 +1,65 @@
 'use client';
 
-import { useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
+import { setCookie } from 'cookies-next';
+import axios from 'axios';
+
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
-import axios from 'axios';
+
+import { IUser } from '../../schemas/IUser';
+import { ModalContext } from '../ModalHandler';
 
 type AuthProps = {
 	switchMode: () => void;
 };
 
-function Login(username: string, password: string) {
-	return new Promise((resolve, reject) => {});
+function Login(username: string, password: string): Promise<IUser> {
+	return new Promise((resolve, reject) => {
+		axios
+			.post<{ success: boolean; token: string; user: IUser }>('/api/user/login', { username, password })
+			.then((res) => {
+				const data = res.data;
+				setCookie('token', data.token);
+				resolve(data.user);
+			})
+			.catch((err) => {
+				reject(err);
+			});
+	});
 }
 
 export default function LoginModal({ switchMode }: AuthProps) {
 	const [username, setUsername] = useState('');
 	const [password, setPassword] = useState('');
 
-	const [loading, setLoading] = useState(true);
+	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState('');
+
+	const { setModal } = useContext(ModalContext);
+
+	const btnLoginClick = () => {
+		setLoading(true);
+
+		Login(username, password)
+			.then(() => {
+				setLoading(false);
+				if (setModal) setModal(null);
+			})
+			.catch((err) => {
+				console.log(err);
+				setError(err);
+			});
+	};
+
+	useEffect(() => {
+		const timeout = setTimeout(() => {
+			setError('');
+		}, 2500);
+
+		return () => clearTimeout(timeout);
+	}, [error]);
 
 	return (
 		<motion.div className='w-72 bg-white rounded-lg flex flex-col items-center'>
@@ -27,14 +67,14 @@ export default function LoginModal({ switchMode }: AuthProps) {
 			<p className='m-0 text-neutral-700'>Please sign in to continue</p>
 			<div className='px-2 py-1 w-full flex flex-col items-center'>
 				<input
-					className='bg-slate-200 mx-1 px-1 py-2 w-9/12 text-sm border-0 rounded-md outline-none'
+					className='bg-slate-200 text-black mx-1 px-1 py-2 w-9/12 text-sm border-0 rounded-md outline-none'
 					type={'text'}
 					placeholder={'Username'}
 					value={username}
 					onChange={(e) => setUsername(e.target.value)}
 				/>
 				<input
-					className='bg-slate-200 my-1 px-1 py-2 w-9/12 text-sm border-0 rounded-md outline-none'
+					className='bg-slate-200 text-black my-1 px-1 py-2 w-9/12 text-sm border-0 rounded-md outline-none'
 					type={'password'}
 					placeholder={'Password'}
 					value={password}
@@ -44,6 +84,7 @@ export default function LoginModal({ switchMode }: AuthProps) {
 			<motion.button
 				className='bg-accent-primary-500 border-0 rounded-md w-[70%] my-2 px-4 py-1 flex justify-center items-center font-semibold text-white disabled:cursor-default'
 				whileHover={{ y: '-3px' }}
+				onClick={btnLoginClick}
 			>
 				{error ? (
 					error
@@ -52,7 +93,7 @@ export default function LoginModal({ switchMode }: AuthProps) {
 						{'Loading'} <FontAwesomeIcon icon={faSpinner} className='animate-spin ml-2' />
 					</>
 				) : (
-					'Register'
+					'Login'
 				)}
 			</motion.button>
 			<div className='flex items-center w-full px-6'>

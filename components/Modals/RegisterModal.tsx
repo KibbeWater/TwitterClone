@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import axios from 'axios';
 
@@ -8,6 +8,7 @@ import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { setCookie } from 'cookies-next';
 import { hideModal } from '../../libs/modal';
+import { ModalContext } from '../ModalHandler';
 
 type AuthProps = {
 	switchMode: () => void;
@@ -40,6 +41,8 @@ export default function RegisterModal({ switchMode }: AuthProps) {
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState('');
 
+	const { setModal } = useContext(ModalContext);
+
 	const btnRegClick = () => {
 		setLoading(true);
 		if (password !== confirm) {
@@ -51,7 +54,7 @@ export default function RegisterModal({ switchMode }: AuthProps) {
 		Register(username, password, confirm)
 			.then(() => {
 				setLoading(false);
-				hideModal();
+				if (setModal) setModal(null);
 			})
 			.catch((err) => {
 				setError(err);
@@ -65,8 +68,6 @@ export default function RegisterModal({ switchMode }: AuthProps) {
 
 		return () => clearTimeout(timeout);
 	}, [error]);
-
-	console.log(error);
 
 	return (
 		<motion.div className='w-72 bg-white rounded-lg flex flex-col items-center'>
