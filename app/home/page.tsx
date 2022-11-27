@@ -30,8 +30,6 @@ export default function Page() {
 		});
 	};
 
-	console.log(posts);
-
 	return (
 		<PageTemplate name='Home'>
 			<div className='flex w-full px-5 pb-4 bg-white relative z-10 border-b-[1px] border-gray-700'>
