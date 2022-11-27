@@ -1,6 +1,7 @@
-import { model, Schema, Types } from 'mongoose';
+import { Model, model, Schema, Types } from 'mongoose';
 
-interface IPost {
+export interface IPost {
+	_id: Types.ObjectId;
 	user?: Types.ObjectId;
 	content: string;
 	quote?: Types.ObjectId;
@@ -8,14 +9,37 @@ interface IPost {
 	date: number;
 }
 
-const postSchema = new Schema<IPost>({
-	user: { type: Types.ObjectId, ref: 'User' },
-	content: { type: String, required: true },
-	quote: { type: Types.ObjectId, ref: 'Post' },
-	comments: [{ type: Types.ObjectId, ref: 'Post' }],
-	date: { type: Number, required: true },
-});
+interface PostModel extends Model<IPost> {
+	post: (user: Types.ObjectId, content: string, quote?: Types.ObjectId) => Promise<IPost | null>;
+	getPost: (id: Types.ObjectId) => Promise<IPost | null>;
+}
 
-const Post = model<IPost>('Post', postSchema);
+const postSchema = new Schema<IPost, PostModel>(
+	{
+		user: { type: Types.ObjectId, ref: 'User' },
+		content: { type: String, required: true },
+		quote: { type: Types.ObjectId, ref: 'Post' },
+		comments: [{ type: Types.ObjectId, ref: 'Post' }],
+		date: { type: Number, required: true },
+	},
+	{
+		statics: {
+			post: function (user: Types.ObjectId, content: string, quote?: Types.ObjectId) {
+				return this.create({
+					user,
+					content,
+					quote,
+					comments: [],
+					date: Date.now(),
+				});
+			},
+			getPost: function (id: Types.ObjectId) {
+				return this.findById(id).exec();
+			},
+		},
+	}
+);
+
+const Post = model<IPost, PostModel>('Post', postSchema);
 
 export default Post;

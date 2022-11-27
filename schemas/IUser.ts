@@ -1,6 +1,7 @@
 import { Model, model, Schema, Types } from 'mongoose';
 import { compareSync, hashSync } from 'bcryptjs';
 import Session, { ISession } from './ISession';
+import Post, { IPost } from './IPost';
 
 export interface IUser {
 	tag: string;
@@ -18,13 +19,14 @@ export interface IUser {
 
 interface IUserMethods {
 	authorize: () => Promise<ISession>;
+	post: (content: string, quote?: Types.ObjectId) => Promise<IPost | null>;
 }
 
 interface UserModel extends Model<IUser, {}, IUserMethods> {
 	getUser: (tag: string) => Promise<IUser | null>;
 	register: (tag: string, username: string, password: string) => Promise<IUser | null>;
 	authorize: (tag: string, password: string, ip?: string) => Promise<{ user: IUser; token: string } | null>;
-	authenticate: (token: string) => Promise<IUser | null>;
+	authenticate: (token: string) => Promise<ISession | null>;
 }
 
 export const userSchema = new Schema<IUser, UserModel, IUserMethods>(
@@ -74,7 +76,14 @@ export const userSchema = new Schema<IUser, UserModel, IUserMethods>(
 			},
 
 			authenticate: async function (token: string) {
-				return await Session.getSession(token);
+				const session = await Session.getSession(token);
+				if (!session) return null;
+
+				// Get the owner of the session
+				const usr = await this.findOne({ _id: session.owner }).exec();
+				if (!usr) return null;
+
+				return usr;
 			},
 		},
 	}
@@ -85,6 +94,10 @@ userSchema.methods.authorize = async function (ip?: string) {
 	this.sessions.push(session._id);
 	await this.save();
 	return session;
+};
+
+userSchema.methods.post = async function (content: string, quote?: Types.ObjectId) {
+	return Post.post(this._id, content, quote);
 };
 
 userSchema.method;

@@ -18,11 +18,14 @@ type AuthProps = {
 function Login(username: string, password: string): Promise<IUser> {
 	return new Promise((resolve, reject) => {
 		axios
-			.post<{ success: boolean; token: string; user: IUser }>('/api/user/login', { username, password })
+			.post<{ success: boolean; token: string; user: IUser; error: string }>('/api/user/login', { username, password })
 			.then((res) => {
 				const data = res.data;
-				setCookie('token', data.token);
-				resolve(data.user);
+
+				if (data.success) {
+					setCookie('token', data.token);
+					resolve(data.user);
+				} else reject(data.error);
 			})
 			.catch((err) => {
 				reject(err);
@@ -49,7 +52,7 @@ export default function LoginModal({ switchMode }: AuthProps) {
 			})
 			.catch((err) => {
 				console.log(err);
-				setError(err);
+				setError('Internal server error');
 			});
 	};
 

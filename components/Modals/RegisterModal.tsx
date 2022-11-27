@@ -18,17 +18,22 @@ function Register(username: string, password: string, confirm: string): Promise<
 		if (password !== confirm) return reject('Password does not match');
 
 		axios
-			.post<{ success: boolean; token: string }>('/api/user/register', {
+			.post<{ success: boolean; token: string; error: string }>('/api/user/register', {
 				username,
 				password,
 				confirm,
 			})
 			.then((res) => {
 				const data = res.data;
-				setCookie('token', data.token);
-				resolve();
+				if (data.success) {
+					setCookie('token', data.token);
+					resolve();
+				} else reject(data.error);
 			})
-			.catch(reject);
+			.catch((err) => {
+				console.error(err);
+				reject('Internal server error');
+			});
 	});
 }
 

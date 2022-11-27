@@ -10,12 +10,16 @@ export interface ISession {
 	ip?: string;
 }
 
-interface SessionModel extends Model<ISession> {
+interface ISessionMethods {
+	isValid: () => Promise<boolean>;
+}
+
+interface SessionModel extends Model<ISession, {}, ISessionMethods> {
 	createSession: (owner?: Types.ObjectId, ip?: string) => Promise<ISession>;
 	getSession: (token: string) => Promise<ISession | null>;
 }
 
-const sessionSchema = new Schema<ISession, SessionModel>(
+const sessionSchema = new Schema<ISession, SessionModel, ISessionMethods>(
 	{
 		owner: { type: Types.ObjectId, ref: 'User' },
 		token: { type: String, required: true, unique: true },
@@ -23,13 +27,6 @@ const sessionSchema = new Schema<ISession, SessionModel>(
 		ip: { type: String, required: false },
 	},
 	{
-		methods: {
-			isValid: function () {
-				const isValid = this.date + MAX_SESSION_AGE > Date.now();
-				if (!isValid) this.delete();
-				return isValid;
-			},
-		},
 		statics: {
 			createSession: function (owner?: Types.ObjectId, ip?: string) {
 				const token = Buffer.from([...Array(32)].map(() => (~~(Math.random() * 36)).toString(36)).join('')).toString('base64');
@@ -38,11 +35,28 @@ const sessionSchema = new Schema<ISession, SessionModel>(
 			},
 
 			getSession: function (token: string) {
-				return this.findOne({ token }).populate('owner').exec();
+				return new Promise<ISession | null>((resolve, reject) => {
+					const session = this.findOne({ token }).populate('owner').exec();
+					new Session(session).isValid().then((valid) => {
+						if (!valid) resolve(null);
+						else resolve(session);
+					});
+				});
 			},
 		},
 	}
 );
+
+sessionSchema.methods.isValid = function () {
+	return new Promise<boolean>((resolve, reject) => {
+		if (this.date + MAX_SESSION_AGE < Date.now()) {
+			this.deleteOne().exec();
+			resolve(false);
+		} else {
+			resolve(true);
+		}
+	});
+};
 
 const Session = model<ISession, SessionModel>('Session', sessionSchema);
 
