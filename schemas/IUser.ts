@@ -69,7 +69,7 @@ export const userSchema = new Schema<IUser, UserModel, IUserMethods>(
 			},
 
 			authenticate: async function (token: string) {
-				return await this.findOne({ 'sessions.token': token }).exec();
+				return await Session.getSession(token);
 			},
 		},
 	}

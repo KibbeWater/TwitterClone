@@ -12,6 +12,7 @@ export interface ISession {
 
 interface SessionModel extends Model<ISession> {
 	createSession: (owner?: Types.ObjectId, ip?: string) => Promise<ISession>;
+	getSession: (token: string) => Promise<ISession | null>;
 }
 
 const sessionSchema = new Schema<ISession, SessionModel>(
@@ -34,6 +35,10 @@ const sessionSchema = new Schema<ISession, SessionModel>(
 				const token = Buffer.from([...Array(32)].map(() => (~~(Math.random() * 36)).toString(36)).join('')).toString('base64');
 				const date = Date.now();
 				return this.create({ owner, token, date, ip });
+			},
+
+			getSession: function (token: string) {
+				return this.findOne({ token }).populate('owner').exec();
 			},
 		},
 	}
