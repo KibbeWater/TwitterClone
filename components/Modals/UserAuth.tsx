@@ -3,9 +3,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import React, { useState } from 'react';
 
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSpinner } from '@fortawesome/free-solid-svg-icons';
-
 import LoginModal from './LoginModal';
 import RegisterModal from './RegisterModal';
 
@@ -38,9 +35,7 @@ export default function UserAuth({ mode }: Props) {
 
 	let content: React.ReactNode = null;
 
-	console.log('Mode: ' + stateMode);
-
-	switch (mode) {
+	switch (stateMode) {
 		case 'SignIn':
 			content = <LoginModal switchMode={() => setMode(swapMode)} />;
 			break;

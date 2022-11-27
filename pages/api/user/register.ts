@@ -17,8 +17,12 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
 
 			User.register(username, username, password)
 				.then((newUser) => {
-					console.log(newUser);
-					resolve(res.status(200).json({ success: true }));
+					if (!newUser) return resolve(res.status(500).json({ success: false, error: 'Failed to create user' }));
+
+					new User(newUser).authorize().then((session) => {
+						if (!session) return resolve(res.status(500).json({ success: false, error: 'Failed to create session' }));
+						resolve(res.status(200).json({ success: true, token: session.token }));
+					});
 				})
 				.catch((err) => {
 					console.error(err);

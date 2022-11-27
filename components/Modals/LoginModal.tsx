@@ -4,10 +4,15 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
+import axios from 'axios';
 
 type AuthProps = {
 	switchMode: () => void;
 };
+
+function Login(username: string, password: string) {
+	return new Promise((resolve, reject) => {});
+}
 
 export default function LoginModal({ switchMode }: AuthProps) {
 	const [username, setUsername] = useState('');

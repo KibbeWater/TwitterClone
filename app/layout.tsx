@@ -19,7 +19,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 	await Connect();
 	const user = await User.authenticate(token);
 	const modal = !user ? <UserAuth mode={'SignIn'} /> : null;
-	console.log(user);
 
 	return (
 		<html lang='en'>

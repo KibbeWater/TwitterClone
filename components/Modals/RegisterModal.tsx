@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+import axios from 'axios';
 
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -9,6 +10,22 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 type AuthProps = {
 	switchMode: () => void;
 };
+
+function Register(username: string, password: string, confirm: string) {
+	return new Promise((resolve, reject) => {
+		if (password !== confirm) return reject('Password does not match');
+
+		axios
+			.post<{ success: boolean; token: string }>('/api/user/register', {
+				username,
+				password,
+				confirm,
+			})
+			.then((res) => {
+				const data = res.data;
+			});
+	});
+}
 
 export default function RegisterModal({ switchMode }: AuthProps) {
 	const [username, setUsername] = useState('');
