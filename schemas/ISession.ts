@@ -1,4 +1,4 @@
-import { Model, model, Schema, Types } from 'mongoose';
+import mongoose, { Model, model, Schema, Types } from 'mongoose';
 
 const MAX_SESSION_AGE = 1000 * 60 * 60 * 24 * 7; // 1 week
 
@@ -58,6 +58,7 @@ sessionSchema.methods.isValid = function () {
 	});
 };
 
-const Session = model<ISession, SessionModel>('Session', sessionSchema);
+// Fix recompilation error
+const Session = (mongoose.models.Session as SessionModel) || model<ISession, SessionModel>('Session', sessionSchema);
 
 export default Session;

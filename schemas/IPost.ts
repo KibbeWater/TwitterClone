@@ -1,4 +1,4 @@
-import { Model, model, Schema, Types } from 'mongoose';
+import mongoose, { Model, model, Schema, Types } from 'mongoose';
 
 export interface IPost {
 	_id: Types.ObjectId;
@@ -40,6 +40,7 @@ const postSchema = new Schema<IPost, PostModel>(
 	}
 );
 
-const Post = model<IPost, PostModel>('Post', postSchema);
+// Fix recompilation error
+const Post = (mongoose.models.Post as PostModel) || model<IPost, PostModel>('Post', postSchema);
 
 export default Post;

@@ -1,4 +1,4 @@
-import { Model, model, Schema, Types } from 'mongoose';
+import mongoose, { Model, model, Schema, Types } from 'mongoose';
 import { compareSync, hashSync } from 'bcryptjs';
 import Session, { ISession } from './ISession';
 import Post, { IPost } from './IPost';
@@ -100,8 +100,7 @@ userSchema.methods.post = async function (content: string, quote?: Types.ObjectI
 	return Post.post(this._id, content, quote);
 };
 
-userSchema.method;
-
-const User = model<IUser, UserModel>('User', userSchema);
+// Fix recompilation error
+const User = (mongoose.models.User as UserModel) || model<IUser, UserModel>('User', userSchema);
 
 export default User;
