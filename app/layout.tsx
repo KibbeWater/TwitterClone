@@ -16,7 +16,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 				<ModalHandler />
 				<div className='parent w-screen h-screen flex'>
 					<Navbar />
-					<main className={'min-w-[45%] max-w-[50%]'}>{children}</main>
+					<main className={'grow'}>{children}</main>
 					<Filters />
 				</div>
 			</body>

@@ -8,7 +8,7 @@ export default function Filters() {
 	const [active, setActive] = useState(false);
 
 	return (
-		<div className={'h-full grow border-l-[1px] border-gray-700'}>
+		<div className={'h-full w-[37%] border-l-[1px] border-gray-700 hidden lg:block'}>
 			<div className={'h-full w-[70%] ml-8 pt-1'}>
 				<div
 					className={`w-full h-10 rounded-3xl mb-2 flex items-center ${active ? 'bg-white' : 'bg-[#eff3f4]'} ${

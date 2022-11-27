@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import PageTemplate from '../../components/PageTemplate';
 import TextAutosize from '../../components/TextAutosize';
 
@@ -6,7 +7,7 @@ export default function Page() {
 		<PageTemplate name='Home'>
 			<div className='flex w-full px-5 pb-4 bg-white relative z-10 border-b-[1px] border-gray-700'>
 				<div>
-					<h1>Img here</h1>
+					<Image src={'/default_avatar.png'} alt={'Your profile picture'} width={55} height={55} className={'rounded-full'} />
 				</div>
 				<div className='flex flex-col px-5 w-full'>
 					<TextAutosize
