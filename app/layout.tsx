@@ -1,6 +1,8 @@
 import './globals.css';
 
 import { cookies } from 'next/headers';
+import { createContext } from 'react';
+
 import { config } from '@fortawesome/fontawesome-svg-core';
 import '@fortawesome/fontawesome-svg-core/styles.css';
 config.autoAddCss = false;
@@ -8,10 +10,10 @@ config.autoAddCss = false;
 import Navbar from '../components/Navbar';
 import Filters from '../components/Filters';
 import ModalHandler from '../components/ModalHandler';
-import User from '../schemas/IUser';
+import User, { IUser } from '../schemas/IUser';
 import UserAuth from '../components/Modals/UserAuth';
 import { Connect } from '../libs/database';
-import { createContext } from 'react';
+import UserHandler from '../components/UserHandler';
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
 	const token = cookies().get('token')?.value as string;
@@ -24,13 +26,15 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 		<html lang='en'>
 			<head />
 			<body className={'bg-white'}>
-				<ModalHandler modalOverride={modal}>
-					<div className='parent w-screen h-screen flex'>
-						<Navbar />
-						<main className={'grow'}>{children}</main>
-						<Filters />
-					</div>
-				</ModalHandler>
+				<UserHandler user={user}>
+					<ModalHandler modalOverride={modal}>
+						<div className='parent w-screen h-screen flex'>
+							<Navbar />
+							<main className={'grow'}>{children}</main>
+							<Filters />
+						</div>
+					</ModalHandler>
+				</UserHandler>
 			</body>
 		</html>
 	);

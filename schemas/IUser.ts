@@ -26,7 +26,7 @@ interface UserModel extends Model<IUser, {}, IUserMethods> {
 	getUser: (tag: string) => Promise<IUser | null>;
 	register: (tag: string, username: string, password: string) => Promise<IUser | null>;
 	authorize: (tag: string, password: string, ip?: string) => Promise<{ user: IUser; token: string } | null>;
-	authenticate: (token: string) => Promise<ISession | null>;
+	authenticate: (token: string) => Promise<IUser | null>;
 }
 
 export const userSchema = new Schema<IUser, UserModel, IUserMethods>(

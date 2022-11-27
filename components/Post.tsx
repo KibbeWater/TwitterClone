@@ -5,7 +5,6 @@ import Image from 'next/image';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faRepeat } from '@fortawesome/free-solid-svg-icons';
 import { faHeart as fasHeart } from '@fortawesome/free-solid-svg-icons';
-
 import { faHeart as farHeart } from '@fortawesome/free-regular-svg-icons';
 
 import { IPost } from '../schemas/IPost';
@@ -13,9 +12,10 @@ import { IUser } from '../schemas/IUser';
 
 type Props = {
 	post: IPost;
+	isRef?: boolean;
 };
 
-export default function Post({ post }: Props) {
+export default function Post({ post, isRef }: Props) {
 	if (!post) return null;
 
 	const user = post.user as unknown as IUser | null;
@@ -25,9 +25,9 @@ export default function Post({ post }: Props) {
 
 	return (
 		<div
-			className={
-				'p-3 mb-px w-full bg-transparent transition-all cursor-pointer border-b-[1px] border-gray-700 flex hover:bg-black/5 group-default/quote:border-0 group-default/quote:bg-transparent group-hover/quote:bg-transparent'
-			}
+			className={`p-3 mb-px w-full bg-transparent transition-all cursor-pointer border-b-[1px] border-gray-700 flex hover:bg-black/5 ${
+				isRef ? '!border-0 !bg-transparent hover:!bg-transparent' : ''
+			}`}
 		>
 			<Image
 				className={'w-10 h-10 object-cover rounded-full cursor-pointer mr-1 transition-opacity hover:opacity-80'}
@@ -48,7 +48,7 @@ export default function Post({ post }: Props) {
 					<span className={'text-gray-700 hover:underline'}>{new Date(post.date).toDateString()}</span>
 				</div>
 				<p className={'text-black'}>{post.content}</p>
-				{!quote ? (
+				{!quote || isRef ? (
 					<></>
 				) : (
 					<div
