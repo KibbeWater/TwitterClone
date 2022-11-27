@@ -7,7 +7,6 @@ import axios from 'axios';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { setCookie } from 'cookies-next';
-import { hideModal } from '../../libs/modal';
 import { ModalContext } from '../ModalHandler';
 
 type AuthProps = {
