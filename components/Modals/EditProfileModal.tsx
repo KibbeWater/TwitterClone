@@ -95,6 +95,7 @@ export default function EditProfileModal() {
 			.then((res) => {
 				if (res.data.success) {
 					setLoading(false);
+					if (setModal) setModal(null);
 				} else {
 					setError(res.data.error || 'An error occured');
 					setLoading(false);

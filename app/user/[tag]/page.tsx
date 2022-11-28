@@ -10,6 +10,7 @@ import { ModalContext } from '../../../components/ModalHandler';
 import EditProfileModal from '../../../components/Modals/EditProfileModal';
 
 import PageTemplate from '../../../components/PageTemplate';
+import Post from '../../../components/Post';
 import { UserContext } from '../../../components/UserHandler';
 import { CreateRelationship, SafeUser } from '../../../libs/user';
 import { IRelationship } from '../../../schemas/IRelationship';
@@ -148,7 +149,15 @@ export default function Page({ params }: Props) {
 						</div>
 					</div>
 				</div>
-				<div className='flex flex-col items-center'></div>
+				<div className='flex flex-col items-center'>
+					{profile.posts.length !== undefined
+						? profile.posts
+								.map((post) => {
+									return <Post key={post._id.toString()} post={post} />;
+								})
+								.sort((a, b) => b.props.post.date - a.props.post.date)
+						: null}
+				</div>
 			</div>
 		</PageTemplate>
 	);

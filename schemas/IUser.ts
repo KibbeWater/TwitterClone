@@ -99,7 +99,11 @@ export const userSchema = new Schema<IUser, UserModel, IUserMethods>(
 
 				// Get the owner of the session
 				let usr = await this.findOne({ _id: session.owner })
-					.populate<{ sessions: ISession[]; relationships: IRelationship[] }>(['sessions', 'relationships'])
+					.populate<{ sessions: ISession[]; relationships: IRelationship[]; posts: IPost[] }>([
+						'sessions',
+						'relationships',
+						'posts',
+					])
 					.lean()
 					.exec();
 
