@@ -1,6 +1,6 @@
 'use client';
 
-import { useContext } from 'react';
+import { useContext, useEffect, useReducer } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -14,6 +14,12 @@ import { UserContext } from './UserHandler';
 export default function Navbar() {
 	const { setModal } = useContext(ModalContext);
 	const user = useContext(UserContext);
+
+	const [revalidate, setRevalidate] = useReducer(() => ({}), {});
+
+	useEffect(() => {
+		setRevalidate();
+	}, [user]);
 
 	return (
 		<nav className={'min-w-[10%] max-w-[25%] ml-3 w-full h-screen flex justify-end bg-white border-r-[1px] border-gray-700'}>
