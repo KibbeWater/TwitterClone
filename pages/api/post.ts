@@ -4,6 +4,7 @@ import User, { IUser } from '../../schemas/IUser';
 import Post, { IPost } from '../../schemas/IPost';
 import DB from '../../libs/database';
 import { NormalizeObject } from '../../libs/utils';
+import { ILike } from '../../schemas/ILike';
 
 function PostReq(req: NextApiRequest, res: NextApiResponse) {
 	return new Promise(async (resolve) => {
@@ -26,7 +27,7 @@ function PostReq(req: NextApiRequest, res: NextApiResponse) {
 							if (!post) return resolve(res.status(500).json({ success: false, error: 'Internal server error' }));
 							else return resolve(res.status(200).json({ success: true, post }));
 						})
-						.catch((error) => {
+						.catch(() => {
 							return resolve(res.status(500).json({ success: false, error: 'Internal server error' }));
 						});
 				})
@@ -61,17 +62,18 @@ function GetReq(req: NextApiRequest, res: NextApiResponse) {
 				.sort({ date: -1 })
 				.skip(pageNumber * pageLimit)
 				.limit(pageLimit)
-				.populate<{ user: IUser }>('user')
-				.populate<{ quote: IPost }>('quote')
-				.populate<{ comments: IPost[] }>('comments')
+				/* This is so unoptimal I wanna cry but fuck it, we're populating likes too */
+				.populate<{ user: IUser; quote: IPost; comments: IPost[]; likes: ILike[] }>(['user', 'quote', 'comments', 'likes'])
+				/* Populate quote user */
+				.populate<{ user: IUser }>(['quote.user'])
 				.lean()
 				.exec()
 				.then((posts) => {
 					const newPosts = posts.map((post) => NormalizeObject<typeof post>(post));
 
-					return resolve(res.status(200).json({ success: true, posts, newPosts }));
+					return resolve(res.status(200).json({ success: true, posts: newPosts, pages }));
 				})
-				.catch((err) => {
+				.catch(() => {
 					return resolve(res.status(500).json({ success: false, error: 'Internal server error' }));
 				});
 		});

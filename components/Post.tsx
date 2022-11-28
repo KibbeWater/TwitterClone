@@ -9,6 +9,12 @@ import { faHeart as farHeart } from '@fortawesome/free-regular-svg-icons';
 
 import { IPost } from '../schemas/IPost';
 import { IUser } from '../schemas/IUser';
+import { useContext, useState } from 'react';
+import { UserContext } from './UserHandler';
+import { LikePost } from '../libs/post';
+import { ILike } from '../schemas/ILike';
+import { ModalContext } from './ModalHandler';
+import PostModal from './Modals/PostModal';
 
 type Props = {
 	post: IPost;
@@ -16,6 +22,10 @@ type Props = {
 };
 
 export default function Post({ post, isRef }: Props) {
+	const { setModal } = useContext(ModalContext);
+	const me = useContext(UserContext);
+	const [hasLiked, setHasLiked] = useState((post.likes as unknown as ILike[]).findIndex((like) => like.user === me?._id) !== -1);
+
 	if (!post) return null;
 
 	const user = post.user as unknown as IUser | null;
@@ -59,26 +69,40 @@ export default function Post({ post, isRef }: Props) {
 						<Post post={quote} />
 					</div>
 				)}
-				<div className={'mt-3 h-8 flex'}>
-					<button
-						className={
-							'border-0 p-0 h-8 w-8 mr-1 rounded-full flex items-center justify-center transition-colors bg-black/0 cursor-pointer hover:bg-[#3cff3c]/40 group/btnRetweet'
-						}
-					>
-						<FontAwesomeIcon icon={faRepeat} size={'xl'} className={'text-black group-hover/btnRetweet:text-green-500'} />
-					</button>
-					<button
-						className={
-							'border-0 p-0 h-8 w-8 mr-1 rounded-full flex items-center justify-center transition-colors bg-black/0 cursor-pointer hover:bg-red-500/40 group/btnLike'
-						}
-					>
-						<FontAwesomeIcon
-							icon={farHeart}
-							size={'xl'}
-							className={'text-black group-hover/btnLike:text-red-500 transition-colors'}
-						/>
-					</button>
-				</div>
+				{!isRef ? (
+					<div className={'mt-3 h-8 flex'}>
+						<button
+							className={
+								'border-0 p-0 h-8 w-8 mr-1 rounded-full flex items-center justify-center transition-colors bg-black/0 cursor-pointer hover:bg-[#3cff3c]/40 group/btnRetweet'
+							}
+							onClick={() => {
+								if (setModal) setModal(<PostModal quote={post} />);
+							}}
+						>
+							<FontAwesomeIcon icon={faRepeat} size={'xl'} className={'text-black group-hover/btnRetweet:text-green-500'} />
+						</button>
+						<button
+							className={
+								'border-0 p-0 h-8 w-8 mr-1 rounded-full flex items-center justify-center transition-colors bg-black/0 cursor-pointer hover:bg-red-500/40 group/btnLike'
+							}
+							onClick={() => {
+								LikePost(post._id as unknown as string, !hasLiked).then(() => {
+									setHasLiked((prev) => !prev);
+								});
+							}}
+						>
+							<FontAwesomeIcon
+								icon={hasLiked ? fasHeart : farHeart}
+								size={'xl'}
+								className={
+									hasLiked
+										? 'text-red-500 group-hover/btnLike:text-black transition-colors'
+										: 'text-black group-hover/btnLike:text-red-500 transition-colors'
+								}
+							/>
+						</button>
+					</div>
+				) : null}
 			</div>
 		</div>
 	);

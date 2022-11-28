@@ -6,6 +6,7 @@ import { NormalizeObject } from '../libs/utils';
 import Like, { ILike } from './ILike';
 
 export interface IUser {
+	_id: Types.ObjectId;
 	tag: string;
 	username: string;
 	password: string;
@@ -15,6 +16,7 @@ export interface IUser {
 	bio: string;
 
 	sessions: [Types.ObjectId];
+	likes: [Types.ObjectId];
 
 	group: number;
 }
@@ -22,7 +24,7 @@ export interface IUser {
 interface IUserMethods {
 	authorize: () => Promise<ISession>;
 	post: (content: string, quote?: Types.ObjectId) => Promise<IPost | null>;
-	likePost: (post: Types.ObjectId) => Promise<ILike | null>;
+	likePost: (post: Types.ObjectId, shouldLike: boolean) => Promise<ILike | null>;
 }
 
 interface UserModel extends Model<IUser, {}, IUserMethods> {
@@ -43,6 +45,8 @@ export const userSchema = new Schema<IUser, UserModel, IUserMethods>(
 		bio: { type: String, default: '' },
 
 		sessions: [{ type: Types.ObjectId, ref: 'Session' }],
+		likes: [{ type: Types.ObjectId, ref: 'Like' }],
+
 		group: { type: Number, default: 0 },
 	},
 	{
@@ -103,8 +107,16 @@ userSchema.methods.post = async function (content: string, quote?: Types.ObjectI
 	return Post.post(this._id, content, quote);
 };
 
-userSchema.methods.likePost = async function (post: Types.ObjectId) {
-	return Like.likePost(this._id, post);
+userSchema.methods.likePost = async function (post: Types.ObjectId, shouldLike: boolean) {
+	return new Promise<ILike | null>(async (resolve, reject) => {
+		if (shouldLike) return resolve(Like.likePost(this._id, post));
+		else {
+			const like = await Like.findOne({ user: this._id, post }).exec();
+			if (!like) return null;
+
+			resolve(await Like.unlikePost(like._id));
+		}
+	});
 };
 
 // Fix recompilation error

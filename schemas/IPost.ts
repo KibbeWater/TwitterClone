@@ -6,6 +6,7 @@ export interface IPost {
 	content: string;
 	quote?: Types.ObjectId;
 	comments: [Types.ObjectId];
+	likes: [Types.ObjectId];
 	date: number;
 }
 
@@ -20,6 +21,7 @@ const postSchema = new Schema<IPost, PostModel>(
 		content: { type: String, required: true },
 		quote: { type: Types.ObjectId, ref: 'Post' },
 		comments: [{ type: Types.ObjectId, ref: 'Post' }],
+		likes: [{ type: Types.ObjectId, ref: 'Like' }],
 		date: { type: Number, required: true },
 	},
 	{
