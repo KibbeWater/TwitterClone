@@ -2,7 +2,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { getCookie } from 'cookies-next';
 import User, { IUser } from '../../schemas/IUser';
 import Post, { IPost } from '../../schemas/IPost';
-import DB from '../../libs/database';
+import DB, { Connect } from '../../libs/database';
 import { NormalizeObject } from '../../libs/utils';
 import { ILike } from '../../schemas/ILike';
 
@@ -63,9 +63,9 @@ function GetReq(req: NextApiRequest, res: NextApiResponse) {
 				.skip(pageNumber * pageLimit)
 				.limit(pageLimit)
 				/* This is so unoptimal I wanna cry but fuck it, we're populating likes too */
-				.populate<{ user: IUser; quote: IPost; comments: IPost[]; likes: ILike[] }>(['user', 'quote', 'comments', 'likes'])
+				.populate<{ user: IUser; quote: IPost; comments: IPost[]; likes: ILike[] }>(['user', 'comments', 'likes'])
 				/* Populate quote user */
-				.populate<{ user: IUser }>(['quote.user'])
+				.populate<{ user: IUser & { user: IUser } }>({ path: 'quote', populate: { path: 'user' } })
 				.lean()
 				.exec()
 				.then((posts) => {
@@ -80,7 +80,9 @@ function GetReq(req: NextApiRequest, res: NextApiResponse) {
 	});
 }
 
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+	await Connect();
+
 	if (req.method === 'POST') return PostReq(req, res);
 	else if (req.method === 'GET') return GetReq(req, res);
 	else return res.status(405).json({ success: false, error: 'Method not allowed' });

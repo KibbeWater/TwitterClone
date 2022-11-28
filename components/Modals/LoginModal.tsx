@@ -40,15 +40,13 @@ export default function LoginModal({ switchMode }: AuthProps) {
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState('');
 
-	const { setModal } = useContext(ModalContext);
-
 	const btnLoginClick = () => {
 		setLoading(true);
 
 		Login(username, password)
 			.then(() => {
 				setLoading(false);
-				if (setModal) setModal(null);
+				window.location.reload();
 			})
 			.catch((err) => {
 				console.log(err);

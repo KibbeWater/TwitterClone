@@ -9,12 +9,42 @@ import { faHeart as farHeart } from '@fortawesome/free-regular-svg-icons';
 
 import { IPost } from '../schemas/IPost';
 import { IUser } from '../schemas/IUser';
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useReducer, useState } from 'react';
 import { UserContext } from './UserHandler';
 import { LikePost } from '../libs/post';
 import { ILike } from '../schemas/ILike';
 import { ModalContext } from './ModalHandler';
 import PostModal from './Modals/PostModal';
+
+/*
+function GenerateTimestamp($date)
+{
+    $now = time();
+    $diff = $now - $date;
+
+    if ($diff < 60) {
+        return $diff . 's';
+    } else if ($diff < 3600) {
+        return floor($diff / 60) . 'm';
+    } else if ($diff < 86400) {
+        return floor($diff / 3600) . 'h';
+    } else if ($diff < 31536000) {
+        return date('M j', $date);
+    } else {
+        return date('M j, Y', $date);
+    }
+}
+*/
+function FormatDate(date: Date) {
+	const now = new Date();
+	const diff = now.getTime() - date.getTime();
+
+	if (diff < 60000) return Math.floor(diff / 1000) + 's';
+	else if (diff < 3600000) return Math.floor(diff / 60000) + 'm';
+	else if (diff < 86400000) return Math.floor(diff / 3600000) + 'h';
+	else if (diff < 31536000000) return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+	else return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
 
 type Props = {
 	post: IPost;
@@ -25,6 +55,16 @@ export default function Post({ post, isRef }: Props) {
 	const { setModal } = useContext(ModalContext);
 	const me = useContext(UserContext);
 	const [hasLiked, setHasLiked] = useState((post.likes as unknown as ILike[]).findIndex((like) => like.user === me?._id) !== -1);
+
+	const [count, addCount] = useReducer((count: number) => count + 1, 0);
+
+	useEffect(() => {
+		const interval = setInterval(() => {
+			addCount();
+		}, 1000);
+
+		return () => clearInterval(interval);
+	});
 
 	if (!post) return null;
 
@@ -55,7 +95,7 @@ export default function Post({ post, isRef }: Props) {
 						{`@${user.tag}`}
 						<span className='mx-[6px]'>·</span>
 					</a>
-					<span className={'text-gray-700 hover:underline'}>{new Date(post.date).toDateString()}</span>
+					<span className={'text-gray-700 hover:underline'}>{FormatDate(new Date(post.date))}</span>
 				</div>
 				<p className={'text-black'}>{post.content}</p>
 				{!quote || isRef ? (
@@ -66,41 +106,55 @@ export default function Post({ post, isRef }: Props) {
 							'group/quote mt-1 pl-1 rounded-md border-[1px] border-gray-700 transition-colors bg-black/0 hover:bg-black/10'
 						}
 					>
-						<Post post={quote} />
+						<Post post={quote} isRef={true} />
 					</div>
 				)}
 				{!isRef ? (
 					<div className={'mt-3 h-8 flex'}>
-						<button
-							className={
-								'border-0 p-0 h-8 w-8 mr-1 rounded-full flex items-center justify-center transition-colors bg-black/0 cursor-pointer hover:bg-[#3cff3c]/40 group/btnRetweet'
-							}
-							onClick={() => {
-								if (setModal) setModal(<PostModal quote={post} />);
-							}}
-						>
-							<FontAwesomeIcon icon={faRepeat} size={'xl'} className={'text-black group-hover/btnRetweet:text-green-500'} />
-						</button>
-						<button
-							className={
-								'border-0 p-0 h-8 w-8 mr-1 rounded-full flex items-center justify-center transition-colors bg-black/0 cursor-pointer hover:bg-red-500/40 group/btnLike'
-							}
-							onClick={() => {
-								LikePost(post._id as unknown as string, !hasLiked).then(() => {
-									setHasLiked((prev) => !prev);
-								});
-							}}
-						>
-							<FontAwesomeIcon
-								icon={hasLiked ? fasHeart : farHeart}
-								size={'xl'}
+						<div className='flex items-center mr-2'>
+							<button
 								className={
-									hasLiked
-										? 'text-red-500 group-hover/btnLike:text-black transition-colors'
-										: 'text-black group-hover/btnLike:text-red-500 transition-colors'
+									'border-0 p-0 h-8 w-8 mr-1 rounded-full flex items-center justify-center transition-colors bg-black/0 cursor-pointer hover:bg-[#3cff3c]/40 group/btnRetweet'
 								}
-							/>
-						</button>
+								onClick={() => {
+									if (setModal) setModal(<PostModal quote={post} />);
+								}}
+							>
+								<FontAwesomeIcon
+									icon={faRepeat}
+									size={'xl'}
+									className={'text-black group-hover/btnRetweet:text-green-500'}
+								/>
+							</button>
+							<p className='text-black'>
+								<span className='font-bold'>{post.retwaats.length}</span> Retwaats
+							</p>
+						</div>
+						<div className='flex items-center mr-2'>
+							<button
+								className={
+									'border-0 p-0 h-8 w-8 mr-1 rounded-full flex items-center justify-center transition-colors bg-black/0 cursor-pointer hover:bg-red-500/40 group/btnLike'
+								}
+								onClick={() => {
+									LikePost(post._id as unknown as string, !hasLiked).then(() => {
+										setHasLiked((prev) => !prev);
+									});
+								}}
+							>
+								<FontAwesomeIcon
+									icon={hasLiked ? fasHeart : farHeart}
+									size={'xl'}
+									className={
+										hasLiked
+											? 'text-red-500 group-hover/btnLike:text-black transition-colors'
+											: 'text-black group-hover/btnLike:text-red-500 transition-colors'
+									}
+								/>
+							</button>
+							<p className='text-black'>
+								<span className='font-bold'>{post.likes.length}</span> Likes
+							</p>
+						</div>
 					</div>
 				) : null}
 			</div>

@@ -23,6 +23,10 @@ const nextConfig = {
 		];
 	},
 
+	images: {
+		remotePatterns: [{ protocol: 'https', hostname: '*.amazonaws.com' }],
+	},
+
 	reactStrictMode: true,
 };
 

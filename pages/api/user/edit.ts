@@ -6,11 +6,9 @@ import User from '../../../schemas/IUser';
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
 	if (req.method !== 'POST') return res.status(405).json({ success: false, error: 'Method not allowed' });
 
-	const { id, like } = req.body;
+	const { username, bio, avatar, banner } = req.body;
 
 	await Connect();
-
-	if (!id || typeof like !== 'boolean') return res.status(400).json({ success: false, error: 'Bad request' });
 
 	const token = getCookie('token', { req, res }) as string;
 	if (!token) return res.status(401).json({ success: false, error: 'Unauthorized' });
@@ -18,10 +16,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 	const user = await User.authenticate(token);
 	if (!user) return res.status(401).json({ success: false, error: 'Unauthorized' });
 
-	const dbUser = new User(user);
-	const post = await dbUser.likePost(id, like);
+	const dbUser = await User.findOne({ _id: user._id }).exec();
+	if (!dbUser) return res.status(500).json({ success: false, error: 'Internal Server Error' });
 
-	if (!post) return res.status(500).json({ success: false, error: 'Internal server error' });
+	if (username !== undefined) dbUser.username = username;
+	if (bio !== undefined) dbUser.bio = bio;
+	if (avatar !== undefined) dbUser.avatar = avatar;
+	if (banner !== undefined) dbUser.banner = banner;
 
-	return res.status(200).json({ success: true, post });
+	return res.status(200).json({ success: true, user: await dbUser.save() });
 }

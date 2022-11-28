@@ -2,8 +2,11 @@ import mongoose, { Model, model, Schema, Types } from 'mongoose';
 import { compareSync, hashSync } from 'bcryptjs';
 import Session, { ISession } from './ISession';
 import Post, { IPost } from './IPost';
-import { NormalizeObject } from '../libs/utils';
+import { GenerateStorageKey, NormalizeObject } from '../libs/utils';
 import Like, { ILike } from './ILike';
+import Relationship, { IRelationship } from './IRelationship';
+import { PutObjectCommand } from '@aws-sdk/client-s3';
+import { createURL, s3Client, S3_BUCKET, S3_REGION } from '../libs/storage';
 
 export interface IUser {
 	_id: Types.ObjectId;
@@ -15,7 +18,9 @@ export interface IUser {
 	banner?: string;
 	bio: string;
 
+	relationships: [Types.ObjectId];
 	sessions: [Types.ObjectId];
+	posts: [Types.ObjectId];
 	likes: [Types.ObjectId];
 
 	group: number;
@@ -25,6 +30,8 @@ interface IUserMethods {
 	authorize: () => Promise<ISession>;
 	post: (content: string, quote?: Types.ObjectId) => Promise<IPost | null>;
 	likePost: (post: Types.ObjectId, shouldLike: boolean) => Promise<ILike | null>;
+	createRelationship: (target: Types.ObjectId, type: 'follow' | 'block' | 'mute') => Promise<IRelationship | null>;
+	removeRelationship: (target: Types.ObjectId) => Promise<IRelationship | null>;
 }
 
 interface UserModel extends Model<IUser, {}, IUserMethods> {
@@ -32,6 +39,8 @@ interface UserModel extends Model<IUser, {}, IUserMethods> {
 	register: (tag: string, username: string, password: string) => Promise<IUser | null>;
 	authorize: (tag: string, password: string, ip?: string) => Promise<{ user: IUser; token: string } | null>;
 	authenticate: (token: string) => Promise<IUser | null>;
+	uploadAvatar: (user: Types.ObjectId, file: string) => Promise<string>;
+	uploadBanner: (user: Types.ObjectId, file: string) => Promise<string>;
 }
 
 export const userSchema = new Schema<IUser, UserModel, IUserMethods>(
@@ -44,7 +53,9 @@ export const userSchema = new Schema<IUser, UserModel, IUserMethods>(
 		banner: { type: String, default: null },
 		bio: { type: String, default: '' },
 
+		relationships: [{ type: Types.ObjectId, ref: 'Relationship' }],
 		sessions: [{ type: Types.ObjectId, ref: 'Session' }],
+		posts: [{ type: Types.ObjectId, ref: 'Post' }],
 		likes: [{ type: Types.ObjectId, ref: 'Like' }],
 
 		group: { type: Number, default: 0 },
@@ -87,10 +98,76 @@ export const userSchema = new Schema<IUser, UserModel, IUserMethods>(
 				if (!session) return null;
 
 				// Get the owner of the session
-				const usr = await this.findOne({ _id: session.owner }).populate<{ sessions: ISession[] }>('sessions').lean().exec();
+				let usr = await this.findOne({ _id: session.owner })
+					.populate<{ sessions: ISession[]; relationships: IRelationship[] }>(['sessions', 'relationships'])
+					.lean()
+					.exec();
+
 				if (!usr) return null;
 
 				return NormalizeObject<typeof usr>(usr);
+			},
+
+			uploadAvatar: async function (user: Types.ObjectId, file: string) {
+				return new Promise<string>(async (resolve, reject) => {
+					const buffer = Buffer.from(file.split(',')[1], 'base64');
+					const contentType = file.split(';')[0].split(':')[1];
+					const ext = file.split(';')[0].split('/')[1];
+
+					const bucket = S3_BUCKET;
+					const key = `avatars/${GenerateStorageKey()}.${ext}`;
+
+					const command = new PutObjectCommand({
+						Bucket: bucket,
+						Key: key,
+						Body: buffer,
+						ContentType: contentType,
+					});
+
+					const usr = await this.findOne({ _id: user }).exec();
+					if (!usr) return reject('User not found');
+
+					s3Client.send(command, async (err, data) => {
+						if (err) return reject(err);
+						if (!data) return reject('No data returned');
+
+						usr.avatar = `https://${S3_BUCKET}.s3.${S3_REGION}.amazonaws.com/${key}`;
+						await usr.save();
+
+						resolve(usr.avatar);
+					});
+				});
+			},
+
+			uploadBanner: async function (user: Types.ObjectId, file: string) {
+				return new Promise<string>(async (resolve, reject) => {
+					const buffer = Buffer.from(file.split(',')[1], 'base64');
+					const contentType = file.split(';')[0].split(':')[1];
+					const ext = file.split(';')[0].split('/')[1];
+
+					const bucket = S3_BUCKET;
+					const key = `banners/${GenerateStorageKey()}.${ext}`;
+
+					const command = new PutObjectCommand({
+						Bucket: bucket,
+						Key: key,
+						Body: buffer,
+						ContentType: contentType,
+					});
+
+					const usr = await this.findOne({ _id: user }).exec();
+					if (!usr) return reject('User not found');
+
+					s3Client.send(command, async (err, data) => {
+						if (err) return reject(err);
+						if (!data) return reject('No data returned');
+
+						usr.banner = `https://${S3_BUCKET}.s3.${S3_REGION}.amazonaws.com/${key}`;
+						await usr.save();
+
+						resolve(usr.banner);
+					});
+				});
 			},
 		},
 	}
@@ -117,6 +194,14 @@ userSchema.methods.likePost = async function (post: Types.ObjectId, shouldLike: 
 			resolve(await Like.unlikePost(like._id));
 		}
 	});
+};
+
+userSchema.methods.createRelationship = async function (target: Types.ObjectId, type: 'follow' | 'block' | 'mute') {
+	return Relationship.createRelationship(this._id, target, type);
+};
+
+userSchema.methods.removeRelationship = async function (target: Types.ObjectId) {
+	return Relationship.removeRelationship(this._id, target);
 };
 
 // Fix recompilation error

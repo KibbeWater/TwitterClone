@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import useSWRInfinite from 'swr/infinite';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -12,6 +12,7 @@ import Post from '../../components/Post';
 import TextAutosize from '../../components/TextAutosize';
 import { SendPost } from '../../libs/post';
 import { IPost } from '../../schemas/IPost';
+import { UserContext } from '../../components/UserHandler';
 
 export default function Page() {
 	const [text, setText] = useState('');
@@ -25,6 +26,7 @@ export default function Page() {
 	);
 
 	const loadingRef = useRef<HTMLDivElement>(null);
+	const user = useContext(UserContext);
 
 	useEffect(() => {
 		if (loadingRef.current) {
@@ -54,34 +56,43 @@ export default function Page() {
 
 	return (
 		<PageTemplate name='Home'>
-			<div className='flex w-full px-5 pb-4 bg-white relative z-10 border-b-[1px] border-gray-700'>
-				<div>
-					<Image src={'/default_avatar.png'} alt={'Your profile picture'} width={55} height={55} className={'rounded-full'} />
-				</div>
-				<div className='flex flex-col px-5 w-full'>
-					<TextAutosize
-						minRows={1}
-						placeholder={"What's happening?"}
-						className={'w-full outline-none border-0 mb-4 resize-none text-xl bg-transparent text-black'}
-						value={text}
-						onChange={(e) => setText(e.target.value)}
-					/>
-					<div className='h-px w-full opacity-50 bg-gray-900' />
-					<div className='flex justify-between items-center mt-5 h-min'>
-						<div>
-							<p className='m-0 text-black'>* Upload Button *</p>
-						</div>
-						<div>
-							<button
-								className='py-2 px-5 rounded-full border-0 bg-accent-primary-500 text-white cursor-pointer text-md font-bold'
-								onClick={btnPostClick}
-							>
-								Post
-							</button>
+			{user ? (
+				<div className='flex w-full px-5 pb-4 bg-white relative z-10 border-b-[1px] border-gray-700'>
+					<div>
+						<Image
+							src={user.avatar || '/default_avatar.png'}
+							alt={'Your profile picture'}
+							width={55}
+							height={55}
+							className={'rounded-full'}
+						/>
+					</div>
+
+					<div className='flex flex-col px-5 w-full'>
+						<TextAutosize
+							minRows={1}
+							placeholder={"What's happening?"}
+							className={'w-full outline-none border-0 mb-4 resize-none text-xl bg-transparent text-black'}
+							value={text}
+							onChange={(e) => setText(e.target.value)}
+						/>
+						<div className='h-px w-full opacity-50 bg-gray-900' />
+						<div className='flex justify-between items-center mt-5 h-min'>
+							<div>
+								<p className='m-0 text-black'>* Upload Button *</p>
+							</div>
+							<div>
+								<button
+									className='py-2 px-5 rounded-full border-0 bg-accent-primary-500 text-white cursor-pointer text-md font-bold'
+									onClick={btnPostClick}
+								>
+									Post
+								</button>
+							</div>
 						</div>
 					</div>
 				</div>
-			</div>
+			) : null}
 			<div className='flex flex-col items-center pb-14'>
 				{posts.map((post) => (post ? <Post key={post._id as unknown as string} post={post} /> : <></>))}
 				<div className='w-full mt-4 flex justify-center items-center' ref={loadingRef}>
