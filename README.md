@@ -2,5 +2,15 @@
 
 ## Required Setup
 
-* Create a new AWS S3 bucket and enter the AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY and S3_REGION env variables.
-* Create a MongoDB atlas cluster and enter the MONGO_URI env variable
+### Create .env.local file / add environment variables
+```
+S3_REGION=eu-central-1
+S3_BUCKET=my-bucket
+
+AWS_ACCESS_KEY_ID=your-key-id
+AWS_SECRET_ACCESS_KEY=your-secret-key
+
+MONGO_URI=mongo-uri
+
+SALT_ROUNDS=10
+```
