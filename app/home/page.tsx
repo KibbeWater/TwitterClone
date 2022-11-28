@@ -1,8 +1,11 @@
 'use client';
 
 import Image from 'next/image';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import useSWRInfinite from 'swr/infinite';
+
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 
 import PageTemplate from '../../components/PageTemplate';
 import Post from '../../components/Post';
@@ -20,6 +23,25 @@ export default function Page() {
 		},
 		(url) => fetch(url).then((res) => res.json())
 	);
+
+	const loadingRef = useRef<HTMLDivElement>(null);
+
+	useEffect(() => {
+		if (loadingRef.current) {
+			const observer = new IntersectionObserver(
+				(entries) => {
+					if (entries[0].isIntersecting) {
+						setSize(size + 1);
+					}
+				},
+				{ threshold: 1 }
+			);
+
+			observer.observe(loadingRef.current);
+
+			return () => observer.disconnect();
+		}
+	}, [loadingRef]);
 
 	let posts = data ? data.map((page) => page.posts).flat() : [];
 
@@ -62,6 +84,9 @@ export default function Page() {
 			</div>
 			<div className='flex flex-col items-center pb-14'>
 				{posts.map((post) => (post ? <Post key={post._id as unknown as string} post={post} /> : <></>))}
+				<div className='w-full mt-4 flex justify-center items-center' ref={loadingRef}>
+					<FontAwesomeIcon icon={faSpinner} size={'2x'} color={'black'} className={'animate-spin'} />
+				</div>
 			</div>
 		</PageTemplate>
 	);

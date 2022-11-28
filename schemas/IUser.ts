@@ -2,6 +2,8 @@ import mongoose, { Model, model, Schema, Types } from 'mongoose';
 import { compareSync, hashSync } from 'bcryptjs';
 import Session, { ISession } from './ISession';
 import Post, { IPost } from './IPost';
+import { NormalizeObject } from '../libs/utils';
+import Like, { ILike } from './ILike';
 
 export interface IUser {
 	tag: string;
@@ -20,6 +22,7 @@ export interface IUser {
 interface IUserMethods {
 	authorize: () => Promise<ISession>;
 	post: (content: string, quote?: Types.ObjectId) => Promise<IPost | null>;
+	likePost: (post: Types.ObjectId) => Promise<ILike | null>;
 }
 
 interface UserModel extends Model<IUser, {}, IUserMethods> {
@@ -80,10 +83,10 @@ export const userSchema = new Schema<IUser, UserModel, IUserMethods>(
 				if (!session) return null;
 
 				// Get the owner of the session
-				const usr = await this.findOne({ _id: session.owner }).exec();
+				const usr = await this.findOne({ _id: session.owner }).populate<{ sessions: ISession[] }>('sessions').lean().exec();
 				if (!usr) return null;
 
-				return usr.toJSON();
+				return NormalizeObject<typeof usr>(usr);
 			},
 		},
 	}
@@ -98,6 +101,10 @@ userSchema.methods.authorize = async function (ip?: string) {
 
 userSchema.methods.post = async function (content: string, quote?: Types.ObjectId) {
 	return Post.post(this._id, content, quote);
+};
+
+userSchema.methods.likePost = async function (post: Types.ObjectId) {
+	return Like.likePost(this._id, post);
 };
 
 // Fix recompilation error

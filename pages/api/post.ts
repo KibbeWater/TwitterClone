@@ -3,6 +3,7 @@ import { getCookie } from 'cookies-next';
 import User, { IUser } from '../../schemas/IUser';
 import Post, { IPost } from '../../schemas/IPost';
 import DB from '../../libs/database';
+import { NormalizeObject } from '../../libs/utils';
 
 function PostReq(req: NextApiRequest, res: NextApiResponse) {
 	return new Promise(async (resolve) => {
@@ -43,8 +44,11 @@ function GetReq(req: NextApiRequest, res: NextApiResponse) {
 
 		let { id, page, limit } = req.query;
 
-		const pageLimit = parseInt(limit as string) || 10;
-		const pageNumber = parseInt(page as string) || 1;
+		const parsedLimit = parseInt(limit as string);
+		const parsedPage = parseInt(page as string);
+
+		const pageLimit = isNaN(parsedLimit) ? 10 : parsedLimit;
+		const pageNumber = isNaN(parsedPage) ? 0 : parsedPage;
 
 		if (id) return resolve(res.status(200).json({ success: true, post: (await Post.findById(id)) as IPost }));
 
@@ -55,14 +59,17 @@ function GetReq(req: NextApiRequest, res: NextApiResponse) {
 			// Use pagination to get posts
 			Post.find()
 				.sort({ date: -1 })
-				.skip((pageNumber - 1) * pageLimit)
+				.skip(pageNumber * pageLimit)
 				.limit(pageLimit)
 				.populate<{ user: IUser }>('user')
 				.populate<{ quote: IPost }>('quote')
 				.populate<{ comments: IPost[] }>('comments')
+				.lean()
 				.exec()
 				.then((posts) => {
-					return resolve(res.status(200).json({ success: true, posts, pages }));
+					const newPosts = posts.map((post) => NormalizeObject<typeof post>(post));
+
+					return resolve(res.status(200).json({ success: true, posts, newPosts }));
 				})
 				.catch((err) => {
 					return resolve(res.status(500).json({ success: false, error: 'Internal server error' }));
