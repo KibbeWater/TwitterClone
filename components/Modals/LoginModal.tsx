@@ -45,7 +45,6 @@ export default function LoginModal({ switchMode }: AuthProps) {
 
 		Login(username, password)
 			.then(() => {
-				setLoading(false);
 				window.location.reload();
 			})
 			.catch((err) => {

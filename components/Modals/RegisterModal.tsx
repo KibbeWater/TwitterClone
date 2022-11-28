@@ -57,7 +57,6 @@ export default function RegisterModal({ switchMode }: AuthProps) {
 
 		Register(username, password, confirm)
 			.then(() => {
-				setLoading(false);
 				window.location.reload();
 			})
 			.catch((err) => {
