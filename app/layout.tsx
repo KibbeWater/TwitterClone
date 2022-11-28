@@ -10,7 +10,7 @@ config.autoAddCss = false;
 import Navbar from '../components/Navbar';
 import Filters from '../components/Filters';
 import ModalHandler from '../components/ModalHandler';
-import User, { IUser } from '../schemas/IUser';
+import User from '../schemas/IUser';
 import UserAuth from '../components/Modals/UserAuth';
 import { Connect } from '../libs/database';
 import UserHandler from '../components/UserHandler';

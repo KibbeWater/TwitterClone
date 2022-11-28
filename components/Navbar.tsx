@@ -9,15 +9,17 @@ import { faFeatherPointed, faUser, faHome } from '@fortawesome/free-solid-svg-ic
 
 import { ModalContext } from './ModalHandler';
 import PostModal from './Modals/PostModal';
+import { UserContext } from './UserHandler';
 
 export default function Navbar() {
 	const { setModal } = useContext(ModalContext);
+	const user = useContext(UserContext);
 
 	return (
 		<nav className={'min-w-[10%] max-w-[25%] ml-3 w-full h-screen flex justify-end bg-white border-r-[1px] border-gray-700'}>
 			<div className={'flex flex-col mr-4 h-full w-16 md:w-60'}>
 				<Link
-					href={'/'}
+					href='/home'
 					className={
 						'h-16 w-16 mb-1 rounded-full transition-all flex items-center justify-center bg-transparent hover:bg-accent-primary-500/25'
 					}
@@ -31,7 +33,10 @@ export default function Navbar() {
 
 					<span className='ml-5 text-black font-bold text-lg hidden md:block'>Home</span>
 				</Link>
-				<Link href={'/'} className={'h-12 mb-2 rounded-full bg-transparent hover:bg-gray-600/25 flex items-center'}>
+				<Link
+					href={user ? `@${user.tag}` : '/login'}
+					className={'h-12 mb-2 rounded-full bg-transparent hover:bg-gray-600/25 flex items-center'}
+				>
 					<div className='w-8 ml-4 flex items-center justify-center'>
 						<FontAwesomeIcon icon={faUser} size={'xl'} color={'black'} />
 					</div>

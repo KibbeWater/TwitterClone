@@ -83,7 +83,7 @@ export const userSchema = new Schema<IUser, UserModel, IUserMethods>(
 				const usr = await this.findOne({ _id: session.owner }).exec();
 				if (!usr) return null;
 
-				return usr;
+				return usr.toJSON();
 			},
 		},
 	}
