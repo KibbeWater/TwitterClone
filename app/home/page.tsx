@@ -20,7 +20,7 @@ export default function Page() {
 	const [text, setText] = useState('');
 	const [images, setImages] = useState([] as string[]);
 
-	const { data, size, setSize, mutate } = useSWRInfinite<{ success: boolean; posts: IPost[]; pages: number }>(
+	const { data, size, setSize, mutate, isValidating } = useSWRInfinite<{ success: boolean; posts: IPost[]; pages: number }>(
 		(index, previousPageData) => {
 			if (previousPageData && previousPageData.pages < index) return null;
 			return `/api/post?page=${index}`;
@@ -178,7 +178,10 @@ export default function Page() {
 			) : null}
 			<div className='flex flex-col items-center pb-14'>
 				{posts.map((post) => (post ? <Post key={post._id as unknown as string} post={post} /> : <></>))}
-				<div className='w-full mt-4 flex justify-center items-center' ref={loadingRef}>
+				<div
+					className={'w-full mt-4 flex justify-center items-center' + (isValidating ? ' invisible' : ' visible')}
+					ref={loadingRef}
+				>
 					<FontAwesomeIcon icon={faSpinner} size={'2x'} color={'black'} className={'animate-spin'} />
 				</div>
 			</div>
