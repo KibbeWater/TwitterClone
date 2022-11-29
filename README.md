@@ -18,4 +18,4 @@ SALT_ROUNDS=10
 ## TODO
 * Mutate state once user login/reg is performed
 * Optimize and create new server components
-* Secure passwords
+* Create post page and comments tree

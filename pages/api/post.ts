@@ -5,6 +5,7 @@ import Post, { IPost } from '../../schemas/IPost';
 import DB, { Connect } from '../../libs/database';
 import { NormalizeObject } from '../../libs/utils';
 import { ILike } from '../../schemas/ILike';
+import { MakeSafeUser } from '../../libs/user';
 
 function PostReq(req: NextApiRequest, res: NextApiResponse) {
 	return new Promise(async (resolve) => {
@@ -66,14 +67,20 @@ function GetReq(req: NextApiRequest, res: NextApiResponse) {
 				.populate<{ user: IUser; quote: IPost; comments: IPost[]; likes: ILike[] }>(['user', 'comments', 'likes'])
 				/* Populate quote user */
 				.populate<{ user: IUser & { user: IUser } }>({ path: 'quote', populate: { path: 'user' } })
+				.lean()
 				.exec()
 				.then((posts) => {
 					const newPosts = posts.map((post) =>
 						NormalizeObject<typeof post>({
 							...post,
 							// @ts-ignore
+							user: MakeSafeUser(post.user),
+							// @ts-ignore
 							quote: post.quote
-								? { ...post.quote, user: NormalizeObject<typeof post.quote.user>(post.quote.user || undefined) }
+								? {
+										...post.quote,
+										user: post.quote.user ? MakeSafeUser(post.quote.user as unknown as IUser) : undefined,
+								  }
 								: undefined,
 						})
 					);
