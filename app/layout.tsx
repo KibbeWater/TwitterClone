@@ -1,7 +1,6 @@
 import './globals.css';
 
 import { cookies } from 'next/headers';
-import { createContext } from 'react';
 
 import { config } from '@fortawesome/fontawesome-svg-core';
 import '@fortawesome/fontawesome-svg-core/styles.css';
