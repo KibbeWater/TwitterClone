@@ -87,7 +87,7 @@ export default function Page() {
 									className='py-2 px-5 rounded-full border-0 bg-accent-primary-500 text-white cursor-pointer text-md font-bold'
 									onClick={btnPostClick}
 								>
-									Post
+									Twaat
 								</button>
 							</div>
 						</div>
