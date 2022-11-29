@@ -66,10 +66,17 @@ function GetReq(req: NextApiRequest, res: NextApiResponse) {
 				.populate<{ user: IUser; quote: IPost; comments: IPost[]; likes: ILike[] }>(['user', 'comments', 'likes'])
 				/* Populate quote user */
 				.populate<{ user: IUser & { user: IUser } }>({ path: 'quote', populate: { path: 'user' } })
-				.lean()
 				.exec()
 				.then((posts) => {
-					const newPosts = posts.map((post) => NormalizeObject<typeof post>(post));
+					const newPosts = posts.map((post) =>
+						NormalizeObject<typeof post>({
+							...post,
+							// @ts-ignore
+							quote: post.quote
+								? { ...post.quote, user: NormalizeObject<typeof post.quote.user>(post.quote.user || undefined) }
+								: undefined,
+						})
+					);
 
 					return resolve(res.status(200).json({ success: true, posts: newPosts, pages }));
 				})
