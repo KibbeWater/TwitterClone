@@ -85,7 +85,7 @@ export default function Post({ post, isRef }: Props) {
 				<p className={'text-black'}>{post.content}</p>
 				<div
 					ref={imageDisplay}
-					className='w-9/12 grid grid-cols-2 rounded-xl overflow-hidden gap-[2px] justify-self-center flex'
+					className='w-9/12 grid grid-cols-2 rounded-xl overflow-hidden gap-[2px] justify-self-center border-[1px] border-gray-700'
 					style={{
 						height: images.length !== 0 ? `${(imageDisplay.current || { clientWidth: 1 }).clientWidth * 0.6}px` : '1px',
 						opacity: images.length !== 0 ? 1 : 0,

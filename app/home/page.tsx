@@ -159,10 +159,10 @@ export default function Page() {
 						<div className='h-px w-full opacity-50 bg-gray-900' />
 						<div className='flex justify-between items-center mt-2 h-min'>
 							<div
-								className='flex items-center justify-center w-8 h-8 rounded-full transition-colors bg-accent-primary-500/0 hover:bg-accent-primary-500/20 hover:cursor-pointer'
+								className='flex items-center justify-center w-10 h-10 rounded-full transition-colors text-red-500 bg-accent-primary-500/0 hover:bg-accent-primary-500/20 hover:cursor-pointer'
 								onClick={() => uploadImages()}
 							>
-								<FontAwesomeIcon icon={faImage} color={'red'} />
+								<FontAwesomeIcon icon={faImage} size={'lg'} />
 							</div>
 							<div>
 								<button

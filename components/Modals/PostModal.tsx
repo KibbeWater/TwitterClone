@@ -1,9 +1,9 @@
 'use client';
 
 import Image from 'next/image';
-import { useContext, useState } from 'react';
+import { useContext, useRef, useState } from 'react';
 
-import { faClose } from '@fortawesome/free-solid-svg-icons';
+import { faClose, faImage, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import TextareaAutosize from '../TextAutosize';
@@ -12,16 +12,59 @@ import { IPost } from '../../schemas/IPost';
 import Post from '../Post';
 import { SendPost } from '../../libs/post';
 import { ModalContext } from '../ModalHandler';
+import axios from 'axios';
 
 export default function PostModal({ quote }: { quote?: IPost }) {
 	const [content, setContent] = useState('');
+	const [images, setImages] = useState([] as string[]);
 
 	const { setModal } = useContext(ModalContext);
 	const { user } = useContext(UserContext);
 
+	const postAlbumRef = useRef<HTMLDivElement>(null);
+
 	const btnPostClick = async () => {
-		SendPost(content, quote?._id as unknown as string).then(() => {
+		SendPost(content, quote?._id as unknown as string, await syncImages()).then(() => {
 			if (setModal) setModal(null);
+		});
+	};
+
+	const uploadImages = () => {
+		// We wanna get a max of 4 images which can only be 2MB each
+		const input = document.createElement('input');
+		input.type = 'file';
+		input.multiple = true;
+		input.accept = 'image/*';
+		input.onchange = () => {
+			const files = input.files;
+			if (files)
+				for (let i = 0; i < files.length; i++) {
+					const file = files[i];
+					const reader = new FileReader();
+					reader.onload = (e) => {
+						const data = e.target?.result;
+						if (!data || typeof data !== 'string') return console.error('Invalid data');
+						if (data.length > 2 * 1024 * 1024) return alert('Image is too big, max size is 2MB');
+
+						setImages((prev) => (prev.length < 4 ? [...prev, data] : prev));
+					};
+					reader.readAsDataURL(file);
+				}
+		};
+		input.click();
+	};
+
+	const syncImages = () => {
+		return new Promise<string[]>((resolve, reject) => {
+			if (images.length === 0) return resolve([]);
+			Promise.all(images.map((image) => axios.post<{ success: boolean; url: string }>('/api/post/upload', { image })))
+				.then((res) => {
+					resolve(res.map((r) => r.data.url));
+				})
+				.catch((err) => {
+					console.error(err);
+					reject(err);
+				});
 		});
 	};
 
@@ -55,6 +98,42 @@ export default function PostModal({ quote }: { quote?: IPost }) {
 						value={content}
 						onChange={(e) => setContent(e.target.value)}
 					/>
+					<div
+						className={'grid grid-cols-2 gap-1 mb-1'}
+						ref={postAlbumRef}
+						style={{
+							height: images.length !== 0 ? `${(postAlbumRef.current || { clientWidth: 1 }).clientWidth * 0.6}px` : '1px',
+							opacity: images.length !== 0 ? 1 : 0,
+						}}
+					>
+						{images.map((img, i) => (
+							<div
+								key={`post-image-${i}`}
+								className={
+									'w-full h-full relative' +
+									(images.length == 1 || (images.length == 3 && i == 0) ? ' row-span-2' : '') +
+									(images.length == 1 ? ' col-span-2' : '')
+								}
+							>
+								<Image
+									src={img}
+									className={'object-cover w-full h-full rounded-xl'}
+									alt={`Album image ${i}`}
+									sizes={'100vw'}
+									fill
+								/>
+								<div
+									className={
+										'absolute top-2 left-2 z-10 w-7 h-7 flex justify-center items-center rounded-full' +
+										' backdrop-blur-md bg-black/60 hover:bg-black/40 cursor-pointer'
+									}
+									onClick={() => setImages((prev) => prev.filter((_, j) => j !== i))}
+								>
+									<FontAwesomeIcon icon={faXmark} />
+								</div>
+							</div>
+						))}
+					</div>
 					{quote ? (
 						<div
 							className={
@@ -66,9 +145,16 @@ export default function PostModal({ quote }: { quote?: IPost }) {
 					) : (
 						<></>
 					)}
-					<div className={'h-px w-full my-3 opacity-50 bg-gray-500'} />
+					<div className={'h-px w-full my-2 opacity-50 bg-gray-500'} />
 					<div className={'h-10 flex justify-between items-center'}>
-						<p className={'text-black'}>There might be buttons here</p>
+						<div>
+							<div
+								className='flex items-center justify-center w-10 h-10 rounded-full transition-colors text-red-500 bg-accent-primary-500/0 hover:bg-accent-primary-500/20 hover:cursor-pointer'
+								onClick={() => uploadImages()}
+							>
+								<FontAwesomeIcon icon={faImage} size={'lg'} />
+							</div>
+						</div>
 						<div>
 							<button
 								className={'py-[6px] px-4 rounded-full border-0 bg-[#f01d1d] text-white cursor-pointer text-md font-bold'}
