@@ -11,7 +11,7 @@ export function Connect() {
 		if (!process.env.MONGO_URI) return reject(new Error('Missing MONGO_URI env variable'));
 		const connectURL = process.env.MONGO_URI;
 
-		connect(connectURL)
+		connect(connectURL, { socketTimeoutMS: 10000 })
 			.then((db) => {
 				connected = true;
 				connection = db;

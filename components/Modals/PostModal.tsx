@@ -17,6 +17,7 @@ import axios from 'axios';
 export default function PostModal({ quote }: { quote?: IPost }) {
 	const [content, setContent] = useState('');
 	const [images, setImages] = useState([] as string[]);
+	const [loading, setLoading] = useState(false);
 
 	const { setModal } = useContext(ModalContext);
 	const { user } = useContext(UserContext);
@@ -24,8 +25,11 @@ export default function PostModal({ quote }: { quote?: IPost }) {
 	const postAlbumRef = useRef<HTMLDivElement>(null);
 
 	const btnPostClick = async () => {
+		if (loading) return;
+		setLoading(true);
 		SendPost(content, quote?._id as unknown as string, await syncImages()).then(() => {
 			if (setModal) setModal(null);
+			setLoading(false);
 		});
 	};
 
@@ -157,10 +161,13 @@ export default function PostModal({ quote }: { quote?: IPost }) {
 						</div>
 						<div>
 							<button
-								className={'py-[6px] px-4 rounded-full border-0 bg-[#f01d1d] text-white cursor-pointer text-md font-bold'}
+								className={
+									'py-[6px] px-4 rounded-full border-0 bg-[#f01d1d] text-white cursor-pointer text-md font-bold transition-colors disabled:bg-red-700 disabled:cursor-default'
+								}
 								onClick={btnPostClick}
+								disabled={!content || loading}
 							>
-								Post
+								Twaat
 							</button>
 						</div>
 					</div>

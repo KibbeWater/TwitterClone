@@ -17,6 +17,7 @@ function PostReq(req: NextApiRequest, res: NextApiResponse) {
 		const { content, quote, images } = req.body;
 
 		if (!content) return resolve(res.status(400).json({ success: false, error: 'Bad request' }));
+		if (content === '') return resolve(res.status(400).json({ success: false, error: 'Bad request' }));
 		if (images && !Array.isArray(images)) return resolve(res.status(400).json({ success: false, error: 'Bad request' }));
 
 		DB(async () => {

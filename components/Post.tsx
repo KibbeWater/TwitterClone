@@ -20,7 +20,8 @@ function FormatDate(date: Date) {
 	const now = new Date();
 	const diff = now.getTime() - date.getTime();
 
-	if (diff < 60000) return Math.floor(diff / 1000) + 's';
+	if (diff < 10) return 'Now';
+	else if (diff < 60000) return Math.floor(diff / 1000) + 's';
 	else if (diff < 3600000) return Math.floor(diff / 60000) + 'm';
 	else if (diff < 86400000) return Math.floor(diff / 3600000) + 'h';
 	else if (diff < 31536000000) return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
@@ -39,12 +40,14 @@ export default function Post({ post, isRef }: Props) {
 
 	const [count, addCount] = useReducer((count: number) => count + 1, 0);
 
+	const [loadingLikes, setLoadingLikes] = useState(false);
+
 	const imageDisplay = useRef<HTMLDivElement>(null);
 
 	useEffect(() => {
 		const interval = setInterval(() => {
 			addCount();
-		}, 1000);
+		}, 10000);
 
 		return () => clearInterval(interval);
 	});
@@ -144,11 +147,15 @@ export default function Post({ post, isRef }: Props) {
 						<div className='flex items-center mr-2'>
 							<button
 								className={
-									'border-0 p-0 h-8 w-8 mr-1 rounded-full flex items-center justify-center transition-colors bg-black/0 cursor-pointer hover:bg-red-500/40 group/btnLike'
+									'border-0 p-0 h-8 w-8 mr-1 rounded-full flex items-center justify-center transition-colors bg-black/0 cursor-pointer hover:bg-red-500/40 group/btnLike disabled:cursor-default'
 								}
+								disabled={loadingLikes}
 								onClick={() => {
+									if (loadingLikes) return;
+									setLoadingLikes(true);
 									LikePost(post._id as unknown as string, !hasLiked).then(() => {
 										setHasLiked((prev) => !prev);
+										setLoadingLikes(false);
 									});
 								}}
 							>

@@ -19,6 +19,7 @@ import axios from 'axios';
 export default function Page() {
 	const [text, setText] = useState('');
 	const [images, setImages] = useState([] as string[]);
+	const [loadingPost, setLoadingPost] = useState(false);
 
 	const { data, size, setSize, mutate, isValidating } = useSWRInfinite<{ success: boolean; posts: IPost[]; pages: number }>(
 		(index, previousPageData) => {
@@ -52,10 +53,13 @@ export default function Page() {
 	let posts = data ? data.map((page) => page.posts).flat() : [];
 
 	const btnPostClick = async () => {
+		if (loadingPost) return;
+		setLoadingPost(true);
 		SendPost(text, undefined, await syncImages()).then((res) => {
 			setText('');
 			setImages([]);
 			mutate();
+			setLoadingPost(false);
 		});
 	};
 
@@ -168,8 +172,9 @@ export default function Page() {
 							</div>
 							<div>
 								<button
-									className='py-2 px-5 rounded-full border-0 bg-accent-primary-500 text-white cursor-pointer text-md font-bold'
+									className='py-2 px-5 rounded-full border-0 bg-accent-primary-500 text-white cursor-pointer text-md font-bold transition-colors disabled:bg-red-700 disabled:cursor-default'
 									onClick={btnPostClick}
+									disabled={!text || loadingPost}
 								>
 									Twaat
 								</button>

@@ -4,6 +4,7 @@ import { IPost } from '../schemas/IPost';
 
 export function SendPost(content: string, quoteId?: string, images?: string[]): Promise<IPost> {
 	return new Promise((resolve, reject) => {
+		if (!content) return reject(new Error('Missing content'));
 		axios
 			.post<{ success: boolean; post: IPost; error: string }>('/api/post', {
 				content,
