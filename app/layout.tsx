@@ -25,7 +25,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 		<html lang='en'>
 			<head />
 			<body className={'bg-white'}>
-				<UserHandler user={user}>
+				<UserHandler>
 					<ModalHandler modalOverride={modal}>
 						<div className='parent w-screen h-screen flex'>
 							<Navbar />

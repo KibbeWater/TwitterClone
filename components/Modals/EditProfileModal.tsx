@@ -3,6 +3,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import axios from 'axios';
 import Image from 'next/image';
 import { useContext, useEffect, useRef, useState } from 'react';
+import { KeyedMutator } from 'swr';
+import { SafeUser } from '../../libs/user';
 import { ModalContext } from '../ModalHandler';
 import TextareaAutosize from '../TextAutosize';
 import { UserContext } from '../UserHandler';
@@ -47,8 +49,15 @@ function uploadImages({ banner, avatar }: { banner?: string; avatar?: string }):
 	});
 }
 
-export default function EditProfileModal() {
-	const user = useContext(UserContext);
+export default function EditProfileModal({
+	mutate,
+}: {
+	mutate?: KeyedMutator<{
+		success: boolean;
+		user: SafeUser;
+	}>;
+}) {
+	const { user, mutate: mutateUser } = useContext(UserContext);
 	const { setModal } = useContext(ModalContext);
 
 	const [username, setUsername] = useState('');
@@ -76,8 +85,8 @@ export default function EditProfileModal() {
 		let curBanner = banner;
 		let curAvatar = avatar;
 
-		const uploadBanner = await uploadImages({ banner: curBanner });
-		const uploadAvatar = await uploadImages({ avatar: curAvatar });
+		const uploadBanner = !banner.startsWith('http') && banner ? await uploadImages({ banner: curBanner }) : {};
+		const uploadAvatar = !avatar.startsWith('http') && avatar ? await uploadImages({ avatar: curAvatar }) : {};
 
 		if (uploadBanner.banner) curBanner = uploadBanner.banner;
 		if (uploadAvatar.avatar) curAvatar = uploadAvatar.avatar;
@@ -95,6 +104,12 @@ export default function EditProfileModal() {
 			.then((res) => {
 				if (res.data.success) {
 					setLoading(false);
+
+					setAvatar(curAvatar);
+					setBanner(curBanner);
+
+					if (mutate) mutate();
+					if (mutateUser) mutateUser();
 					if (setModal) setModal(null);
 				} else {
 					setError(res.data.error || 'An error occured');
@@ -159,7 +174,7 @@ export default function EditProfileModal() {
 							}
 							onClick={() => uploadBanner()}
 						>
-							<FontAwesomeIcon icon={faImage} />
+							<FontAwesomeIcon icon={faImage} className={'text-white'} />
 						</button>
 						{banner ? (
 							<button
@@ -168,7 +183,7 @@ export default function EditProfileModal() {
 								}
 								onClick={() => setBanner('')}
 							>
-								<FontAwesomeIcon icon={faXmark} size={'lg'} />
+								<FontAwesomeIcon icon={faXmark} size={'lg'} className={'text-white'} />
 							</button>
 						) : null}
 					</div>

@@ -17,7 +17,7 @@ export default function PostModal({ quote }: { quote?: IPost }) {
 	const [content, setContent] = useState('');
 
 	const { setModal } = useContext(ModalContext);
-	const user = useContext(UserContext);
+	const { user } = useContext(UserContext);
 
 	const btnPostClick = async () => {
 		SendPost(content, quote?._id as unknown as string).then(() => {

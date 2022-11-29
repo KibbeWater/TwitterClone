@@ -26,7 +26,7 @@ export default function Page() {
 	);
 
 	const loadingRef = useRef<HTMLDivElement>(null);
-	const user = useContext(UserContext);
+	const { user } = useContext(UserContext);
 
 	useEffect(() => {
 		if (loadingRef.current) {

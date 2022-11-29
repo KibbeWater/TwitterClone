@@ -28,11 +28,13 @@ export default function Page({ params }: Props) {
 	const [followingText, setFollowingText] = React.useState('Following');
 
 	const { setModal } = useContext(ModalContext);
-	const user = useContext(UserContext);
+	const { user } = useContext(UserContext);
 	const avatarRef = useRef<HTMLDivElement>(null);
 	const bannerRef = useRef<HTMLDivElement>(null);
 
-	const { data } = useSWR<{ success: boolean; user: SafeUser }>(`/api/user?tag=${params.tag}`, (url) => fetch(url).then((r) => r.json()));
+	const { data, mutate } = useSWR<{ success: boolean; user: SafeUser }>(`/api/user?tag=${params.tag}`, (url) =>
+		fetch(url).then((r) => r.json())
+	);
 	const profile = data?.user;
 
 	const relationshipArr = user?.relationships ? (user.relationships as unknown as IRelationship[]) : [];
@@ -100,7 +102,7 @@ export default function Page({ params }: Props) {
 								<button
 									className='bg-black/0 px-[15px] py-2 font-semibold border-[1px] border-gray-400 text-black min-w-[36px] transition-all cursor-pointer rounded-full hover:bg-gray-700/10'
 									onClick={() => {
-										if (setModal) setModal(<EditProfileModal />);
+										if (setModal) setModal(<EditProfileModal mutate={mutate} />);
 									}}
 								>
 									Edit profile

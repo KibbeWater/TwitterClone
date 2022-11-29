@@ -99,10 +99,15 @@ export const userSchema = new Schema<IUser, UserModel, IUserMethods>(
 
 				// Get the owner of the session
 				let usr = await this.findOne({ _id: session.owner })
-					.populate<{ sessions: ISession[]; relationships: IRelationship[]; posts: IPost[] }>([
+					.populate<{ posts: IPost[]; sessions: ISession[]; relationships: IRelationship[] }>([
+						'posts',
 						'sessions',
 						'relationships',
-						'posts',
+					])
+					.populate<{ posts: (IPost & { user: IUser; quote: IPost & { user: IUser } })[] }>([
+						{ path: 'posts', populate: { path: 'user' } },
+						{ path: 'posts', populate: { path: 'quote' } },
+						{ path: 'posts', populate: { path: 'quote', populate: { path: 'user' } } },
 					])
 					.lean()
 					.exec();

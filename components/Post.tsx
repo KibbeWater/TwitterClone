@@ -53,7 +53,7 @@ type Props = {
 
 export default function Post({ post, isRef }: Props) {
 	const { setModal } = useContext(ModalContext);
-	const me = useContext(UserContext);
+	const { user: me } = useContext(UserContext);
 	const [hasLiked, setHasLiked] = useState((post.likes as unknown as ILike[]).findIndex((like) => like.user === me?._id) !== -1);
 
 	const [count, addCount] = useReducer((count: number) => count + 1, 0);

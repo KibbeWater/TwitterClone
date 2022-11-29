@@ -13,7 +13,7 @@ import { UserContext } from './UserHandler';
 
 export default function Navbar() {
 	const { setModal } = useContext(ModalContext);
-	const user = useContext(UserContext);
+	const { user } = useContext(UserContext);
 
 	const [revalidate, setRevalidate] = useReducer(() => ({}), {});
 
