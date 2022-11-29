@@ -5,6 +5,10 @@ export const S3_REGION = process.env.S3_REGION || 'us-east-1';
 
 export const s3Client = new S3Client({
 	region: S3_REGION,
+	credentials: {
+		accessKeyId: process.env.S3_ACCESS_KEY_ID as string,
+		secretAccessKey: process.env.S3_SECRET_ACCESS_KEY as string,
+	},
 });
 
 export const S3_BUCKET = process.env.S3_BUCKET as string;
