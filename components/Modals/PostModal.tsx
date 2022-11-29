@@ -85,14 +85,16 @@ export default function PostModal({ quote }: { quote?: IPost }) {
 				</div>
 			</div>
 			<div className={'grow flex break-words px-4 pb-[10px]'}>
-				<div>
-					<Image
-						src={user?.avatar || '/default_avatar.png'}
-						alt={'Your avatar'}
-						width={50}
-						height={50}
-						className={'rounded-full'}
-					/>
+				<div className='w-12 h-12 relative'>
+					<div className='w-12 h-12 absolute'>
+						<Image
+							src={user?.avatar || '/default_avatar.png'}
+							alt={'Your avatar'}
+							width={50}
+							height={50}
+							className={'rounded-full w-full h-full object-cover'}
+						/>
+					</div>
 				</div>
 				<div className={'grow pl-3'}>
 					<TextareaAutosize

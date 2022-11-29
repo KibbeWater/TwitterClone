@@ -25,3 +25,6 @@ SALT_ROUNDS=10
 * Mutate state once user login/reg is performed
 * Optimize and create new server components
 * Create post page and comments tree
+* Verified badge
+* Fix search
+* Possibly more emoji support (LOW PRIORITY)
