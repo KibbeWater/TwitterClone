@@ -64,13 +64,18 @@ export default function Post({ post, isRef }: Props) {
 				isRef ? '!border-0 !bg-transparent hover:!bg-transparent' : ''
 			}`}
 		>
-			<Image
-				className={'w-10 h-10 object-cover rounded-full cursor-pointer mr-1 transition-opacity hover:opacity-80'}
-				src={user.avatar || '/default_avatar.png'}
-				alt={`${user.tag}'s avatar`}
-				width={40}
-				height={40}
-			/>
+			<div className='w-12 h-12 relative'>
+				<div className='w-12 h-12 absolute'>
+					<Image
+						className={'w-full h-full rounded-full object-cover cursor-pointer transition-opacity hover:opacity-80'}
+						src={user.avatar || '/default_avatar.png'}
+						alt={`${user.tag}'s avatar`}
+						width={48}
+						height={48}
+					/>
+				</div>
+			</div>
+
 			<div className={'pl-3 w-full flex flex-col'}>
 				<div>
 					<a className={'text-black mr-[5px] cursor-pointer no-underline font-semibold hover:underline'} href={`/@${user.tag}`}>

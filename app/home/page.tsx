@@ -102,14 +102,16 @@ export default function Page() {
 		<PageTemplate name='Home'>
 			{user ? (
 				<div className='flex w-full px-5 pb-2 bg-white relative z-10 border-b-[1px] border-gray-700'>
-					<div>
-						<Image
-							src={user.avatar || '/default_avatar.png'}
-							alt={'Your profile picture'}
-							width={55}
-							height={55}
-							className={'rounded-full'}
-						/>
+					<div className='w-14 h-14 relative'>
+						<div className='w-14 h-14 absolute'>
+							<Image
+								className='object-cover rounded-full w-full h-full'
+								src={user.avatar || '/default_avatar.png'}
+								alt={`${user.username}'s Avatar`}
+								sizes='100vw'
+								fill
+							/>
+						</div>
 					</div>
 
 					<div className='flex flex-col px-5 w-full'>
