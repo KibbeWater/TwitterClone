@@ -15,6 +15,12 @@ MONGO_URI=mongo-uri
 SALT_ROUNDS=10
 ```
 
+### Create S3 bucket
+* Enable public read access
+* Create folder `images` in bucket
+* Create folder `avatars` in bucket
+* Create folder `banners` in bucket
+
 ## TODO
 * Mutate state once user login/reg is performed
 * Optimize and create new server components

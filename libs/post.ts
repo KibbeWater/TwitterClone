@@ -2,12 +2,13 @@ import axios from 'axios';
 
 import { IPost } from '../schemas/IPost';
 
-export function SendPost(content: string, quoteId?: string): Promise<IPost> {
+export function SendPost(content: string, quoteId?: string, images?: string[]): Promise<IPost> {
 	return new Promise((resolve, reject) => {
 		axios
 			.post<{ success: boolean; post: IPost; error: string }>('/api/post', {
 				content,
 				quote: quoteId,
+				images,
 			})
 			.then((res) => {
 				if (res.data.success) resolve(res.data.post);

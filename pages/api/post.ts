@@ -14,8 +14,10 @@ function PostReq(req: NextApiRequest, res: NextApiResponse) {
 		const token = getCookie('token', { req, res }) as string;
 		if (!token) return resolve(res.status(401).json({ success: false, error: 'Unauthorized' }));
 
-		const { content, quote } = req.body;
+		const { content, quote, images } = req.body;
+
 		if (!content) return resolve(res.status(400).json({ success: false, error: 'Bad request' }));
+		if (images && !Array.isArray(images)) return resolve(res.status(400).json({ success: false, error: 'Bad request' }));
 
 		DB(async () => {
 			User.authenticate(token)
@@ -23,7 +25,7 @@ function PostReq(req: NextApiRequest, res: NextApiResponse) {
 					if (!user) return resolve(res.status(401).json({ success: false, error: 'Unauthorized' }));
 
 					new User(user)
-						.post(content, quote)
+						.post(content, quote, images)
 						.then((post) => {
 							if (!post) return resolve(res.status(500).json({ success: false, error: 'Internal server error' }));
 							else return resolve(res.status(200).json({ success: true, post }));

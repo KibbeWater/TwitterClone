@@ -1,14 +1,14 @@
 'use client';
 
+import React, { useContext, useEffect, useRef } from 'react';
+import Image from 'next/image';
+import useSWR from 'swr';
+
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Types } from 'mongoose';
-import Image from 'next/image';
-import React, { useContext, useEffect, useRef } from 'react';
-import useSWR from 'swr';
+
 import { ModalContext } from '../../../components/ModalHandler';
 import EditProfileModal from '../../../components/Modals/EditProfileModal';
-
 import PageTemplate from '../../../components/PageTemplate';
 import Post from '../../../components/Post';
 import { UserContext } from '../../../components/UserHandler';
@@ -29,7 +29,6 @@ export default function Page({ params }: Props) {
 
 	const { setModal } = useContext(ModalContext);
 	const { user } = useContext(UserContext);
-	const avatarRef = useRef<HTMLDivElement>(null);
 	const bannerRef = useRef<HTMLDivElement>(null);
 
 	const { data, mutate } = useSWR<{ success: boolean; user: SafeUser }>(`/api/user?tag=${params.tag}`, (url) =>
@@ -86,7 +85,7 @@ export default function Page({ params }: Props) {
 					<div className='w-full flex justify-between'>
 						<div className='relative h-12'>
 							<div className='w-24 h-24 absolute left-5 -top-[50px]'>
-								<div ref={avatarRef}>
+								<div>
 									<Image
 										className='object-cover rounded-full border-[4px] border-white'
 										src={profile?.avatar || '/default_avatar.png'}

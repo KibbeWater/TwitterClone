@@ -9,32 +9,13 @@ import { faHeart as farHeart } from '@fortawesome/free-regular-svg-icons';
 
 import { IPost } from '../schemas/IPost';
 import { IUser } from '../schemas/IUser';
-import { useContext, useEffect, useReducer, useState } from 'react';
+import { useContext, useEffect, useReducer, useRef, useState } from 'react';
 import { UserContext } from './UserHandler';
 import { LikePost } from '../libs/post';
 import { ILike } from '../schemas/ILike';
 import { ModalContext } from './ModalHandler';
 import PostModal from './Modals/PostModal';
 
-/*
-function GenerateTimestamp($date)
-{
-    $now = time();
-    $diff = $now - $date;
-
-    if ($diff < 60) {
-        return $diff . 's';
-    } else if ($diff < 3600) {
-        return floor($diff / 60) . 'm';
-    } else if ($diff < 86400) {
-        return floor($diff / 3600) . 'h';
-    } else if ($diff < 31536000) {
-        return date('M j', $date);
-    } else {
-        return date('M j, Y', $date);
-    }
-}
-*/
 function FormatDate(date: Date) {
 	const now = new Date();
 	const diff = now.getTime() - date.getTime();
@@ -58,6 +39,8 @@ export default function Post({ post, isRef }: Props) {
 
 	const [count, addCount] = useReducer((count: number) => count + 1, 0);
 
+	const imageDisplay = useRef<HTMLDivElement>(null);
+
 	useEffect(() => {
 		const interval = setInterval(() => {
 			addCount();
@@ -70,6 +53,8 @@ export default function Post({ post, isRef }: Props) {
 
 	const user = post.user as unknown as IUser | null;
 	const quote = post.quote as unknown as IPost | null;
+
+	const images = post.images || [];
 
 	if (!user) return null;
 
@@ -86,7 +71,7 @@ export default function Post({ post, isRef }: Props) {
 				width={40}
 				height={40}
 			/>
-			<div className={'pl-3'}>
+			<div className={'pl-3 w-full flex flex-col'}>
 				<div>
 					<a className={'text-black mr-[5px] cursor-pointer no-underline font-semibold hover:underline'} href={`/@${user.tag}`}>
 						{user.username}
@@ -98,6 +83,27 @@ export default function Post({ post, isRef }: Props) {
 					<span className={'text-gray-700 hover:underline'}>{FormatDate(new Date(post.date))}</span>
 				</div>
 				<p className={'text-black'}>{post.content}</p>
+				<div
+					ref={imageDisplay}
+					className='w-9/12 grid grid-cols-2 rounded-xl overflow-hidden gap-[2px] justify-self-center flex'
+					style={{
+						height: images.length !== 0 ? `${(imageDisplay.current || { clientWidth: 1 }).clientWidth * 0.6}px` : '1px',
+						opacity: images.length !== 0 ? 1 : 0,
+					}}
+				>
+					{images.map((img, i) => (
+						<div
+							key={`post-${post._id}-image-${i}`}
+							className={
+								'w-full h-full relative' +
+								(images.length == 1 || (images.length == 3 && i == 0) ? ' row-span-2' : '') +
+								(images.length == 1 ? ' col-span-2' : '')
+							}
+						>
+							<Image src={img} className={'object-cover w-full h-full'} alt={`Album image ${i}`} sizes={'100vw'} fill />
+						</div>
+					))}
+				</div>
 				{!quote || isRef ? (
 					<></>
 				) : (
