@@ -13,6 +13,7 @@ import TextAutosize from '../../components/TextAutosize';
 import { SendPost } from '../../libs/post';
 import { IPost } from '../../schemas/IPost';
 import { UserContext } from '../../components/UserHandler';
+import { faImage } from '@fortawesome/free-regular-svg-icons';
 
 export default function Page() {
 	const [text, setText] = useState('');
@@ -57,7 +58,7 @@ export default function Page() {
 	return (
 		<PageTemplate name='Home'>
 			{user ? (
-				<div className='flex w-full px-5 pb-4 bg-white relative z-10 border-b-[1px] border-gray-700'>
+				<div className='flex w-full px-5 pb-2 bg-white relative z-10 border-b-[1px] border-gray-700'>
 					<div>
 						<Image
 							src={user.avatar || '/default_avatar.png'}
@@ -77,9 +78,9 @@ export default function Page() {
 							onChange={(e) => setText(e.target.value)}
 						/>
 						<div className='h-px w-full opacity-50 bg-gray-900' />
-						<div className='flex justify-between items-center mt-5 h-min'>
-							<div>
-								<p className='m-0 text-black'>* Upload Button *</p>
+						<div className='flex justify-between items-center mt-2 h-min'>
+							<div className='flex items-center justify-center w-8 h-8 rounded-full transition-colors bg-accent-primary-500/0 hover:bg-accent-primary-500/20 hover:cursor-pointer'>
+								<FontAwesomeIcon icon={faImage} color={'red'} />
 							</div>
 							<div>
 								<button
