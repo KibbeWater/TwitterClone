@@ -3,7 +3,7 @@ export default function Verified({ color, size }: { color?: string; size?: numbe
 	const sz = size || 20;
 
 	return (
-		<div className={`ml-[2px]`} style={{ width: sz, height: sz }}>
+		<div style={{ width: sz, height: sz, marginLeft: 2, display: 'flex' }}>
 			<svg viewBox='0 0 24 24' aria-label='Verified account' role='img'>
 				<g>
 					<path

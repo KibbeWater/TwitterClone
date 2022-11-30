@@ -20,6 +20,10 @@ const nextConfig = {
 				source: '/:tag(@.*)',
 				destination: '/user/:tag',
 			},
+			{
+				source: '/user/:tag/card',
+				destination: '/api/user/:tag/card',
+			},
 		];
 	},
 
