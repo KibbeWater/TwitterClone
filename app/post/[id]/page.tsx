@@ -1,11 +1,19 @@
-import { faEllipsis } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Types } from 'mongoose';
+import { cookies } from 'next/headers';
 import Image from 'next/image';
+
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEllipsis } from '@fortawesome/free-solid-svg-icons';
+
 import PageTemplate from '../../../components/PageTemplate';
+import PostFooter from '../../../components/PostFooter';
+import PostModal from '../../../components/Post';
 import { Connect } from '../../../libs/database';
-import Post from '../../../schemas/IPost';
-import { IUser } from '../../../schemas/IUser';
+import { NormalizeObject } from '../../../libs/utils';
+import Post, { IPost } from '../../../schemas/IPost';
+import User, { IUser } from '../../../schemas/IUser';
+import PostReply from '../../../components/PostReply';
+import Link from 'next/link';
 
 type Props = {
 	params: {
@@ -17,7 +25,16 @@ export default async function Page({ params }: Props) {
 	await Connect();
 
 	const id = params.id;
-	const post = await Post.getPost(new Types.ObjectId(id));
+	const post = NormalizeObject<IPost & { quote: IPost & { user: IUser }; user: IUser; comments: IPost[] }>(
+		(await Post.getPost(new Types.ObjectId(id))) as unknown as IPost & {
+			quote: IPost & { user: IUser };
+			user: IUser;
+			comments: (IPost & { user: IUser })[];
+		}
+	);
+
+	const token = cookies().get('token')?.value as string;
+	const me = NormalizeObject<IUser | null>(await User.authenticate(token));
 
 	if (!post) throw new Error('Post not found');
 
@@ -29,7 +46,7 @@ export default async function Page({ params }: Props) {
 				<div className='flex justify-between mx-3'>
 					<div className='flex'>
 						<div className='relative h-12 w-12'>
-							<div className='absolute h-12 w-12'>
+							<Link href={'/@' + post.user.tag} className='absolute h-12 w-12'>
 								<Image
 									src={user.avatar || '/default_avatar.png'}
 									alt={"Author's Avatar"}
@@ -37,12 +54,16 @@ export default async function Page({ params }: Props) {
 									height={48}
 									className='rounded-full object-cover cursor-pointer transition-opacity hover:opacity-80'
 								/>
-							</div>
+							</Link>
 						</div>
 						<div>
 							<div className='flex flex-col ml-3'>
-								<h2 className='text-sm font-semibold m-0'>{user.username}</h2>
-								<p className='text-gray-600 text-sm m-0'>@{user.tag}</p>
+								<Link href={`/@${user.tag}`} className='text-sm font-semibold m-0 text-black'>
+									{user.username}
+								</Link>
+								<Link href={`/@${user.tag}`} className='text-gray-600 text-sm m-0'>
+									@{user.tag}
+								</Link>
 							</div>
 						</div>
 					</div>
@@ -53,7 +74,7 @@ export default async function Page({ params }: Props) {
 					</div>
 				</div>
 				<div className='mx-3 mt-2'>
-					<p className='text-xl'>{post.content}</p>
+					<p className='text-xl text-black'>{post.content}</p>
 				</div>
 				<div>
 					<div className='flex justify-between mx-3 mt-3'>
@@ -74,8 +95,22 @@ export default async function Page({ params }: Props) {
 						</p>
 					</div>
 					<div className='h-px grow mx-3 my-3 bg-gray-600/10' />
-					<div className='flex justify-evenly mx-3 mt-3'></div>
+					<div className='flex justify-evenly mx-3 mt-3'>
+						<PostFooter post={post} />
+					</div>
+					<div className='h-px grow mx-3 my-3 bg-gray-600/10' />
 				</div>
+				{me ? (
+					<>
+						<div className='mx-3 mt-2 flex'>
+							<PostReply user={me} post={post._id.toString()} />
+						</div>
+						<div className='h-px grow mt-3 bg-gray-700' />
+					</>
+				) : null}
+				{post.comments.map((reply) => (
+					<PostModal key={reply._id.toString()} post={reply as unknown as IPost} />
+				))}
 			</div>
 		</PageTemplate>
 	);

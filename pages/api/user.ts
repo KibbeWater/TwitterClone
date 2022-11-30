@@ -26,6 +26,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 				.exec();
 			if (!user) return res.status(404).json({ success: false, error: 'User not found' });
 
+			user.posts = user.posts.filter((post) => !post.parent);
+
 			return res.status(200).json({ success: true, user: MakeSafeUser(user) });
 		}
 
@@ -41,6 +43,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 				])
 				.exec();
 			if (!user2) return res.status(404).json({ success: false, error: 'User not found' });
+
+			user2.posts = user2.posts.filter((post) => !post.parent);
 
 			return res.status(200).json({ success: true, user: MakeSafeUser(user2) });
 		}

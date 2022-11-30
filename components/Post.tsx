@@ -3,9 +3,9 @@
 import Image from 'next/image';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faRepeat } from '@fortawesome/free-solid-svg-icons';
+import { faArrowUpFromBracket, faRepeat } from '@fortawesome/free-solid-svg-icons';
 import { faHeart as fasHeart } from '@fortawesome/free-solid-svg-icons';
-import { faHeart as farHeart } from '@fortawesome/free-regular-svg-icons';
+import { faComment, faHeart as farHeart } from '@fortawesome/free-regular-svg-icons';
 
 import { IPost } from '../schemas/IPost';
 import { IUser } from '../schemas/IUser';
@@ -16,6 +16,7 @@ import { ILike } from '../schemas/ILike';
 import { ModalContext } from './ModalHandler';
 import PostModal from './Modals/PostModal';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 function FormatDate(date: Date) {
 	const now = new Date();
@@ -136,7 +137,22 @@ export default function Post({ post, isRef }: Props) {
 					</div>
 				)}
 				{!isRef ? (
-					<div className={'mt-3 h-8 flex'}>
+					<div className={'mt-3 h-8 flex justify-evenly'}>
+						<div className='flex items-center mr-2'>
+							<Link
+								href={`/post/${post._id}`}
+								className={
+									'border-0 p-0 h-8 w-8 mr-1 rounded-full flex items-center justify-center transition-colors bg-black/0 cursor-pointer hover:bg-red-500/40 group/btnComment'
+								}
+							>
+								<FontAwesomeIcon
+									icon={faComment}
+									size={'lg'}
+									className={'text-black group-hover/btnComment:text-accent-primary-500'}
+								/>
+							</Link>
+							<p className='text-black text-sm'>{post.comments.length}</p>
+						</div>
 						<div className='flex items-center mr-2'>
 							<button
 								className={
@@ -148,13 +164,11 @@ export default function Post({ post, isRef }: Props) {
 							>
 								<FontAwesomeIcon
 									icon={faRepeat}
-									size={'xl'}
+									size={'lg'}
 									className={'text-black group-hover/btnRetweet:text-green-500'}
 								/>
 							</button>
-							<p className='text-black'>
-								<span className='font-bold'>{post.retwaats.length}</span> Retwaats
-							</p>
+							<p className='text-black text-sm'>{post.retwaats.length}</p>
 						</div>
 						<div className='flex items-center mr-2'>
 							<button
@@ -173,7 +187,7 @@ export default function Post({ post, isRef }: Props) {
 							>
 								<FontAwesomeIcon
 									icon={hasLiked ? fasHeart : farHeart}
-									size={'xl'}
+									size={'lg'}
 									className={
 										hasLiked
 											? 'text-red-500 group-hover/btnLike:text-black transition-colors'
@@ -181,9 +195,20 @@ export default function Post({ post, isRef }: Props) {
 									}
 								/>
 							</button>
-							<p className='text-black'>
-								<span className='font-bold'>{post.likes.length}</span> Likes
-							</p>
+							<p className='text-black text-sm'>{post.likes.length}</p>
+						</div>
+						<div className='flex items-center mr-2'>
+							<button
+								className={
+									'border-0 p-0 h-8 w-8 mr-1 rounded-full flex items-center justify-center transition-colors bg-black/0 cursor-pointer hover:bg-red-500/40 group/btnShare disabled:cursor-default'
+								}
+							>
+								<FontAwesomeIcon
+									icon={faArrowUpFromBracket}
+									size={'lg'}
+									className={'text-black group-hover/btnShare:text-red-500'}
+								/>
+							</button>
 						</div>
 					</div>
 				) : null}

@@ -2,7 +2,7 @@ import axios from 'axios';
 
 import { IPost } from '../schemas/IPost';
 
-export function SendPost(content: string, quoteId?: string, images?: string[]): Promise<IPost> {
+export function SendPost(content: string, quoteId?: string, images?: string[], parent?: string): Promise<IPost> {
 	return new Promise((resolve, reject) => {
 		if (!content) return reject(new Error('Missing content'));
 		axios
@@ -10,6 +10,7 @@ export function SendPost(content: string, quoteId?: string, images?: string[]): 
 				content,
 				quote: quoteId,
 				images,
+				parent,
 			})
 			.then((res) => {
 				if (res.data.success) resolve(res.data.post);
