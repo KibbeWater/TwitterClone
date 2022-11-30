@@ -9,6 +9,7 @@ export default function Head() {
 			<meta property='og:description' content='Definitely not a Twitter clone' />
 			<meta property='og:type' content='website' />
 			<meta property='og:image' content='/assets/favicons/android-chrome-512x512.png' />
+			<meta name='theme-color' content='#f01d1d' />
 			<link rel='icon' href='/favicon.ico' />
 		</>
 	);
