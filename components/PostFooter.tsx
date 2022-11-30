@@ -13,12 +13,14 @@ import PostModal from './Modals/PostModal';
 import { UserContext } from './UserHandler';
 import { LikePost } from '../libs/post';
 
-export default function PostFooter({ post }: { post: IPost }) {
+export default function PostFooter({ post, color }: { post: IPost; color?: string }) {
 	const { setModal } = useContext(ModalContext);
 	const { user: me } = useContext(UserContext);
 
 	const [loadingLikes, setLoadingLikes] = useState(false);
 	const [hasLiked, setHasLiked] = useState((post.likes as unknown as ILike[]).findIndex((like) => like.user === me?._id) !== -1);
+
+	const clr = color || 'black';
 
 	return (
 		<>
@@ -28,7 +30,12 @@ export default function PostFooter({ post }: { post: IPost }) {
 						'border-0 p-0 h-8 w-8 mr-1 rounded-full flex items-center justify-center transition-colors bg-black/0 cursor-pointer hover:bg-red-500/40 group/btnComment'
 					}
 				>
-					<FontAwesomeIcon icon={faComment} size={'lg'} className={'text-black group-hover/btnComment:text-accent-primary-500'} />
+					<FontAwesomeIcon
+						icon={faComment}
+						size={'lg'}
+						color={clr}
+						className={'group-hover/btnComment:text-accent-primary-500'}
+					/>
 				</button>
 			</div>
 			<div className='flex items-center mr-2'>
@@ -40,7 +47,7 @@ export default function PostFooter({ post }: { post: IPost }) {
 						if (setModal) setModal(<PostModal quote={post} />);
 					}}
 				>
-					<FontAwesomeIcon icon={faRepeat} size={'lg'} className={'text-black group-hover/btnRetweet:text-green-500'} />
+					<FontAwesomeIcon icon={faRepeat} size={'lg'} color={clr} className={'group-hover/btnRetweet:text-green-500'} />
 				</button>
 			</div>
 			<div className='flex items-center mr-2'>
@@ -61,7 +68,8 @@ export default function PostFooter({ post }: { post: IPost }) {
 					<FontAwesomeIcon
 						icon={hasLiked ? fasHeart : farHeart}
 						size={'lg'}
-						className={hasLiked ? 'text-red-500 transition-all' : 'text-black group-hover/btnLike:text-red-500 transition-all'}
+						color={clr}
+						className={hasLiked ? 'text-red-500 transition-all' : 'group-hover/btnLike:text-red-500 transition-all'}
 					/>
 				</button>
 			</div>
@@ -71,7 +79,7 @@ export default function PostFooter({ post }: { post: IPost }) {
 						'border-0 p-0 h-8 w-8 mr-1 rounded-full flex items-center justify-center transition-colors bg-black/0 cursor-pointer hover:bg-red-500/40 group/btnShare disabled:cursor-default'
 					}
 				>
-					<FontAwesomeIcon icon={faArrowUpFromBracket} size={'lg'} className={'text-black group-hover/btnShare:text-red-500'} />
+					<FontAwesomeIcon icon={faArrowUpFromBracket} size={'lg'} color={clr} className={'group-hover/btnShare:text-red-500'} />
 				</button>
 			</div>
 		</>

@@ -17,6 +17,7 @@ import { ModalContext } from './ModalHandler';
 import PostModal from './Modals/PostModal';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import ImageModal from './Modals/ImageModal';
 
 function FormatDate(date: Date) {
 	const now = new Date();
@@ -121,7 +122,16 @@ export default function Post({ post, isRef }: Props) {
 								(images.length == 1 ? ' col-span-2' : '')
 							}
 						>
-							<Image src={img} className={'object-cover w-full h-full'} alt={`Album image ${i}`} sizes={'100vw'} fill />
+							<Image
+								src={img}
+								className={'object-cover w-full h-full'}
+								alt={`Album image ${i}`}
+								sizes={'100vw'}
+								fill
+								onClick={() => {
+									if (setModal) setModal(<ImageModal src={img} post={post} />);
+								}}
+							/>
 						</div>
 					))}
 				</div>
