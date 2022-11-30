@@ -64,7 +64,7 @@ export default async function Page({ params }: Props) {
 							{new Date(post.date).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
 						</p>
 					</div>
-					<div className='h-px grow mx-3 my-3 bg-gray-600/20' />
+					<div className='h-px grow mx-3 my-3 bg-gray-600/10' />
 					<div className='mx-3 flex items-center'>
 						<p className='text-sm ml-1 mr-4 text-gray-700'>
 							<span className='font-semibold text-black'>{post.retwaats.length}</span> Retwaats
@@ -73,6 +73,8 @@ export default async function Page({ params }: Props) {
 							<span className='font-semibold text-black'>{post.likes.length}</span> Likes
 						</p>
 					</div>
+					<div className='h-px grow mx-3 my-3 bg-gray-600/10' />
+					<div className='flex justify-evenly mx-3 mt-3'></div>
 				</div>
 			</div>
 		</PageTemplate>
