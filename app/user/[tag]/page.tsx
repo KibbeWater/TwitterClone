@@ -141,7 +141,7 @@ export default function Page({ params }: Props) {
 					<div className='mx-3 pb-3'>
 						<h3 className='font-bold leading-none text-lg text-black flex items-center'>
 							{profile?.username}
-							{profile.verified ? <Verified color='#1d9bf0' /> : null}
+							{profile.verified ? <Verified color='#f01d1d' /> : null}
 						</h3>
 						<p className='mt-1 text-base leading-none text-gray-500'>{`@${profile?.tag}`}</p>
 						<p className='my-1 text-black'>{profile?.bio}</p>

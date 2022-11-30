@@ -97,7 +97,7 @@ export default function Post({ post, isRef }: Props) {
 						className={'text-black mr-[5px] cursor-pointer no-underline font-semibold hover:underline flex items-center'}
 						href={`/@${user.tag}`}
 					>
-						{user.username} {user.verified ? <Verified color='#1d9bf0' /> : null}
+						{user.username} {user.verified ? <Verified color='#f01d1d' /> : null}
 					</a>
 					<a className={'ml-[2px] text-gray-700 no-underline'} href={`/@${user.tag}`}>
 						{`@${user.tag}`}
