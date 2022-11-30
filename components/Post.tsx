@@ -18,6 +18,7 @@ import PostModal from './Modals/PostModal';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import ImageModal from './Modals/ImageModal';
+import Verified from './Verified';
 
 function FormatDate(date: Date) {
 	const now = new Date();
@@ -91,11 +92,14 @@ export default function Post({ post, isRef }: Props) {
 			</div>
 
 			<div className={'pl-3 w-full flex flex-col'} onClick={routePost}>
-				<div onClick={routePost}>
-					<a className={'text-black mr-[5px] cursor-pointer no-underline font-semibold hover:underline'} href={`/@${user.tag}`}>
-						{user.username}
+				<div onClick={routePost} className={'flex'}>
+					<a
+						className={'text-black mr-[5px] cursor-pointer no-underline font-semibold hover:underline flex items-center'}
+						href={`/@${user.tag}`}
+					>
+						{user.username} {user.verified ? <Verified color='#1d9bf0' /> : null}
 					</a>
-					<a className={'ml-1 text-gray-700 no-underline'} href={`/@${user.tag}`}>
+					<a className={'ml-[2px] text-gray-700 no-underline'} href={`/@${user.tag}`}>
 						{`@${user.tag}`}
 						<span className='mx-[6px]'>·</span>
 					</a>

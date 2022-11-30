@@ -24,6 +24,7 @@ export type SafeUser = {
 	_id: string;
 	username: string;
 	tag: string;
+	verified: boolean;
 	posts: IPost[];
 	avatar?: string;
 	banner?: string;
@@ -36,6 +37,7 @@ export function MakeSafeUser(user: any): SafeUser {
 
 		username: user.username,
 		tag: user.tag,
+		verified: !!user.verified,
 
 		posts: user.posts,
 

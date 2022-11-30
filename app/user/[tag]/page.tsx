@@ -14,6 +14,7 @@ import Post from '../../../components/Post';
 import { UserContext } from '../../../components/UserHandler';
 import { CreateRelationship, SafeUser } from '../../../libs/user';
 import { IRelationship } from '../../../schemas/IRelationship';
+import Verified from '../../../components/Verified';
 
 type Props = {
 	params: {
@@ -138,8 +139,11 @@ export default function Page({ params }: Props) {
 						</div>
 					</div>
 					<div className='mx-3 pb-3'>
-						<h3 className='mb-[2px] font-bold text-lg text-black'>{profile?.username}</h3>
-						<h4 className='mt-[2px] text-lg text-gray-500'>{`@${profile?.tag}`}</h4>
+						<h3 className='font-bold leading-none text-lg text-black flex items-center'>
+							{profile?.username}
+							{profile.verified ? <Verified color='#1d9bf0' /> : null}
+						</h3>
+						<p className='mt-1 text-base leading-none text-gray-500'>{`@${profile?.tag}`}</p>
 						<p className='my-1 text-black'>{profile?.bio}</p>
 						<div className='flex my-2'>
 							<p className='m-0 mr-1 text-black'>

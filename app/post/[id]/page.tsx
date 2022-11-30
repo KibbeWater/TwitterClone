@@ -14,6 +14,7 @@ import Post, { IPost } from '../../../schemas/IPost';
 import User, { IUser } from '../../../schemas/IUser';
 import PostReply from '../../../components/PostReply';
 import Link from 'next/link';
+import Verified from '../../../components/Verified';
 
 type Props = {
 	params: {
@@ -56,12 +57,13 @@ export default async function Page({ params }: Props) {
 								/>
 							</Link>
 						</div>
-						<div>
+						<div className='flex items-center'>
 							<div className='flex flex-col ml-3'>
-								<Link href={`/@${user.tag}`} className='text-sm font-semibold m-0 text-black'>
+								<Link href={`/@${user.tag}`} className='text-base mb-1 leading-none font-semibold m-0 text-black flex'>
 									{user.username}
+									{user.verified ? <Verified color='#1d9bf0' /> : null}
 								</Link>
-								<Link href={`/@${user.tag}`} className='text-gray-600 text-sm m-0'>
+								<Link href={`/@${user.tag}`} className='text-gray-600 mb-1 leading-none text-base m-0'>
 									@{user.tag}
 								</Link>
 							</div>

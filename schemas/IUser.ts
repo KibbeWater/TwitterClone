@@ -13,6 +13,7 @@ export interface IUser {
 	tag: string;
 	username: string;
 	password: string;
+	verified: boolean;
 
 	avatar?: string;
 	banner?: string;
@@ -48,6 +49,7 @@ export const userSchema = new Schema<IUser, UserModel, IUserMethods>(
 		tag: { type: String, required: true, unique: true },
 		username: { type: String, required: true, unique: true },
 		password: { type: String, required: true },
+		verified: { type: Boolean, default: false },
 
 		avatar: { type: String, default: null },
 		banner: { type: String, default: null },
