@@ -1,5 +1,5 @@
 import mongoose, { Model, model, Schema, Types } from 'mongoose';
-import User from './IUser';
+import User, { IUser } from './IUser';
 
 export interface IPost {
 	_id: Types.ObjectId;
@@ -67,7 +67,7 @@ const postSchema = new Schema<IPost, PostModel>(
 				});
 			},
 			getPost: function (id: Types.ObjectId) {
-				return this.findById(id).exec();
+				return this.findById(id).populate<{ quote: IPost; user: IUser; comments: IPost[] }>(['quote', 'user', 'comments']).exec();
 			},
 		},
 	}

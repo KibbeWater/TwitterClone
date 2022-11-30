@@ -59,7 +59,7 @@ export default function Page({ params }: Props) {
 		return (
 			<PageTemplate name='Loading...'>
 				<div className='flex justify-center items-center my-5'>
-					<p>Loading...</p> <FontAwesomeIcon icon={faSpinner} size={'2x'} color={'black'} className={'animate-spin'} />
+					<p>Loading...</p> <FontAwesomeIcon icon={faSpinner} size={'lg'} color={'black'} className={'animate-spin ml-3'} />
 				</div>
 			</PageTemplate>
 		);
@@ -87,7 +87,7 @@ export default function Page({ params }: Props) {
 							<div className='w-24 h-24 absolute left-5 -top-[50px]'>
 								<div>
 									<Image
-										className='object-cover rounded-full border-[4px] border-white'
+										className='object-cover rounded-full border-[4px] border-white bg-white'
 										src={profile?.avatar || '/default_avatar.png'}
 										alt={`${profile?.username}'s Avatar`}
 										sizes={'100vw'}

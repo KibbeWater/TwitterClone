@@ -15,6 +15,7 @@ import { LikePost } from '../libs/post';
 import { ILike } from '../schemas/ILike';
 import { ModalContext } from './ModalHandler';
 import PostModal from './Modals/PostModal';
+import { useRouter } from 'next/navigation';
 
 function FormatDate(date: Date) {
 	const now = new Date();
@@ -36,13 +37,14 @@ type Props = {
 export default function Post({ post, isRef }: Props) {
 	const { setModal } = useContext(ModalContext);
 	const { user: me } = useContext(UserContext);
+
 	const [hasLiked, setHasLiked] = useState((post.likes as unknown as ILike[]).findIndex((like) => like.user === me?._id) !== -1);
-
 	const [count, addCount] = useReducer((count: number) => count + 1, 0);
-
 	const [loadingLikes, setLoadingLikes] = useState(false);
 
 	const imageDisplay = useRef<HTMLDivElement>(null);
+
+	const router = useRouter();
 
 	useEffect(() => {
 		const interval = setInterval(() => {
@@ -61,11 +63,18 @@ export default function Post({ post, isRef }: Props) {
 
 	if (!user) return null;
 
+	const routePost = (e: any) => {
+		if (e.target !== e.currentTarget) return;
+		e.preventDefault();
+		router.push(`/post/${post._id}`);
+	};
+
 	return (
 		<div
 			className={`p-3 mb-px w-full bg-transparent transition-all cursor-pointer border-b-[1px] border-gray-700 flex hover:bg-black/5 ${
 				isRef ? '!border-0 !bg-transparent hover:!bg-transparent' : ''
 			}`}
+			onClick={routePost}
 		>
 			<div className='w-12 h-12 relative'>
 				<div className='w-12 h-12 absolute'>
@@ -79,8 +88,8 @@ export default function Post({ post, isRef }: Props) {
 				</div>
 			</div>
 
-			<div className={'pl-3 w-full flex flex-col'}>
-				<div>
+			<div className={'pl-3 w-full flex flex-col'} onClick={routePost}>
+				<div onClick={routePost}>
 					<a className={'text-black mr-[5px] cursor-pointer no-underline font-semibold hover:underline'} href={`/@${user.tag}`}>
 						{user.username}
 					</a>
@@ -90,7 +99,9 @@ export default function Post({ post, isRef }: Props) {
 					</a>
 					<span className={'text-gray-700 hover:underline'}>{FormatDate(new Date(post.date))}</span>
 				</div>
-				<p className={'text-black'}>{post.content}</p>
+				<p className={'text-black'} onClick={routePost}>
+					{post.content}
+				</p>
 				<div
 					ref={imageDisplay}
 					className='w-9/12 grid grid-cols-2 rounded-xl overflow-hidden gap-[2px] justify-self-center border-[1px] border-gray-700'
@@ -98,6 +109,7 @@ export default function Post({ post, isRef }: Props) {
 						height: images.length !== 0 ? `${(imageDisplay.current || { clientWidth: 1 }).clientWidth * 0.6}px` : '1px',
 						opacity: images.length !== 0 ? 1 : 0,
 					}}
+					onClick={routePost}
 				>
 					{images.map((img, i) => (
 						<div
