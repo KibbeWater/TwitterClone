@@ -16,41 +16,52 @@ import { IPost } from '../../schemas/IPost';
 import { UserContext } from '../../components/UserHandler';
 import axios from 'axios';
 
+// @ts-ignore
+async function fetcher(...args) {
+	// @ts-ignore
+	const res = await fetch(...args);
+	return res.json();
+}
+
 export default function Page() {
 	const [text, setText] = useState('');
 	const [images, setImages] = useState([] as string[]);
 	const [loadingPost, setLoadingPost] = useState(false);
+	const [isVisible, setIsVisible] = useState(false);
 
 	const { data, size, setSize, mutate, isValidating } = useSWRInfinite<{ success: boolean; posts: IPost[]; pages: number }>(
-		(index, previousPageData) => {
-			if (previousPageData && previousPageData.pages < index) return null;
-			return `/api/post?page=${index}`;
+		(pageIndex: number, previousPageData: { success: boolean; posts: IPost[]; pages: number } | null) => {
+			if (previousPageData && !previousPageData.posts) return null;
+			return `/api/post?page=${pageIndex}`;
 		},
-		(url) => fetch(url).then((res) => res.json())
+		fetcher
 	);
+
+	const isRefreshing = isValidating && data && data.length === size;
+	const totalPages = data ? data[data.length - 1].pages : 0;
 
 	const loadingRef = useRef<HTMLDivElement>(null);
 	const postAlbumRef = useRef<HTMLDivElement>(null);
 	const { user } = useContext(UserContext);
 
 	useEffect(() => {
-		if (loadingRef.current) {
-			const observer = new IntersectionObserver(
-				(entries) => {
-					if (entries[0].isIntersecting) {
-						setSize(size + 1);
-					}
-				},
-				{ threshold: 1 }
-			);
+		if (!loadingRef.current) return;
 
-			observer.observe(loadingRef.current);
+		const observer = new IntersectionObserver(([entry]) => {
+			setIsVisible(entry.isIntersecting);
+		});
 
-			return () => observer.disconnect();
-		}
+		observer.observe(loadingRef.current);
+
+		return () => observer.disconnect();
 	}, [loadingRef]);
 
+	useEffect(() => {
+		if (isVisible && !isRefreshing && size < totalPages) setSize(size + 1);
+	}, [isVisible, isRefreshing, totalPages]);
+
 	let posts = data ? data.map((page) => page.posts).flat() : [];
+	const pages = (data ? data.map((page) => page.pages).flat() : [])[0];
 
 	const btnPostClick = async () => {
 		if (loadingPost) return;
@@ -185,13 +196,15 @@ export default function Page() {
 				</div>
 			) : null}
 			<div className='flex flex-col items-center pb-14'>
+				<h1>{`Showing ${size} pages of ${pages}`}</h1>
 				{posts.map((post) => (post ? <Post key={post._id as unknown as string} post={post} /> : <></>))}
 				<div
-					className={'w-full mt-4 flex justify-center items-center' + (isValidating ? ' invisible' : ' visible')}
+					className={'w-full mt-4 flex justify-center items-center' /*  + (!isValidating ? ' invisible' : ' visible') */}
 					ref={loadingRef}
 				>
 					<FontAwesomeIcon icon={faSpinner} size={'2x'} color={'black'} className={'animate-spin'} />
 				</div>
+				{/* <button onClick={() => setSize((prev) => prev + 1)}>Load More</button> */}
 			</div>
 		</PageTemplate>
 	);

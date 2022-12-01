@@ -9,7 +9,7 @@ import { faComment, faHeart as farHeart } from '@fortawesome/free-regular-svg-ic
 
 import { IPost } from '../schemas/IPost';
 import { IUser } from '../schemas/IUser';
-import { useContext, useEffect, useReducer, useRef, useState } from 'react';
+import { RefObject, useContext, useEffect, useReducer, useRef, useState } from 'react';
 import { UserContext } from './UserHandler';
 import { LikePost } from '../libs/post';
 import { ILike } from '../schemas/ILike';
