@@ -85,7 +85,7 @@ export default function PostModal({ quote }: { quote?: IPost }) {
 				</div>
 			</div>
 			<div className={'grow flex break-words px-4 pb-[10px]'}>
-				<div className='w-12 h-12 relative'>
+				<div className='w-12 mr-2 h-12 relative shrink-0'>
 					<div className='w-12 h-12 absolute'>
 						<Image
 							src={user?.avatar || '/default_avatar.png'}
@@ -96,61 +96,63 @@ export default function PostModal({ quote }: { quote?: IPost }) {
 						/>
 					</div>
 				</div>
-				<div className={'grow pl-3'}>
-					<TextareaAutosize
-						className={'w-full text-xl border-0 text-black bg-transparent resize-none outline-none'}
-						minRows={1}
-						placeholder={"What's happening?"}
-						value={content}
-						onChange={(e) => setContent(e.target.value)}
-					/>
-					<div
-						className={'grid grid-cols-2 gap-1 mb-1'}
-						ref={postAlbumRef}
-						style={{
-							height: images.length !== 0 ? `${(postAlbumRef.current || { clientWidth: 1 }).clientWidth * 0.6}px` : '1px',
-							opacity: images.length !== 0 ? 1 : 0,
-						}}
-					>
-						{images.map((img, i) => (
+				<div className='relative'>
+					<div className={'grow pl-3'}>
+						<TextareaAutosize
+							className={'w-full text-xl border-0 text-black bg-transparent resize-none outline-none'}
+							minRows={1}
+							placeholder={"What's happening?"}
+							value={content}
+							onChange={(e) => setContent(e.target.value)}
+						/>
+						<div
+							className={'grid grid-cols-2 gap-1 mb-1'}
+							ref={postAlbumRef}
+							style={{
+								height: images.length !== 0 ? `${(postAlbumRef.current || { clientWidth: 1 }).clientWidth * 0.6}px` : '1px',
+								opacity: images.length !== 0 ? 1 : 0,
+							}}
+						>
+							{images.map((img, i) => (
+								<div
+									key={`post-image-${i}`}
+									className={
+										'w-full h-full relative' +
+										(images.length == 1 || (images.length == 3 && i == 0) ? ' row-span-2' : '') +
+										(images.length == 1 ? ' col-span-2' : '')
+									}
+								>
+									<Image
+										src={img}
+										className={'object-cover w-full h-full rounded-xl'}
+										alt={`Album image ${i}`}
+										sizes={'100vw'}
+										fill
+									/>
+									<div
+										className={
+											'absolute top-2 left-2 z-10 w-7 h-7 flex justify-center items-center rounded-full' +
+											' backdrop-blur-md bg-black/60 hover:bg-black/40 cursor-pointer'
+										}
+										onClick={() => setImages((prev) => prev.filter((_, j) => j !== i))}
+									>
+										<FontAwesomeIcon icon={faXmark} />
+									</div>
+								</div>
+							))}
+						</div>
+						{quote ? (
 							<div
-								key={`post-image-${i}`}
 								className={
-									'w-full h-full relative' +
-									(images.length == 1 || (images.length == 3 && i == 0) ? ' row-span-2' : '') +
-									(images.length == 1 ? ' col-span-2' : '')
+									'group/quote mt-1 pl-1 rounded-md border-[1px] border-gray-700 transition-colors bg-black/0 hover:bg-black/10'
 								}
 							>
-								<Image
-									src={img}
-									className={'object-cover w-full h-full rounded-xl'}
-									alt={`Album image ${i}`}
-									sizes={'100vw'}
-									fill
-								/>
-								<div
-									className={
-										'absolute top-2 left-2 z-10 w-7 h-7 flex justify-center items-center rounded-full' +
-										' backdrop-blur-md bg-black/60 hover:bg-black/40 cursor-pointer'
-									}
-									onClick={() => setImages((prev) => prev.filter((_, j) => j !== i))}
-								>
-									<FontAwesomeIcon icon={faXmark} />
-								</div>
+								<Post post={quote} isRef={true} />
 							</div>
-						))}
+						) : (
+							<></>
+						)}
 					</div>
-					{quote ? (
-						<div
-							className={
-								'group/quote mt-1 pl-1 rounded-md border-[1px] border-gray-700 transition-colors bg-black/0 hover:bg-black/10'
-							}
-						>
-							<Post post={quote} isRef={true} />
-						</div>
-					) : (
-						<></>
-					)}
 					<div className={'h-px w-full my-2 opacity-50 bg-gray-500'} />
 					<div className={'h-10 flex justify-between items-center'}>
 						<div>
