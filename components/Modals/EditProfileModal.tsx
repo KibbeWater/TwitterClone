@@ -216,7 +216,6 @@ export default function EditProfileModal({
 							setUsername((prev) => {
 								let newUsername = e.target.value;
 								if (prev.length >= 32 && e.target.value.length > prev.length) return prev;
-								newUsername = newUsername.replaceAll(' ', '');
 								return newUsername;
 							})
 						}

@@ -18,7 +18,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
 			const user = await User.getUser(username);
 			if (user) return resolve(res.status(400).json({ success: false, error: 'Username already taken' }));
 
-			User.register(username.toLowerCase(), username, password)
+			User.register(username.toLowerCase().replaceAll(' ', ''), username, password)
 				.then((newUser) => {
 					if (!newUser) return resolve(res.status(500).json({ success: false, error: 'Failed to create user' }));
 

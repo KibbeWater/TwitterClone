@@ -82,7 +82,14 @@ export default function RegisterModal({ switchMode }: AuthProps) {
 					type={'text'}
 					placeholder={'Username'}
 					value={username}
-					onChange={(e) => setUsername(e.target.value)}
+					onChange={(e) =>
+						setUsername((prev) => {
+							let newUsername = e.target.value;
+							if (prev.length >= 32 && e.target.value.length > prev.length) return prev;
+							newUsername = newUsername.replaceAll(' ', '');
+							return newUsername;
+						})
+					}
 				/>
 				<input
 					className='bg-slate-200 text-black my-1 px-1 py-2 w-9/12 text-sm border-0 rounded-md outline-none'
