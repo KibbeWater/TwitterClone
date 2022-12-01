@@ -15,6 +15,8 @@ import { UserContext } from '../../../components/UserHandler';
 import { CreateRelationship, SafeUser } from '../../../libs/user';
 import { IRelationship } from '../../../schemas/IRelationship';
 import Verified from '../../../components/Verified';
+import { Group } from '../../../libs/utils';
+import AdminModal from '../../../components/Modals/AdminModal';
 
 type Props = {
 	params: {
@@ -84,7 +86,7 @@ export default function Page({ params }: Props) {
 							) : null}
 						</div>
 					</div>
-					<div className='w-full flex justify-between'>
+					<div className='w-full flex justify-between relative'>
 						<div className='relative h-12'>
 							<div className='w-24 h-24 absolute left-5 -top-[50px]'>
 								<div>
@@ -98,44 +100,56 @@ export default function Page({ params }: Props) {
 								</div>
 							</div>
 						</div>
-						<div className='mx-3 my-3'>
-							{isMe ? (
+						<div className='flex flex-col justify-center absolute right-0 top-0'>
+							<div className='mx-3 my-3'>
+								{isMe ? (
+									<button
+										className='bg-black/0 px-[15px] py-2 font-semibold border-[1px] border-gray-400 text-black min-w-[36px] transition-all cursor-pointer rounded-full hover:bg-gray-700/10'
+										onClick={() => {
+											if (setModal) setModal(<EditProfileModal mutate={mutate} />);
+										}}
+									>
+										Edit profile
+									</button>
+								) : isFollowing ? (
+									<button
+										className={
+											'bg-black/0 px-[15px] py-2 font-semibold border-[1px] text-black border-gray-700 min-w-[36px] transition-all rounded-full ' +
+											'hover:bg-red-500/10 hover:text-red-600 hover:border-red-300 hover:cursor-pointer'
+										}
+										onClick={() => {
+											CreateRelationship(profile?._id, 'remove').then((res) => {
+												setIsFollowing((prev) => !prev);
+											});
+										}}
+										onMouseEnter={() => setFollowingText('Unfollow')}
+										onMouseLeave={() => setFollowingText('Following')}
+									>
+										{followingText}
+									</button>
+								) : (
+									<button
+										className={'bg-black text-white px-[15px] py-2 font-bold cursor-pointer rounded-full'}
+										onClick={() => {
+											CreateRelationship(profile?._id, 'follow').then((res) => {
+												setIsFollowing((prev) => !prev);
+											});
+										}}
+									>
+										Follow
+									</button>
+								)}
+							</div>
+							{user?.group == Group.Admin ? (
 								<button
-									className='bg-black/0 px-[15px] py-2 font-semibold border-[1px] border-gray-400 text-black min-w-[36px] transition-all cursor-pointer rounded-full hover:bg-gray-700/10'
+									className={'bg-black text-white px-[15px] py-2 font-bold cursor-pointer rounded-full mx-3'}
 									onClick={() => {
-										if (setModal) setModal(<EditProfileModal mutate={mutate} />);
+										if (setModal) setModal(<AdminModal user={profile} />);
 									}}
 								>
-									Edit profile
+									Admin
 								</button>
-							) : isFollowing ? (
-								<button
-									className={
-										'bg-black/0 px-[15px] py-2 font-semibold border-[1px] text-black border-gray-700 min-w-[36px] transition-all rounded-full ' +
-										'hover:bg-red-500/10 hover:text-red-600 hover:border-red-300 hover:cursor-pointer'
-									}
-									onClick={() => {
-										CreateRelationship(profile?._id, 'remove').then((res) => {
-											setIsFollowing((prev) => !prev);
-										});
-									}}
-									onMouseEnter={() => setFollowingText('Unfollow')}
-									onMouseLeave={() => setFollowingText('Following')}
-								>
-									{followingText}
-								</button>
-							) : (
-								<button
-									className={'bg-black text-white px-[15px] py-2 font-bold cursor-pointer rounded-full'}
-									onClick={() => {
-										CreateRelationship(profile?._id, 'follow').then((res) => {
-											setIsFollowing((prev) => !prev);
-										});
-									}}
-								>
-									Follow
-								</button>
-							)}
+							) : null}
 						</div>
 					</div>
 					<div className='mx-3 pb-3'>

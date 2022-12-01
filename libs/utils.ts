@@ -1,3 +1,8 @@
+export enum Group {
+	'User' = 0,
+	'Admin' = 1,
+}
+
 export function NormalizeObject<T>(obj: T): T {
 	return JSON.parse(JSON.stringify(obj));
 }
