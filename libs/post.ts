@@ -10,10 +10,10 @@ export function SendPost(content: string, quoteId?: string, images?: string[], p
 		if (lastPost === content)
 			return resolve({
 				content,
-				_id: new Types.ObjectId('0'),
-				comments: [new Types.ObjectId('0')],
-				likes: [new Types.ObjectId('0')],
-				retwaats: [new Types.ObjectId('0')],
+				_id: new Types.ObjectId(),
+				comments: [new Types.ObjectId()],
+				likes: [new Types.ObjectId()],
+				retwaats: [new Types.ObjectId()],
 				date: new Date().getTime(),
 			});
 		lastPost = content;
