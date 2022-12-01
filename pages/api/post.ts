@@ -8,6 +8,8 @@ import { ILike } from '../../schemas/ILike';
 import { MakeSafeUser } from '../../libs/user';
 
 function PostReq(req: NextApiRequest, res: NextApiResponse) {
+	console.log(req.headers);
+	return res.json({ success: true });
 	return new Promise(async (resolve) => {
 		if (req.method !== 'POST') return resolve(res.status(405).json({ success: false, error: 'Method not allowed' }));
 
