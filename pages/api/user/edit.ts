@@ -19,6 +19,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 	const dbUser = await User.findOne({ _id: user._id }).exec();
 	if (!dbUser) return res.status(500).json({ success: false, error: 'Internal Server Error' });
 
+	/* 20 character limit, otherwise cut it */
+	let newUsername = username;
+	if (newUsername.length > 32) newUsername = newUsername.slice(0, 32);
+
 	if (username !== undefined) dbUser.username = username;
 	if (bio !== undefined) dbUser.bio = bio;
 	if (avatar !== undefined) dbUser.avatar = avatar;

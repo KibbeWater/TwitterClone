@@ -11,11 +11,14 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
 		if (!username || !password || !confirm) return resolve(res.status(400).json({ success: false, error: 'Missing fields' }));
 		if (password !== confirm) return resolve(res.status(400).json({ success: false, error: 'Passwords do not match' }));
 
+		let newUsername = username;
+		if (newUsername.length > 32) newUsername = newUsername.slice(0, 32);
+
 		DB(async () => {
 			const user = await User.getUser(username);
 			if (user) return resolve(res.status(400).json({ success: false, error: 'Username already taken' }));
 
-			User.register(username, username, password)
+			User.register(username.toLowerCase(), username, password)
 				.then((newUser) => {
 					if (!newUser) return resolve(res.status(500).json({ success: false, error: 'Failed to create user' }));
 

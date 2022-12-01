@@ -94,12 +94,14 @@ export default function Post({ post, isRef }: Props) {
 			<div className={'pl-3 w-full flex flex-col'} onClick={routePost}>
 				<div onClick={routePost} className={'flex'}>
 					<a
-						className={'text-black mr-[5px] cursor-pointer no-underline font-semibold hover:underline flex items-center'}
+						className={
+							'text-black mr-[5px] cursor-pointer no-underline font-semibold hover:underline truncate flex items-center'
+						}
 						href={`/@${user.tag}`}
 					>
 						{user.username} {user.verified ? <Verified color='#f01d1d' /> : null}
 					</a>
-					<a className={'ml-[2px] text-gray-700 no-underline'} href={`/@${user.tag}`}>
+					<a className={'ml-[2px] text-gray-700 no-underline truncate'} href={`/@${user.tag}`}>
 						{`@${user.tag}`}
 						<span className='mx-[6px]'>·</span>
 					</a>

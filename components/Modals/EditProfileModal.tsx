@@ -210,9 +210,16 @@ export default function EditProfileModal({
 				<div className={'border-gray-500 border-[1px] rounded-md p-2 pt-0 m-5'}>
 					<p className={'text-gray-400 text-sm m-0 mt-1 mb-px'}>Name</p>
 					<input
-						className={'text-white bg-black/0 border-0 p-0 m-0 outline-none'}
+						className={'text-white bg-black/0 border-0 p-0 m-0 outline-none w-full'}
 						value={username}
-						onChange={(e) => setUsername(e.target.value)}
+						onChange={(e) =>
+							setUsername((prev) => {
+								let newUsername = e.target.value;
+								if (prev.length >= 32 && e.target.value.length > prev.length) return prev;
+								newUsername = newUsername.replaceAll(' ', '');
+								return newUsername;
+							})
+						}
 					/>
 				</div>
 				<div className={'border-gray-500 border-[1px] rounded-md p-2 pt-0 m-5'}>

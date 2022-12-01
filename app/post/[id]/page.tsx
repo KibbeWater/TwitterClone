@@ -57,13 +57,16 @@ export default async function Page({ params }: Props) {
 								/>
 							</Link>
 						</div>
-						<div className='flex items-center'>
-							<div className='flex flex-col ml-3'>
-								<Link href={`/@${user.tag}`} className='text-base mb-1 leading-none font-semibold m-0 text-black flex'>
+						<div className='flex items-center h-2'>
+							<div className='flex flex-col ml-3 '>
+								<Link
+									href={`/@${user.tag}`}
+									className='text-base truncate mb-1 leading-none font-semibold m-0 text-black flex'
+								>
 									{user.username}
 									{user.verified ? <Verified color='#f01d1d' /> : null}
 								</Link>
-								<Link href={`/@${user.tag}`} className='text-gray-600 mb-1 leading-none text-base m-0'>
+								<Link href={`/@${user.tag}`} className='text-gray-600 truncate mb-1 leading-none text-base m-0'>
 									@{user.tag}
 								</Link>
 							</div>
