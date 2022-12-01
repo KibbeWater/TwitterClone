@@ -102,6 +102,7 @@ export default function PostModal({ quote }: { quote?: IPost }) {
 							className={'w-full text-xl border-0 text-black bg-transparent resize-none outline-none'}
 							minRows={1}
 							placeholder={"What's happening?"}
+							maxLength={2000}
 							value={content}
 							onChange={(e) => setContent(e.target.value)}
 						/>

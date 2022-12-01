@@ -91,6 +91,7 @@ export default function PostReply({ user, post }: { user: IUser; post: string })
 					className={'text-black bg-black/0 border-0 text-lg leading-6 columns-4 resize-none w-full p-0 m-0 outline-none'}
 					placeholder={'Twaat your reply'}
 					value={text}
+					maxLength={2000}
 					onChange={(e) => setText(e.target.value)}
 				/>
 				<div

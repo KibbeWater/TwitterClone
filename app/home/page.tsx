@@ -124,6 +124,7 @@ export default function Page() {
 							placeholder={"What's happening?"}
 							className={'w-full outline-none border-0 mb-4 resize-none text-xl bg-transparent text-black'}
 							value={text}
+							maxLength={2000}
 							onChange={(e) => setText(e.target.value)}
 						/>
 						<div

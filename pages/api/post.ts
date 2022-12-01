@@ -20,6 +20,9 @@ function PostReq(req: NextApiRequest, res: NextApiResponse) {
 		if (content === '') return resolve(res.status(400).json({ success: false, error: 'Bad request' }));
 		if (images && !Array.isArray(images)) return resolve(res.status(400).json({ success: false, error: 'Bad request' }));
 
+		let newContent = content;
+		if (newContent.length > 2000) newContent = newContent.slice(0, 2000);
+
 		DB(async () => {
 			User.authenticate(token)
 				.then((user) => {
