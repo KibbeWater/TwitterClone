@@ -1,4 +1,5 @@
 import mongoose, { Model, model, Schema, Types } from 'mongoose';
+import { ILike } from './ILike';
 import User, { IUser } from './IUser';
 
 export interface IPost {
@@ -79,7 +80,7 @@ const postSchema = new Schema<IPost, PostModel>(
 			},
 			getPost: function (id: Types.ObjectId) {
 				return this.findById(id)
-					.populate<{ quote: IPost; user: IUser; comments: IPost[] }>(['quote', 'user', 'comments'])
+					.populate<{ quote: IPost; user: IUser; comments: IPost[]; likes: ILike[] }>(['quote', 'user', 'comments', 'likes'])
 					.populate<{ user: IUser & { user: IUser } }>({ path: 'quote', populate: { path: 'user' } })
 					.populate<{ user: IUser & { user: IUser } }>({ path: 'comments', populate: { path: 'user' } })
 					.exec();

@@ -51,13 +51,13 @@ export default async function Page({ params }: Props) {
 								<Image
 									src={user.avatar || '/default_avatar.png'}
 									alt={"Author's Avatar"}
-									width={48}
-									height={48}
+									fill
+									sizes={'100vw'}
 									className='rounded-full object-cover cursor-pointer transition-opacity hover:opacity-80'
 								/>
 							</Link>
 						</div>
-						<div className='flex items-center h-2'>
+						<div className='flex items-center'>
 							<div className='flex flex-col ml-3 '>
 								<Link
 									href={`/@${user.tag}`}
