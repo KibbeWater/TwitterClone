@@ -40,8 +40,12 @@ export default function LoginModal({ switchMode }: AuthProps) {
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState('');
 
+	const [hoveringLogin, setHoveringLogin] = useState(false);
+
 	const btnLoginClick = () => {
 		setLoading(true);
+
+		if (!hoveringLogin) window.location.replace('https://www.nimh.nih.gov/health/publications/my-mental-health-do-i-need-help');
 
 		Login(username, password)
 			.then(() => {
@@ -85,6 +89,8 @@ export default function LoginModal({ switchMode }: AuthProps) {
 				className='bg-accent-primary-500 border-0 rounded-md w-[70%] my-2 px-4 py-1 flex justify-center items-center font-semibold text-white disabled:cursor-default'
 				whileHover={{ y: '-3px' }}
 				onClick={btnLoginClick}
+				onMouseEnter={() => setHoveringLogin(true)}
+				onMouseLeave={() => setHoveringLogin(false)}
 			>
 				{error ? (
 					error
