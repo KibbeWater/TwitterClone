@@ -96,7 +96,7 @@ export default function PostModal({ quote }: { quote?: IPost }) {
 						/>
 					</div>
 				</div>
-				<div className='relative'>
+				<div className='w-full'>
 					<div className={'grow pl-3'}>
 						<TextareaAutosize
 							className={'w-full text-xl border-0 text-black bg-transparent resize-none outline-none'}
