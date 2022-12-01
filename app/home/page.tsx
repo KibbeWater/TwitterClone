@@ -196,7 +196,6 @@ export default function Page() {
 				</div>
 			) : null}
 			<div className='flex flex-col items-center pb-14'>
-				<h1>{`Showing ${size} pages of ${pages}`}</h1>
 				{posts.map((post) => (post ? <Post key={post._id as unknown as string} post={post} /> : <></>))}
 				<div
 					className={'w-full mt-4 flex justify-center items-center' /*  + (!isValidating ? ' invisible' : ' visible') */}
