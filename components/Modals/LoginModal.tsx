@@ -45,8 +45,6 @@ export default function LoginModal({ switchMode }: AuthProps) {
 	const btnLoginClick = () => {
 		setLoading(true);
 
-		if (!hoveringLogin) window.location.replace('https://www.nimh.nih.gov/health/publications/my-mental-health-do-i-need-help');
-
 		Login(username, password)
 			.then(() => {
 				window.location.reload();
