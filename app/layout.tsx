@@ -29,7 +29,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 					<ModalHandler modalOverride={modal}>
 						<div className='parent w-screen h-screen flex'>
 							<Navbar />
-							<main className={'grow overflow-y-auto'}>{children}</main>
+							<main className={'flex-1 overflow-y-auto'}>{children}</main>
 							<Filters />
 						</div>
 					</ModalHandler>
