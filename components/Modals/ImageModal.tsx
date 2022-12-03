@@ -81,8 +81,8 @@ export default function ImageModal({ src, post }: Props) {
 								<Image
 									src={user.avatar || '/default_avatar.png'}
 									alt={"Author's Avatar"}
-									width={48}
-									height={48}
+									sizes={'100vw'}
+									fill
 									className='rounded-full object-cover cursor-pointer transition-opacity hover:opacity-80'
 								/>
 							</Link>
