@@ -62,8 +62,8 @@ export default function Page({ params }: Props) {
 		return (
 			<PageTemplate name='Loading...'>
 				<div className='flex justify-center items-center my-5'>
-					<p className='text-black'>Loading...</p>{' '}
-					<FontAwesomeIcon icon={faSpinner} size={'lg'} color={'black'} className={'animate-spin ml-3'} />
+					<p className='text-black dark:text-white'>Loading...</p>{' '}
+					<FontAwesomeIcon icon={faSpinner} size={'lg'} className={'animate-spin ml-3 text-black dark:text-white'} />
 				</div>
 			</PageTemplate>
 		);
