@@ -6,7 +6,7 @@ import Link from 'next/link';
 import axios from 'axios';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faFeatherPointed, faUser, faHome, faEllipsis, faMoon, faSun } from '@fortawesome/free-solid-svg-icons';
+import { faFeatherPointed, faUser, faHome, faEllipsis, faMoon, faSun, faBell } from '@fortawesome/free-solid-svg-icons';
 
 import { ModalContext } from './Handlers/ModalHandler';
 import PostModal from './Modals/PostModal';
@@ -48,6 +48,13 @@ export default function Navbar() {
 						</div>
 
 						<span className='ml-5 font-bold text-lg hidden md:block text-black dark:text-white'>Home</span>
+					</Link>
+					<Link href='/notifications' className={'h-12 mb-2 rounded-full bg-transparent hover:bg-gray-600/25 flex items-center'}>
+						<div className='w-8 ml-4 flex items-center justify-center'>
+							<FontAwesomeIcon icon={faBell} size={'xl'} className={'text-black dark:text-white'} />
+						</div>
+
+						<span className='ml-5 font-bold text-lg hidden md:block text-black dark:text-white'>Notifications</span>
 					</Link>
 					<Link
 						href={user ? `@${user.tag}` : '/login'}
