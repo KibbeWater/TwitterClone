@@ -1,5 +1,6 @@
 import mongoose, { Model, Schema, Types } from 'mongoose';
-import User from './IUser';
+import Notification from './INotification';
+import User, { IUser } from './IUser';
 
 export interface IRelationship {
 	_id: Types.ObjectId;
@@ -35,6 +36,26 @@ export const relationshipSchema = new Schema<IRelationship, RelationshipModel>(
 						User.findById(author).then((user) => {
 							user?.relationships.push(relationship._id);
 							user?.save();
+
+							User.findById(target)
+								.exec()
+								.then((targetUser) => {
+									if (!targetUser) return;
+									User.findById(author)
+										.exec()
+										.then((authorUser) => {
+											Notification.createFollowNotification(targetUser as IUser, authorUser as IUser).then(
+												(notification) => {
+													if (!notification) return reject('Failed to create notification');
+													User.findById(target).then((user2) => {
+														user2?.notifications.push(notification._id);
+														user2?.save();
+														return resolve(relationship);
+													});
+												}
+											);
+										});
+								});
 							resolve(relationship);
 						});
 					});

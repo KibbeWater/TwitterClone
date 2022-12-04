@@ -6,6 +6,7 @@ import DB, { Connect } from '../../libs/database';
 import { NormalizeObject } from '../../libs/utils';
 import { ILike } from '../../schemas/ILike';
 import { MakeSafeUser } from '../../libs/user';
+import Notification from '../../schemas/INotification';
 
 function PostReq(req: NextApiRequest, res: NextApiResponse) {
 	return new Promise(async (resolve) => {
@@ -31,8 +32,22 @@ function PostReq(req: NextApiRequest, res: NextApiResponse) {
 					new User(user)
 						.post(content, quote, images, parent)
 						.then((post) => {
-							if (!post) return resolve(res.status(500).json({ success: false, error: 'Internal server error' }));
-							else return resolve(res.status(200).json({ success: true, post }));
+							if (parent && post)
+								Post.findById(parent)
+									.populate<{ user: IUser }>('user')
+									.exec()
+									.then((parentPost) => {
+										if (!parentPost) return;
+										Notification.createPostNotification(parentPost?.user, 'reply', post, [user]).then(() => {
+											if (!post)
+												return resolve(res.status(500).json({ success: false, error: 'Internal server error' }));
+											else return resolve(res.status(200).json({ success: true, post }));
+										});
+									});
+							else {
+								if (!post) return resolve(res.status(500).json({ success: false, error: 'Internal server error' }));
+								else return resolve(res.status(200).json({ success: true, post }));
+							}
 						})
 						.catch(() => {
 							return resolve(res.status(500).json({ success: false, error: 'Internal server error' }));

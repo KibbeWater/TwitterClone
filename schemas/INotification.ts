@@ -18,7 +18,7 @@ export interface INotification {
 interface NotificationModel extends Model<INotification> {
 	createPostNotification: (
 		user: IUser,
-		type: 'like' | 'retwaat' | 'comment' | 'mention' | 'reply',
+		type: 'like' | 'retwaat' | 'reply' | 'mention',
 		post: IPost,
 		targets?: IUser[]
 	) => Promise<INotification | null>;
@@ -45,7 +45,7 @@ export const notificationSchema = new Schema<INotification, NotificationModel>(
 							if (err) reject(err);
 							else {
 								const latestNotification = user?.notifications[user?.notifications.length - 1];
-								if (latestNotification?.type === type) {
+								if (latestNotification?.type === type && type !== 'mention' && type !== 'reply') {
 									const notif = Notification.findByIdAndUpdate(
 										latestNotification._id,
 										{ $push: { targets: targets } },
