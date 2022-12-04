@@ -6,11 +6,11 @@ import useSWRInfinite from 'swr/infinite';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 
-import { IPost } from '../schemas/IPost';
+import { IPost } from '../../schemas/IPost';
 import PostModal from './Post';
 import axios from 'axios';
 import PostReply from './PostReply';
-import { IUser } from '../schemas/IUser';
+import { IUser } from '../../schemas/IUser';
 
 export default function PostComments({ post, placeholder, user }: { post: IPost; placeholder?: IPost[]; user?: IUser }) {
 	const [isVisible, setIsVisible] = useState(false);

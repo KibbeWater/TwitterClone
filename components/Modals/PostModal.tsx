@@ -7,11 +7,11 @@ import { faClose, faImage, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import TextareaAutosize from '../TextAutosize';
-import { UserContext } from '../UserHandler';
+import { UserContext } from '../Handlers/UserHandler';
 import { IPost } from '../../schemas/IPost';
-import Post from '../Post';
+import Post from '../Post/Post';
 import { SendPost } from '../../libs/post';
-import { ModalContext } from '../ModalHandler';
+import { ModalContext } from '../Handlers/ModalHandler';
 import axios from 'axios';
 
 export default function PostModal({ quote }: { quote?: IPost }) {

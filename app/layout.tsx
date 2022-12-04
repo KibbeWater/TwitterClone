@@ -8,12 +8,12 @@ config.autoAddCss = false;
 
 import Navbar from '../components/Navbar';
 import Filters from '../components/Filters';
-import ModalHandler from '../components/ModalHandler';
+import ModalHandler from '../components/Handlers/ModalHandler';
 import User from '../schemas/IUser';
 import UserAuth from '../components/Modals/UserAuth';
 import { Connect } from '../libs/database';
-import UserHandler from '../components/UserHandler';
-import ThemeProvider from '../components/ThemeHandler';
+import UserHandler from '../components/Handlers/UserHandler';
+import ThemeProvider from '../components/Handlers/ThemeHandler';
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
 	const token = cookies().get('token')?.value as string;

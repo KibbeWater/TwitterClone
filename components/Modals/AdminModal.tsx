@@ -2,7 +2,7 @@ import { faClose } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useContext } from 'react';
 import { SafeUser } from '../../libs/user';
-import { ModalContext } from '../ModalHandler';
+import { ModalContext } from '../Handlers/ModalHandler';
 
 const menuOptions = [];
 

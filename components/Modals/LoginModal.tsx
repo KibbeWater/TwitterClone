@@ -9,7 +9,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 
 import { IUser } from '../../schemas/IUser';
-import { ModalContext } from '../ModalHandler';
+import { ModalContext } from '../Handlers/ModalHandler';
 
 type AuthProps = {
 	switchMode: () => void;

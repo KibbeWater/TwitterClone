@@ -7,11 +7,11 @@ import useSWR from 'swr';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-import { ModalContext } from '../../../components/ModalHandler';
+import { ModalContext } from '../../../components/Handlers/ModalHandler';
 import EditProfileModal from '../../../components/Modals/EditProfileModal';
 import PageTemplate from '../../../components/PageTemplate';
-import Post from '../../../components/Post';
-import { UserContext } from '../../../components/UserHandler';
+import Post from '../../../components/Post/Post';
+import { UserContext } from '../../../components/Handlers/UserHandler';
 import { CreateRelationship, SafeUser } from '../../../libs/user';
 import { IRelationship } from '../../../schemas/IRelationship';
 import Verified from '../../../components/Verified';

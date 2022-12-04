@@ -1,21 +1,19 @@
 import { Types } from 'mongoose';
 import { cookies } from 'next/headers';
 import Image from 'next/image';
+import Link from 'next/link';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEllipsis } from '@fortawesome/free-solid-svg-icons';
 
 import PageTemplate from '../../../components/PageTemplate';
-import PostFooter from '../../../components/PostFooter';
-import PostModal from '../../../components/Post';
+import PostFooter from '../../../components/Post/PostFooter';
 import { Connect } from '../../../libs/database';
 import { NormalizeObject } from '../../../libs/utils';
 import Post, { IPost } from '../../../schemas/IPost';
 import User, { IUser } from '../../../schemas/IUser';
-import PostReply from '../../../components/PostReply';
-import Link from 'next/link';
 import Verified from '../../../components/Verified';
-import PostComments from '../../../components/PostComments';
+import PostComments from '../../../components/Post/PostComments';
 
 type Props = {
 	params: {

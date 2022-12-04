@@ -7,7 +7,7 @@ import axios from 'axios';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { setCookie } from 'cookies-next';
-import { ModalContext } from '../ModalHandler';
+import { ModalContext } from '../Handlers/ModalHandler';
 
 type AuthProps = {
 	switchMode: () => void;

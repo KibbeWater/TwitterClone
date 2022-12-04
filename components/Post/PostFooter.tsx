@@ -6,12 +6,12 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faComment, faHeart as farHeart } from '@fortawesome/free-regular-svg-icons';
 import { faArrowUpFromBracket, faHeart as fasHeart, faRepeat } from '@fortawesome/free-solid-svg-icons';
 
-import { ILike } from '../schemas/ILike';
-import { IPost } from '../schemas/IPost';
-import { ModalContext } from './ModalHandler';
-import PostModal from './Modals/PostModal';
-import { UserContext } from './UserHandler';
-import { LikePost } from '../libs/post';
+import { ILike } from '../../schemas/ILike';
+import { IPost } from '../../schemas/IPost';
+import { ModalContext } from '../Handlers/ModalHandler';
+import PostModal from '../Modals/PostModal';
+import { UserContext } from '../Handlers/UserHandler';
+import { LikePost } from '../../libs/post';
 
 export default function PostFooter({ post, color }: { post: IPost; color?: string }) {
 	const { setModal } = useContext(ModalContext);

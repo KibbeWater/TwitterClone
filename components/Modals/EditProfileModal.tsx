@@ -5,9 +5,9 @@ import Image from 'next/image';
 import { useContext, useEffect, useRef, useState } from 'react';
 import { KeyedMutator } from 'swr';
 import { SafeUser } from '../../libs/user';
-import { ModalContext } from '../ModalHandler';
+import { ModalContext } from '../Handlers/ModalHandler';
 import TextareaAutosize from '../TextAutosize';
-import { UserContext } from '../UserHandler';
+import { UserContext } from '../Handlers/UserHandler';
 
 function readFile(): Promise<string | null> {
 	return new Promise((resolve) => {

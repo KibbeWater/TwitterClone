@@ -23,6 +23,7 @@ export interface IUser {
 	sessions: [Types.ObjectId];
 	posts: [Types.ObjectId];
 	likes: [Types.ObjectId];
+	notifications: [Types.ObjectId];
 
 	group: number;
 }
@@ -60,6 +61,7 @@ export const userSchema = new Schema<IUser, UserModel, IUserMethods>(
 		sessions: [{ type: Types.ObjectId, ref: 'Session' }],
 		posts: [{ type: Types.ObjectId, ref: 'Post' }],
 		likes: [{ type: Types.ObjectId, ref: 'Like' }],
+		notifications: [{ type: Types.ObjectId, ref: 'Notification' }],
 
 		group: { type: Number, default: 0 },
 	},

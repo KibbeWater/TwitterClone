@@ -7,9 +7,9 @@ import { useRef, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faImage, faXmark } from '@fortawesome/free-solid-svg-icons';
 
-import { SendPost } from '../libs/post';
-import { IUser } from '../schemas/IUser';
-import TextareaAutosize from './TextAutosize';
+import { SendPost } from '../../libs/post';
+import { IUser } from '../../schemas/IUser';
+import TextareaAutosize from '../TextAutosize';
 
 export default function PostReply({ user, post, onPost }: { user: IUser; post: string; onPost?: () => void }) {
 	const [text, setText] = useState('');

@@ -8,10 +8,10 @@ import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFeatherPointed, faUser, faHome, faEllipsis, faMoon, faSun } from '@fortawesome/free-solid-svg-icons';
 
-import { ModalContext } from './ModalHandler';
+import { ModalContext } from './Handlers/ModalHandler';
 import PostModal from './Modals/PostModal';
-import { UserContext } from './UserHandler';
-import { useTheme } from './ThemeHandler';
+import { UserContext } from './Handlers/UserHandler';
+import { useTheme } from './Handlers/ThemeHandler';
 
 export default function Navbar() {
 	const [activateUserPanel, setActivateUserPanel] = useReducer((state) => !state, false);

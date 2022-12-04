@@ -7,18 +7,18 @@ import { faArrowUpFromBracket, faRepeat } from '@fortawesome/free-solid-svg-icon
 import { faHeart as fasHeart } from '@fortawesome/free-solid-svg-icons';
 import { faComment, faHeart as farHeart } from '@fortawesome/free-regular-svg-icons';
 
-import { IPost } from '../schemas/IPost';
-import { IUser } from '../schemas/IUser';
+import { IPost } from '../../schemas/IPost';
+import { IUser } from '../../schemas/IUser';
 import { RefObject, useContext, useEffect, useReducer, useRef, useState } from 'react';
-import { UserContext } from './UserHandler';
-import { LikePost } from '../libs/post';
-import { ILike } from '../schemas/ILike';
-import { ModalContext } from './ModalHandler';
-import PostModal from './Modals/PostModal';
+import { UserContext } from '../Handlers/UserHandler';
+import { LikePost } from '../../libs/post';
+import { ILike } from '../../schemas/ILike';
+import { ModalContext } from '../Handlers/ModalHandler';
+import PostModal from '../Modals/PostModal';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import ImageModal from './Modals/ImageModal';
-import Verified from './Verified';
+import ImageModal from '../Modals/ImageModal';
+import Verified from '../Verified';
 
 function FormatDate(date: Date) {
 	const now = new Date();

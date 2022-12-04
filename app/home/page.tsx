@@ -10,11 +10,11 @@ import { faSpinner, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { faImage } from '@fortawesome/free-regular-svg-icons';
 
 import PageTemplate from '../../components/PageTemplate';
-import Post from '../../components/Post';
+import Post from '../../components/Post/Post';
 import TextAutosize from '../../components/TextAutosize';
 import { SendPost } from '../../libs/post';
 import { IPost } from '../../schemas/IPost';
-import { UserContext } from '../../components/UserHandler';
+import { UserContext } from '../../components/Handlers/UserHandler';
 
 export default function Page() {
 	const [text, setText] = useState('');

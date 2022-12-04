@@ -9,11 +9,11 @@ import useSWRInfinite from 'swr/infinite';
 
 import { IPost } from '../../schemas/IPost';
 import { IUser } from '../../schemas/IUser';
-import PostFooter from '../PostFooter';
-import PostReply from '../PostReply';
-import { UserContext } from '../UserHandler';
-import PostModal from '../Post';
-import { ModalContext } from '../ModalHandler';
+import PostFooter from '../Post/PostFooter';
+import PostReply from '../Post/PostReply';
+import { UserContext } from '../Handlers/UserHandler';
+import PostModal from '../Post/Post';
+import { ModalContext } from '../Handlers/ModalHandler';
 import axios from 'axios';
 
 type Props = {
