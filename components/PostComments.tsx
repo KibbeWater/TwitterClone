@@ -21,7 +21,7 @@ export default function PostComments({ post, placeholder, user }: { post: IPost;
 	const { data, size, setSize, mutate, isValidating } = useSWRInfinite<{ success: boolean; posts: IPost[]; pages: number }>(
 		(pageIndex: number, previousPageData: { success: boolean; posts: IPost[]; pages: number } | null) => {
 			if (previousPageData && !previousPageData.posts) return null;
-			return `/api/post?page=${pageIndex}&parent=${parent}`;
+			return `/api/post?page=${pageIndex}&parent=${post._id.toString()}`;
 		},
 		fetcher
 	);
