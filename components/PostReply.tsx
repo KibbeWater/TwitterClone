@@ -11,7 +11,7 @@ import { SendPost } from '../libs/post';
 import { IUser } from '../schemas/IUser';
 import TextareaAutosize from './TextAutosize';
 
-export default function PostReply({ user, post }: { user: IUser; post: string }) {
+export default function PostReply({ user, post, onPost }: { user: IUser; post: string; onPost?: () => void }) {
 	const [text, setText] = useState('');
 	const [images, setImages] = useState([] as string[]);
 

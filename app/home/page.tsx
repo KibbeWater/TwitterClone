@@ -1,5 +1,6 @@
 'use client';
 
+import axios from 'axios';
 import Image from 'next/image';
 import { useContext, useEffect, useRef, useState } from 'react';
 import useSWRInfinite from 'swr/infinite';
@@ -14,14 +15,6 @@ import TextAutosize from '../../components/TextAutosize';
 import { SendPost } from '../../libs/post';
 import { IPost } from '../../schemas/IPost';
 import { UserContext } from '../../components/UserHandler';
-import axios from 'axios';
-
-// @ts-ignore
-async function fetcher(...args) {
-	// @ts-ignore
-	const res = await fetch(...args);
-	return res.json();
-}
 
 export default function Page() {
 	const [text, setText] = useState('');
@@ -29,6 +22,7 @@ export default function Page() {
 	const [loadingPost, setLoadingPost] = useState(false);
 	const [isVisible, setIsVisible] = useState(false);
 
+	const fetcher = (url: string) => axios.get(url).then((res) => res.data);
 	const { data, size, setSize, mutate, isValidating } = useSWRInfinite<{ success: boolean; posts: IPost[]; pages: number }>(
 		(pageIndex: number, previousPageData: { success: boolean; posts: IPost[]; pages: number } | null) => {
 			if (previousPageData && !previousPageData.posts) return null;
@@ -198,7 +192,7 @@ export default function Page() {
 			<div className='flex flex-col items-center pb-14'>
 				{posts.map((post) => (post ? <Post key={post._id as unknown as string} post={post} /> : <></>))}
 				<div
-					className={'w-full mt-4 flex justify-center items-center' /*  + (!isValidating ? ' invisible' : ' visible') */}
+					className={'w-full mt-4 flex justify-center items-center' + (!isValidating ? ' invisible' : ' visible')}
 					ref={loadingRef}
 				>
 					<FontAwesomeIcon icon={faSpinner} size={'2x'} color={'black'} className={'animate-spin'} />

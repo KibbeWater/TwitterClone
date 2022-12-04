@@ -1,10 +1,11 @@
 'use client';
 
-import { faArrowLeft, faArrowRight, faEllipsis, faXmark } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faArrowRight, faEllipsis, faSpinner, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
+import useSWRInfinite from 'swr/infinite';
 
 import { IPost } from '../../schemas/IPost';
 import { IUser } from '../../schemas/IUser';
@@ -13,6 +14,7 @@ import PostReply from '../PostReply';
 import { UserContext } from '../UserHandler';
 import PostModal from '../Post';
 import { ModalContext } from '../ModalHandler';
+import axios from 'axios';
 
 type Props = {
 	src: string;
@@ -21,9 +23,43 @@ type Props = {
 
 export default function ImageModal({ src, post }: Props) {
 	const [commentsOpen, setCommentsOpen] = useState(true);
+	const [isVisible, setIsVisible] = useState(false);
 
 	const { user: me } = useContext(UserContext);
 	const { setModal } = useContext(ModalContext);
+
+	const fetcher = (url: string) => axios.get(url).then((res) => res.data);
+	const { data, size, setSize, mutate, isValidating } = useSWRInfinite<{ success: boolean; posts: IPost[]; pages: number }>(
+		(pageIndex: number, previousPageData: { success: boolean; posts: IPost[]; pages: number } | null) => {
+			if (previousPageData && !previousPageData.posts) return null;
+			return `/api/post?page=${pageIndex}&parent=${post._id}`;
+		},
+		fetcher
+	);
+
+	const isRefreshing = isValidating && data && data.length === size;
+	const totalPages = data ? data[data.length - 1].pages : 0;
+
+	let posts = data ? data.map((page) => page.posts).flat() : [];
+	const pages = (data ? data.map((page) => page.pages).flat() : [])[0];
+
+	const loadingRef = useRef<HTMLDivElement>(null);
+
+	useEffect(() => {
+		if (isVisible && !isRefreshing && size < totalPages) setSize(size + 1);
+	}, [isVisible, isRefreshing, totalPages]);
+
+	useEffect(() => {
+		if (!loadingRef.current) return;
+
+		const observer = new IntersectionObserver(([entry]) => {
+			setIsVisible(entry.isIntersecting);
+		});
+
+		observer.observe(loadingRef.current);
+
+		return () => observer.disconnect();
+	}, [loadingRef]);
 
 	if (!post) throw new Error('Post not found');
 
@@ -139,9 +175,15 @@ export default function ImageModal({ src, post }: Props) {
 						<div className='h-px grow mt-3 bg-gray-700' />
 					</>
 				) : null}
-				{post.comments.map((reply) => (
+				{(!posts ? post.comments : posts).map((reply) => (
 					<PostModal key={reply._id.toString()} post={reply as unknown as IPost} />
 				))}
+				<div
+					className={'w-full mt-4 flex justify-center items-center' + (!isValidating ? ' invisible' : ' visible')}
+					ref={loadingRef}
+				>
+					<FontAwesomeIcon icon={faSpinner} size={'2x'} color={'black'} className={'animate-spin'} />
+				</div>
 			</div>
 		</div>
 	);

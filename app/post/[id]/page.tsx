@@ -15,6 +15,7 @@ import User, { IUser } from '../../../schemas/IUser';
 import PostReply from '../../../components/PostReply';
 import Link from 'next/link';
 import Verified from '../../../components/Verified';
+import PostComments from '../../../components/PostComments';
 
 type Props = {
 	params: {
@@ -105,17 +106,7 @@ export default async function Page({ params }: Props) {
 					</div>
 					<div className='h-px grow mx-3 my-3 bg-gray-600/10' />
 				</div>
-				{me ? (
-					<>
-						<div className='mx-3 mt-2 flex'>
-							<PostReply user={me} post={post._id.toString()} />
-						</div>
-						<div className='h-px grow mt-3 bg-gray-700' />
-					</>
-				) : null}
-				{post.comments.map((reply) => (
-					<PostModal key={reply._id.toString()} post={reply as unknown as IPost} />
-				))}
+				<PostComments post={post} user={me || undefined} placeholder={post.comments} />
 			</div>
 		</PageTemplate>
 	);

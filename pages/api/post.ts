@@ -50,7 +50,7 @@ function GetReq(req: NextApiRequest, res: NextApiResponse) {
 	return new Promise(async (resolve) => {
 		if (req.method !== 'GET') return resolve(res.status(405).json({ success: false, error: 'Method not allowed' }));
 
-		let { id, page, limit } = req.query;
+		let { id, page, limit, parent } = req.query;
 
 		const parsedLimit = parseInt(limit as string);
 		const parsedPage = parseInt(page as string);
@@ -65,7 +65,7 @@ function GetReq(req: NextApiRequest, res: NextApiResponse) {
 			const pages = Math.ceil(count / pageLimit);
 
 			// Use pagination to get posts
-			Post.find({ parent: null })
+			Post.find({ parent: parent ? parent : null })
 				.sort({ date: -1 })
 				.skip(pageNumber * pageLimit)
 				.limit(pageLimit)
