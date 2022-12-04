@@ -33,6 +33,7 @@ interface IUserMethods {
 	likePost: (post: Types.ObjectId, shouldLike: boolean) => Promise<ILike | null>;
 	createRelationship: (target: Types.ObjectId, type: 'follow' | 'block' | 'mute') => Promise<IRelationship | null>;
 	removeRelationship: (target: Types.ObjectId) => Promise<IRelationship | null>;
+	logout: (token: string) => Promise<void>;
 }
 
 interface UserModel extends Model<IUser, {}, IUserMethods> {
@@ -213,6 +214,10 @@ userSchema.methods.createRelationship = async function (target: Types.ObjectId, 
 
 userSchema.methods.removeRelationship = async function (target: Types.ObjectId) {
 	return Relationship.removeRelationship(this._id, target);
+};
+
+userSchema.methods.logout = async function (token: string) {
+	return Session.removeSession(token);
 };
 
 // Fix recompilation error

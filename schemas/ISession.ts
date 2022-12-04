@@ -17,6 +17,7 @@ interface ISessionMethods {
 interface SessionModel extends Model<ISession, {}, ISessionMethods> {
 	createSession: (owner?: Types.ObjectId, ip?: string) => Promise<ISession>;
 	getSession: (token: string) => Promise<ISession | null>;
+	removeSession: (token: string) => Promise<void>;
 }
 
 const sessionSchema = new Schema<ISession, SessionModel, ISessionMethods>(
@@ -42,6 +43,10 @@ const sessionSchema = new Schema<ISession, SessionModel, ISessionMethods>(
 						else resolve(session);
 					});
 				});
+			},
+
+			removeSession: function (token: string) {
+				return this.deleteOne({ token }).exec();
 			},
 		},
 	}
