@@ -88,7 +88,9 @@ export default function PostReply({ user, post, onPost }: { user: IUser; post: s
 			</div>
 			<div className='mt-3 grow flex flex-col'>
 				<TextareaAutosize
-					className={'text-black bg-black/0 border-0 text-lg leading-6 columns-4 resize-none w-full p-0 m-0 outline-none'}
+					className={
+						'text-black dark:text-white bg-black/0 border-0 text-lg leading-6 columns-4 resize-none w-full p-0 m-0 outline-none'
+					}
 					placeholder={'Twaat your reply'}
 					value={text}
 					maxLength={2000}
