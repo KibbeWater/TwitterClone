@@ -22,23 +22,28 @@ export const likeSchema = new Schema<ILike, LikeModel>(
 		statics: {
 			likePost: function (user: Types.ObjectId, post: Types.ObjectId) {
 				return new Promise((resolve, reject) => {
-					this.create({
-						user,
-						post,
-					}).then((like) => {
-						// We want to add likes to the post.likes array and user.likes array
+					// Check if the user has already liked the post
+					this.findOne({ user, post }).then((like) => {
+						if (like) {
+							resolve(like);
+						} else {
+							this.create({
+								user,
+								post,
+							}).then((like) => {
+								User.findById(user).then((user2) => {
+									user2?.likes.push(like._id);
+									user2?.save();
 
-						User.findById(user).then((user2) => {
-							user2?.likes.push(like._id);
-							user2?.save();
+									Post.findById(post).then((post2) => {
+										post2?.likes.push(like._id);
+										post2?.save();
 
-							Post.findById(post).then((post2) => {
-								post2?.likes.push(like._id);
-								post2?.save();
-
-								resolve(like);
+										resolve(like);
+									});
+								});
 							});
-						});
+						}
 					});
 				});
 			},

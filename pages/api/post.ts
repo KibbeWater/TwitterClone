@@ -73,6 +73,7 @@ function GetReq(req: NextApiRequest, res: NextApiResponse) {
 				.populate<{ user: IUser; quote: IPost; comments: IPost[]; likes: ILike[] }>(['user', 'comments', 'likes'])
 				/* Populate quote user */
 				.populate<{ user: IUser & { user: IUser } }>({ path: 'quote', populate: { path: 'user' } })
+				.populate<{ likes: ILike }>('likes')
 				.lean()
 				.exec()
 				.then((posts) => {
