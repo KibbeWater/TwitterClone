@@ -110,7 +110,10 @@ export default function ImageModal({ src, post }: Props) {
 					<PostFooter post={post} color={'white'} />
 				</div>
 			</div>
-			<div className='h-full pt-3 w-2/12 bg-white' style={{ display: commentsOpen ? 'block' : 'none' }}>
+			<div
+				className='h-full pt-3 w-2/12 bg-white dark:bg-black dark:border-l-[1px] dark:border-gray-500/20'
+				style={{ display: commentsOpen ? 'block' : 'none' }}
+			>
 				<div className='flex justify-between mx-3'>
 					<div className='flex'>
 						<div className='relative h-12 w-12'>
@@ -126,10 +129,10 @@ export default function ImageModal({ src, post }: Props) {
 						</div>
 						<div>
 							<div className='flex flex-col ml-3'>
-								<Link href={`/@${user.tag}`} className='text-sm font-semibold m-0 text-black'>
+								<Link href={`/@${user.tag}`} className='text-sm font-semibold m-0 text-black dark:text-white'>
 									{user.username}
 								</Link>
-								<Link href={`/@${user.tag}`} className='text-gray-600 text-sm m-0'>
+								<Link href={`/@${user.tag}`} className='text-gray-500 text-sm m-0'>
 									@{user.tag}
 								</Link>
 							</div>
@@ -147,26 +150,26 @@ export default function ImageModal({ src, post }: Props) {
 				<div>
 					<div className='flex justify-between mx-3 mt-3'>
 						{/* Format date: h:mm (AM/PM) (dot) M D, Y */}
-						<p className='text-gray-600 text-sm hover:underline cursor-pointer'>
+						<p className='text-gray-500 text-sm hover:underline cursor-pointer'>
 							{new Date(post.date).toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true })}
 							{' · '}
 							{new Date(post.date).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
 						</p>
 					</div>
-					<div className='h-px grow mx-3 my-3 bg-gray-600/10' />
+					<div className='h-px grow mx-3 my-3 bg-gray-500/20' />
 					<div className='mx-3 flex items-center'>
-						<p className='text-sm ml-1 mr-4 text-gray-700'>
-							<span className='font-semibold text-black'>{post.retwaats.length}</span> Retwaats
+						<p className='text-sm ml-1 mr-4 text-gray-500'>
+							<span className='font-semibold text-black dark:text-white'>{post.retwaats.length}</span> Retwaats
 						</p>
-						<p className='text-sm ml-1 mr-4 text-gray-700'>
-							<span className='font-semibold text-black'>{post.likes.length}</span> Likes
+						<p className='text-sm ml-1 mr-4 text-gray-500'>
+							<span className='font-semibold text-black dark:text-white'>{post.likes.length}</span> Likes
 						</p>
 					</div>
-					<div className='h-px grow mx-3 my-3 bg-gray-600/10' />
+					<div className='h-px grow mx-3 my-3 bg-gray-500/20' />
 					<div className='flex justify-evenly mx-3 mt-3'>
 						<PostFooter post={post} />
 					</div>
-					<div className='h-px grow mx-3 my-3 bg-gray-600/10' />
+					<div className='h-px grow mx-3 my-3 bg-gray-500/20' />
 				</div>
 				{me ? (
 					<>

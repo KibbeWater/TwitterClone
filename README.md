@@ -26,3 +26,4 @@ SALT_ROUNDS=10
 * Optimize and migrate to SSCs
 * Fix search
 * Possibly more emoji support (LOW PRIORITY)
+* Fix error messages for login/reg

@@ -10,7 +10,7 @@ function AuthBase({ children }: { children?: React.ReactNode }) {
 	return (
 		<AnimatePresence mode={'wait'}>
 			<motion.div
-				className='w-72 py-4 flex flex-col items-center bg-slate-50 rounded-md'
+				className='w-72 py-4 flex flex-col items-center bg-slate-50 dark:bg-neutral-900 rounded-md'
 				initial={{ y: 10, opacity: 0 }}
 				animate={{ y: 0, opacity: 1 }}
 				exit={{ y: -10, opacity: 0 }}

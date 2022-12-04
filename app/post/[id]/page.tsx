@@ -62,12 +62,12 @@ export default async function Page({ params }: Props) {
 							<div className='flex flex-col ml-3 '>
 								<Link
 									href={`/@${user.tag}`}
-									className='text-base truncate mb-1 leading-none font-semibold m-0 text-black flex'
+									className='text-base truncate mb-1 leading-none font-semibold m-0 text-black dark:text-white flex'
 								>
 									{user.username}
 									{user.verified ? <Verified color='#f01d1d' /> : null}
 								</Link>
-								<Link href={`/@${user.tag}`} className='text-gray-600 truncate mb-1 leading-none text-base m-0'>
+								<Link href={`/@${user.tag}`} className='text-gray-500 truncate mb-1 leading-none text-base m-0'>
 									@{user.tag}
 								</Link>
 							</div>
@@ -80,31 +80,31 @@ export default async function Page({ params }: Props) {
 					</div>
 				</div>
 				<div className='mx-3 mt-2'>
-					<p className='text-xl text-black'>{post.content}</p>
+					<p className='text-xl text-black dark:text-white'>{post.content}</p>
 				</div>
 				<div>
 					<div className='flex justify-between mx-3 mt-3'>
 						{/* Format date: h:mm (AM/PM) (dot) M D, Y */}
-						<p className='text-gray-600 text-sm hover:underline cursor-pointer'>
+						<p className='text-gray-500 text-sm hover:underline cursor-pointer'>
 							{new Date(post.date).toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true })}
 							{' · '}
 							{new Date(post.date).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
 						</p>
 					</div>
-					<div className='h-px grow mx-3 my-3 bg-gray-600/10' />
+					<div className='h-px grow mx-3 my-3 bg-gray-500/30' />
 					<div className='mx-3 flex items-center'>
-						<p className='text-sm ml-1 mr-4 text-gray-700'>
-							<span className='font-semibold text-black'>{post.retwaats.length}</span> Retwaats
+						<p className='text-sm ml-1 mr-4 text-gray-500 '>
+							<span className='font-semibold text-black dark:text-white'>{post.retwaats.length}</span> Retwaats
 						</p>
-						<p className='text-sm ml-1 mr-4 text-gray-700'>
-							<span className='font-semibold text-black'>{post.likes.length}</span> Likes
+						<p className='text-sm ml-1 mr-4 text-gray-500'>
+							<span className='font-semibold text-black dark:text-white'>{post.likes.length}</span> Likes
 						</p>
 					</div>
-					<div className='h-px grow mx-3 my-3 bg-gray-600/10' />
+					<div className='h-px grow mx-3 my-3 bg-gray-500/30' />
 					<div className='flex justify-evenly mx-3 mt-3'>
 						<PostFooter post={post} />
 					</div>
-					<div className='h-px grow mx-3 my-3 bg-gray-600/10' />
+					<div className='h-px grow mx-3 my-3 bg-gray-500/30' />
 				</div>
 				<PostComments post={post} user={me || undefined} placeholder={post.comments} />
 			</div>

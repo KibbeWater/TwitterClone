@@ -62,7 +62,7 @@ export default function PostComments({ post, placeholder, user }: { post: IPost;
 				<PostModal key={reply._id.toString()} post={reply as unknown as IPost} />
 			))}
 			<div className={'w-full mt-4 flex justify-center items-center' + (!isValidating ? ' invisible' : ' visible')} ref={loadingRef}>
-				<FontAwesomeIcon icon={faSpinner} size={'2x'} color={'black'} className={'animate-spin'} />
+				<FontAwesomeIcon icon={faSpinner} size={'2x'} className={'animate-spin text-black dark:text-white'} />
 			</div>
 		</>
 	);

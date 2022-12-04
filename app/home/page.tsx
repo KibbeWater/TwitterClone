@@ -110,7 +110,7 @@ export default function Page() {
 	return (
 		<PageTemplate name='Home'>
 			{user ? (
-				<div className='flex w-full px-5 pb-2 bg-white relative z-10 border-b-[1px] border-gray-700'>
+				<div className='flex w-full px-5 pb-2 bg-white dark:bg-black relative z-10 border-b-[1px] border-gray-700'>
 					<div className='w-14 h-14 relative'>
 						<div className='w-14 h-14 absolute'>
 							<Image
@@ -127,7 +127,7 @@ export default function Page() {
 						<TextAutosize
 							minRows={1}
 							placeholder={"What's happening?"}
-							className={'w-full outline-none border-0 mb-4 resize-none text-xl bg-transparent text-black'}
+							className={'w-full outline-none border-0 mb-4 resize-none text-xl bg-transparent text-black dark:text-white'}
 							value={text}
 							maxLength={2000}
 							onChange={(e) => setText(e.target.value)}
@@ -168,7 +168,7 @@ export default function Page() {
 								</div>
 							))}
 						</div>
-						<div className='h-px w-full opacity-50 bg-gray-900' />
+						<div className='h-px w-full opacity-50 bg-gray-500' />
 						<div className='flex justify-between items-center mt-2 h-min'>
 							<div
 								className='flex items-center justify-center w-10 h-10 rounded-full transition-colors text-red-500 bg-accent-primary-500/0 hover:bg-accent-primary-500/20 hover:cursor-pointer'
@@ -178,7 +178,10 @@ export default function Page() {
 							</div>
 							<div>
 								<button
-									className='py-2 px-5 rounded-full border-0 bg-accent-primary-500 text-white cursor-pointer text-md font-bold transition-colors disabled:bg-red-700 disabled:cursor-default'
+									className={
+										'py-2 px-5 rounded-full border-0 bg-accent-primary-500 text-white cursor-pointer text-md font-bold transition-colors' +
+										'disabled:bg-red-700 disabled:text-gray-200 disabled:cursor-default'
+									}
 									onClick={btnPostClick}
 									disabled={!text || loadingPost}
 								>
@@ -195,7 +198,7 @@ export default function Page() {
 					className={'w-full mt-4 flex justify-center items-center' + (!isValidating ? ' invisible' : ' visible')}
 					ref={loadingRef}
 				>
-					<FontAwesomeIcon icon={faSpinner} size={'2x'} color={'black'} className={'animate-spin'} />
+					<FontAwesomeIcon icon={faSpinner} size={'2x'} className={'animate-spin text-black dark:text-white'} />
 				</div>
 				{/* <button onClick={() => setSize((prev) => prev + 1)}>Load More</button> */}
 			</div>

@@ -73,12 +73,12 @@ export default function RegisterModal({ switchMode }: AuthProps) {
 	}, [error]);
 
 	return (
-		<motion.div className='w-72 bg-white rounded-lg flex flex-col items-center'>
-			<h1 className='m-0 font-bold text-4xl text-black'>Register</h1>
-			<p className='m-0 text-neutral-700'>Please sign up to continue</p>
+		<motion.div className='w-72 bg-white dark:bg-neutral-900 rounded-lg flex flex-col items-center'>
+			<h1 className='m-0 font-bold text-4xl text-black dark:text-white'>Register</h1>
+			<p className='m-0 text-neutral-700 dark:text-neutral-200'>Please sign up to continue</p>
 			<div className='px-2 py-1 w-full flex flex-col items-center'>
 				<input
-					className='bg-slate-200 text-black mx-1 px-1 py-2 w-9/12 text-sm border-0 rounded-md outline-none'
+					className='bg-slate-200 dark:bg-neutral-700 text-black dark:text-white mx-1 px-1 py-2 w-9/12 text-sm border-0 rounded-md outline-none'
 					type={'text'}
 					placeholder={'Username'}
 					value={username}
@@ -92,14 +92,14 @@ export default function RegisterModal({ switchMode }: AuthProps) {
 					}
 				/>
 				<input
-					className='bg-slate-200 text-black my-1 px-1 py-2 w-9/12 text-sm border-0 rounded-md outline-none'
+					className='bg-slate-200 dark:bg-neutral-700 text-black dark:text-white my-1 px-1 py-2 w-9/12 text-sm border-0 rounded-md outline-none'
 					type={'password'}
 					placeholder={'Password'}
 					value={password}
 					onChange={(e) => setPassword(e.target.value)}
 				/>
 				<input
-					className='bg-slate-200 text-black mx-1 px-1 py-2 w-9/12 text-sm border-0 rounded-md outline-none'
+					className='bg-slate-200 dark:bg-neutral-700 text-black dark:text-white mx-1 px-1 py-2 w-9/12 text-sm border-0 rounded-md outline-none'
 					type={'password'}
 					placeholder={'Confirm Password'}
 					value={confirm}
@@ -122,9 +122,9 @@ export default function RegisterModal({ switchMode }: AuthProps) {
 				)}
 			</motion.button>
 			<div className='flex items-center w-full px-6'>
-				<div className='h-px bg-slate-700 grow mx-4' />
-				<p className='m-0 text-neutral-700'>OR</p>
-				<div className='h-px bg-slate-700 grow mx-4' />
+				<div className='h-px bg-slate-700 dark:text-slate-200 grow mx-4' />
+				<p className='m-0 text-neutral-700 dark:text-neutral-200'>OR</p>
+				<div className='h-px bg-slate-700 dark:text-slate-200 grow mx-4' />
 			</div>
 			<motion.button
 				className='bg-accent-primary-500 border-0 rounded-md w-[70%] my-2 px-4 py-1 flex justify-center items-center font-semibold text-white disabled:cursor-default'

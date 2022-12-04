@@ -74,7 +74,7 @@ export default function Post({ post, isRef }: Props) {
 
 	return (
 		<div
-			className={`p-3 mb-px w-full bg-transparent transition-all cursor-pointer border-b-[1px] border-gray-700 flex hover:bg-black/5 ${
+			className={`p-3 mb-px w-full bg-transparent transition-all cursor-pointer border-b-[1px] border-gray-700 flex hover:bg-gray-500/5  ${
 				isRef ? '!border-0 !bg-transparent hover:!bg-transparent' : ''
 			}`}
 			onClick={routePost}
@@ -95,19 +95,19 @@ export default function Post({ post, isRef }: Props) {
 				<div onClick={routePost} className={'flex'}>
 					<a
 						className={
-							'text-black mr-[5px] cursor-pointer no-underline font-semibold hover:underline truncate flex items-center'
+							'text-black dark:text-white mr-[5px] cursor-pointer no-underline font-semibold hover:underline truncate flex items-center'
 						}
 						href={`/@${user.tag}`}
 					>
 						{user.username} {user.verified ? <Verified color='#f01d1d' /> : null}
 					</a>
-					<a className={'ml-[2px] text-gray-700 no-underline truncate'} href={`/@${user.tag}`}>
+					<a className={'ml-[2px] text-gray-500 no-underline truncate'} href={`/@${user.tag}`}>
 						{`@${user.tag}`}
 						<span className='mx-[6px]'>·</span>
 					</a>
-					<span className={'text-gray-700 hover:underline'}>{FormatDate(new Date(post.date))}</span>
+					<span className={'text-gray-500 hover:underline'}>{FormatDate(new Date(post.date))}</span>
 				</div>
-				<p className={'text-black'} onClick={routePost}>
+				<p className={'text-black dark:text-gray-200'} onClick={routePost}>
 					{post.content}
 				</p>
 				<div
@@ -146,7 +146,7 @@ export default function Post({ post, isRef }: Props) {
 				) : (
 					<div
 						className={
-							'group/quote mt-1 pl-1 rounded-md border-[1px] border-gray-700 transition-colors bg-black/0 hover:bg-black/10'
+							'group/quote mt-1 pl-1 rounded-md border-[1px] border-gray-700 transition-colors bg-black/0 hover:bg-gray-500/10'
 						}
 					>
 						<Post post={quote} isRef={true} />
@@ -164,10 +164,10 @@ export default function Post({ post, isRef }: Props) {
 								<FontAwesomeIcon
 									icon={faComment}
 									size={'lg'}
-									className={'text-black group-hover/btnComment:text-accent-primary-500'}
+									className={'text-black dark:text-white group-hover/btnComment:text-accent-primary-500'}
 								/>
 							</Link>
-							<p className='text-black text-sm'>{post.comments.length}</p>
+							<p className='text-black dark:text-white text-sm'>{post.comments.length}</p>
 						</div>
 						<div className='flex items-center mr-2'>
 							<button
@@ -181,10 +181,10 @@ export default function Post({ post, isRef }: Props) {
 								<FontAwesomeIcon
 									icon={faRepeat}
 									size={'lg'}
-									className={'text-black group-hover/btnRetweet:text-green-500'}
+									className={'text-black dark:text-white group-hover/btnRetweet:text-green-500'}
 								/>
 							</button>
-							<p className='text-black text-sm'>{post.retwaats.length}</p>
+							<p className='text-black dark:text-white text-sm'>{post.retwaats.length}</p>
 						</div>
 						<div className='flex items-center mr-2'>
 							<button
@@ -206,12 +206,12 @@ export default function Post({ post, isRef }: Props) {
 									size={'lg'}
 									className={
 										hasLiked
-											? 'text-red-500 group-hover/btnLike:text-black transition-colors'
-											: 'text-black group-hover/btnLike:text-red-500 transition-colors'
+											? 'text-red-500 group-hover/btnLike:text-black dark:group-hover/btnLike:text-white/60 transition-colors'
+											: 'text-black dark:text-white group-hover/btnLike:text-red-500 transition-colors'
 									}
 								/>
 							</button>
-							<p className='text-black text-sm'>{post.likes.length}</p>
+							<p className='text-black dark:text-white text-sm'>{post.likes.length}</p>
 						</div>
 						<div className='flex items-center mr-2'>
 							<button
@@ -222,7 +222,7 @@ export default function Post({ post, isRef }: Props) {
 								<FontAwesomeIcon
 									icon={faArrowUpFromBracket}
 									size={'lg'}
-									className={'text-black group-hover/btnShare:text-red-500'}
+									className={'text-black dark:text-white group-hover/btnShare:text-red-500'}
 								/>
 							</button>
 						</div>

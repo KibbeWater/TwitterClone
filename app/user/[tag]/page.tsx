@@ -72,7 +72,7 @@ export default function Page({ params }: Props) {
 		<PageTemplate name={params.tag}>
 			<div>
 				<div className='border-b-[1px] border-gray-500'>
-					<div className='w-full pb-[33.3%] bg-gray-800 relative flex justify-center'>
+					<div className='w-full pb-[33.3%] bg-neutral-700 relative flex justify-center'>
 						<div ref={bannerRef}>
 							{bannerSrc ? (
 								<Image
@@ -91,7 +91,7 @@ export default function Page({ params }: Props) {
 							<div className='w-24 h-24 absolute left-5 -top-[50px]'>
 								<div>
 									<Image
-										className='object-cover rounded-full border-[4px] border-white bg-white'
+										className='object-cover rounded-full border-[4px] border-white dark:border-black bg-white'
 										src={profile?.avatar || '/default_avatar.png'}
 										alt={`${profile?.username}'s Avatar`}
 										sizes={'100vw'}
@@ -104,7 +104,7 @@ export default function Page({ params }: Props) {
 							<div className='mx-3 my-3'>
 								{isMe ? (
 									<button
-										className='bg-black/0 px-[15px] py-2 font-semibold border-[1px] border-gray-400 text-black min-w-[36px] transition-all cursor-pointer rounded-full hover:bg-gray-700/10'
+										className='bg-black/0 px-[15px] py-2 font-semibold border-[1px] border-gray-400 text-black dark:text-white min-w-[36px] transition-all cursor-pointer rounded-full hover:bg-gray-700/10'
 										onClick={() => {
 											if (setModal) setModal(<EditProfileModal mutate={mutate} />);
 										}}
@@ -114,7 +114,7 @@ export default function Page({ params }: Props) {
 								) : isFollowing ? (
 									<button
 										className={
-											'bg-black/0 px-[15px] py-2 font-semibold border-[1px] text-black border-gray-700 min-w-[36px] transition-all rounded-full ' +
+											'bg-black/0 px-[15px] py-2 font-semibold border-[1px] text-black dark:text-white border-gray-700 min-w-[36px] transition-all rounded-full ' +
 											'hover:bg-red-500/10 hover:text-red-600 hover:border-red-300 hover:cursor-pointer'
 										}
 										onClick={() => {
@@ -129,7 +129,9 @@ export default function Page({ params }: Props) {
 									</button>
 								) : (
 									<button
-										className={'bg-black text-white px-[15px] py-2 font-bold cursor-pointer rounded-full'}
+										className={
+											'bg-black dark:bg-white text-white dark:text-black px-[15px] py-2 font-bold cursor-pointer rounded-full'
+										}
 										onClick={() => {
 											CreateRelationship(profile?._id, 'follow').then((res) => {
 												setIsFollowing((prev) => !prev);
@@ -142,7 +144,9 @@ export default function Page({ params }: Props) {
 							</div>
 							{user?.group == Group.Admin ? (
 								<button
-									className={'bg-black text-white px-[15px] py-2 font-bold cursor-pointer rounded-full mx-3'}
+									className={
+										'bg-black dark:bg-white text-white dark:text-black px-[15px] py-2 font-bold cursor-pointer rounded-full mx-3'
+									}
 									onClick={() => {
 										if (setModal) setModal(<AdminModal user={profile} />);
 									}}
@@ -153,17 +157,17 @@ export default function Page({ params }: Props) {
 						</div>
 					</div>
 					<div className='mx-3 pb-3'>
-						<h3 className='font-bold leading-none text-lg text-black flex items-center'>
+						<h3 className='font-bold leading-none text-lg text-black dark:text-white flex items-center'>
 							{profile?.username}
 							{profile.verified ? <Verified color='#f01d1d' /> : null}
 						</h3>
 						<p className='mt-1 text-base leading-none text-gray-500'>{`@${profile?.tag}`}</p>
-						<p className='my-1 text-black'>{profile?.bio}</p>
+						<p className='my-1 mt-3 text-black dark:text-white'>{profile?.bio}</p>
 						<div className='flex my-2'>
-							<p className='m-0 mr-1 text-black'>
+							<p className='m-0 mr-1 text-black dark:text-white'>
 								<span className='font-bold'>0</span> Following
 							</p>
-							<p className='m-0 mr-1 text-black'>
+							<p className='m-0 mr-1 text-black dark:text-white'>
 								<span className='font-bold'>0</span> Followers
 							</p>
 						</div>

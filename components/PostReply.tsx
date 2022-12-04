@@ -142,8 +142,8 @@ export default function PostReply({ user, post, onPost }: { user: IUser; post: s
 			</div>
 			<div className='grid place-items-end'>
 				<button
-					className='px-4 py-2 bg-accent-primary-500 rounded-full font-semibold disabled:bg-red-700'
-					disabled={loading}
+					className='px-4 py-2 bg-accent-primary-500 rounded-full font-semibold disabled:bg-red-700 disabled:text-gray-200 disabled:cursor-default'
+					disabled={loading || text.length === 0}
 					onClick={() => sendPost()}
 				>
 					Reply

@@ -34,7 +34,7 @@ export default function PostFooter({ post, color }: { post: IPost; color?: strin
 						icon={faComment}
 						size={'lg'}
 						color={clr}
-						className={'group-hover/btnComment:text-accent-primary-500'}
+						className={`group-hover/btnComment:text-accent-primary-500${!color ? ' dark:text-white' : ''}`}
 					/>
 				</button>
 			</div>
@@ -47,7 +47,12 @@ export default function PostFooter({ post, color }: { post: IPost; color?: strin
 						if (setModal) setModal(<PostModal quote={post} />);
 					}}
 				>
-					<FontAwesomeIcon icon={faRepeat} size={'lg'} color={clr} className={'group-hover/btnRetweet:text-green-500'} />
+					<FontAwesomeIcon
+						icon={faRepeat}
+						size={'lg'}
+						color={clr}
+						className={`group-hover/btnRetweet:text-green-500${!color ? ' dark:text-white' : ''}`}
+					/>
 				</button>
 			</div>
 			<div className='flex items-center mr-2'>
@@ -69,7 +74,11 @@ export default function PostFooter({ post, color }: { post: IPost; color?: strin
 						icon={hasLiked ? fasHeart : farHeart}
 						size={'lg'}
 						color={clr}
-						className={hasLiked ? 'text-red-500 transition-all' : 'group-hover/btnLike:text-red-500 transition-all'}
+						className={
+							hasLiked
+								? `text-red-500 transition-all${!color ? ' dark:text-white' : ''}`
+								: `group-hover/btnLike:text-red-500 transition-all${!color ? ' dark:text-white' : ''}`
+						}
 					/>
 				</button>
 			</div>
@@ -79,7 +88,12 @@ export default function PostFooter({ post, color }: { post: IPost; color?: strin
 						'border-0 p-0 h-8 w-8 mr-1 rounded-full flex items-center justify-center transition-colors bg-black/0 cursor-pointer hover:bg-red-500/40 group/btnShare disabled:cursor-default'
 					}
 				>
-					<FontAwesomeIcon icon={faArrowUpFromBracket} size={'lg'} color={clr} className={'group-hover/btnShare:text-red-500'} />
+					<FontAwesomeIcon
+						icon={faArrowUpFromBracket}
+						size={'lg'}
+						color={clr}
+						className={`group-hover/btnShare:text-red-500${!color ? ' dark:text-white' : ''}`}
+					/>
 				</button>
 			</div>
 		</>

@@ -73,15 +73,17 @@ export default function PostModal({ quote }: { quote?: IPost }) {
 	};
 
 	return (
-		<div className={'bg-white w-[45%] rounded-xl flex flex-col'}>
+		<div className={'bg-white dark:bg-black w-[45%] rounded-xl flex flex-col'}>
 			<div className={'h-10 p-1 flex justify-end'}>
 				<div
-					className={'w-8 h-8 rounded-full flex items-center justify-center bg-black/0 hover:bg-black/10'}
+					className={
+						'w-8 h-8 rounded-full flex items-center justify-center bg-black/0 hover:bg-black/10 dark:hover:bg-white/10 cursor-pointer'
+					}
 					onClick={() => {
 						if (setModal) setModal(null);
 					}}
 				>
-					<FontAwesomeIcon className={'text-black'} icon={faClose} size={'xl'} />
+					<FontAwesomeIcon className={'text-black dark:text-white'} icon={faClose} size={'xl'} />
 				</div>
 			</div>
 			<div className={'grow flex break-words px-4 pb-[10px]'}>
@@ -133,7 +135,7 @@ export default function PostModal({ quote }: { quote?: IPost }) {
 									<div
 										className={
 											'absolute top-2 left-2 z-10 w-7 h-7 flex justify-center items-center rounded-full' +
-											' backdrop-blur-md bg-black/60 hover:bg-black/40 cursor-pointer'
+											' backdrop-blur-md bg-black/60 hover:bg-black/40 cursor-pointer dark:text-white'
 										}
 										onClick={() => setImages((prev) => prev.filter((_, j) => j !== i))}
 									>
@@ -167,7 +169,7 @@ export default function PostModal({ quote }: { quote?: IPost }) {
 						<div>
 							<button
 								className={
-									'py-[6px] px-4 rounded-full border-0 bg-[#f01d1d] text-white cursor-pointer text-md font-bold transition-colors disabled:bg-red-700 disabled:cursor-default'
+									'py-[6px] px-4 rounded-full border-0 bg-[#f01d1d] text-white cursor-pointer text-md font-bold transition-colors disabled:bg-red-700 disabled:text-gray-200 disabled:cursor-default'
 								}
 								onClick={btnPostClick}
 								disabled={!content || loading}

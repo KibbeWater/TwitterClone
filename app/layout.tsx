@@ -13,6 +13,7 @@ import User from '../schemas/IUser';
 import UserAuth from '../components/Modals/UserAuth';
 import { Connect } from '../libs/database';
 import UserHandler from '../components/UserHandler';
+import ThemeProvider from '../components/ThemeHandler';
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
 	const token = cookies().get('token')?.value as string;
@@ -22,9 +23,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 	const modal = !user ? <UserAuth mode={'SignIn'} /> : null;
 
 	return (
-		<html lang='en'>
+		<ThemeProvider>
 			<head />
-			<body className={'bg-white'}>
+			<body className='bg-white dark:bg-black'>
 				<UserHandler>
 					<ModalHandler modalOverride={modal}>
 						<div className='parent w-screen h-screen flex'>
@@ -35,6 +36,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 					</ModalHandler>
 				</UserHandler>
 			</body>
-		</html>
+		</ThemeProvider>
 	);
 }
