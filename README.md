@@ -27,3 +27,4 @@ SALT_ROUNDS=10
 * Fix search
 * Possibly more emoji support (LOW PRIORITY)
 * Fix error messages for login/reg
+* Fix issue where images/retwaats are not shown in /post routes

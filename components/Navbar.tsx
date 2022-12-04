@@ -150,14 +150,14 @@ export default function Navbar() {
 										{theme === 'dark' ? (
 											<p className='text-left font-semibold text-black dark:text-white leading-none'>
 												<span>
-													<FontAwesomeIcon icon={faMoon} className={'text-black dark:text-white mr-1'} />
+													<FontAwesomeIcon icon={faSun} className={'text-black dark:text-white mr-1'} />
 												</span>{' '}
 												Light Mode
 											</p>
 										) : (
 											<p className='text-left font-semibold text-black dark:text-white leading-none'>
 												<span>
-													<FontAwesomeIcon icon={faSun} className={'text-black dark:text-white mr-1'} />
+													<FontAwesomeIcon icon={faMoon} className={'text-black dark:text-white mr-1'} />
 												</span>{' '}
 												Dark Mode (BETA)
 											</p>
