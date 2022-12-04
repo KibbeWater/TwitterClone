@@ -98,6 +98,7 @@ export default function ImageModal({ src, post }: Props) {
 					<div className='absolute left-0 right-0 top-0 bottom-0 m-auto' onClick={closeOnBg}>
 						<Image
 							className={'object-contain !w-auto left-0 right-0 m-auto'}
+							quality={100}
 							src={src}
 							alt={'Post Image'}
 							sizes={'100%'}
