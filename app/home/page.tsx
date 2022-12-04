@@ -107,8 +107,6 @@ export default function Page() {
 		});
 	};
 
-	console.log(posts);
-
 	return (
 		<PageTemplate name='Home'>
 			{user ? (

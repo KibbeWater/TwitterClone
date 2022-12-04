@@ -12,16 +12,12 @@ export function SendPost(content: string, quoteId?: string, images?: string[], p
 	return new Promise((resolve, reject) => {
 		if (lastPostDate) postDates.push(new Date().getTime() - lastPostDate);
 
-		console.log(postDates);
-
 		if (postDates.length > 3) {
 			// Get average, min, max and standard deviation
 			const average = postDates.reduce((a, b) => a + b) / postDates.length;
 			const min = Math.min(...postDates);
 			const max = Math.max(...postDates);
 			const stdDev = Math.sqrt(postDates.map((x) => Math.pow(x - average, 2)).reduce((a, b) => a + b) / postDates.length);
-
-			console.log({ average, min, max, stdDev });
 
 			if (stdDev < 1000) {
 				window.location.href = 'https://www.nimh.nih.gov/health/publications/my-mental-health-do-i-need-help';
