@@ -5,7 +5,7 @@ import Post, { IPost } from '../../schemas/IPost';
 import DB, { Connect } from '../../libs/database';
 import { NormalizeObject } from '../../libs/utils';
 import { ILike } from '../../schemas/ILike';
-import { MakeSafeUser } from '../../libs/user';
+import { MakeSafeUser, SafeUser } from '../../libs/user';
 import Notification from '../../schemas/INotification';
 
 function PostReq(req: NextApiRequest, res: NextApiResponse) {
@@ -73,7 +73,44 @@ function GetReq(req: NextApiRequest, res: NextApiResponse) {
 		const pageLimit = isNaN(parsedLimit) ? 10 : parsedLimit;
 		const pageNumber = isNaN(parsedPage) ? 0 : parsedPage;
 
-		if (id) return resolve(res.status(200).json({ success: true, post: (await Post.findById(id)) as IPost }));
+		if (id)
+			return (
+				Post.findOne({ _id: id })
+					.sort({ date: -1 })
+					.skip(pageNumber * pageLimit)
+					.limit(pageLimit)
+					/* This is so unoptimal I wanna cry but fuck it, we're populating likes too */
+					.populate<{ user: IUser; quote: IPost; comments: IPost[]; likes: ILike[] }>(['user', 'comments', 'likes'])
+					/* Populate quote user */
+					.populate<{ user: IUser & { user: IUser } }>({ path: 'quote', populate: { path: 'user' } })
+					.lean()
+					.exec()
+					.then((post) =>
+						post
+							? resolve(
+									res.status(200).json({
+										success: true,
+										post: NormalizeObject<
+											IPost & { user: SafeUser; quote: IPost & { user: SafeUser }; comments: IPost[]; likes: ILike[] }
+										>({
+											...post,
+											// @ts-ignore
+											user: MakeSafeUser(post.user),
+											// @ts-ignore
+											quote: post.quote
+												? {
+														...post.quote,
+														user: post.quote.user
+															? MakeSafeUser(post.quote.user as unknown as IUser)
+															: undefined,
+												  }
+												: undefined,
+										}),
+									})
+							  )
+							: resolve(res.status(404).json({ success: false, error: 'Not found' }))
+					)
+			);
 
 		DB(async () => {
 			const count = await Post.countDocuments();
@@ -88,7 +125,6 @@ function GetReq(req: NextApiRequest, res: NextApiResponse) {
 				.populate<{ user: IUser; quote: IPost; comments: IPost[]; likes: ILike[] }>(['user', 'comments', 'likes'])
 				/* Populate quote user */
 				.populate<{ user: IUser & { user: IUser } }>({ path: 'quote', populate: { path: 'user' } })
-				.populate<{ likes: ILike }>('likes')
 				.lean()
 				.exec()
 				.then((posts) => {

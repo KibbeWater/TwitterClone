@@ -1,44 +1,54 @@
-import { Types } from 'mongoose';
-import { cookies } from 'next/headers';
+'use client';
+
+import axios from 'axios';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useContext, useRef } from 'react';
+import useSWR from 'swr';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEllipsis } from '@fortawesome/free-solid-svg-icons';
+import { faEllipsis, faSpinner } from '@fortawesome/free-solid-svg-icons';
 
+import { UserContext } from '../../../components/Handlers/UserHandler';
 import PageTemplate from '../../../components/PageTemplate';
-import PostFooter from '../../../components/Post/PostFooter';
-import { Connect } from '../../../libs/database';
-import { NormalizeObject } from '../../../libs/utils';
-import Post, { IPost } from '../../../schemas/IPost';
-import User, { IUser } from '../../../schemas/IUser';
-import Verified from '../../../components/Verified';
 import PostComments from '../../../components/Post/PostComments';
+import PostFooter from '../../../components/Post/PostFooter';
+import Verified from '../../../components/Verified';
+import { IPost } from '../../../schemas/IPost';
+import { IUser } from '../../../schemas/IUser';
+import Post from '../../../components/Post/Post';
+import { ModalContext } from '../../../components/Handlers/ModalHandler';
+import ImageModal from '../../../components/Modals/ImageModal';
 
 type Props = {
 	params: {
 		id: string;
 	};
 };
-
-export default async function Page({ params }: Props) {
-	await Connect();
-
-	const id = params.id;
-	const post = NormalizeObject<IPost & { quote: IPost & { user: IUser }; user: IUser; comments: IPost[] }>(
-		(await Post.getPost(new Types.ObjectId(id))) as unknown as IPost & {
-			quote: IPost & { user: IUser };
-			user: IUser;
-			comments: (IPost & { user: IUser })[];
-		}
+export default function Page({ params }: Props) {
+	const { data, mutate } = useSWR<{ success: boolean; post: IPost & { comments: IPost[] } }>(`/api/post?id=${params.id}`, (url: string) =>
+		axios.get(url).then((res) => res.data)
 	);
 
-	const token = cookies().get('token')?.value as string;
-	const me = NormalizeObject<IUser | null>(await User.authenticate(token));
+	const post = data?.post;
+	const user = post?.user as unknown as IUser;
+	const quote = post?.quote as unknown as IPost;
+	const images = post?.images || [];
 
-	if (!post) throw new Error('Post not found');
+	const { user: me } = useContext(UserContext);
+	const { setModal } = useContext(ModalContext);
 
-	const user = post.user as unknown as IUser;
+	const imageDisplay = useRef<HTMLDivElement>(null);
+
+	if (!post)
+		return (
+			<PageTemplate name='Loading...'>
+				<div className='flex justify-center items-center my-5'>
+					<p className='text-black dark:text-white'>Loading...</p>{' '}
+					<FontAwesomeIcon icon={faSpinner} size={'lg'} className={'animate-spin ml-3 text-black dark:text-white'} />
+				</div>
+			</PageTemplate>
+		);
 
 	return (
 		<PageTemplate name='Twaat'>
@@ -46,7 +56,7 @@ export default async function Page({ params }: Props) {
 				<div className='flex justify-between mx-3'>
 					<div className='flex'>
 						<div className='relative h-12 w-12'>
-							<Link href={'/@' + post.user.tag} className='absolute h-12 w-12'>
+							<Link href={'/@' + user.tag} className='absolute h-12 w-12'>
 								<Image
 									src={user.avatar || '/default_avatar.png'}
 									alt={"Author's Avatar"}
@@ -78,7 +88,46 @@ export default async function Page({ params }: Props) {
 					</div>
 				</div>
 				<div className='mx-3 mt-2'>
-					<p className='text-xl text-black dark:text-white'>{post.content}</p>
+					<p className={'text-black dark:text-gray-200'}>{post.content}</p>
+					<div
+						ref={imageDisplay}
+						className='w-9/12 grid grid-cols-2 rounded-xl overflow-hidden gap-[2px] justify-self-center border-[1px] border-gray-700'
+						style={{
+							height: images.length !== 0 ? `${(imageDisplay.current || { clientWidth: 1 }).clientWidth * 0.6}px` : '1px',
+							opacity: images.length !== 0 ? 1 : 0,
+						}}
+					>
+						{images.map((img, i) => (
+							<div
+								key={`post-${post._id}-image-${i}`}
+								className={
+									'w-full h-full relative' +
+									(images.length == 1 || (images.length == 3 && i == 0) ? ' row-span-2' : '') +
+									(images.length == 1 ? ' col-span-2' : '')
+								}
+							>
+								<Image
+									src={img}
+									className={'object-cover w-full h-full'}
+									alt={`Album image ${i}`}
+									sizes={'100vw'}
+									fill
+									onClick={() => {
+										if (setModal) setModal(<ImageModal src={img} post={post} />);
+									}}
+								/>
+							</div>
+						))}
+					</div>
+					{quote ? (
+						<div
+							className={
+								'group/quote mt-1 pl-1 rounded-md border-[1px] border-gray-700 transition-colors bg-black/0 hover:bg-gray-500/10'
+							}
+						>
+							<Post post={quote} isRef={true} />
+						</div>
+					) : null}
 				</div>
 				<div>
 					<div className='flex justify-between mx-3 mt-3'>
@@ -104,6 +153,7 @@ export default async function Page({ params }: Props) {
 					</div>
 					<div className='h-px grow mx-3 my-3 bg-gray-500/30' />
 				</div>
+				{/* @ts-ignore */}
 				<PostComments post={post} user={me || undefined} placeholder={post.comments} />
 			</div>
 		</PageTemplate>
