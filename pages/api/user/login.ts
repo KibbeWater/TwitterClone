@@ -1,3 +1,4 @@
+import { setCookie } from 'cookies-next';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import DB from '../../../libs/database';
 import User from '../../../schemas/IUser';
@@ -15,7 +16,8 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
 				.then((info) => {
 					if (!info) return resolve(res.status(500).json({ success: false, error: 'Invalid credentials' }));
 
-					resolve(res.status(200).json({ success: true, token: info.token, user: info.user }));
+					setCookie('token', info.token, { req, res });
+					resolve(res.status(200).json({ success: true, user: info.user }));
 				})
 				.catch((err) => {
 					console.error(err);

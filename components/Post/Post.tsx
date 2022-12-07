@@ -3,7 +3,7 @@
 import Image from 'next/image';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowUpFromBracket, faRepeat } from '@fortawesome/free-solid-svg-icons';
+import { faArrowUpFromBracket, faEllipsis, faRepeat, faTrash, faUser } from '@fortawesome/free-solid-svg-icons';
 import { faHeart as fasHeart } from '@fortawesome/free-solid-svg-icons';
 import { faComment, faHeart as farHeart } from '@fortawesome/free-regular-svg-icons';
 
@@ -11,7 +11,7 @@ import { IPost } from '../../schemas/IPost';
 import { IUser } from '../../schemas/IUser';
 import { RefObject, useContext, useEffect, useReducer, useRef, useState } from 'react';
 import { UserContext } from '../Handlers/UserHandler';
-import { LikePost } from '../../libs/post';
+import { DeletePost, LikePost } from '../../libs/post';
 import { ILike } from '../../schemas/ILike';
 import { ModalContext } from '../Handlers/ModalHandler';
 import PostModal from '../Modals/PostModal';
@@ -19,6 +19,10 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import ImageModal from '../Modals/ImageModal';
 import Verified from '../Verified';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Group } from '../../libs/utils';
+import { IRelationship } from '../../schemas/IRelationship';
+import { CreateRelationship } from '../../libs/user';
 
 function FormatDate(date: Date) {
 	const now = new Date();
@@ -35,15 +39,18 @@ function FormatDate(date: Date) {
 type Props = {
 	post: IPost;
 	isRef?: boolean;
+	onMutate?: (post: IPost) => void;
 };
 
-export default function Post({ post, isRef }: Props) {
+export default function Post({ post, isRef, onMutate }: Props) {
 	const { setModal } = useContext(ModalContext);
 	const { user: me } = useContext(UserContext);
 
 	const [hasLiked, setHasLiked] = useState((post.likes as unknown as ILike[]).findIndex((like) => like.user === me?._id) !== -1);
 	const [count, addCount] = useReducer((count: number) => count + 1, 0);
 	const [loadingLikes, setLoadingLikes] = useState(false);
+	const [optionsActive, setOptionsActive] = useState(false);
+	const [loading, setLoading] = useState(false);
 
 	const imageDisplay = useRef<HTMLDivElement>(null);
 
@@ -64,6 +71,12 @@ export default function Post({ post, isRef }: Props) {
 
 	const images = post.images || [];
 
+	const isMe = me?._id === user?._id;
+	const isAdmin = me?.group == Group.Admin;
+	const isFollowing = me?.relationships.find((rel: IRelationship) => rel.target?.toString() == user?._id && rel.type == 'follow')
+		? true
+		: false;
+
 	if (!user) return null;
 
 	const routePost = (e: any) => {
@@ -74,11 +87,81 @@ export default function Post({ post, isRef }: Props) {
 
 	return (
 		<div
-			className={`p-3 mb-px w-full bg-transparent transition-all cursor-pointer border-b-[1px] border-gray-700 flex hover:bg-gray-500/5  ${
+			className={`p-3 mb-px w-full relative bg-transparent transition-all cursor-pointer border-b-[1px] border-gray-700 flex hover:bg-gray-500/5  ${
 				isRef ? '!border-0 !bg-transparent hover:!bg-transparent' : ''
 			}`}
 			onClick={routePost}
 		>
+			{!isRef ? (
+				<div className='absolute w-7 h-7 right-2 top-2'>
+					<div
+						className='w-7 h-7 rounded-full hover:bg-black/20 flex justify-center items-center'
+						onClick={() => setOptionsActive((prev) => !prev)}
+					>
+						<FontAwesomeIcon icon={faEllipsis} className={'text-black dark:text-white'} />
+					</div>
+					<motion.div
+						className={
+							'absolute top-7 right-0 w-max py-3 bg-gray-100 dark:bg-neutral-900 shadow-lg rounded-2xl cursor-default overflow-hidden z-20 flex flex-col'
+						}
+						/* Animate using clip to slowly reveal */
+						initial={{ opacity: 0, maxHeight: 0 }}
+						variants={{
+							enter: { opacity: 1, maxHeight: 120 },
+							exit: { opacity: 0, maxHeight: 0 },
+						}}
+						animate={optionsActive ? 'enter' : 'exit'}
+						transition={{ duration: 0.3 }}
+					>
+						{!isMe ? (
+							<button
+								disabled={loading}
+								className='w-full px-6 py-2 text-center enabled:hover:bg-black/5 enabled:cursor-pointer transition-colors'
+								onClick={() => {
+									setLoading(true);
+									CreateRelationship(user._id.toString(), isFollowing ? 'remove' : 'follow')
+										.then(() => {
+											setLoading(false);
+											if (onMutate) onMutate(post);
+										})
+										.catch(() => setLoading(false));
+								}}
+							>
+								<p className='text-black dark:text-white font-semibold leading-none'>
+									<span className='mr-1'>
+										<FontAwesomeIcon icon={faUser} className={'text-black dark:text-white'} />
+									</span>{' '}
+									{!isFollowing ? `Follow @${user.username}` : `Unfollow @${user.username}`}
+								</p>
+							</button>
+						) : null}
+						{isMe || isAdmin ? (
+							<button
+								disabled={loading}
+								className='w-full px-6 py-2 text-center enabled:hover:bg-black/5 enabled:cursor-pointer transition-colors'
+								onClick={() => {
+									setLoading(true);
+									DeletePost(post._id.toString())
+										.then(() => {
+											if (onMutate) onMutate(post);
+										})
+										.catch((err) => {
+											alert(err);
+											setLoading(false);
+										});
+								}}
+							>
+								<p className='text-red-500 font-semibold leading-none'>
+									<span className='mr-1'>
+										<FontAwesomeIcon icon={faTrash} color={'red'} />
+									</span>{' '}
+									Delete Post
+								</p>
+							</button>
+						) : null}
+					</motion.div>
+				</div>
+			) : null}
 			<div className='w-12 h-12 relative'>
 				<div className='w-12 h-12 absolute'>
 					<Image

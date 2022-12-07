@@ -8,7 +8,7 @@ export default function PageTemplate({ children, name }: { children?: React.Reac
 	const router = useRouter();
 
 	return (
-		<div>
+		<>
 			<header
 				className={
 					'w-full h-12 px-3 sticky top-0 right-0 left-0 backdrop-blur-lg flex items-center bg-white/20 dark:bg-black/20 z-20 self-start'
@@ -24,6 +24,6 @@ export default function PageTemplate({ children, name }: { children?: React.Reac
 				<h1 className={'font-bold m-0 text-black dark:text-white text-xl'}>{name}</h1>
 			</header>
 			{children}
-		</div>
+		</>
 	);
 }

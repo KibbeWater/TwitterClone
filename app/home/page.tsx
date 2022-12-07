@@ -193,7 +193,7 @@ export default function Page() {
 				</div>
 			) : null}
 			<div className='flex flex-col items-center pb-14'>
-				{posts.map((post) => (post ? <Post key={post._id as unknown as string} post={post} /> : <></>))}
+				{posts.map((post) => (post ? <Post key={post._id as unknown as string} post={post} onMutate={() => mutate()} /> : null))}
 				<div
 					className={'w-full mt-4 flex justify-center items-center' + (!isValidating ? ' invisible' : ' visible')}
 					ref={loadingRef}

@@ -125,7 +125,7 @@ export default function Page({ params }: Props) {
 								'group/quote mt-1 pl-1 rounded-md border-[1px] border-gray-700 transition-colors bg-black/0 hover:bg-gray-500/10'
 							}
 						>
-							<Post post={quote} isRef={true} />
+							<Post post={quote} isRef={true} onMutate={() => mutate()} />
 						</div>
 					) : null}
 				</div>

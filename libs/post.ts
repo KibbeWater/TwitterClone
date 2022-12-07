@@ -71,3 +71,14 @@ export function LikePost(id: string, shouldLike: boolean): Promise<IPost> {
 			});
 	});
 }
+
+export function DeletePost(id: string): Promise<void> {
+	return new Promise((resolve, reject) => {
+		axios.delete<{ success: boolean; error: string }>(`/api/post?id=${id}`).then((res) => {
+			const data = res.data;
+
+			if (!data.success) return reject(data.error);
+			else resolve();
+		});
+	});
+}

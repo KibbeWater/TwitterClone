@@ -17,6 +17,7 @@ import { IRelationship } from '../../../schemas/IRelationship';
 import Verified from '../../../components/Verified';
 import { Group } from '../../../libs/utils';
 import AdminModal from '../../../components/Modals/AdminModal';
+import axios from 'axios';
 
 type Props = {
 	params: {
@@ -35,7 +36,7 @@ export default function Page({ params }: Props) {
 	const bannerRef = useRef<HTMLDivElement>(null);
 
 	const { data, mutate } = useSWR<{ success: boolean; user: SafeUser }>(`/api/user?tag=${params.tag}`, (url) =>
-		fetch(url).then((r) => r.json())
+		axios.get(url).then((r) => r.data)
 	);
 	const profile = data?.user;
 
@@ -177,7 +178,7 @@ export default function Page({ params }: Props) {
 					{profile.posts.length !== undefined
 						? profile.posts
 								.map((post) => {
-									return <Post key={post._id.toString()} post={post} />;
+									return <Post key={post._id.toString()} post={post} onMutate={() => mutate()} />;
 								})
 								.sort((a, b) => b.props.post.date - a.props.post.date)
 						: null}

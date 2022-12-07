@@ -8,7 +8,7 @@ import { ISession } from '../../schemas/ISession';
 import { IUser } from '../../schemas/IUser';
 
 export const UserContext = createContext<{
-	user?: IUser;
+	user?: LocalUser;
 	mutate?: KeyedMutator<{
 		success: boolean;
 		user: LocalUser;

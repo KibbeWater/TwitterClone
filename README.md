@@ -28,3 +28,4 @@ SALT_ROUNDS=10
 * Possibly more emoji support (LOW PRIORITY)
 * Fix error messages for login/reg
 * Fix issue where images/retwaats are not shown in /post routes
+* Mutate feed to show posts posted from the PostModal

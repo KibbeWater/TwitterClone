@@ -3,10 +3,11 @@ import { getCookie } from 'cookies-next';
 import User, { IUser } from '../../schemas/IUser';
 import Post, { IPost } from '../../schemas/IPost';
 import DB, { Connect } from '../../libs/database';
-import { NormalizeObject } from '../../libs/utils';
+import { Group, NormalizeObject } from '../../libs/utils';
 import { ILike } from '../../schemas/ILike';
 import { MakeSafeUser, SafeUser } from '../../libs/user';
 import Notification from '../../schemas/INotification';
+import { IRelationship } from '../../schemas/IRelationship';
 
 function PostReq(req: NextApiRequest, res: NextApiResponse) {
 	return new Promise(async (resolve) => {
@@ -61,6 +62,48 @@ function PostReq(req: NextApiRequest, res: NextApiResponse) {
 	});
 }
 
+function DeleteReq(req: NextApiRequest, res: NextApiResponse) {
+	return new Promise(async (resolve) => {
+		if (req.method !== 'DELETE') return resolve(res.status(405).json({ success: false, error: 'Method not allowed' }));
+
+		const token = getCookie('token', { req, res }) as string;
+		if (!token) return resolve(res.status(401).json({ success: false, error: 'Unauthorized' }));
+
+		const { id } = req.query;
+
+		if (!id) return resolve(res.status(400).json({ success: false, error: 'Bad request' }));
+
+		DB(async () => {
+			User.authenticate(token)
+				.then((user) => {
+					if (!user) return resolve(res.status(401).json({ success: false, error: 'Unauthorized' }));
+
+					Post.findById(id)
+						.populate<{ user: IUser }>('user')
+						.exec()
+						.then((post) => {
+							if (!post) return resolve(res.status(404).json({ success: false, error: 'Not found' }));
+
+							if (post.user._id.toString() !== user._id.toString() && user.group != Group.Admin)
+								return resolve(res.status(403).json({ success: false, error: 'Forbidden' }));
+
+							Post.deletePost(post._id).then(() => {
+								return resolve(res.status(200).json({ success: true }));
+							});
+						})
+						.catch((err) => {
+							console.error(err);
+							return resolve(res.status(500).json({ success: false, error: 'Internal server error' }));
+						});
+				})
+				.catch((err) => {
+					console.error(err);
+					return resolve(res.status(500).json({ success: false, error: 'Internal server error' }));
+				});
+		});
+	});
+}
+
 function GetReq(req: NextApiRequest, res: NextApiResponse) {
 	return new Promise(async (resolve) => {
 		if (req.method !== 'GET') return resolve(res.status(405).json({ success: false, error: 'Method not allowed' }));
@@ -80,7 +123,12 @@ function GetReq(req: NextApiRequest, res: NextApiResponse) {
 					.skip(pageNumber * pageLimit)
 					.limit(pageLimit)
 					/* This is so unoptimal I wanna cry but fuck it, we're populating likes too */
-					.populate<{ user: IUser; quote: IPost; comments: IPost[]; likes: ILike[] }>(['user', 'comments', 'likes'])
+					.populate<{ user: IUser; quote: IPost; comments: IPost[]; likes: ILike[]; relationships: IRelationship[] }>([
+						'user',
+						'comments',
+						'likes',
+						'relationships',
+					])
 					/* Populate quote user */
 					.populate<{ user: IUser & { user: IUser } }>({ path: 'quote', populate: { path: 'user' } })
 					.lean()
@@ -91,7 +139,13 @@ function GetReq(req: NextApiRequest, res: NextApiResponse) {
 									res.status(200).json({
 										success: true,
 										post: NormalizeObject<
-											IPost & { user: SafeUser; quote: IPost & { user: SafeUser }; comments: IPost[]; likes: ILike[] }
+											IPost & {
+												user: SafeUser;
+												quote: IPost & { user: SafeUser };
+												comments: IPost[];
+												likes: ILike[];
+												relationships: IRelationship[];
+											}
 										>({
 											...post,
 											// @ts-ignore
@@ -157,5 +211,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
 	if (req.method === 'POST') return PostReq(req, res);
 	else if (req.method === 'GET') return GetReq(req, res);
+	else if (req.method === 'DELETE') return DeleteReq(req, res);
 	else return res.status(405).json({ success: false, error: 'Method not allowed' });
 }

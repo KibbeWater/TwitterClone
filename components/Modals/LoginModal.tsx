@@ -2,7 +2,6 @@
 
 import { useContext, useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { setCookie } from 'cookies-next';
 import axios from 'axios';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -23,7 +22,6 @@ function Login(username: string, password: string): Promise<IUser> {
 				const data = res.data;
 
 				if (data.success) {
-					setCookie('token', data.token);
 					resolve(data.user);
 				} else reject(data.error);
 			})
