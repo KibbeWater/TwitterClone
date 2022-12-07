@@ -71,7 +71,7 @@ export const notificationSchema = new Schema<INotification, NotificationModel>(
 						});
 				});
 			},
-			createFollowNotification: function (user: Types.ObjectId, target: IUser) {
+			createFollowNotification: function (user: IUser, target: IUser): Promise<INotification | null> {
 				return new Promise((resolve, reject) => {
 					this.create({
 						user,

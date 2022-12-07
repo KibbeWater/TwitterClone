@@ -44,13 +44,16 @@ type Props = {
 
 export default function Post({ post, isRef, onMutate }: Props) {
 	const { setModal } = useContext(ModalContext);
-	const { user: me } = useContext(UserContext);
+	const { user: me, mutate: mutateMe } = useContext(UserContext);
 
 	const [hasLiked, setHasLiked] = useState((post.likes as unknown as ILike[]).findIndex((like) => like.user === me?._id) !== -1);
 	const [count, addCount] = useReducer((count: number) => count + 1, 0);
 	const [loadingLikes, setLoadingLikes] = useState(false);
 	const [optionsActive, setOptionsActive] = useState(false);
 	const [loading, setLoading] = useState(false);
+	const [isFollowing, setIsFollowing] = useState(
+		!!me?.relationships.find((rel: IRelationship) => rel.target?.toString() == post.user?._id && rel.type == 'follow')
+	);
 
 	const imageDisplay = useRef<HTMLDivElement>(null);
 
@@ -64,6 +67,14 @@ export default function Post({ post, isRef, onMutate }: Props) {
 		return () => clearInterval(interval);
 	});
 
+	useEffect(() => {
+		const user = post.user as unknown as IUser | null;
+		if (user && user.relationships)
+			setIsFollowing(
+				!!me?.relationships.find((rel: IRelationship) => rel.target?.toString() == user?._id.toString() && rel.type == 'follow')
+			);
+	}, [me, post.user]);
+
 	if (!post) return null;
 
 	const user = post.user as unknown as IUser | null;
@@ -73,9 +84,6 @@ export default function Post({ post, isRef, onMutate }: Props) {
 
 	const isMe = me?._id === user?._id;
 	const isAdmin = me?.group == Group.Admin;
-	const isFollowing = me?.relationships.find((rel: IRelationship) => rel.target?.toString() == user?._id && rel.type == 'follow')
-		? true
-		: false;
 
 	if (!user) return null;
 
@@ -119,12 +127,17 @@ export default function Post({ post, isRef, onMutate }: Props) {
 								className='w-full px-6 py-2 text-center enabled:hover:bg-black/5 enabled:cursor-pointer transition-colors'
 								onClick={() => {
 									setLoading(true);
+									const curFollowing = isFollowing;
+									setIsFollowing(!isFollowing);
 									CreateRelationship(user._id.toString(), isFollowing ? 'remove' : 'follow')
 										.then(() => {
 											setLoading(false);
-											if (onMutate) onMutate(post);
+											if (mutateMe) mutateMe();
 										})
-										.catch(() => setLoading(false));
+										.catch(() => {
+											setLoading(false);
+											setIsFollowing(curFollowing);
+										});
 								}}
 							>
 								<p className='text-black dark:text-white font-semibold leading-none'>
