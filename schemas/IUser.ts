@@ -7,6 +7,8 @@ import Like, { ILike } from './ILike';
 import Relationship, { IRelationship } from './IRelationship';
 import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { createURL, s3Client, S3_BUCKET, S3_REGION } from '../libs/storage';
+import { INotification } from './INotification';
+import { MakeSafeUser } from '../libs/user';
 
 export interface IUser {
 	_id: Types.ObjectId;
@@ -104,22 +106,32 @@ export const userSchema = new Schema<IUser, UserModel, IUserMethods>(
 
 				// Get the owner of the session
 				let usr = await this.findOne({ _id: session.owner })
-					.populate<{ posts: IPost[]; sessions: ISession[]; relationships: IRelationship[] }>([
+					.populate<{ posts: IPost[]; sessions: ISession[]; relationships: IRelationship[]; notifications: INotification[] }>([
 						'posts',
 						'sessions',
 						'relationships',
+						'notifications',
 					])
 					.populate<{ posts: (IPost & { user: IUser; quote: IPost & { user: IUser } })[] }>([
 						{ path: 'posts', populate: { path: 'user' } },
 						{ path: 'posts', populate: { path: 'quote' } },
 						{ path: 'posts', populate: { path: 'quote', populate: { path: 'user' } } },
 					])
+					.populate<{ notifications: (INotification & { targets: IUser[] })[] }>([
+						{ path: 'notifications', populate: { path: 'targets' } },
+					])
 					.lean()
 					.exec();
 
 				if (!usr) return null;
 
-				return NormalizeObject<typeof usr>(usr);
+				return NormalizeObject<typeof usr>({
+					...usr,
+					// @ts-ignore
+					notifications: usr.notifications.map((n) => {
+						return { ...n, targets: n.targets.map((t) => MakeSafeUser(t)) };
+					}),
+				});
 			},
 
 			uploadAvatar: async function (user: Types.ObjectId, file: string) {

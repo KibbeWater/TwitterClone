@@ -126,15 +126,7 @@ export default function Navbar() {
 									<div
 										className='w-full pl-4 pr-2 h-8 hover:bg-gray-500/20 transition-all cursor-pointer flex items-center'
 										onClick={() => {
-											axios
-												.get('/api/user/logout')
-												.then(() => {
-													window.location.reload();
-												})
-												.catch((err) => {
-													alert(err);
-													console.log(err);
-												});
+											window.location.assign('/api/logout');
 										}}
 									>
 										<p className='text-left font-semibold text-black dark:text-white leading-none'>

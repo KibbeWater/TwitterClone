@@ -2,7 +2,7 @@ import mongoose, { Model, Schema, Types } from 'mongoose';
 import { IPost } from './IPost';
 import User, { IUser } from './IUser';
 
-export type NotificationType = 'like' | 'retwaat' | 'comment' | 'mention' | 'reply' | 'follow';
+export type NotificationType = 'like' | 'retwaat' | 'mention' | 'reply' | 'follow';
 
 export interface INotification {
 	_id: Types.ObjectId;
@@ -91,6 +91,7 @@ export const notificationSchema = new Schema<INotification, NotificationModel>(
 
 // Fix recompilation error
 const Notification =
-	(mongoose.models.Like as NotificationModel) || mongoose.model<INotification, NotificationModel>('Notification', notificationSchema);
+	(mongoose.models.Notification as NotificationModel) ||
+	mongoose.model<INotification, NotificationModel>('Notification', notificationSchema);
 
 export default Notification;
