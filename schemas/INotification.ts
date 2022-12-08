@@ -37,7 +37,12 @@ export const notificationSchema = new Schema<INotification, NotificationModel>(
 	},
 	{
 		statics: {
-			createPostNotification: function (user: IUser, type: NotificationType, post: IPost, targets?: IUser[]) {
+			createPostNotification: function (
+				user: IUser,
+				type: 'like' | 'retwaat' | 'reply' | 'mention',
+				post: IPost,
+				targets?: IUser[]
+			): Promise<INotification | null> {
 				return new Promise((resolve, reject) => {
 					User.findById(user._id)
 						.populate<{ notifications: INotification[] }>('notifications')

@@ -33,22 +33,7 @@ function PostReq(req: NextApiRequest, res: NextApiResponse) {
 					new User(user)
 						.post(content, quote, images, parent)
 						.then((post) => {
-							if (parent && post)
-								Post.findById(parent)
-									.populate<{ user: IUser }>('user')
-									.exec()
-									.then((parentPost) => {
-										if (!parentPost) return;
-										Notification.createPostNotification(parentPost?.user, 'reply', post, [user]).then(() => {
-											if (!post)
-												return resolve(res.status(500).json({ success: false, error: 'Internal server error' }));
-											else return resolve(res.status(200).json({ success: true, post }));
-										});
-									});
-							else {
-								if (!post) return resolve(res.status(500).json({ success: false, error: 'Internal server error' }));
-								else return resolve(res.status(200).json({ success: true, post }));
-							}
+							return resolve(res.status(200).json({ success: true, post }));
 						})
 						.catch(() => {
 							return resolve(res.status(500).json({ success: false, error: 'Internal server error' }));
@@ -123,12 +108,7 @@ function GetReq(req: NextApiRequest, res: NextApiResponse) {
 					.skip(pageNumber * pageLimit)
 					.limit(pageLimit)
 					/* This is so unoptimal I wanna cry but fuck it, we're populating likes too */
-					.populate<{ user: IUser; quote: IPost; comments: IPost[]; likes: ILike[]; relationships: IRelationship[] }>([
-						'user',
-						'comments',
-						'likes',
-						'relationships',
-					])
+					.populate<{ user: IUser; quote: IPost; comments: IPost[]; likes: ILike[] }>(['user', 'comments', 'likes', 'quote'])
 					/* Populate quote user */
 					.populate<{ user: IUser & { user: IUser } }>({ path: 'quote', populate: { path: 'user' } })
 					.lean()

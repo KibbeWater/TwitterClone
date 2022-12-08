@@ -15,10 +15,12 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
 		if (newUsername.length > 32) newUsername = newUsername.slice(0, 32);
 
 		DB(async () => {
-			const user = await User.getUser(username);
+			const tag = username.replaceAll(' ', '');
+
+			const user = await User.getUser(tag);
 			if (user) return resolve(res.status(400).json({ success: false, error: 'Username already taken' }));
 
-			User.register(username.toLowerCase().replaceAll(' ', ''), username, password)
+			User.register(tag, username, password)
 				.then((newUser) => {
 					if (!newUser) return resolve(res.status(500).json({ success: false, error: 'Failed to create user' }));
 
@@ -28,7 +30,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
 					});
 				})
 				.catch((err) => {
-					console.error(err);
+					console.error('Error:', err);
 					resolve(res.status(500).json({ success: false, error: 'Internal server error' }));
 				});
 		});

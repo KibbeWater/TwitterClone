@@ -85,7 +85,8 @@ export const userSchema = new Schema<IUser, UserModel, IUserMethods>(
 			},
 
 			authorize: async function (tag: string, password: string, ip?: string) {
-				const usr = await this.findOne({ tag }).exec();
+				// Find the user by tag (case insensitive)
+				const usr = await this.findOne({ tag: new RegExp(`^${tag}$`, 'i') }).exec();
 				if (!usr) return null;
 
 				const saltRounds = parseInt(process.env.SALT_ROUNDS || '') || 10;
@@ -117,8 +118,17 @@ export const userSchema = new Schema<IUser, UserModel, IUserMethods>(
 						{ path: 'posts', populate: { path: 'quote' } },
 						{ path: 'posts', populate: { path: 'quote', populate: { path: 'user' } } },
 					])
-					.populate<{ notifications: (INotification & { targets: IUser[] })[] }>([
+					.populate<{
+						notifications: (INotification & {
+							targets: IUser[];
+							post: (IPost & { user: IUser; comments: IPost[]; likes: ILike[] }) | null;
+						})[];
+					}>([
 						{ path: 'notifications', populate: { path: 'targets' } },
+						{ path: 'notifications', populate: { path: 'post' } },
+						{ path: 'notifications', populate: { path: 'post', populate: { path: 'user' } } },
+						{ path: 'notifications', populate: { path: 'post', populate: { path: 'comments' } } },
+						{ path: 'notifications', populate: { path: 'post', populate: { path: 'likes' } } },
 					])
 					.lean()
 					.exec();
@@ -128,9 +138,15 @@ export const userSchema = new Schema<IUser, UserModel, IUserMethods>(
 				return NormalizeObject<typeof usr>({
 					...usr,
 					// @ts-ignore
-					notifications: usr.notifications.map((n) => {
-						return { ...n, targets: n.targets.map((t) => MakeSafeUser(t)) };
-					}),
+					notifications: usr.notifications
+						.map((n) => {
+							return {
+								...n,
+								targets: n.targets.map((t) => MakeSafeUser(t)),
+								post: n.post ? { ...n.post, user: MakeSafeUser(n.post.user) } : null,
+							};
+						})
+						.reverse(),
 				});
 			},
 

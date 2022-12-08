@@ -1,5 +1,6 @@
 import mongoose, { Model, model, Schema, Types } from 'mongoose';
 import Like, { ILike } from './ILike';
+import Notification, { INotification } from './INotification';
 import User, { IUser } from './IUser';
 
 export interface IPost {
@@ -65,6 +66,9 @@ const postSchema = new Schema<IPost, PostModel>(
 						const parentPost = await this.findById(post.parent);
 						if (parentPost) {
 							parentPost.comments.push(post._id);
+							await Notification.createPostNotification(parentPost.user as unknown as IUser, 'reply', post, [
+								(await User.findById(user)) as IUser,
+							]);
 							await parentPost.save();
 						}
 					}

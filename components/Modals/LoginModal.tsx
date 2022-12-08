@@ -2,7 +2,7 @@
 
 import { useContext, useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
@@ -47,9 +47,10 @@ export default function LoginModal({ switchMode }: AuthProps) {
 			.then(() => {
 				window.location.reload();
 			})
-			.catch((err) => {
+			.catch((err: AxiosError) => {
+				setLoading(false);
 				console.log(err);
-				setError('Internal server error');
+				setError((err.response?.data as any).error || 'An error occurred');
 			});
 	};
 
