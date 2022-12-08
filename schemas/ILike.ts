@@ -1,6 +1,7 @@
 import mongoose, { Model, Schema, Types } from 'mongoose';
-import Post from './IPost';
-import User from './IUser';
+import Notification from './INotification';
+import Post, { IPost } from './IPost';
+import User, { IUser } from './IUser';
 
 export interface ILike {
 	_id: Types.ObjectId;
@@ -24,9 +25,8 @@ export const likeSchema = new Schema<ILike, LikeModel>(
 				return new Promise((resolve, reject) => {
 					// Check if the user has already liked the post
 					this.findOne({ user, post }).then((like) => {
-						if (like) {
-							resolve(like);
-						} else {
+						if (like) resolve(like);
+						else
 							this.create({
 								user,
 								post,
@@ -35,15 +35,20 @@ export const likeSchema = new Schema<ILike, LikeModel>(
 									user2?.likes.push(like._id);
 									user2?.save();
 
-									Post.findById(post).then((post2) => {
-										post2?.likes.push(like._id);
-										post2?.save();
+									Post.findById(post)
+										.populate<IPost & { user: IUser }>('user')
+										.then(async (post2) => {
+											post2?.likes.push(like._id);
+											post2?.save();
 
-										resolve(like);
-									});
+											await Notification.createPostNotification(post2?.user as IUser, 'like', post2 as IPost, [
+												user2 as IUser,
+											]);
+
+											resolve(like);
+										});
 								});
 							});
-						}
 					});
 				});
 			},

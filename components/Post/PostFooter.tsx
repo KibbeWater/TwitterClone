@@ -18,7 +18,7 @@ export default function PostFooter({ post, color }: { post: IPost; color?: strin
 	const { user: me } = useContext(UserContext);
 
 	const [loadingLikes, setLoadingLikes] = useState(false);
-	const [hasLiked, setHasLiked] = useState((post.likes as unknown as ILike[]).findIndex((like) => like.user === me?._id) !== -1);
+	const [hasLiked, setHasLiked] = useState((post.likes as unknown as ILike[]).filter((like) => like.user?._id == me?._id).length > 0);
 
 	const clr = color || 'black';
 

@@ -3,6 +3,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import DB from '../../libs/database';
 import { MakeSafeUser } from '../../libs/user';
 import { NormalizeObject } from '../../libs/utils';
+import { ILike } from '../../schemas/ILike';
 import { IPost } from '../../schemas/IPost';
 import User, { IUser } from '../../schemas/IUser';
 
@@ -36,10 +37,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 				tag: tag.toString(),
 			})
 				.populate<{ posts: IPost[] }>('posts')
-				.populate<{ posts: (IPost & { user: IUser; quote: IPost & { user: IUser } })[] }>([
+				.populate<{ posts: (IPost & { user: IUser; quote: IPost & { user: IUser }; likes: ILike[] })[] }>([
 					{ path: 'posts', populate: { path: 'user' } },
 					{ path: 'posts', populate: { path: 'quote' } },
 					{ path: 'posts', populate: { path: 'quote', populate: { path: 'user' } } },
+					{ path: 'posts', populate: { path: 'likes' } },
 				])
 				.exec();
 			if (!user2) return res.status(404).json({ success: false, error: 'User not found' });
