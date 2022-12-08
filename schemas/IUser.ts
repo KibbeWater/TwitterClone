@@ -86,7 +86,7 @@ export const userSchema = new Schema<IUser, UserModel, IUserMethods>(
 
 			authorize: async function (tag: string, password: string, ip?: string) {
 				// Find the user by tag (case insensitive)
-				const usr = await this.findOne({ tag: new RegExp(`^${tag}$`, 'i') }).exec();
+				const usr = (await this.findOne({ tag: new RegExp(`^${tag}$`, 'i') }).exec()) as any;
 				if (!usr) return null;
 
 				const saltRounds = parseInt(process.env.SALT_ROUNDS || '') || 10;
@@ -107,10 +107,9 @@ export const userSchema = new Schema<IUser, UserModel, IUserMethods>(
 
 				// Get the owner of the session
 				let usr = await this.findOne({ _id: session.owner })
-					.populate<{ posts: IPost[]; sessions: ISession[]; relationships: IRelationship[]; notifications: INotification[] }>([
+					.populate<{ posts: IPost[]; sessions: ISession[]; notifications: INotification[] }>([
 						'posts',
 						'sessions',
-						'relationships',
 						'notifications',
 					])
 					.populate<{ posts: (IPost & { user: IUser; quote: IPost & { user: IUser } })[] }>([

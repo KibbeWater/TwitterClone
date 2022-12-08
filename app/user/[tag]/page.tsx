@@ -28,12 +28,14 @@ type Props = {
 export default function Page({ params }: Props) {
 	params.tag = params.tag.replace('%40', '');
 
-	const [isFollowing, setIsFollowing] = React.useState(false);
-	const [followingText, setFollowingText] = React.useState('Following');
-
 	const { setModal } = useContext(ModalContext);
 	const { user } = useContext(UserContext);
 	const bannerRef = useRef<HTMLDivElement>(null);
+
+	const [isFollowing, setIsFollowing] = React.useState(
+		!!user?.relationships.find((rel: IRelationship) => rel.target?.toString() == profile?._id.toString() && rel.type == 'follow')
+	);
+	const [followingText, setFollowingText] = React.useState('Following');
 
 	const { data, mutate } = useSWR<{ success: boolean; user: SafeUser }>(`/api/user?tag=${params.tag}`, (url) =>
 		axios.get(url).then((r) => r.data)
@@ -48,10 +50,13 @@ export default function Page({ params }: Props) {
 	const isMe = user?.tag.toLowerCase() === profile?.tag.toLowerCase();
 
 	useEffect(() => {
-		if (profile) {
-			setIsFollowing(relationships.includes(profile?._id as string));
-		}
-	}, [profile]);
+		if (user)
+			setIsFollowing(
+				!!user?.relationships.find(
+					(rel: IRelationship) => rel.target?.toString() == profile?._id.toString() && rel.type == 'follow'
+				)
+			);
+	}, [user, profile]);
 
 	useEffect(() => {
 		if (bannerRef.current) {
