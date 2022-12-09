@@ -1,6 +1,7 @@
 import { faHeart, faRepeat, faUser } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Image from 'next/image';
+import Link from 'next/link';
 import { INotification } from '../schemas/INotification';
 import { IPost } from '../schemas/IPost';
 import { IUser } from '../schemas/IUser';
@@ -25,10 +26,14 @@ export default function Notification({ notif }: { notif: INotification }) {
 			break;
 		case 'like':
 			title = (
-				<p className='text-black dark:text-white'>
-					<span className='font-bold'>{targets[0].username}</span>
-					{targets.length > 1 ? ` and ${targets.length - 1} other${targets.length - 2 > 0 ? 's' : ''}` : ''} liked your post
-				</p>
+				<>
+					<p className='text-black dark:text-white'>
+						<span className='font-bold'>{targets[0].username}</span>
+						{targets.length > 1 ? ` and ${targets.length - 1} other${targets.length - 2 > 0 ? 's' : ''}` : ''} liked your{' '}
+						<Link href={`/post/${notif.post?._id}`}>post</Link>
+					</p>
+					<p className='text-gray-500 px-2 mt-2'>{(notif.post as unknown as IPost).content}</p>
+				</>
 			);
 			break;
 

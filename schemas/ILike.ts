@@ -41,9 +41,10 @@ export const likeSchema = new Schema<ILike, LikeModel>(
 											post2?.likes.push(like._id);
 											post2?.save();
 
-											await Notification.createPostNotification(post2?.user as IUser, 'like', post2 as IPost, [
-												user2 as IUser,
-											]);
+											if (post2?.user._id.toString() !== user2?._id.toString())
+												await Notification.createPostNotification(post2?.user as IUser, 'like', post2 as IPost, [
+													user2 as IUser,
+												]);
 
 											resolve(like);
 										});

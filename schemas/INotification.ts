@@ -78,16 +78,35 @@ export const notificationSchema = new Schema<INotification, NotificationModel>(
 			},
 			createFollowNotification: function (user: IUser, target: IUser): Promise<INotification | null> {
 				return new Promise((resolve, reject) => {
-					this.create({
-						user,
-						type: 'follow',
-						targets: [target._id],
-						date: Date.now(),
-					}).then((notification) => {
-						User.findByIdAndUpdate(user, { $push: { notifications: notification } }, { new: true }).then((user) => {
-							resolve(notification);
+					User.findById(user._id)
+						.populate<{ notifications: INotification[] }>('notifications')
+						.exec((err, user: any) => {
+							if (err) reject(err);
+							else {
+								const latestNotification = user?.notifications[user?.notifications.length - 1];
+								if (latestNotification?.type === 'follow') {
+									const notif = Notification.findByIdAndUpdate(
+										latestNotification._id,
+										{ $push: { targets: [target] } },
+										{ new: true }
+									);
+									resolve(notif);
+								} else {
+									this.create({
+										user,
+										type: 'follow',
+										targets: [target],
+										date: Date.now(),
+									}).then((notification) => {
+										User.findByIdAndUpdate(user._id, { $push: { notifications: notification } }, { new: true }).then(
+											(user) => {
+												resolve(notification);
+											}
+										);
+									});
+								}
+							}
 						});
-					});
 				});
 			},
 		},

@@ -170,10 +170,10 @@ export default function Page({ params }: Props) {
 						<p className='mt-1 text-base leading-none text-gray-500'>{`@${profile?.tag}`}</p>
 						<p className='my-1 mt-3 text-black dark:text-white'>{profile?.bio}</p>
 						<div className='flex my-2'>
-							<p className='m-0 mr-1 text-black dark:text-white'>
+							<p className='m-0 mr-2 text-black dark:text-white'>
 								<span className='font-bold'>0</span> Following
 							</p>
-							<p className='m-0 mr-1 text-black dark:text-white'>
+							<p className='m-0 mr-2 text-black dark:text-white'>
 								<span className='font-bold'>0</span> Followers
 							</p>
 						</div>
