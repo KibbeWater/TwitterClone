@@ -40,7 +40,7 @@ export default function Navbar() {
 							'h-16 w-16 mb-1 rounded-full transition-all flex items-center justify-center bg-transparent hover:bg-accent-primary-500/25'
 						}
 					>
-						<Image src='/assets/favicons/android-chrome-512x512.png' alt='Home' width={45} height={45} />
+						<Image src='/assets/favicons/icon-512x512.png' alt='Home' width={45} height={45} />
 					</Link>
 					<Link href='/home' className={'h-12 mb-2 rounded-full bg-transparent hover:bg-gray-600/25 flex items-center'}>
 						<div className='w-8 ml-4 flex items-center justify-center'>

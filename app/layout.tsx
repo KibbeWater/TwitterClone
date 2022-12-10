@@ -14,6 +14,7 @@ import UserAuth from '../components/Modals/UserAuth';
 import { Connect } from '../libs/database';
 import UserHandler from '../components/Handlers/UserHandler';
 import ThemeProvider from '../components/Handlers/ThemeHandler';
+import Script from 'next/script';
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
 	const token = cookies().get('token')?.value as string;
@@ -35,6 +36,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 						</div>
 					</ModalHandler>
 				</UserHandler>
+				<Script src='/installService.js' strategy='lazyOnload' />
 			</body>
 		</ThemeProvider>
 	);
