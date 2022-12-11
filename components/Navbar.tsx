@@ -33,7 +33,7 @@ export default function Navbar() {
 			}
 		>
 			<div className='flex flex-col h-full'>
-				<div className={'flex flex-col mr-4 w-16 md:w-60'}>
+				<div className={'flex flex-col mr-4 w-16 lg:w-60'}>
 					<Link
 						href='/home'
 						className={
@@ -42,32 +42,35 @@ export default function Navbar() {
 					>
 						<Image src='/assets/favicons/icon-512x512.png' alt='Home' width={45} height={45} />
 					</Link>
-					<Link href='/home' className={'h-12 mb-2 rounded-full bg-transparent hover:bg-gray-600/25 flex items-center'}>
+					<Link href='/home' className={'lg:h-12 h-16 mb-2 rounded-full bg-transparent hover:bg-gray-600/25 flex items-center'}>
 						<div className='w-8 ml-4 flex items-center justify-center'>
 							<FontAwesomeIcon icon={faHome} size={'xl'} className={'text-black dark:text-white'} />
 						</div>
 
-						<span className='ml-5 font-bold text-lg hidden md:block text-black dark:text-white'>Home</span>
+						<span className='ml-5 font-bold text-lg hidden lg:block text-black dark:text-white'>Home</span>
 					</Link>
-					<Link href='/notifications' className={'h-12 mb-2 rounded-full bg-transparent hover:bg-gray-600/25 flex items-center'}>
+					<Link
+						href='/notifications'
+						className={'lg:h-12 h-16 mb-2 rounded-full bg-transparent hover:bg-gray-600/25 flex items-center'}
+					>
 						<div className='w-8 ml-4 flex items-center justify-center'>
 							<FontAwesomeIcon icon={faBell} size={'xl'} className={'text-black dark:text-white'} />
 						</div>
 
-						<span className='ml-5 font-bold text-lg hidden md:block text-black dark:text-white'>Notifications</span>
+						<span className='ml-5 font-bold text-lg hidden lg:block text-black dark:text-white'>Notifications</span>
 					</Link>
 					<Link
 						href={user ? `@${user.tag}` : '/login'}
-						className={'h-12 mb-2 rounded-full bg-transparent hover:bg-gray-600/25 flex items-center'}
+						className={'lg:h-12 h-16 mb-2 rounded-full bg-transparent hover:bg-gray-600/25 flex items-center'}
 					>
 						<div className='w-8 ml-4 flex items-center justify-center'>
 							<FontAwesomeIcon icon={faUser} size={'xl'} className={'text-black dark:text-white'} />
 						</div>
-						<span className='ml-5 font-bold text-lg hidden md:block text-black dark:text-white'>Profile</span>
+						<span className='ml-5 font-bold text-lg hidden lg:block text-black dark:text-white'>Profile</span>
 					</Link>
 					<button
 						className={
-							'w-16 h-16 md:h-14 mb-1 rounded-full transition-all flex justify-center items-center text-white cursor-pointer bg-accent-primary-500 hover:bg-accent-primary-400 md:w-full'
+							'w-16 h-16 lg:h-14 mb-1 rounded-full transition-all flex justify-center items-center text-white cursor-pointer bg-accent-primary-500 hover:bg-accent-primary-400 lg:w-full'
 						}
 						id='btnPost'
 						onClick={() => {
@@ -78,14 +81,14 @@ export default function Navbar() {
 							icon={faFeatherPointed}
 							size={'2xl'}
 							color={'white'}
-							className={'transition-all opacity-100 md:opacity-0 block md:!hidden'}
+							className={'transition-all opacity-100 lg:opacity-0 block lg:!hidden'}
 						/>
-						<span className='hidden transition-all md:block text-lg font-bold opacity-0 md:opacity-100 text-white'>Twaat</span>
+						<span className='hidden transition-all lg:block text-lg font-bold opacity-0 lg:opacity-100 text-white'>Twaat</span>
 					</button>
 				</div>
 				<div className='flex items-end mb-2 mr-4 h-full'>
 					{user ? (
-						<div className={'w-16 h-16 md:h-14 text-white md:w-full relative'}>
+						<div className={'w-16 h-16 text-white lg:w-full relative'}>
 							<button
 								className={
 									'h-full w-full rounded-full transition-all hover:bg-gray-500/10' +
@@ -107,18 +110,18 @@ export default function Navbar() {
 									</div>
 
 									<div className='ml-2 flex flex-col items-start'>
-										<p className='hidden transition-all md:block font-bold opacity-0 md:opacity-100 text-black dark:text-white leading-[1.1]'>
+										<p className='hidden transition-all lg:block font-bold opacity-0 lg:opacity-100 text-black dark:text-white leading-[1.1]'>
 											{user?.username}
 										</p>
-										<p className='hidden transition-all md:block opacity-0 md:opacity-100 w-min text-gray-600 leading-[1.1]'>{`@${user?.tag}`}</p>
+										<p className='hidden transition-all lg:block opacity-0 lg:opacity-100 w-min text-gray-600 leading-[1.1]'>{`@${user?.tag}`}</p>
 									</div>
 								</div>
-								<div className='mr-2'>
+								<div className='mr-2 hidden lg:block'>
 									<FontAwesomeIcon icon={faEllipsis} className={'text-black dark:text-white'} />
 								</div>
 							</button>
 							<div
-								className={`absolute m-2 py-4 bottom-16 left-0 right-0 bg-gray-100 dark:bg-neutral-900 shadow-lg rounded-2xl cursor-default overflow-hidden ${
+								className={`absolute min-w-max m-2 py-4 bottom-16 left-0 lg:right-0 bg-gray-100 dark:bg-neutral-900 shadow-lg rounded-2xl cursor-default overflow-hidden z-20 ${
 									activateUserPanel ? 'opacity-100' : 'opacity-0'
 								}`}
 							>
