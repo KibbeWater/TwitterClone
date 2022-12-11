@@ -25,4 +25,3 @@ SALT_ROUNDS=10
 * Optimize and migrate to SSCs
 * Fix search
 * Possibly more emoji support (LOW PRIORITY)
-* Fix issue where images/retwaats are not shown in /post routes
