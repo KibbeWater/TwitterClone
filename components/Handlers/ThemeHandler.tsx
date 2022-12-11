@@ -12,11 +12,13 @@ export function useTheme() {
 
 export default function ThemeHandler({ children }: { children: React.ReactNode }) {
 	const [theme, setTheme] = useState(
-		localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+		localStorage
+			? localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+			: 'light'
 	);
 
 	useEffect(() => {
-		localStorage.setItem('theme', theme);
+		if (localStorage) localStorage.setItem('theme', theme);
 	}, [theme]);
 
 	const toggleTheme = (theme: string) => {

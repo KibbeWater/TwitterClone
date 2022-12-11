@@ -15,6 +15,7 @@ import TextAutosize from '../../components/TextAutosize';
 import { SendPost } from '../../libs/post';
 import { IPost } from '../../schemas/IPost';
 import { UserContext } from '../../components/Handlers/UserHandler';
+import { ModalContext } from '../../components/Handlers/ModalHandler';
 
 export default function Page() {
 	const [text, setText] = useState('');
@@ -37,6 +38,7 @@ export default function Page() {
 	const loadingRef = useRef<HTMLDivElement>(null);
 	const postAlbumRef = useRef<HTMLDivElement>(null);
 	const { user } = useContext(UserContext);
+	const { modal } = useContext(ModalContext);
 
 	useEffect(() => {
 		if (!loadingRef.current) return;
@@ -49,6 +51,10 @@ export default function Page() {
 
 		return () => observer.disconnect();
 	}, [loadingRef]);
+
+	useEffect(() => {
+		mutate();
+	}, [modal]);
 
 	useEffect(() => {
 		if (isVisible && !isRefreshing && size < totalPages) setSize(size + 1);
@@ -119,6 +125,7 @@ export default function Page() {
 								alt={`${user.username}'s Avatar`}
 								sizes='100vw'
 								fill
+								priority
 							/>
 						</div>
 					</div>

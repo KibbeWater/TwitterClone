@@ -95,7 +95,7 @@ export default function Post({ post, isRef, onMutate }: Props) {
 
 	return (
 		<div
-			className={`p-3 mb-px w-full relative bg-transparent transition-all cursor-pointer border-b-[1px] border-gray-700 flex hover:bg-gray-500/5  ${
+			className={`p-3 mb-px w-full relative bg-transparent transition-all cursor-pointer border-b-[1px] border-gray-700 flex hover:bg-gray-500/5 ${
 				isRef ? '!border-0 !bg-transparent hover:!bg-transparent' : ''
 			}`}
 			onClick={routePost}
@@ -151,7 +151,7 @@ export default function Post({ post, isRef, onMutate }: Props) {
 						{isMe || isAdmin ? (
 							<button
 								disabled={loading}
-								className='w-full px-6 py-2 text-center enabled:hover:bg-black/5 enabled:cursor-pointer transition-colors'
+								className='w-full px-6 py-2 text-center enabled:hover:bg-black/5 enabled:cursor-pointer transition-colors grow-0'
 								onClick={() => {
 									setLoading(true);
 									DeletePost(post._id.toString())
@@ -175,12 +175,13 @@ export default function Post({ post, isRef, onMutate }: Props) {
 					</motion.div>
 				</div>
 			) : null}
-			<div className='w-12 h-12 relative'>
+			<div className='w-12 h-12 relative shrink-0'>
 				<div className='w-12 h-12 absolute'>
 					<Image
 						className={'w-full h-full rounded-full object-cover cursor-pointer transition-opacity hover:opacity-80'}
 						src={user.avatar || '/default_avatar.png'}
 						alt={`${user.tag}'s avatar`}
+						priority
 						width={48}
 						height={48}
 					/>
@@ -188,20 +189,20 @@ export default function Post({ post, isRef, onMutate }: Props) {
 			</div>
 
 			<div className={'pl-3 w-full flex flex-col'} onClick={routePost}>
-				<div onClick={routePost} className={'flex'}>
+				<div onClick={routePost} className={'flex flex-1 min-w-0'}>
 					<a
 						className={
-							'text-black dark:text-white mr-[5px] cursor-pointer no-underline font-semibold hover:underline truncate flex items-center'
+							'text-black dark:text-white mr-[5px] cursor-pointer no-underline font-semibold hover:underline truncate min-w-0 flex items-center'
 						}
 						href={`/@${user.tag}`}
 					>
 						{user.username} {user.verified ? <Verified color='#f01d1d' /> : null}
 					</a>
-					<a className={'ml-[2px] text-gray-500 no-underline truncate'} href={`/@${user.tag}`}>
+					<a className={'ml-[2px] text-gray-500 no-underline truncate min-w-0'} href={`/@${user.tag}`}>
 						{`@${user.tag}`}
 						<span className='mx-[6px]'>·</span>
 					</a>
-					<span className={'text-gray-500 hover:underline'}>{FormatDate(new Date(post.date))}</span>
+					<span className={'text-gray-500 hover:underline whitespace-nowrap'}>{FormatDate(new Date(post.date))}</span>
 				</div>
 				<p className={'text-black dark:text-gray-200'} onClick={routePost}>
 					{post.content}
@@ -230,6 +231,7 @@ export default function Post({ post, isRef, onMutate }: Props) {
 								alt={`Album image ${i}`}
 								sizes={'100vw'}
 								fill
+								quality={100}
 								onClick={() => {
 									if (setModal) setModal(<ImageModal src={img} post={post} />);
 								}}
@@ -242,7 +244,7 @@ export default function Post({ post, isRef, onMutate }: Props) {
 				) : (
 					<div
 						className={
-							'group/quote mt-1 pl-1 rounded-md border-[1px] border-gray-700 transition-colors bg-black/0 hover:bg-gray-500/10'
+							'group/quote mt-1 pl-1 rounded-md border-[1px] border-gray-700 transition-colors bg-black/0 hover:bg-gray-500/10 w-full'
 						}
 					>
 						<Post post={quote} isRef={true} />

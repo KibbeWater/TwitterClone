@@ -3,7 +3,7 @@
 import axios from 'axios';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useContext, useRef } from 'react';
+import { useContext, useEffect, useRef } from 'react';
 import useSWR from 'swr';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -36,9 +36,13 @@ export default function Page({ params }: Props) {
 	const images = post?.images || [];
 
 	const { user: me } = useContext(UserContext);
-	const { setModal } = useContext(ModalContext);
+	const { modal, setModal } = useContext(ModalContext);
 
 	const imageDisplay = useRef<HTMLDivElement>(null);
+
+	useEffect(() => {
+		mutate();
+	}, [modal]);
 
 	if (!post)
 		return (
@@ -61,6 +65,7 @@ export default function Page({ params }: Props) {
 									src={user.avatar || '/default_avatar.png'}
 									alt={"Author's Avatar"}
 									fill
+									priority
 									sizes={'100vw'}
 									className='rounded-full object-cover cursor-pointer transition-opacity hover:opacity-80'
 								/>

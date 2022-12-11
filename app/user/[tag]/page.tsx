@@ -28,7 +28,7 @@ type Props = {
 export default function Page({ params }: Props) {
 	params.tag = params.tag.replace('%40', '');
 
-	const { setModal } = useContext(ModalContext);
+	const { modal, setModal } = useContext(ModalContext);
 	const { user } = useContext(UserContext);
 	const bannerRef = useRef<HTMLDivElement>(null);
 
@@ -64,6 +64,10 @@ export default function Page({ params }: Props) {
 		}
 	}, [bannerSrc]);
 
+	useEffect(() => {
+		mutate();
+	}, [modal]);
+
 	if (!profile)
 		return (
 			<PageTemplate name='Loading...'>
@@ -86,6 +90,7 @@ export default function Page({ params }: Props) {
 									className={'absolute h-full w-full p-[auto] top-0 bottom-0 right-0 left-0 object-cover'}
 									sizes={'100vw'}
 									fill
+									priority
 									alt={`${profile?.username}'s Banner`}
 									onError={(e) => bannerRef.current?.classList.add('hidden')}
 								/>
@@ -102,6 +107,7 @@ export default function Page({ params }: Props) {
 										alt={`${profile?.username}'s Avatar`}
 										sizes={'100vw'}
 										fill
+										priority
 									/>
 								</div>
 							</div>

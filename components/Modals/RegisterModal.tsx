@@ -25,14 +25,13 @@ function Register(username: string, password: string, confirm: string): Promise<
 			})
 			.then((res) => {
 				const data = res.data;
-				if (data.success) {
-					setCookie('token', data.token);
-					resolve();
-				} else reject(data.error);
+
+				if (data.success) resolve(setCookie('token', data.token));
+				else reject(data.error);
 			})
 			.catch((err) => {
 				console.error(err);
-				reject('Internal server error');
+				reject(err);
 			});
 	});
 }
@@ -44,8 +43,6 @@ export default function RegisterModal({ switchMode }: AuthProps) {
 
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState('');
-
-	const { setModal } = useContext(ModalContext);
 
 	const btnRegClick = () => {
 		setLoading(true);
@@ -61,6 +58,7 @@ export default function RegisterModal({ switchMode }: AuthProps) {
 			})
 			.catch((err) => {
 				setError(err);
+				setLoading(false);
 			});
 	};
 
