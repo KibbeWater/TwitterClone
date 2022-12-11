@@ -111,7 +111,7 @@ export default function ImageModal({ src, post }: Props) {
 				</div>
 			</div>
 			<div
-				className='h-full pt-3 w-2/12 bg-white dark:bg-black dark:border-l-[1px] dark:border-gray-500/20'
+				className='h-full pt-3 min-w-max w-2/12 bg-white dark:bg-black dark:border-l-[1px] dark:border-gray-500/20'
 				style={{ display: commentsOpen ? 'block' : 'none' }}
 			>
 				<div className='flex justify-between mx-3'>

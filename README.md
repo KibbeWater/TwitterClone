@@ -25,3 +25,4 @@ SALT_ROUNDS=10
 * Optimize and migrate to SSCs
 * Fix search
 * Possibly more emoji support (LOW PRIORITY)
+* Fix the extra options for posts
