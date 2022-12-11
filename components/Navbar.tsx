@@ -29,11 +29,11 @@ export default function Navbar() {
 	return (
 		<nav
 			className={
-				'min-w-[10%] max-w-[25%] ml-3 w-full h-screen flex justify-end bg-white dark:bg-black border-r-[1px] border-gray-700'
+				'min-w-[10%] sm:max-w-[25%] max-w-min ml-3 pt-2 w-full h-screen flex justify-end bg-white dark:bg-black border-r-[1px] border-gray-700'
 			}
 		>
 			<div className='flex flex-col h-full'>
-				<div className={'flex flex-col mr-4 w-16 lg:w-60'}>
+				<div className={'flex flex-col sm:mr-4 mr-2 w-16 lg:w-60'}>
 					<Link
 						href='/home'
 						className={
@@ -86,7 +86,7 @@ export default function Navbar() {
 						<span className='hidden transition-all lg:block text-lg font-bold opacity-0 lg:opacity-100 text-white'>Twaat</span>
 					</button>
 				</div>
-				<div className='flex items-end mb-2 mr-4 h-full'>
+				<div className='flex items-end mb-2 sm:mr-4 mr-2 h-full'>
 					{user ? (
 						<div className={'w-16 h-16 text-white lg:w-full relative'}>
 							<button
