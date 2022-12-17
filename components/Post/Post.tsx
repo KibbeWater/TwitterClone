@@ -100,6 +100,81 @@ export default function Post({ post, isRef, onMutate }: Props) {
 			}`}
 			onClick={routePost}
 		>
+			{!isRef ? (
+				<div className='absolute w-7 h-7 right-2 top-2'>
+					<div
+						className='w-7 h-7 rounded-full hover:bg-black/20 flex justify-center items-center'
+						onClick={() => setOptionsActive((prev) => !prev)}
+					>
+						<FontAwesomeIcon icon={faEllipsis} className={'text-black dark:text-white'} />
+					</div>
+					<motion.div
+						className={
+							'absolute top-7 right-0 w-max py-3 bg-gray-100 dark:bg-neutral-900 shadow-lg rounded-2xl cursor-default overflow-hidden z-20 flex flex-col'
+						}
+						/* Animate using clip to slowly reveal */
+						initial={{ opacity: 0, maxHeight: 0 }}
+						variants={{
+							enter: { opacity: 1, maxHeight: 120 },
+							exit: { opacity: 0, maxHeight: 0 },
+						}}
+						animate={optionsActive ? 'enter' : 'exit'}
+						transition={{ duration: 0.3 }}
+					>
+						{!isMe ? (
+							<button
+								disabled={loading}
+								className='w-full px-6 py-2 text-center enabled:hover:bg-black/5 enabled:cursor-pointer transition-colors'
+								onClick={() => {
+									setLoading(true);
+									const curFollowing = isFollowing;
+									setIsFollowing(!isFollowing);
+									CreateRelationship(user._id.toString(), isFollowing ? 'remove' : 'follow')
+										.then(() => {
+											setLoading(false);
+											if (mutateMe) mutateMe();
+										})
+										.catch(() => {
+											setLoading(false);
+											setIsFollowing(curFollowing);
+										});
+								}}
+							>
+								<p className='text-black dark:text-white font-semibold leading-none'>
+									<span className='mr-1'>
+										<FontAwesomeIcon icon={faUser} className={'text-black dark:text-white'} />
+									</span>{' '}
+									{!isFollowing ? `Follow @${user.username}` : `Unfollow @${user.username}`}
+								</p>
+							</button>
+						) : null}
+						{isMe || isAdmin ? (
+							<button
+								disabled={loading}
+								className='w-full px-6 py-2 text-center enabled:hover:bg-black/5 enabled:cursor-pointer transition-colors grow-0'
+								onClick={() => {
+									setLoading(true);
+									DeletePost(post._id.toString())
+										.then(() => {
+											if (onMutate) onMutate(post);
+										})
+										.catch((err) => {
+											alert(err);
+											setLoading(false);
+										});
+								}}
+							>
+								<p className='text-red-500 font-semibold leading-none'>
+									<span className='mr-1'>
+										<FontAwesomeIcon icon={faTrash} color={'red'} />
+									</span>{' '}
+									Delete Post
+								</p>
+							</button>
+						) : null}
+					</motion.div>
+				</div>
+			) : null}
 			<div className='w-12 h-12 relative shrink-0'>
 				<div className='w-12 h-12 absolute'>
 					<Image
@@ -114,7 +189,7 @@ export default function Post({ post, isRef, onMutate }: Props) {
 			</div>
 
 			<div className={'pl-3 w-full flex flex-col'} onClick={routePost}>
-				<div onClick={routePost} className={'flex flex-1 min-w-0'}>
+				<div onClick={routePost} className={'flex flex-1 min-w-0 mr-9'}>
 					<a
 						className={
 							'text-black dark:text-white mr-[5px] cursor-pointer no-underline font-semibold hover:underline truncate min-w-0 flex items-center'
@@ -128,81 +203,6 @@ export default function Post({ post, isRef, onMutate }: Props) {
 						<span className='mx-[6px]'>·</span>
 					</a>
 					<span className={'text-gray-500 hover:underline whitespace-nowrap'}>{FormatDate(new Date(post.date))}</span>
-					{!isRef ? (
-						<div className='w-7 h-7 ml-auto relative'>
-							<div
-								className='w-7 h-7 rounded-full hover:bg-black/20 flex justify-center items-center'
-								onClick={() => setOptionsActive((prev) => !prev)}
-							>
-								<FontAwesomeIcon icon={faEllipsis} className={'text-black dark:text-white'} />
-							</div>
-							<motion.div
-								className={
-									'absolute top-7 right-0 w-max py-3 bg-gray-100 dark:bg-neutral-900 shadow-lg rounded-2xl cursor-default overflow-hidden z-20 flex flex-col'
-								}
-								/* Animate using clip to slowly reveal */
-								initial={{ opacity: 0, maxHeight: 0 }}
-								variants={{
-									enter: { opacity: 1, maxHeight: 120 },
-									exit: { opacity: 0, maxHeight: 0 },
-								}}
-								animate={optionsActive ? 'enter' : 'exit'}
-								transition={{ duration: 0.3 }}
-							>
-								{!isMe ? (
-									<button
-										disabled={loading}
-										className='w-full px-6 py-2 text-center enabled:hover:bg-black/5 enabled:cursor-pointer transition-colors'
-										onClick={() => {
-											setLoading(true);
-											const curFollowing = isFollowing;
-											setIsFollowing(!isFollowing);
-											CreateRelationship(user._id.toString(), isFollowing ? 'remove' : 'follow')
-												.then(() => {
-													setLoading(false);
-													if (mutateMe) mutateMe();
-												})
-												.catch(() => {
-													setLoading(false);
-													setIsFollowing(curFollowing);
-												});
-										}}
-									>
-										<p className='text-black dark:text-white font-semibold leading-none'>
-											<span className='mr-1'>
-												<FontAwesomeIcon icon={faUser} className={'text-black dark:text-white'} />
-											</span>{' '}
-											{!isFollowing ? `Follow @${user.username}` : `Unfollow @${user.username}`}
-										</p>
-									</button>
-								) : null}
-								{isMe || isAdmin ? (
-									<button
-										disabled={loading}
-										className='w-full px-6 py-2 text-center enabled:hover:bg-black/5 enabled:cursor-pointer transition-colors grow-0'
-										onClick={() => {
-											setLoading(true);
-											DeletePost(post._id.toString())
-												.then(() => {
-													if (onMutate) onMutate(post);
-												})
-												.catch((err) => {
-													alert(err);
-													setLoading(false);
-												});
-										}}
-									>
-										<p className='text-red-500 font-semibold leading-none'>
-											<span className='mr-1'>
-												<FontAwesomeIcon icon={faTrash} color={'red'} />
-											</span>{' '}
-											Delete Post
-										</p>
-									</button>
-								) : null}
-							</motion.div>
-						</div>
-					) : null}
 				</div>
 				<div className='flex-1 shrink grow-0'>
 					<p className={'text-black dark:text-gray-200 break-words'} onClick={routePost}>
