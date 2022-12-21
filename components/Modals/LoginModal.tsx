@@ -26,6 +26,7 @@ function Login(username: string, password: string): Promise<IUser> {
 				} else reject(data.error);
 			})
 			.catch((err) => {
+				console.error(err);
 				reject(err);
 			});
 	});

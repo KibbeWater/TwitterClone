@@ -77,7 +77,7 @@ export default function ImageModal({ src, post }: Props) {
 				<div
 					className={
 						'absolute w-8 h-8 rounded-full bg-gray-700/20 backdrop-blur-sm' +
-						' top-2 right-2 flex items-center justify-center cursor-pointer'
+						' top-2 right-2 flex items-center justify-center cursor-pointer z-10'
 					}
 					onClick={() => setCommentsOpen((prev) => !prev)}
 				>
@@ -86,7 +86,7 @@ export default function ImageModal({ src, post }: Props) {
 				<div
 					className={
 						'absolute w-8 h-8 rounded-full bg-gray-700/20 backdrop-blur-sm' +
-						' top-2 left-2 flex items-center justify-center cursor-pointer'
+						' top-2 left-2 flex items-center justify-center cursor-pointer z-10'
 					}
 					onClick={() => {
 						if (setModal) setModal(null);
@@ -111,7 +111,7 @@ export default function ImageModal({ src, post }: Props) {
 				</div>
 			</div>
 			<div
-				className='h-full pt-3 w-2/12 bg-white dark:bg-black dark:border-l-[1px] dark:border-gray-500/20'
+				className='h-full pt-3 min-w-max w-2/12 bg-white dark:bg-black dark:border-l-[1px] dark:border-gray-500/20'
 				style={{ display: commentsOpen ? 'block' : 'none' }}
 			>
 				<div className='flex justify-between mx-3'>
@@ -145,7 +145,7 @@ export default function ImageModal({ src, post }: Props) {
 					</div>
 				</div>
 				<div className='mx-3 mt-2'>
-					<p className='text-xl text-black'>{post.content}</p>
+					<p className='text-xl text-black dark:text-white'>{post.content}</p>
 				</div>
 				<div>
 					<div className='flex justify-between mx-3 mt-3'>

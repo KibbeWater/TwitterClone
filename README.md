@@ -22,10 +22,7 @@ SALT_ROUNDS=10
 * Create folder `banners` in bucket
 
 ## TODO
-* Mutate state once user login/reg is performed
 * Optimize and migrate to SSCs
 * Fix search
 * Possibly more emoji support (LOW PRIORITY)
-* Fix error messages for login/reg
-* Fix issue where images/retwaats are not shown in /post routes
-* Mutate feed to show posts posted from the PostModal
+* Fix the extra options for posts
