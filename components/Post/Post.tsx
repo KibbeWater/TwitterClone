@@ -123,7 +123,7 @@ export default function Post({ post, isRef, onMutate }: Props) {
 					>
 						{!isMe ? (
 							<button
-								disabled={loading}
+								disabled={loading || !optionsActive}
 								className='w-full px-6 py-2 text-center enabled:hover:bg-black/5 enabled:cursor-pointer transition-colors'
 								onClick={() => {
 									setLoading(true);
@@ -150,7 +150,7 @@ export default function Post({ post, isRef, onMutate }: Props) {
 						) : null}
 						{isMe || isAdmin ? (
 							<button
-								disabled={loading}
+								disabled={loading || !optionsActive}
 								className='w-full px-6 py-2 text-center enabled:hover:bg-black/5 enabled:cursor-pointer transition-colors'
 								onClick={() => {
 									setLoading(true);
