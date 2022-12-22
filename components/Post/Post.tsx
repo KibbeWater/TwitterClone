@@ -192,13 +192,21 @@ export default function Post({ post, isRef, onMutate }: Props) {
 				<div onClick={routePost} className={'max-w-full w-full pr-9 flex-nowrap flex overflow-hidden'}>
 					<a
 						className={
-							'text-black dark:text-white mr-[5px] cursor-pointer no-underline font-semibold hover:underline truncate max-w-full items-center'
+							'text-black dark:text-white ' +
+							(!user.verified ? 'mr-[5px] ' : '') +
+							'cursor-pointer no-underline font-semibold hover:underline truncate max-w-full max-h-min items-center'
 						}
 						href={`/@${user.tag}`}
 					>
-						{user.username} {user.verified ? <Verified color='#f01d1d' /> : null}
+						{user.username}
 					</a>
-					<a className={'ml-[2px] text-gray-500 no-underline'} href={`/@${user.tag}`}>
+
+					<a className={'ml-[2px] text-gray-500 no-underline flex items-center'} href={`/@${user.tag}`}>
+						{user.verified ? (
+							<p className='mr-[5px]'>
+								<Verified color='#f01d1d' />
+							</p>
+						) : null}
 						{`@${user.tag}`}
 						<span className='mx-[6px]'>·</span>
 					</a>
