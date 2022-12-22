@@ -95,7 +95,7 @@ export default function Post({ post, isRef, onMutate }: Props) {
 
 	return (
 		<div
-			className={`p-3 mb-px w-full relative bg-transparent transition-all cursor-pointer border-b-[1px] border-gray-700 flex hover:bg-gray-500/5 ${
+			className={`p-3 mb-px w-full max-w-full relative bg-transparent transition-all cursor-pointer border-b-[1px] border-gray-700 flex hover:bg-gray-500/5 ${
 				isRef ? '!border-0 !bg-transparent hover:!bg-transparent' : ''
 			}`}
 			onClick={routePost}
@@ -188,24 +188,28 @@ export default function Post({ post, isRef, onMutate }: Props) {
 				</div>
 			</div>
 
-			<div className={'pl-3 w-full flex flex-col'} onClick={routePost}>
-				<div onClick={routePost} className={'flex flex-1 min-w-0 mr-9'}>
+			<div className={'pl-3 w-full flex flex-col overflow-hidden'} onClick={routePost}>
+				<div onClick={routePost} className={'max-w-full w-full pr-9 flex-nowrap flex overflow-hidden'}>
 					<a
 						className={
-							'text-black dark:text-white mr-[5px] cursor-pointer no-underline font-semibold hover:underline truncate min-w-0 flex items-center'
+							'text-black dark:text-white mr-[5px] cursor-pointer no-underline font-semibold hover:underline truncate max-w-full items-center'
 						}
 						href={`/@${user.tag}`}
 					>
 						{user.username} {user.verified ? <Verified color='#f01d1d' /> : null}
 					</a>
-					<a className={'ml-[2px] text-gray-500 no-underline truncate min-w-0'} href={`/@${user.tag}`}>
+					<a className={'ml-[2px] text-gray-500 no-underline'} href={`/@${user.tag}`}>
 						{`@${user.tag}`}
 						<span className='mx-[6px]'>·</span>
 					</a>
 					<span className={'text-gray-500 hover:underline whitespace-nowrap'}>{FormatDate(new Date(post.date))}</span>
 				</div>
-				<div className='flex-1 shrink grow-0'>
-					<p className={'text-black dark:text-gray-200 break-words'} onClick={routePost}>
+				<div className='w-full max-w-full'>
+					<p
+						className={'text-black w-full max-w-full dark:text-gray-200 whitespace-normal'}
+						style={{ wordBreak: 'break-word' }}
+						onClick={routePost}
+					>
 						{post.content}
 					</p>
 				</div>

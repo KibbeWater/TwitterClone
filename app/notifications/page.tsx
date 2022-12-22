@@ -1,6 +1,8 @@
 'use client';
 
 import { useContext, useEffect, useState } from 'react';
+import axios from 'axios';
+
 import { UserContext } from '../../components/Handlers/UserHandler';
 import Notification from '../../components/Notification';
 import PageTemplate from '../../components/PageTemplate';
@@ -9,7 +11,7 @@ import { INotification } from '../../schemas/INotification';
 export default function Page() {
 	const [notifications, setNotifications] = useState<INotification[]>([]);
 
-	const { user } = useContext(UserContext);
+	const { user, mutate } = useContext(UserContext);
 
 	useEffect(() => {
 		if (user) {
@@ -17,6 +19,12 @@ export default function Page() {
 			setNotifications(notifs);
 		}
 	}, [user]);
+
+	useEffect(() => {
+		axios.post('/api/notifications/read').then((res) => {
+			if (mutate) mutate();
+		});
+	}, []);
 
 	return (
 		<PageTemplate name='Notifications'>

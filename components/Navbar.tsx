@@ -3,7 +3,6 @@
 import { useContext, useEffect, useReducer } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import axios from 'axios';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFeatherPointed, faUser, faHome, faEllipsis, faMoon, faSun, faBell } from '@fortawesome/free-solid-svg-icons';
@@ -12,6 +11,7 @@ import { ModalContext } from './Handlers/ModalHandler';
 import PostModal from './Modals/PostModal';
 import { UserContext } from './Handlers/UserHandler';
 import { useTheme } from './Handlers/ThemeHandler';
+import { INotification } from '../schemas/INotification';
 
 export default function Navbar() {
 	const [activateUserPanel, setActivateUserPanel] = useReducer((state) => !state, false);
@@ -25,6 +25,8 @@ export default function Navbar() {
 	useEffect(() => {
 		setRevalidate();
 	}, [user]);
+
+	const unreadNotifications = ((user?.notifications as INotification[] | undefined) || []).filter((notif) => !notif.read);
 
 	return (
 		<nav
@@ -53,8 +55,16 @@ export default function Navbar() {
 						href='/notifications'
 						className={'lg:h-12 h-16 mb-2 rounded-full bg-transparent hover:bg-gray-600/25 flex items-center'}
 					>
-						<div className='w-8 ml-4 flex items-center justify-center'>
+						<div className='w-8 ml-4 flex items-center justify-center relative'>
 							<FontAwesomeIcon icon={faBell} size={'xl'} className={'text-black dark:text-white'} />
+							{unreadNotifications.length > 0 ? (
+								<div className='w-5 h-5 bg-red-500 rounded-full absolute left-2/4 bottom-2/4 z-20 border-2 dark:border-black border-white box-content'>
+									<div className='w-5 h-5 bg-red-500 rounded-full absolute top-0 bottom-0 left-0 right-0 m-auto animate-ping z-10' />
+									<p className='text-white leading-5 text-center align-middle text-xs'>
+										{unreadNotifications.length > 99 ? '99+' : unreadNotifications.length}
+									</p>
+								</div>
+							) : null}
 						</div>
 
 						<span className='ml-5 font-bold text-lg hidden lg:block text-black dark:text-white'>Notifications</span>

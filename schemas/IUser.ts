@@ -6,8 +6,8 @@ import { GenerateStorageKey, NormalizeObject } from '../libs/utils';
 import Like, { ILike } from './ILike';
 import Relationship, { IRelationship } from './IRelationship';
 import { PutObjectCommand } from '@aws-sdk/client-s3';
-import { createURL, s3Client, S3_BUCKET, S3_REGION } from '../libs/storage';
-import { INotification } from './INotification';
+import { s3Client, S3_BUCKET, S3_REGION } from '../libs/storage';
+import Notification, { INotification } from './INotification';
 import { MakeSafeUser } from '../libs/user';
 
 export interface IUser {
@@ -37,6 +37,7 @@ interface IUserMethods {
 	createRelationship: (target: Types.ObjectId, type: 'follow' | 'block' | 'mute') => Promise<IRelationship | null>;
 	removeRelationship: (target: Types.ObjectId) => Promise<IRelationship | null>;
 	logout: (token: string) => Promise<void>;
+	readNotifications: () => Promise<void>;
 }
 
 interface UserModel extends Model<IUser, {}, IUserMethods> {
@@ -248,6 +249,10 @@ userSchema.methods.removeRelationship = async function (target: Types.ObjectId) 
 
 userSchema.methods.logout = async function (token: string) {
 	return Session.removeSession(token);
+};
+
+userSchema.methods.readNotifications = async function () {
+	await Notification.updateMany({ user: this._id, read: false }, { $set: { read: true } }, { multi: true }).exec();
 };
 
 // Fix recompilation error
