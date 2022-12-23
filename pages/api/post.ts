@@ -148,7 +148,7 @@ function GetReq(req: NextApiRequest, res: NextApiResponse) {
 												  }
 												: undefined,
 											// @ts-ignore
-											mentions: post.mentions.map(TransformSafe).filter((mention) => mention) as SafeUser[],
+											mentions: (post.mentions || []).map(TransformSafe).filter((mention) => mention) as SafeUser[],
 										}),
 									})
 							  )
