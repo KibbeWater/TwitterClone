@@ -31,7 +31,8 @@ export type SafeUser = {
 	bio: string;
 };
 
-export function MakeSafeUser(user: any): SafeUser {
+export function TransformSafe(user: any): SafeUser | null {
+	if (!user) return null;
 	return {
 		_id: user._id.toString(),
 

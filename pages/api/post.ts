@@ -5,7 +5,7 @@ import Post, { IPost } from '../../schemas/IPost';
 import DB, { Connect } from '../../libs/database';
 import { Group, NormalizeObject } from '../../libs/utils';
 import { ILike } from '../../schemas/ILike';
-import { MakeSafeUser, SafeUser } from '../../libs/user';
+import { TransformSafe, SafeUser } from '../../libs/user';
 import Notification from '../../schemas/INotification';
 import { IRelationship } from '../../schemas/IRelationship';
 
@@ -25,19 +25,22 @@ function PostReq(req: NextApiRequest, res: NextApiResponse) {
 		let newContent = content;
 		if (newContent.length > 2000) newContent = newContent.slice(0, 2000);
 
+		const mentions: string[] = newContent.match(/@([a-zA-Z0-9_]+)/g);
+		let validMentions: IUser[] = [];
+		if (mentions) {
+			const mentionUsers = await User.find({ username: { $in: mentions.map((m) => m.slice(1)) } });
+			validMentions = mentionUsers;
+		}
+
 		DB(async () => {
 			User.authenticate(token)
 				.then((user) => {
 					if (!user) return resolve(res.status(401).json({ success: false, error: 'Unauthorized' }));
 
 					new User(user)
-						.post(content, quote, images, parent)
-						.then((post) => {
-							return resolve(res.status(200).json({ success: true, post }));
-						})
-						.catch(() => {
-							return resolve(res.status(500).json({ success: false, error: 'Internal server error' }));
-						});
+						.post(content, quote, images, parent, validMentions)
+						.then((post) => resolve(res.status(200).json({ success: true, post })))
+						.catch(() => resolve(res.status(500).json({ success: false, error: 'Internal server error' })));
 				})
 				.catch((err) => {
 					console.error(err);
@@ -108,7 +111,13 @@ function GetReq(req: NextApiRequest, res: NextApiResponse) {
 					.skip(pageNumber * pageLimit)
 					.limit(pageLimit)
 					/* This is so unoptimal I wanna cry but fuck it, we're populating likes too */
-					.populate<{ user: IUser; quote: IPost; comments: IPost[]; likes: ILike[] }>(['user', 'comments', 'likes', 'quote'])
+					.populate<{ user: IUser; quote: IPost; comments: IPost[]; likes: ILike[]; mentions: IUser[] }>([
+						'user',
+						'comments',
+						'likes',
+						'quote',
+						'mentions',
+					])
 					/* Populate quote user */
 					.populate<{ user: IUser & { user: IUser } }>({ path: 'quote', populate: { path: 'user' } })
 					.lean()
@@ -125,20 +134,21 @@ function GetReq(req: NextApiRequest, res: NextApiResponse) {
 												comments: IPost[];
 												likes: ILike[];
 												relationships: IRelationship[];
+												mentions: SafeUser[];
 											}
 										>({
 											...post,
 											// @ts-ignore
-											user: MakeSafeUser(post.user),
+											user: TransformSafe(post.user),
 											// @ts-ignore
 											quote: post.quote
 												? {
 														...post.quote,
-														user: post.quote.user
-															? MakeSafeUser(post.quote.user as unknown as IUser)
-															: undefined,
+														user: TransformSafe(post.quote.user),
 												  }
 												: undefined,
+											// @ts-ignore
+											mentions: post.mentions.map(TransformSafe).filter((mention) => mention) as SafeUser[],
 										}),
 									})
 							  )
@@ -166,12 +176,12 @@ function GetReq(req: NextApiRequest, res: NextApiResponse) {
 						NormalizeObject<typeof post>({
 							...post,
 							// @ts-ignore
-							user: MakeSafeUser(post.user),
+							user: TransformSafe(post.user),
 							// @ts-ignore
 							quote: post.quote
 								? {
 										...post.quote,
-										user: post.quote.user ? MakeSafeUser(post.quote.user as unknown as IUser) : undefined,
+										user: TransformSafe(post.quote.user),
 								  }
 								: undefined,
 						})

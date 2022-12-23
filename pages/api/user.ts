@@ -1,7 +1,7 @@
 import { getCookie } from 'cookies-next';
 import { NextApiRequest, NextApiResponse } from 'next';
 import DB from '../../libs/database';
-import { MakeSafeUser } from '../../libs/user';
+import { TransformSafe } from '../../libs/user';
 import { NormalizeObject } from '../../libs/utils';
 import { ILike } from '../../schemas/ILike';
 import { IPost } from '../../schemas/IPost';
@@ -29,7 +29,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
 			user.posts = user.posts.filter((post) => !post.parent);
 
-			return res.status(200).json({ success: true, user: MakeSafeUser(user) });
+			return res.status(200).json({ success: true, user: TransformSafe(user) });
 		}
 
 		if (tag) {
@@ -48,7 +48,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
 			user2.posts = user2.posts.filter((post) => !post.parent);
 
-			return res.status(200).json({ success: true, user: MakeSafeUser(user2) });
+			return res.status(200).json({ success: true, user: TransformSafe(user2) });
 		}
 
 		const user = await User.authenticate(token);

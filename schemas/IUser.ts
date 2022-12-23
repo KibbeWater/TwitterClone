@@ -8,7 +8,7 @@ import Relationship, { IRelationship } from './IRelationship';
 import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { s3Client, S3_BUCKET, S3_REGION } from '../libs/storage';
 import Notification, { INotification } from './INotification';
-import { MakeSafeUser } from '../libs/user';
+import { TransformSafe } from '../libs/user';
 
 export interface IUser {
 	_id: Types.ObjectId;
@@ -32,7 +32,7 @@ export interface IUser {
 
 interface IUserMethods {
 	authorize: () => Promise<ISession>;
-	post: (content: string, quote?: Types.ObjectId, images?: string[], parent?: string) => Promise<IPost | null>;
+	post: (content: string, quote?: Types.ObjectId, images?: string[], parent?: string, mentions?: IUser[]) => Promise<IPost | null>;
 	likePost: (post: Types.ObjectId, shouldLike: boolean) => Promise<ILike | null>;
 	createRelationship: (target: Types.ObjectId, type: 'follow' | 'block' | 'mute') => Promise<IRelationship | null>;
 	removeRelationship: (target: Types.ObjectId) => Promise<IRelationship | null>;
@@ -143,8 +143,8 @@ export const userSchema = new Schema<IUser, UserModel, IUserMethods>(
 						.map((n) => {
 							return {
 								...n,
-								targets: n.targets.map((t) => MakeSafeUser(t)),
-								post: n.post ? { ...n.post, user: MakeSafeUser(n.post.user) } : null,
+								targets: n.targets.map((t) => TransformSafe(t)),
+								post: n.post ? { ...n.post, user: TransformSafe(n.post.user) } : null,
 							};
 						})
 						.reverse(),
@@ -223,8 +223,8 @@ userSchema.methods.authorize = async function (ip?: string) {
 	return session;
 };
 
-userSchema.methods.post = async function (content: string, quote?: Types.ObjectId, images?: string[], parent?: string) {
-	return Post.post(this._id, content, quote, images, parent);
+userSchema.methods.post = async function (content: string, quote?: Types.ObjectId, images?: string[], parent?: string, mentions?: IUser[]) {
+	return Post.post(this._id, content, quote, images, parent, mentions);
 };
 
 userSchema.methods.likePost = async function (post: Types.ObjectId, shouldLike: boolean) {

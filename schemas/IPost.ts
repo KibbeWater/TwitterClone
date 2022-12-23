@@ -15,12 +15,20 @@ export interface IPost {
 	comments: [Types.ObjectId];
 	likes: [Types.ObjectId];
 	retwaats: [Types.ObjectId];
+	mentions: [Types.ObjectId];
 
 	date: number;
 }
 
 interface PostModel extends Model<IPost> {
-	post: (user: Types.ObjectId, content: string, quote?: Types.ObjectId, images?: string[], parent?: string) => Promise<IPost | null>;
+	post: (
+		user: Types.ObjectId,
+		content: string,
+		quote?: Types.ObjectId,
+		images?: string[],
+		parent?: string,
+		mentions?: IUser[]
+	) => Promise<IPost | null>;
 	getPost: (id: Types.ObjectId) => Promise<IPost | null>;
 	deletePost: (id: Types.ObjectId) => Promise<void>;
 }
@@ -37,12 +45,20 @@ const postSchema = new Schema<IPost, PostModel>(
 		comments: [{ type: Types.ObjectId, ref: 'Post' }],
 		likes: [{ type: Types.ObjectId, ref: 'Like' }],
 		retwaats: [{ type: Types.ObjectId, ref: 'Retwaat' }],
+		mentions: [{ type: Types.ObjectId, ref: 'User', default: [] }],
 
 		date: { type: Number, required: true },
 	},
 	{
 		statics: {
-			post: function (user: Types.ObjectId, content: string, quote?: Types.ObjectId, images?: string[], parent?: string) {
+			post: function (
+				user: Types.ObjectId,
+				content: string,
+				quote?: Types.ObjectId,
+				images?: string[],
+				parent?: string,
+				mentions?: IUser[]
+			) {
 				return new Promise<IPost | null>(async (resolve, reject) => {
 					const post = await this.create({
 						user,
@@ -52,6 +68,7 @@ const postSchema = new Schema<IPost, PostModel>(
 						comments: [],
 						parent,
 						date: Date.now(),
+						mentions: (mentions || []).map((mention) => mention._id),
 					});
 
 					if (post && post.quote) {
