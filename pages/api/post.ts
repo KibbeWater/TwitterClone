@@ -29,7 +29,7 @@ function PostReq(req: NextApiRequest, res: NextApiResponse) {
 		console.log('mentions', mentions);
 		let validMentions: IUser[] = [];
 		if (mentions) {
-			const mentionUsers = await User.find({ username: { $in: mentions.map((m) => m.slice(1)) } });
+			const mentionUsers = await User.find({ tag: { $in: mentions.map((m) => m.slice(1)) } });
 			console.log('mentionUsers', mentionUsers);
 			validMentions = mentionUsers;
 		}

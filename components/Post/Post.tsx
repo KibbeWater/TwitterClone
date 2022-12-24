@@ -233,7 +233,7 @@ export default function Post({ post, isRef, onMutate }: Props) {
 												key={word}
 												onClick={(e) => e.stopPropagation()}
 											>
-												{word}
+												@{mentionTag.username}
 											</Link>
 											{idx !== arr.length - 1 ? ' ' : ''}
 										</>
