@@ -228,7 +228,7 @@ export default function Post({ post, isRef, onMutate }: Props) {
 									return (
 										<>
 											<Link
-												className={'text-blue-500 hover:underline'}
+												className={'text-blue-500 hover:underline font-semibold'}
 												href={`/@${mentionTag.tag}`}
 												key={word}
 												onClick={(e) => e.stopPropagation()}

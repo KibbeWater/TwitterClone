@@ -26,15 +26,11 @@ function PostReq(req: NextApiRequest, res: NextApiResponse) {
 		if (newContent.length > 2000) newContent = newContent.slice(0, 2000);
 
 		const mentions: string[] = newContent.match(/@([a-zA-Z0-9_]+)/g);
-		console.log('mentions', mentions);
 		let validMentions: IUser[] = [];
 		if (mentions) {
 			const mentionUsers = await User.find({ tag: { $in: mentions.map((m) => m.slice(1)) } });
-			console.log('mentionUsers', mentionUsers);
 			validMentions = mentionUsers;
 		}
-
-		console.log('validMentions', validMentions);
 
 		DB(async () => {
 			User.authenticate(token)
