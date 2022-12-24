@@ -7,9 +7,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 	return new Promise(async (resolve) => {
 		await Connect();
 
-		const {tags} = req.body;
+		const { tags } = req.body;
 
-        const tagArr = [];
-        if (typeof tags ===)
+		const tagArr = [];
+		/* if (typeof tags ===) */
 	});
 }

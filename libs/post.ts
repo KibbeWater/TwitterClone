@@ -33,6 +33,7 @@ export function SendPost(content: string, quoteId?: string, images?: string[], p
 				comments: [new Types.ObjectId()],
 				likes: [new Types.ObjectId()],
 				retwaats: [new Types.ObjectId()],
+				mentions: [new Types.ObjectId()],
 				date: new Date().getTime(),
 			});
 		lastPost = content;

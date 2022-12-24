@@ -22,7 +22,7 @@ import Verified from '../Verified';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Group } from '../../libs/utils';
 import { IRelationship } from '../../schemas/IRelationship';
-import { CreateRelationship } from '../../libs/user';
+import { CreateRelationship, SafeUser } from '../../libs/user';
 
 function FormatDate(date: Date) {
 	const now = new Date();
@@ -79,6 +79,7 @@ export default function Post({ post, isRef, onMutate }: Props) {
 
 	const user = post.user as unknown as IUser | null;
 	const quote = post.quote as unknown as IPost | null;
+	const mentions = (post.mentions as unknown as SafeUser[] | null) || [];
 
 	const images = post.images || [];
 
@@ -218,7 +219,29 @@ export default function Post({ post, isRef, onMutate }: Props) {
 						style={{ wordBreak: 'break-word' }}
 						onClick={routePost}
 					>
-						{post.content}
+						{/* For any @ mentions in the content that matches a tag in the mentions array (case insensitive), create a new link to /@(tag) */}
+						{post.content.split(' ').map((word, idx, arr) => {
+							if (word.startsWith('@')) {
+								const tag = word.substring(1).toLowerCase();
+								const mentionTag = mentions.find((mention) => mention.tag.toLowerCase() === tag);
+								if (mentionTag) {
+									return (
+										<>
+											<Link
+												className={'text-blue-500 hover:underline'}
+												href={`/@${mentionTag.tag}`}
+												key={word}
+												onClick={(e) => e.stopPropagation()}
+											>
+												{word}
+											</Link>
+											{idx !== arr.length - 1 ? ' ' : ''}
+										</>
+									);
+								}
+							}
+							return word + (idx !== arr.length - 1 ? ' ' : '');
+						})}
 					</p>
 				</div>
 				<div

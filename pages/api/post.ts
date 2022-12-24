@@ -26,11 +26,15 @@ function PostReq(req: NextApiRequest, res: NextApiResponse) {
 		if (newContent.length > 2000) newContent = newContent.slice(0, 2000);
 
 		const mentions: string[] = newContent.match(/@([a-zA-Z0-9_]+)/g);
+		console.log('mentions', mentions);
 		let validMentions: IUser[] = [];
 		if (mentions) {
 			const mentionUsers = await User.find({ username: { $in: mentions.map((m) => m.slice(1)) } });
+			console.log('mentionUsers', mentionUsers);
 			validMentions = mentionUsers;
 		}
+
+		console.log('validMentions', validMentions);
 
 		DB(async () => {
 			User.authenticate(token)
@@ -105,56 +109,22 @@ function GetReq(req: NextApiRequest, res: NextApiResponse) {
 		const pageNumber = isNaN(parsedPage) ? 0 : parsedPage;
 
 		if (id)
-			return (
-				Post.findOne({ _id: id })
-					.sort({ date: -1 })
-					.skip(pageNumber * pageLimit)
-					.limit(pageLimit)
-					/* This is so unoptimal I wanna cry but fuck it, we're populating likes too */
-					.populate<{ user: IUser; quote: IPost; comments: IPost[]; likes: ILike[]; mentions: IUser[] }>([
-						'user',
-						'comments',
-						'likes',
-						'quote',
-						'mentions',
-					])
-					/* Populate quote user */
-					.populate<{ user: IUser & { user: IUser } }>({ path: 'quote', populate: { path: 'user' } })
-					.lean()
-					.exec()
-					.then((post) =>
-						post
-							? resolve(
-									res.status(200).json({
-										success: true,
-										post: NormalizeObject<
-											IPost & {
-												user: SafeUser;
-												quote: IPost & { user: SafeUser };
-												comments: IPost[];
-												likes: ILike[];
-												relationships: IRelationship[];
-												mentions: SafeUser[];
-											}
-										>({
-											...post,
-											// @ts-ignore
-											user: TransformSafe(post.user),
-											// @ts-ignore
-											quote: post.quote
-												? {
-														...post.quote,
-														user: TransformSafe(post.quote.user),
-												  }
-												: undefined,
-											// @ts-ignore
-											mentions: (post.mentions || []).map(TransformSafe).filter((mention) => mention) as SafeUser[],
-										}),
-									})
-							  )
-							: resolve(res.status(404).json({ success: false, error: 'Not found' }))
-					)
-			);
+			return Post.findOne({ _id: id })
+				.sort({ date: -1 })
+				.skip(pageNumber * pageLimit)
+				.limit(pageLimit)
+				.lean()
+				.exec()
+				.then((post) =>
+					post
+						? resolve(
+								res.status(200).json({
+									success: true,
+									post: post,
+								})
+						  )
+						: resolve(res.status(404).json({ success: false, error: 'Not found' }))
+				);
 
 		DB(async () => {
 			const count = await Post.countDocuments();
@@ -165,29 +135,10 @@ function GetReq(req: NextApiRequest, res: NextApiResponse) {
 				.sort({ date: -1 })
 				.skip(pageNumber * pageLimit)
 				.limit(pageLimit)
-				/* This is so unoptimal I wanna cry but fuck it, we're populating likes too */
-				.populate<{ user: IUser; quote: IPost; comments: IPost[]; likes: ILike[] }>(['user', 'comments', 'likes'])
-				/* Populate quote user */
-				.populate<{ user: IUser & { user: IUser } }>({ path: 'quote', populate: { path: 'user' } })
 				.lean()
 				.exec()
 				.then((posts) => {
-					const newPosts = posts.map((post) =>
-						NormalizeObject<typeof post>({
-							...post,
-							// @ts-ignore
-							user: TransformSafe(post.user),
-							// @ts-ignore
-							quote: post.quote
-								? {
-										...post.quote,
-										user: TransformSafe(post.quote.user),
-								  }
-								: undefined,
-						})
-					);
-
-					return resolve(res.status(200).json({ success: true, posts: newPosts, pages }));
+					return resolve(res.status(200).json({ success: true, posts: posts, pages }));
 				})
 				.catch(() => {
 					return resolve(res.status(500).json({ success: false, error: 'Internal server error' }));

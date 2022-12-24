@@ -1,3 +1,4 @@
+import { Types } from 'mongoose';
 import { getCookie } from 'cookies-next';
 import { NextApiRequest, NextApiResponse } from 'next';
 import DB from '../../libs/database';
@@ -17,36 +18,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
 	DB(async () => {
 		if (id) {
-			const user = await User.findById(id)
-				.populate<{ posts: IPost[] }>('posts')
-				.populate<{ posts: (IPost & { user: IUser; quote: IPost & { user: IUser } })[] }>([
-					{ path: 'posts', populate: { path: 'user' } },
-					{ path: 'posts', populate: { path: 'quote' } },
-					{ path: 'posts', populate: { path: 'quote', populate: { path: 'user' } } },
-				])
-				.exec();
+			const user = (await User.getUserId(id as string)) as IUser & { posts: IPost[] };
 			if (!user) return res.status(404).json({ success: false, error: 'User not found' });
 
-			user.posts = user.posts.filter((post) => !post.parent);
+			(user.posts as IPost[]) = user.posts.filter((post: IPost) => !post.parent);
 
 			return res.status(200).json({ success: true, user: TransformSafe(user) });
 		}
 
 		if (tag) {
-			const user2 = await User.findOne({
-				tag: tag.toString(),
-			})
-				.populate<{ posts: IPost[] }>('posts')
-				.populate<{ posts: (IPost & { user: IUser; quote: IPost & { user: IUser }; likes: ILike[] })[] }>([
-					{ path: 'posts', populate: { path: 'user' } },
-					{ path: 'posts', populate: { path: 'quote' } },
-					{ path: 'posts', populate: { path: 'quote', populate: { path: 'user' } } },
-					{ path: 'posts', populate: { path: 'likes' } },
-				])
-				.exec();
+			const user2 = (await User.getUser(tag as string)) as IUser & { posts: IPost[] };
 			if (!user2) return res.status(404).json({ success: false, error: 'User not found' });
 
-			user2.posts = user2.posts.filter((post) => !post.parent);
+			(user2.posts as IPost[]) = user2.posts.filter((post: IPost) => !post.parent);
 
 			return res.status(200).json({ success: true, user: TransformSafe(user2) });
 		}

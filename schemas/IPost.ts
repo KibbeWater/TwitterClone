@@ -1,4 +1,5 @@
 import mongoose, { Model, model, Schema, Types } from 'mongoose';
+import { SafeUser, TransformSafe } from '../libs/user';
 import Like, { ILike } from './ILike';
 import Notification, { INotification } from './INotification';
 import User, { IUser } from './IUser';
@@ -50,6 +51,7 @@ const postSchema = new Schema<IPost, PostModel>(
 		date: { type: Number, required: true },
 	},
 	{
+		query: {},
 		statics: {
 			post: function (
 				user: Types.ObjectId,
@@ -166,6 +168,56 @@ const postSchema = new Schema<IPost, PostModel>(
 		},
 	}
 );
+
+// Populate find and findOne methods with the following paths using middleware
+/*
+	.populate<{ user: IUser; quote: IPost; comments: IPost[]; likes: ILike[]; mentions: IUser[] }>([
+						'user',
+						'comments',
+						'likes',
+						'quote',
+						'mentions',
+					])
+	.populate<{ user: IUser & { user: IUser } }>({ path: 'quote', populate: { path: 'user' } })
+*/
+function populatePost(post: mongoose.Query<any, any, {}, any>) {
+	post.populate<{ user: IUser; quote: IPost; comments: IPost[]; likes: ILike[]; mentions: IUser[] }>([
+		'user',
+		'comments',
+		'likes',
+		'quote',
+		'mentions',
+	]);
+	post.populate<{ user: IUser & { user: IUser } }>({ path: 'quote', populate: { path: 'user' } });
+}
+
+function safePost(post: IPost): IPost & { user: SafeUser; quote?: IPost & { user: SafeUser } } {
+	return {
+		...post,
+		// @ts-ignore
+		user: TransformSafe(post.user),
+		// @ts-ignore
+		quote: post.quote ? TransformSafe((post.quote as unknown as IPost).user) : null,
+	};
+}
+
+postSchema.pre('find', function () {
+	populatePost(this);
+});
+
+postSchema.pre('findOne', function () {
+	populatePost(this);
+});
+
+// Use the post schema to modify the populated users to make them safe to send to the client
+postSchema.post('find', function (posts: IPost[]) {
+	posts.map(safePost);
+});
+
+// @ts-ignore
+/* postSchema.post('findOne', function (post: IPost) {
+	return safePost(post) as IPost;
+}); */
 
 // Fix recompilation error
 const Post = (mongoose.models.Post as PostModel) || model<IPost, PostModel>('Post', postSchema);

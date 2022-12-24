@@ -42,6 +42,7 @@ interface IUserMethods {
 
 interface UserModel extends Model<IUser, {}, IUserMethods> {
 	getUser: (tag: string) => Promise<IUser | null>;
+	getUserId: (id: string) => Promise<IUser | null>;
 	register: (tag: string, username: string, password: string) => Promise<IUser | null>;
 	authorize: (tag: string, password: string, ip?: string) => Promise<{ user: IUser; token: string } | null>;
 	authenticate: (token: string) => Promise<IUser | null>;
@@ -71,7 +72,11 @@ export const userSchema = new Schema<IUser, UserModel, IUserMethods>(
 	{
 		statics: {
 			getUser: function (tag: string) {
-				return this.findOne({ tag });
+				return populateUser(this.findOne({ tag })).exec();
+			},
+
+			getUserId: function (id: string) {
+				return populateUser(this.findOne({ _id: id })).exec();
 			},
 
 			register: function (tag: string, username: string, password: string) {
@@ -254,6 +259,18 @@ userSchema.methods.logout = async function (token: string) {
 userSchema.methods.readNotifications = async function () {
 	await Notification.updateMany({ user: this._id, read: false }, { $set: { read: true } }, { multi: true }).exec();
 };
+
+function populateUser(user: mongoose.Query<any, any, {}, any>) {
+	user.populate<{ posts: IPost[] }>('posts').populate<{
+		posts: (IPost & { user: IUser; quote: IPost & { user: IUser }; likes: ILike[] })[];
+	}>([
+		{ path: 'posts', populate: { path: 'user' } },
+		{ path: 'posts', populate: { path: 'quote' } },
+		{ path: 'posts', populate: { path: 'quote', populate: { path: 'user' } } },
+		{ path: 'posts', populate: { path: 'likes' } },
+	]);
+	return user;
+}
 
 // Fix recompilation error
 const User = (mongoose.models.User as UserModel) || model<IUser, UserModel>('User', userSchema);
