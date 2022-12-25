@@ -136,8 +136,9 @@ export default function Navbar() {
 								}`}
 							>
 								<div className='w-full'>
-									<div
-										className='w-full pl-4 pr-2 h-8 hover:bg-gray-500/20 transition-all cursor-pointer flex items-center'
+									<button
+										className='w-full pl-4 pr-2 h-8 hover:bg-gray-500/20 transition-all flex items-center'
+										disabled={!activateUserPanel}
 										onClick={() => {
 											window.location.assign('/api/logout');
 										}}
@@ -145,9 +146,10 @@ export default function Navbar() {
 										<p className='text-left font-semibold text-black dark:text-white leading-none'>
 											Log out @{user?.tag}
 										</p>
-									</div>
-									<div
-										className='w-full pl-4 pr-2 h-8 hover:bg-gray-500/20 transition-all cursor-pointer flex items-center'
+									</button>
+									<button
+										className='w-full pl-4 pr-2 h-8 hover:bg-gray-500/20 transition-all flex items-center'
+										disabled={!activateUserPanel}
 										onClick={() => {
 											setTheme(theme === 'light' ? 'dark' : 'light');
 										}}
@@ -167,7 +169,7 @@ export default function Navbar() {
 												Dark Mode (BETA)
 											</p>
 										)}
-									</div>
+									</button>
 								</div>
 							</div>
 						</div>
