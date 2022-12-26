@@ -23,6 +23,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { Group } from '../../libs/utils';
 import { IRelationship } from '../../schemas/IRelationship';
 import { CreateRelationship, SafeUser } from '../../libs/user';
+import PostContent from './PostContent';
 
 function FormatDate(date: Date) {
 	const now = new Date();
@@ -79,7 +80,6 @@ export default function Post({ post, isRef, onMutate }: Props) {
 
 	const user = post.user as unknown as IUser | null;
 	const quote = post.quote as unknown as IPost | null;
-	const mentions = (post.mentions as unknown as SafeUser[] | null) || [];
 
 	const images = post.images || [];
 
@@ -214,35 +214,7 @@ export default function Post({ post, isRef, onMutate }: Props) {
 					<span className={'text-gray-500 hover:underline whitespace-nowrap'}>{FormatDate(new Date(post.date))}</span>
 				</div>
 				<div className='w-full max-w-full'>
-					<p
-						className={'text-black w-full max-w-full dark:text-gray-200 whitespace-normal'}
-						style={{ wordBreak: 'break-word' }}
-						onClick={routePost}
-					>
-						{/* For any @ mentions in the content that matches a tag in the mentions array (case insensitive), create a new link to /@(tag) */}
-						{post.content.split(' ').map((word, idx, arr) => {
-							if (word.startsWith('@')) {
-								const tag = word.substring(1).toLowerCase();
-								const mentionTag = mentions.find((mention) => mention.tag.toLowerCase() === tag);
-								if (mentionTag) {
-									return (
-										<>
-											<Link
-												className={'text-blue-500 hover:underline font-semibold'}
-												href={`/@${mentionTag.tag}`}
-												key={word}
-												onClick={(e) => e.stopPropagation()}
-											>
-												@{mentionTag.username}
-											</Link>
-											{idx !== arr.length - 1 ? ' ' : ''}
-										</>
-									);
-								}
-							}
-							return word + (idx !== arr.length - 1 ? ' ' : '');
-						})}
-					</p>
+					<PostContent post={post} onClick={routePost} />
 				</div>
 				<div
 					ref={imageDisplay}
