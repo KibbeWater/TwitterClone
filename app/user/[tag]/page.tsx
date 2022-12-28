@@ -98,14 +98,15 @@ export default function Page({ params }: Props) {
 						</div>
 					</div>
 					<div className='w-full flex justify-between relative'>
-						<div className='relative h-12'>
-							<div className='w-24 h-24 absolute left-5 -top-[50px]'>
+						<div className='relative h-16 mb-3'>
+							<div className='w-32 h-32 absolute left-5 -top-16'>
 								<div>
 									<Image
 										className='object-cover rounded-full border-[4px] border-white dark:border-black bg-white'
 										src={profile?.avatar || '/default_avatar.png'}
 										alt={`${profile?.username}'s Avatar`}
 										sizes={'100vw'}
+										quality={100}
 										fill
 										priority
 									/>

@@ -103,7 +103,7 @@ export default function PostTwaat({ onPost, placeholder, btnText, children, inli
 						placeholder={placeholder || "What's happening?"}
 						className={
 							!inline
-								? 'w-full outline-none border-0 mb-4 resize-none text-xl bg-transparent text-black dark:text-white'
+								? 'w-full outline-none border-0 resize-none text-xl bg-transparent text-black dark:text-white'
 								: 'text-black dark:text-white bg-transparent border-0 text-lg leading-6 columns-4 resize-none w-full p-0 m-0 outline-none'
 						}
 						value={text}
