@@ -1,13 +1,9 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getCookie } from 'cookies-next';
 import User, { IUser } from '../../schemas/IUser';
-import Post, { IPost } from '../../schemas/IPost';
+import Post from '../../schemas/IPost';
 import DB, { Connect } from '../../libs/database';
-import { Group, NormalizeObject } from '../../libs/utils';
-import { ILike } from '../../schemas/ILike';
-import { TransformSafe, SafeUser } from '../../libs/user';
-import Notification from '../../schemas/INotification';
-import { IRelationship } from '../../schemas/IRelationship';
+import { Group } from '../../libs/utils';
 
 function PostReq(req: NextApiRequest, res: NextApiResponse) {
 	return new Promise(async (resolve) => {
@@ -18,7 +14,7 @@ function PostReq(req: NextApiRequest, res: NextApiResponse) {
 
 		const { content, quote, images, parent } = req.body;
 
-		if (!content) return resolve(res.status(400).json({ success: false, error: 'Bad request' }));
+		if (!content && !images) return resolve(res.status(400).json({ success: false, error: 'Bad request' }));
 		if (content === '') return resolve(res.status(400).json({ success: false, error: 'Bad request' }));
 		if (images && !Array.isArray(images)) return resolve(res.status(400).json({ success: false, error: 'Bad request' }));
 
@@ -28,7 +24,7 @@ function PostReq(req: NextApiRequest, res: NextApiResponse) {
 		const mentions: string[] = newContent.match(/@([a-zA-Z0-9_]+)/g);
 		let validMentions: IUser[] = [];
 		if (mentions) {
-			const mentionUsers = await User.find({ tag: { $in: mentions.map((m) => m.slice(1)) } });
+			const mentionUsers = await User.find({ tag: { $in: mentions.map((m) => m.slice(1).toLowerCase()) } });
 			validMentions = mentionUsers;
 		}
 

@@ -23,6 +23,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { Group } from '../../libs/utils';
 import { IRelationship } from '../../schemas/IRelationship';
 import { CreateRelationship, SafeUser } from '../../libs/user';
+import PostContent from './PostContent';
 
 function FormatDate(date: Date) {
 	const now = new Date();
@@ -46,7 +47,7 @@ export default function Post({ post, isRef, onMutate }: Props) {
 	const { setModal } = useContext(ModalContext);
 	const { user: me, mutate: mutateMe } = useContext(UserContext);
 
-	const [hasLiked, setHasLiked] = useState((post.likes as unknown as ILike[]).filter((like) => like.user?._id == me?._id).length > 0);
+	const [hasLiked, setHasLiked] = useState((post.likes as unknown as ILike[]).filter((like) => like.user == me?._id).length > 0);
 	const [count, addCount] = useReducer((count: number) => count + 1, 0);
 	const [loadingLikes, setLoadingLikes] = useState(false);
 	const [optionsActive, setOptionsActive] = useState(false);
@@ -75,11 +76,14 @@ export default function Post({ post, isRef, onMutate }: Props) {
 			);
 	}, [me, post.user]);
 
+	useEffect(() => {
+		if (post.likes) setHasLiked((post.likes as unknown as ILike[]).filter((like) => like.user == me?._id).length > 0);
+	}, [me, post.likes]);
+
 	if (!post) return null;
 
 	const user = post.user as unknown as IUser | null;
 	const quote = post.quote as unknown as IPost | null;
-	const mentions = (post.mentions as unknown as SafeUser[] | null) || [];
 
 	const images = post.images || [];
 
@@ -214,35 +218,7 @@ export default function Post({ post, isRef, onMutate }: Props) {
 					<span className={'text-gray-500 hover:underline whitespace-nowrap'}>{FormatDate(new Date(post.date))}</span>
 				</div>
 				<div className='w-full max-w-full'>
-					<p
-						className={'text-black w-full max-w-full dark:text-gray-200 whitespace-normal'}
-						style={{ wordBreak: 'break-word' }}
-						onClick={routePost}
-					>
-						{/* For any @ mentions in the content that matches a tag in the mentions array (case insensitive), create a new link to /@(tag) */}
-						{post.content.split(' ').map((word, idx, arr) => {
-							if (word.startsWith('@')) {
-								const tag = word.substring(1).toLowerCase();
-								const mentionTag = mentions.find((mention) => mention.tag.toLowerCase() === tag);
-								if (mentionTag) {
-									return (
-										<>
-											<Link
-												className={'text-blue-500 hover:underline font-semibold'}
-												href={`/@${mentionTag.tag}`}
-												key={word}
-												onClick={(e) => e.stopPropagation()}
-											>
-												@{mentionTag.username}
-											</Link>
-											{idx !== arr.length - 1 ? ' ' : ''}
-										</>
-									);
-								}
-							}
-							return word + (idx !== arr.length - 1 ? ' ' : '');
-						})}
-					</p>
+					<PostContent post={post} onClick={routePost} />
 				</div>
 				<div
 					ref={imageDisplay}
@@ -330,10 +306,14 @@ export default function Post({ post, isRef, onMutate }: Props) {
 								onClick={() => {
 									if (loadingLikes) return;
 									setLoadingLikes(true);
-									LikePost(post._id as unknown as string, !hasLiked).then(() => {
-										setHasLiked((prev) => !prev);
-										setLoadingLikes(false);
-									});
+									let oldLikedState = hasLiked;
+									setHasLiked(!hasLiked);
+									LikePost(post._id as unknown as string, !oldLikedState)
+										.then(() => {
+											if (onMutate) onMutate(post);
+											setLoadingLikes(false);
+										})
+										.catch(() => setHasLiked(oldLikedState));
 								}}
 							>
 								<FontAwesomeIcon
