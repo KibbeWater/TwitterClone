@@ -47,7 +47,7 @@ export default function Post({ post, isRef, onMutate }: Props) {
 	const { setModal } = useContext(ModalContext);
 	const { user: me, mutate: mutateMe } = useContext(UserContext);
 
-	const [hasLiked, setHasLiked] = useState((post.likes as unknown as ILike[]).filter((like) => like.user?._id == me?._id).length > 0);
+	const [hasLiked, setHasLiked] = useState((post.likes as unknown as ILike[]).filter((like) => like.user == me?._id).length > 0);
 	const [count, addCount] = useReducer((count: number) => count + 1, 0);
 	const [loadingLikes, setLoadingLikes] = useState(false);
 	const [optionsActive, setOptionsActive] = useState(false);
@@ -75,6 +75,10 @@ export default function Post({ post, isRef, onMutate }: Props) {
 				!!me?.relationships.find((rel: IRelationship) => rel.target?.toString() == user?._id.toString() && rel.type == 'follow')
 			);
 	}, [me, post.user]);
+
+	useEffect(() => {
+		if (post.likes) setHasLiked((post.likes as unknown as ILike[]).filter((like) => like.user == me?._id).length > 0);
+	}, [me, post.likes]);
 
 	if (!post) return null;
 
@@ -302,10 +306,14 @@ export default function Post({ post, isRef, onMutate }: Props) {
 								onClick={() => {
 									if (loadingLikes) return;
 									setLoadingLikes(true);
-									LikePost(post._id as unknown as string, !hasLiked).then(() => {
-										setHasLiked((prev) => !prev);
-										setLoadingLikes(false);
-									});
+									let oldLikedState = hasLiked;
+									setHasLiked(!hasLiked);
+									LikePost(post._id as unknown as string, !oldLikedState)
+										.then(() => {
+											if (onMutate) onMutate(post);
+											setLoadingLikes(false);
+										})
+										.catch(() => setHasLiked(oldLikedState));
 								}}
 							>
 								<FontAwesomeIcon
