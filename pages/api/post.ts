@@ -4,6 +4,7 @@ import User, { IUser } from '../../schemas/IUser';
 import Post from '../../schemas/IPost';
 import DB, { Connect } from '../../libs/database';
 import { Group } from '../../libs/utils';
+import Notification from '../../schemas/INotification';
 
 function PostReq(req: NextApiRequest, res: NextApiResponse) {
 	return new Promise(async (resolve) => {
@@ -28,6 +29,11 @@ function PostReq(req: NextApiRequest, res: NextApiResponse) {
 			validMentions = mentionUsers;
 		}
 
+		validMentions = validMentions.reduce((newArr, user) => {
+			if (!newArr.find((u) => u._id.toString() === user._id.toString())) newArr.push(user);
+			return newArr;
+		}, [] as IUser[]);
+
 		DB(async () => {
 			User.authenticate(token)
 				.then((user) => {
@@ -35,7 +41,13 @@ function PostReq(req: NextApiRequest, res: NextApiResponse) {
 
 					new User(user)
 						.post(content, quote, images, parent, validMentions)
-						.then((post) => resolve(res.status(200).json({ success: true, post })))
+						.then(async (post) => {
+							if (!post) return resolve(res.status(500).json({ success: false, error: 'Internal server error' }));
+
+							validMentions.forEach(async (mention) => Notification.createPostNotification(mention, 'mention', post, [user]));
+
+							resolve(res.status(200).json({ success: true, post }));
+						})
 						.catch(() => resolve(res.status(500).json({ success: false, error: 'Internal server error' })));
 				})
 				.catch((err) => {

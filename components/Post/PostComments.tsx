@@ -1,5 +1,6 @@
 'use client';
 
+import axios from 'axios';
 import { useEffect, useRef, useState } from 'react';
 import useSWRInfinite from 'swr/infinite';
 
@@ -8,12 +9,9 @@ import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 
 import { IPost } from '../../schemas/IPost';
 import PostModal from './Post';
-import axios from 'axios';
-import PostReply from './PostReply';
-import { IUser } from '../../schemas/IUser';
 import PostTwaat from './PostTwaat';
 
-export default function PostComments({ post, placeholder, user }: { post: IPost; placeholder?: IPost[]; user?: IUser }) {
+export default function PostComments({ post, placeholder }: { post: IPost; placeholder?: IPost[] }) {
 	const [isVisible, setIsVisible] = useState(false);
 
 	const loadingRef = useRef<HTMLDivElement>(null);
@@ -52,7 +50,14 @@ export default function PostComments({ post, placeholder, user }: { post: IPost;
 	return (
 		<>
 			<div className='mt-2 flex'>
-				<PostTwaat onPost={mutate} inline={true} padding={12} placeholder={'Twaat your reply'} btnText={'Reply'}>
+				<PostTwaat
+					onPost={mutate}
+					inline={true}
+					padding={12}
+					placeholder={'Twaat your reply'}
+					btnText={'Reply'}
+					parent={post._id.toString()}
+				>
 					<div className='h-px grow mt-3 bg-gray-700' />
 				</PostTwaat>
 			</div>

@@ -160,7 +160,7 @@ export default function Page({ params }: Props) {
 					<div className='h-px grow mx-3 my-3 bg-gray-500/30' />
 				</div>
 				{/* @ts-ignore */}
-				<PostComments post={post} user={me || undefined} placeholder={post.comments} />
+				<PostComments post={post} placeholder={post.comments} />
 			</div>
 		</PageTemplate>
 	);
