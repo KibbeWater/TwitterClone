@@ -39,10 +39,16 @@ export default function Navbar() {
 					<Link
 						href='/home'
 						className={
-							'h-16 w-16 mb-1 rounded-full transition-all flex items-center justify-center bg-transparent hover:bg-accent-primary-500/25'
+							'h-12 w-12 ml-1 mb-1 rounded-full transition-all flex items-center justify-center bg-transparent hover:bg-accent-primary-500/25'
 						}
 					>
-						<Image src='/assets/favicons/icon-512x512.png' alt='Home' width={45} height={45} />
+						<Image
+							src='/assets/favicons/icon-512x512.png'
+							alt='Home'
+							className='dark:brightness-0 dark:invert transition-all'
+							width={35}
+							height={35}
+						/>
 					</Link>
 					<Link href='/home' className={'lg:h-12 h-16 mb-2 rounded-full bg-transparent hover:bg-gray-600/25 flex items-center'}>
 						<div className='w-8 ml-4 flex items-center justify-center'>
