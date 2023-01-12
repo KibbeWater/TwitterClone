@@ -53,7 +53,7 @@ export function uploadImage(dataUri: string): Promise<string | null> {
 		s3Client
 			.send(command)
 			.then((data) => {
-				resolve(`https://${S3_BUCKET}.s3.${S3_REGION}.amazonaws.com/${key}`);
+				resolve(`https://${process.env.CLOUDFRONT_DOMAIN || ''}/${key}`);
 			})
 			.catch((err) => {
 				reject(err);

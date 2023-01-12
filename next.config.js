@@ -28,7 +28,10 @@ const nextConfig = {
 	},
 
 	images: {
-		remotePatterns: [{ protocol: 'https', hostname: '*.amazonaws.com' }],
+		remotePatterns: [
+			{ protocol: 'https', hostname: '*.amazonaws.com' },
+			{ protocol: 'https', hostname: '*.cloudfront.net' },
+		],
 	},
 
 	reactStrictMode: true,
