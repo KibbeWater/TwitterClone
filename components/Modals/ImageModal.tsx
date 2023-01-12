@@ -15,6 +15,7 @@ import { UserContext } from '../Handlers/UserHandler';
 import PostModal from '../Post/Post';
 import { ModalContext } from '../Handlers/ModalHandler';
 import axios from 'axios';
+import PostTwaat from '../Post/PostTwaat';
 
 type Props = {
 	src: string;
@@ -171,14 +172,11 @@ export default function ImageModal({ src, post }: Props) {
 					</div>
 					<div className='h-px grow mx-3 my-3 bg-gray-500/20' />
 				</div>
-				{me ? (
-					<>
-						<div className='mx-3 mt-2 flex'>
-							<PostReply user={me} post={post._id.toString()} />
-						</div>
+				<div className='mt-2 flex'>
+					<PostTwaat parent={post._id.toString()} inline={true} padding={12} placeholder={'Twaat your reply'} btnText={'Reply'}>
 						<div className='h-px grow mt-3 bg-gray-700' />
-					</>
-				) : null}
+					</PostTwaat>
+				</div>
 				{(!posts ? post.comments : posts).map((reply) => (
 					<PostModal key={reply._id.toString()} post={reply as unknown as IPost} />
 				))}

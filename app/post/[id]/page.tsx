@@ -19,6 +19,7 @@ import { IUser } from '../../../schemas/IUser';
 import Post from '../../../components/Post/Post';
 import { ModalContext } from '../../../components/Handlers/ModalHandler';
 import ImageModal from '../../../components/Modals/ImageModal';
+import PostContent from '../../../components/Post/PostContent';
 
 type Props = {
 	params: {
@@ -93,7 +94,7 @@ export default function Page({ params }: Props) {
 					</div>
 				</div>
 				<div className='mx-3 mt-2'>
-					<p className={'text-black dark:text-gray-200'}>{post.content}</p>
+					<PostContent post={post} />
 					<div
 						ref={imageDisplay}
 						className='w-full grid grid-cols-2 rounded-xl overflow-hidden gap-[2px] justify-self-center border-[1px] border-gray-700'
