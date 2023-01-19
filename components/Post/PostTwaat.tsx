@@ -1,6 +1,6 @@
 import axios from 'axios';
 import Image from 'next/image';
-import { useContext, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 
 import { faXmark, faImage } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -22,12 +22,22 @@ type Props = {
 
 export default function PostTwaat({ onPost, placeholder, btnText, children, inline, avatarSize = 48, padding, parent }: Props) {
 	const [text, setText] = useState('');
-	const [media, setMedia] = useState([] as string[]);
+
+	const [images, setImages] = useState<string[]>([]);
+	const [videos, setVideos] = useState<string[]>([]);
+
 	const [loadingPost, setLoadingPost] = useState(false);
 
 	const postAlbumRef = useRef<HTMLDivElement>(null);
 
 	const { user } = useContext(UserContext);
+
+	useEffect(() => {
+		if (images.length > 0 && videos.length > 0) {
+			setImages([]);
+			setVideos([]);
+		}
+	}, [images, videos]);
 
 	if (!user) return null;
 
@@ -36,7 +46,7 @@ export default function PostTwaat({ onPost, placeholder, btnText, children, inli
 		setLoadingPost(true);
 		SendPost(text, undefined, await syncMedia(), parent).then((res) => {
 			setText('');
-			setMedia([]);
+			setImages([]);
 			if (onPost) onPost();
 			setLoadingPost(false);
 		});
@@ -52,8 +62,14 @@ export default function PostTwaat({ onPost, placeholder, btnText, children, inli
 			const files = input.files;
 			if (!files) return alert('No files selected');
 
-			// Check if the user selected more than 4 images or a video
-			if (files.length > 4 || files[0].type.startsWith('video')) return alert('You can only select up to 4 images or 1 video');
+			// The user can only select 4 images and no videos OR 1 video and no images
+			if (files.length > 4) return alert('You can only select a maximum of 4 images');
+			if (files.length > 1) {
+				for (let i = 0; i < files.length; i++) {
+					const file = files[i];
+					if (file.type.startsWith('video')) return alert('You can only select 1 video');
+				}
+			}
 
 			// Check if the user selected images that were too big
 			for (let i = 0; i < files.length; i++) {
@@ -61,12 +77,22 @@ export default function PostTwaat({ onPost, placeholder, btnText, children, inli
 				const reader = new FileReader();
 
 				reader.onload = (e) => {
-					/* const data = e.target?.result;
-					if (!data || typeof data !== 'string') return console.error('Invalid data');
-					if (data.length > 2 * 1024 * 1024) return alert('Image is too big, max size is 2MB');
+					const data = e.target?.result;
+					const isVideo = file.type.startsWith('video');
 
-					setImages((prev) => (prev.length < 4 ? [...prev, data] : prev)); */
-					// If it is an image, check if it is invalid and if file is too big. If it is a video
+					console.log(file.type);
+					console.log(data);
+
+					if (!isVideo) {
+						if (!data || typeof data !== 'string') return console.error('Invalid data');
+						if (data.length > 2 * 1024 * 1024) return alert('Image is too big, max size is 2MB');
+					} else {
+						if (!data || typeof data !== 'string') return console.error('Invalid data');
+					}
+
+					//setImages((prev) => (prev.length < 4 ? [...prev, data] : prev));
+					if (!isVideo) setImages((prev) => (prev.length < 4 ? [...prev, data] : prev));
+					else setVideos((prev) => (prev.length < 1 ? [...prev, data] : prev));
 				};
 				reader.readAsDataURL(file);
 			}
@@ -75,36 +101,52 @@ export default function PostTwaat({ onPost, placeholder, btnText, children, inli
 	};
 
 	const syncMedia = () => {
-		const syncImage = (image: string) => {
+		const syncImage = (image: string): Promise<{ success: boolean; url: string; error?: string }> => {
 			return new Promise((resolve, reject) => {
-				resolve(axios.post('/api/post/upload', { image }));
+				axios
+					.post<{ success: boolean; url: string; error?: string }>('/api/post/upload', { image })
+					.then((res) => resolve(res.data));
 			});
 		};
 
 		// Video uploads are a bit different, we need to upload the raw video data to the server with content-type: video/mp4.
-		const syncVideo = (video: string) => {
+		const syncVideo = (video: string): Promise<{ videoId: string; identifier: string }> => {
 			return new Promise((resolve, reject) => {
 				if (!video.startsWith('data:')) return;
 				const buffer = Buffer.from(video.split(',')[1], 'base64');
 				const contentType = video.split(';')[0].split(':')[1];
 				const ext = video.split(';')[0].split('/')[1];
 
-				// Upload buffer to server
-				resolve(
-					axios.post(process.env.VIDEO_UPLOAD_ENDPOINT || '', buffer, {
-						headers: {
-							'Content-Type': contentType,
-						},
-					})
+				console.log('Uploading video with content-type: ' + contentType);
+				console.log(
+					'Uploading to: ' +
+						(process.env.VIDEO_UPLOAD_ENDPOINT ||
+							'https://56psb6iyn6vh6grykkw7mqnxqi0akfyl.lambda-url.eu-central-1.on.aws') /* +
+						'/upload' */
 				);
+
+				axios
+					.post<{ videoId: string; identifier: string }>(
+						process.env.VIDEO_UPLOAD_ENDPOINT || 'https://56psb6iyn6vh6grykkw7mqnxqi0akfyl.lambda-url.eu-central-1.on.aws' /* +
+							'/upload' */,
+						buffer,
+						{
+							headers: {
+								'Content-Type': contentType,
+							},
+						}
+					)
+					.then((res) => resolve(res.data));
 			});
 		};
 
 		return new Promise<string[]>((resolve, reject) => {
-			if (media.length === 0) return resolve([]);
-			Promise.all(media.map(async (mediaObj) => (mediaObj.startsWith('data:video') ? syncVideo(mediaObj) : syncImage(mediaObj))))
+			if (images.length === 0 && videos.length === 0) return resolve([]);
+			Promise.all([...images.map(async (image) => syncImage(image)), ...videos.map(async (video) => syncVideo(video))])
 				.then((res) => {
-					resolve(res.map((r) => r.data.url));
+					console.log(res);
+					// @ts-ignore
+					resolve(res.map((r) => (r.videoId ? null : r.url)));
 				})
 				.catch((err) => {
 					console.error(err);
@@ -146,17 +188,20 @@ export default function PostTwaat({ onPost, placeholder, btnText, children, inli
 						className={'grid grid-cols-2 gap-1 mt-3 b-1'}
 						ref={postAlbumRef}
 						style={{
-							height: media.length !== 0 ? `${(postAlbumRef.current || { clientWidth: 1 }).clientWidth * 0.6}px` : '1px',
-							opacity: media.length !== 0 ? 1 : 0,
+							height:
+								images.length !== 0 || videos.length !== 0
+									? `${(postAlbumRef.current || { clientWidth: 1 }).clientWidth * 0.6}px`
+									: '1px',
+							opacity: images.length !== 0 || videos.length !== 0 ? 1 : 0,
 						}}
 					>
-						{media.map((img, i) => (
+						{images.map((img, i) => (
 							<div
 								key={`post-image-${i}`}
 								className={
 									'w-full h-full relative' +
-									(media.length == 1 || (media.length == 3 && i == 0) ? ' row-span-2' : '') +
-									(media.length == 1 ? ' col-span-2' : '')
+									(images.length == 1 || (images.length == 3 && i == 0) ? ' row-span-2' : '') +
+									(images.length == 1 ? ' col-span-2' : '')
 								}
 							>
 								<Image
@@ -171,7 +216,35 @@ export default function PostTwaat({ onPost, placeholder, btnText, children, inli
 										'absolute top-2 left-2 z-10 w-7 h-7 flex justify-center items-center rounded-full' +
 										' backdrop-blur-md bg-black/60 hover:bg-black/40 cursor-pointer'
 									}
-									onClick={() => setMedia((prev) => prev.filter((_, j) => j !== i))}
+									onClick={() => setImages((prev) => prev.filter((_, j) => j !== i))}
+								>
+									<FontAwesomeIcon icon={faXmark} />
+								</div>
+							</div>
+						))}
+						{videos.map((video, i) => (
+							<div
+								key={`post-video-${i}`}
+								className={
+									'w-full h-full relative' +
+									(videos.length == 1 || (videos.length == 3 && i == 0) ? ' row-span-2' : '') +
+									(videos.length == 1 ? ' col-span-2' : '')
+								}
+							>
+								<video
+									src={video}
+									controls
+									className={'object-cover w-full h-full rounded-xl'}
+									/* alt={`Album video ${i}`} */
+									/* sizes={'100vw'} */
+									/* fill */
+								/>
+								<div
+									className={
+										'absolute top-2 left-2 z-10 w-7 h-7 flex justify-center items-center rounded-full' +
+										' backdrop-blur-md bg-black/60 hover:bg-black/40 cursor-pointer'
+									}
+									onClick={() => setVideos((prev) => prev.filter((_, j) => j !== i))}
 								>
 									<FontAwesomeIcon icon={faXmark} />
 								</div>
@@ -193,7 +266,7 @@ export default function PostTwaat({ onPost, placeholder, btnText, children, inli
 									'disabled:bg-red-700 disabled:text-gray-200 disabled:cursor-default transition-all'
 								}
 								onClick={btnPostClick}
-								disabled={(!text && media.length === 0) || loadingPost}
+								disabled={(!text && images.length === 0) || loadingPost}
 							>
 								{btnText || 'Twaat'}
 							</button>
