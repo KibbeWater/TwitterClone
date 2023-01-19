@@ -22,7 +22,7 @@ type Props = {
 
 export default function PostTwaat({ onPost, placeholder, btnText, children, inline, avatarSize = 48, padding, parent }: Props) {
 	const [text, setText] = useState('');
-	const [images, setImages] = useState([] as string[]);
+	const [media, setMedia] = useState([] as string[]);
 	const [loadingPost, setLoadingPost] = useState(false);
 
 	const postAlbumRef = useRef<HTMLDivElement>(null);
@@ -34,43 +34,75 @@ export default function PostTwaat({ onPost, placeholder, btnText, children, inli
 	const btnPostClick = async () => {
 		if (loadingPost) return;
 		setLoadingPost(true);
-		SendPost(text, undefined, await syncImages(), parent).then((res) => {
+		SendPost(text, undefined, await syncMedia(), parent).then((res) => {
 			setText('');
-			setImages([]);
+			setMedia([]);
 			if (onPost) onPost();
 			setLoadingPost(false);
 		});
 	};
 
-	const uploadImages = () => {
-		// We wanna get a max of 4 images which can only be 2MB each
+	const uploadMedia = () => {
+		// We wanna get a max of 4 images (2MB each) OR 1 video (no limit)
 		const input = document.createElement('input');
 		input.type = 'file';
 		input.multiple = true;
-		input.accept = 'image/*';
+		input.accept = 'image/*,video/*';
 		input.onchange = () => {
 			const files = input.files;
-			if (files)
-				for (let i = 0; i < files.length; i++) {
-					const file = files[i];
-					const reader = new FileReader();
-					reader.onload = (e) => {
-						const data = e.target?.result;
-						if (!data || typeof data !== 'string') return console.error('Invalid data');
-						if (data.length > 2 * 1024 * 1024) return alert('Image is too big, max size is 2MB');
+			if (!files) return alert('No files selected');
 
-						setImages((prev) => (prev.length < 4 ? [...prev, data] : prev));
-					};
-					reader.readAsDataURL(file);
-				}
+			// Check if the user selected more than 4 images or a video
+			if (files.length > 4 || files[0].type.startsWith('video')) return alert('You can only select up to 4 images or 1 video');
+
+			// Check if the user selected images that were too big
+			for (let i = 0; i < files.length; i++) {
+				const file = files[i];
+				const reader = new FileReader();
+
+				reader.onload = (e) => {
+					/* const data = e.target?.result;
+					if (!data || typeof data !== 'string') return console.error('Invalid data');
+					if (data.length > 2 * 1024 * 1024) return alert('Image is too big, max size is 2MB');
+
+					setImages((prev) => (prev.length < 4 ? [...prev, data] : prev)); */
+					// If it is an image, check if it is invalid and if file is too big. If it is a video
+				};
+				reader.readAsDataURL(file);
+			}
 		};
 		input.click();
 	};
 
-	const syncImages = () => {
+	const syncMedia = () => {
+		const syncImage = (image: string) => {
+			return new Promise((resolve, reject) => {
+				resolve(axios.post('/api/post/upload', { image }));
+			});
+		};
+
+		// Video uploads are a bit different, we need to upload the raw video data to the server with content-type: video/mp4.
+		const syncVideo = (video: string) => {
+			return new Promise((resolve, reject) => {
+				if (!video.startsWith('data:')) return;
+				const buffer = Buffer.from(video.split(',')[1], 'base64');
+				const contentType = video.split(';')[0].split(':')[1];
+				const ext = video.split(';')[0].split('/')[1];
+
+				// Upload buffer to server
+				resolve(
+					axios.post(process.env.VIDEO_UPLOAD_ENDPOINT || '', buffer, {
+						headers: {
+							'Content-Type': contentType,
+						},
+					})
+				);
+			});
+		};
+
 		return new Promise<string[]>((resolve, reject) => {
-			if (images.length === 0) return resolve([]);
-			Promise.all(images.map((image) => axios.post<{ success: boolean; url: string }>('/api/post/upload', { image })))
+			if (media.length === 0) return resolve([]);
+			Promise.all(media.map(async (mediaObj) => (mediaObj.startsWith('data:video') ? syncVideo(mediaObj) : syncImage(mediaObj))))
 				.then((res) => {
 					resolve(res.map((r) => r.data.url));
 				})
@@ -114,17 +146,17 @@ export default function PostTwaat({ onPost, placeholder, btnText, children, inli
 						className={'grid grid-cols-2 gap-1 mt-3 b-1'}
 						ref={postAlbumRef}
 						style={{
-							height: images.length !== 0 ? `${(postAlbumRef.current || { clientWidth: 1 }).clientWidth * 0.6}px` : '1px',
-							opacity: images.length !== 0 ? 1 : 0,
+							height: media.length !== 0 ? `${(postAlbumRef.current || { clientWidth: 1 }).clientWidth * 0.6}px` : '1px',
+							opacity: media.length !== 0 ? 1 : 0,
 						}}
 					>
-						{images.map((img, i) => (
+						{media.map((img, i) => (
 							<div
 								key={`post-image-${i}`}
 								className={
 									'w-full h-full relative' +
-									(images.length == 1 || (images.length == 3 && i == 0) ? ' row-span-2' : '') +
-									(images.length == 1 ? ' col-span-2' : '')
+									(media.length == 1 || (media.length == 3 && i == 0) ? ' row-span-2' : '') +
+									(media.length == 1 ? ' col-span-2' : '')
 								}
 							>
 								<Image
@@ -139,7 +171,7 @@ export default function PostTwaat({ onPost, placeholder, btnText, children, inli
 										'absolute top-2 left-2 z-10 w-7 h-7 flex justify-center items-center rounded-full' +
 										' backdrop-blur-md bg-black/60 hover:bg-black/40 cursor-pointer'
 									}
-									onClick={() => setImages((prev) => prev.filter((_, j) => j !== i))}
+									onClick={() => setMedia((prev) => prev.filter((_, j) => j !== i))}
 								>
 									<FontAwesomeIcon icon={faXmark} />
 								</div>
@@ -150,7 +182,7 @@ export default function PostTwaat({ onPost, placeholder, btnText, children, inli
 					<div className='flex justify-between items-center mt-2 h-min'>
 						<div
 							className='flex items-center justify-center w-10 h-10 rounded-full transition-colors text-red-500 bg-accent-primary-500/0 hover:bg-accent-primary-500/20 hover:cursor-pointer'
-							onClick={() => uploadImages()}
+							onClick={() => uploadMedia()}
 						>
 							<FontAwesomeIcon icon={faImage} size={'lg'} />
 						</div>
@@ -161,7 +193,7 @@ export default function PostTwaat({ onPost, placeholder, btnText, children, inli
 									'disabled:bg-red-700 disabled:text-gray-200 disabled:cursor-default transition-all'
 								}
 								onClick={btnPostClick}
-								disabled={(!text && images.length === 0) || loadingPost}
+								disabled={(!text && media.length === 0) || loadingPost}
 							>
 								{btnText || 'Twaat'}
 							</button>
