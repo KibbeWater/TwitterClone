@@ -1,5 +1,5 @@
 'use strict';
-import axios from 'axios';
+import axios from 'redaxios';
 import useSWR from 'swr';
 import { SafeUser } from '../../libs/user';
 

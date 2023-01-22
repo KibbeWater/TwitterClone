@@ -12,7 +12,7 @@ import { IPost } from '../../schemas/IPost';
 import Post from '../Post/Post';
 import { SendPost } from '../../libs/post';
 import { ModalContext } from '../Handlers/ModalHandler';
-import axios from 'axios';
+import axios from 'redaxios';
 
 export default function PostModal({ quote }: { quote?: IPost }) {
 	const [content, setContent] = useState('');

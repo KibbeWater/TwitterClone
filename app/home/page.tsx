@@ -1,6 +1,6 @@
 'use client';
 
-import axios from 'axios';
+import axios from 'redaxios';
 import { useContext, useEffect, useRef, useState } from 'react';
 import useSWRInfinite from 'swr/infinite';
 

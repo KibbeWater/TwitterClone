@@ -17,7 +17,7 @@ import { IRelationship } from '../../../schemas/IRelationship';
 import Verified from '../../../components/Verified';
 import { Group } from '../../../libs/utils';
 import AdminModal from '../../../components/Modals/AdminModal';
-import axios from 'axios';
+import axios from 'redaxios';
 
 type Props = {
 	params: {

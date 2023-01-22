@@ -2,7 +2,7 @@
 
 import { useContext, useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import axios from 'axios';
+import axios from 'redaxios';
 
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';

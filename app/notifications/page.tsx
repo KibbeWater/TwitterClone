@@ -1,7 +1,7 @@
 'use client';
 
 import { useContext, useEffect, useState } from 'react';
-import axios from 'axios';
+import axios from 'redaxios';
 
 import { UserContext } from '../../components/Handlers/UserHandler';
 import Notification from '../../components/Notification';

@@ -1,6 +1,6 @@
 'use client';
 
-import axios from 'axios';
+import axios from 'redaxios';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useContext, useEffect, useRef } from 'react';

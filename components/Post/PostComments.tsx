@@ -8,7 +8,7 @@ import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 
 import { IPost } from '../../schemas/IPost';
 import PostModal from './Post';
-import axios from 'axios';
+import axios from 'redaxios';
 import PostReply from './PostReply';
 import { IUser } from '../../schemas/IUser';
 import PostTwaat from './PostTwaat';

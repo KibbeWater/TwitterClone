@@ -14,7 +14,7 @@ import PostReply from '../Post/PostReply';
 import { UserContext } from '../Handlers/UserHandler';
 import PostModal from '../Post/Post';
 import { ModalContext } from '../Handlers/ModalHandler';
-import axios from 'axios';
+import axios from 'redaxios';
 import PostTwaat from '../Post/PostTwaat';
 
 type Props = {
