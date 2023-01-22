@@ -6,7 +6,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faComment, faHeart as farHeart } from '@fortawesome/free-regular-svg-icons';
 import { faArrowUpFromBracket, faHeart as fasHeart, faRepeat } from '@fortawesome/free-solid-svg-icons';
 
-import { ILike } from '../../schemas/ILike';
+import { ILike } from '../../types/ILike';
 import { IPost } from '../../types/IPost';
 import { ModalContext } from '../Handlers/ModalHandler';
 import PostModal from '../Modals/PostModal';

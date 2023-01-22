@@ -11,7 +11,7 @@ import { ModalContext } from './Handlers/ModalHandler';
 import PostModal from './Modals/PostModal';
 import { UserContext } from './Handlers/UserHandler';
 import { useTheme } from './Handlers/ThemeHandler';
-import { INotification } from '../schemas/INotification';
+import { INotification } from '../types/INotification';
 
 export default function Navbar() {
 	const [activateUserPanel, setActivateUserPanel] = useReducer((state) => !state, false);

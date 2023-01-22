@@ -6,7 +6,7 @@ import axios from 'redaxios';
 import { UserContext } from '../../components/Handlers/UserHandler';
 import Notification from '../../components/Notification';
 import PageTemplate from '../../components/PageTemplate';
-import { INotification } from '../../schemas/INotification';
+import { INotification } from '../../types/INotification';
 
 export default function Page() {
 	const [notifications, setNotifications] = useState<INotification[]>([]);

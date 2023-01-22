@@ -1,3 +1,9 @@
+import { ILike } from './ILike';
+import { INotification } from './INotification';
+import { IPost } from './IPost';
+import { IRelationship } from './IRelationship';
+import { ISession } from './ISession';
+
 export type IUser = {
 	_id: Types.ObjectId;
 	tag: string;
@@ -9,11 +15,11 @@ export type IUser = {
 	banner?: string;
 	bio: string;
 
-	relationships: [Types.ObjectId];
-	sessions: [Types.ObjectId];
-	posts: [Types.ObjectId];
-	likes: [Types.ObjectId];
-	notifications: [Types.ObjectId];
+	relationships: [IRelationship];
+	sessions: [ISession];
+	posts: [IPost];
+	likes: [ILike];
+	notifications: [INotification];
 
 	group: number;
 };

@@ -3,8 +3,8 @@
 import { createContext } from 'react';
 import useSWR, { KeyedMutator } from 'swr';
 import { IPost } from '../../types/IPost';
-import { IRelationship } from '../../schemas/IRelationship';
-import { ISession } from '../../schemas/ISession';
+import { IRelationship } from '../../types/IRelationship';
+import { ISession } from '../../types/ISession';
 import { IUser } from '../../types/IUser';
 
 export const UserContext = createContext<{

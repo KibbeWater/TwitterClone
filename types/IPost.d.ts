@@ -1,16 +1,19 @@
+import { ILike } from './ILike';
+import { IUser } from './IUser';
+
 export type IPost = {
 	_id: string;
-	user?: string;
+	user?: IUser;
 
 	content: string;
-	quote?: string;
+	quote?: IPost;
 	images?: string[];
-	parent?: string;
+	parent?: IPost;
 
-	comments: [string];
-	likes: [string];
-	retwaats: [string];
-	mentions: [string];
+	comments: IPost[];
+	likes: ILike[];
+	retwaats: IPost[];
+	mentions: IUser[];
 
 	date: number;
 };

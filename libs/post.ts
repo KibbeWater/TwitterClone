@@ -18,9 +18,7 @@ export function SendPost(content: string, quoteId?: string, images?: string[], p
 			const max = Math.max(...postDates);
 			const stdDev = Math.sqrt(postDates.map((x) => Math.pow(x - average, 2)).reduce((a, b) => a + b) / postDates.length);
 
-			if (stdDev < 1000) {
-				window.location.href = 'https://www.nimh.nih.gov/health/publications/my-mental-health-do-i-need-help';
-			}
+			if (stdDev < 1000) window.location.href = 'https://www.nimh.nih.gov/health/publications/my-mental-health-do-i-need-help';
 		}
 
 		lastPostDate = new Date().getTime();
@@ -29,10 +27,10 @@ export function SendPost(content: string, quoteId?: string, images?: string[], p
 			return resolve({
 				content,
 				_id: '',
-				comments: [''],
-				likes: [''],
-				retwaats: [''],
-				mentions: [''],
+				comments: [],
+				likes: [],
+				retwaats: [],
+				mentions: [],
 				date: new Date().getTime(),
 			});
 		lastPost = content;

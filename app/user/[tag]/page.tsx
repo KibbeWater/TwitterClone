@@ -14,7 +14,7 @@ import PageTemplate from '../../../components/PageTemplate';
 import Post from '../../../components/Post/Post';
 import { UserContext } from '../../../components/Handlers/UserHandler';
 import { CreateRelationship, SafeUser } from '../../../libs/user';
-import { IRelationship } from '../../../schemas/IRelationship';
+import { IRelationship } from '../../../types/IRelationship';
 import Verified from '../../../components/Verified';
 import { Group } from '../../../libs/utils';
 import AdminModal from '../../../components/Modals/AdminModal';
