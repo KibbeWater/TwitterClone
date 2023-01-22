@@ -7,7 +7,7 @@ import axios from 'redaxios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 
-import { IUser } from '../../schemas/IUser';
+import { IUser } from '../../types/IUser';
 import { ModalContext } from '../Handlers/ModalHandler';
 
 type AuthProps = {

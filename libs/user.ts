@@ -1,5 +1,5 @@
 import axios from 'redaxios';
-import { IPost } from '../schemas/IPost';
+import { IPost } from '../types/IPost';
 import { IRelationship } from '../schemas/IRelationship';
 
 export function CreateRelationship(userId: string, type: 'follow' | 'block' | 'mute' | 'remove'): Promise<IRelationship> {

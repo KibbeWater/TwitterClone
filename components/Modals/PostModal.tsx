@@ -8,7 +8,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import TextareaAutosize from '../TextAutosize';
 import { UserContext } from '../Handlers/UserHandler';
-import { IPost } from '../../schemas/IPost';
+import { IPost } from '../../types/IPost';
 import Post from '../Post/Post';
 import { SendPost } from '../../libs/post';
 import { ModalContext } from '../Handlers/ModalHandler';

@@ -3,8 +3,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Image from 'next/image';
 import Link from 'next/link';
 import { INotification } from '../schemas/INotification';
-import { IPost } from '../schemas/IPost';
-import { IUser } from '../schemas/IUser';
+import { IPost } from '../types/IPost';
+import { IUser } from '../types/IUser';
 import Post from './Post/Post';
 
 export default function Notification({ notif }: { notif: INotification }) {

@@ -2,27 +2,26 @@
 
 import Image from 'next/image';
 
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowUpFromBracket, faEllipsis, faRepeat, faTrash, faUser } from '@fortawesome/free-solid-svg-icons';
-import { faHeart as fasHeart } from '@fortawesome/free-solid-svg-icons';
 import { faComment, faHeart as farHeart } from '@fortawesome/free-regular-svg-icons';
-
-import { IPost } from '../../schemas/IPost';
-import { IUser } from '../../schemas/IUser';
-import { RefObject, useContext, useEffect, useReducer, useRef, useState } from 'react';
-import { UserContext } from '../Handlers/UserHandler';
-import { DeletePost, LikePost } from '../../libs/post';
-import { ILike } from '../../schemas/ILike';
-import { ModalContext } from '../Handlers/ModalHandler';
-import PostModal from '../Modals/PostModal';
-import { useRouter } from 'next/navigation';
+import { faArrowUpFromBracket, faEllipsis, faHeart as fasHeart, faRepeat, faTrash, faUser } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { motion } from 'framer-motion';
 import Link from 'next/link';
-import ImageModal from '../Modals/ImageModal';
-import Verified from '../Verified';
-import { AnimatePresence, motion } from 'framer-motion';
+import { useRouter } from 'next/navigation';
+import { useContext, useEffect, useReducer, useRef, useState } from 'react';
+
+import { DeletePost, LikePost } from '../../libs/post';
+import { CreateRelationship } from '../../libs/user';
 import { Group } from '../../libs/utils';
+import { ILike } from '../../schemas/ILike';
 import { IRelationship } from '../../schemas/IRelationship';
-import { CreateRelationship, SafeUser } from '../../libs/user';
+import { IPost } from '../../types/IPost';
+import { IUser } from '../../types/IUser';
+import { ModalContext } from '../Handlers/ModalHandler';
+import { UserContext } from '../Handlers/UserHandler';
+import ImageModal from '../Modals/ImageModal';
+import PostModal from '../Modals/PostModal';
+import Verified from '../Verified';
 import PostContent from './PostContent';
 
 function FormatDate(date: Date) {
@@ -53,7 +52,9 @@ export default function Post({ post, isRef, onMutate }: Props) {
 	const [optionsActive, setOptionsActive] = useState(false);
 	const [loading, setLoading] = useState(false);
 	const [isFollowing, setIsFollowing] = useState(
-		!!me?.relationships.find((rel: IRelationship) => rel.target?.toString() == post.user?._id && rel.type == 'follow')
+		!!me?.relationships.find(
+			(rel: IRelationship) => rel.target?.toString() == (post.user as IUser | undefined)?._id && rel.type == 'follow'
+		)
 	);
 
 	const imageDisplay = useRef<HTMLDivElement>(null);

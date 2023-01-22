@@ -2,15 +2,14 @@
 
 import { useEffect, useRef, useState } from 'react';
 import useSWRInfinite from 'swr/infinite';
-
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSpinner } from '@fortawesome/free-solid-svg-icons';
-
-import { IPost } from '../../schemas/IPost';
-import PostModal from './Post';
 import axios from 'redaxios';
-import PostReply from './PostReply';
-import { IUser } from '../../schemas/IUser';
+
+import { faSpinner } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+
+import { IPost } from '../../types/IPost';
+import { IUser } from '../../types/IUser';
+import PostModal from './Post';
 import PostTwaat from './PostTwaat';
 
 export default function PostComments({ post, placeholder, user }: { post: IPost; placeholder?: IPost[]; user?: IUser }) {

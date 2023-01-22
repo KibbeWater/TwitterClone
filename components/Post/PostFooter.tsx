@@ -7,7 +7,7 @@ import { faComment, faHeart as farHeart } from '@fortawesome/free-regular-svg-ic
 import { faArrowUpFromBracket, faHeart as fasHeart, faRepeat } from '@fortawesome/free-solid-svg-icons';
 
 import { ILike } from '../../schemas/ILike';
-import { IPost } from '../../schemas/IPost';
+import { IPost } from '../../types/IPost';
 import { ModalContext } from '../Handlers/ModalHandler';
 import PostModal from '../Modals/PostModal';
 import { UserContext } from '../Handlers/UserHandler';

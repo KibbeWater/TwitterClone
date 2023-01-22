@@ -2,6 +2,7 @@
 
 import React, { useContext, useEffect, useRef } from 'react';
 import Image from 'next/image';
+import axios from 'redaxios';
 import useSWR from 'swr';
 
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
@@ -17,7 +18,6 @@ import { IRelationship } from '../../../schemas/IRelationship';
 import Verified from '../../../components/Verified';
 import { Group } from '../../../libs/utils';
 import AdminModal from '../../../components/Modals/AdminModal';
-import axios from 'redaxios';
 
 type Props = {
 	params: {

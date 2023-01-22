@@ -7,10 +7,9 @@ import Link from 'next/link';
 import { useContext, useEffect, useRef, useState } from 'react';
 import useSWRInfinite from 'swr/infinite';
 
-import { IPost } from '../../schemas/IPost';
-import { IUser } from '../../schemas/IUser';
+import { IPost } from '../../types/IPost';
+import { IUser } from '../../types/IUser';
 import PostFooter from '../Post/PostFooter';
-import PostReply from '../Post/PostReply';
 import { UserContext } from '../Handlers/UserHandler';
 import PostModal from '../Post/Post';
 import { ModalContext } from '../Handlers/ModalHandler';
@@ -177,7 +176,7 @@ export default function ImageModal({ src, post }: Props) {
 						<div className='h-px grow mt-3 bg-gray-700' />
 					</PostTwaat>
 				</div>
-				{(!posts ? post.comments : posts).map((reply) => (
+				{(!posts ? (post.comments as unknown as [IPost]) : posts).map((reply: IPost) => (
 					<PostModal key={reply._id.toString()} post={reply as unknown as IPost} />
 				))}
 				<div

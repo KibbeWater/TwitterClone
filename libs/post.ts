@@ -1,7 +1,6 @@
 import axios from 'redaxios';
-import { Types } from 'mongoose';
 
-import { IPost } from '../schemas/IPost';
+import { IPost } from '../types/IPost';
 
 let lastPost = '';
 
@@ -29,11 +28,11 @@ export function SendPost(content: string, quoteId?: string, images?: string[], p
 		if (lastPost === content)
 			return resolve({
 				content,
-				_id: new Types.ObjectId(),
-				comments: [new Types.ObjectId()],
-				likes: [new Types.ObjectId()],
-				retwaats: [new Types.ObjectId()],
-				mentions: [new Types.ObjectId()],
+				_id: '',
+				comments: [''],
+				likes: [''],
+				retwaats: [''],
+				mentions: [''],
 				date: new Date().getTime(),
 			});
 		lastPost = content;
