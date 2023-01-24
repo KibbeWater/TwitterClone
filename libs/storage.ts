@@ -43,7 +43,6 @@ export class MultipartUploader {
 
 	public async upload(): Promise<string> {
 		return new Promise(async (resolve, reject) => {
-			// Generate chunks of the file.
 			this.chunks = await this.generateChunks(CHUNK_SIZE);
 
 			await this.retreiveUploadInformation();
@@ -113,39 +112,27 @@ export class MultipartUploader {
 
 	private uploadPart(part: Part | null, etags: ETagRes[] = [], retry: number = 0): Promise<ETagRes[]> {
 		return new Promise((resolve, reject) => {
-			console.log('Uploading part...');
-
 			if (retry > 5) return reject();
 			if (!part) return resolve(etags);
-
-			console.log(`Part exists, we're on attempt ${retry}...`);
 
 			axios
 				.put(part.url.url, part.chunk)
 				.then((res) => {
-					console.log('Upload successful, dispatching new chunk...');
-
 					let eTag = res.headers.etag as string;
 					eTag = eTag.replaceAll('"', '');
 
 					const newPart = this.dispatchChunk();
-					if (!newPart) {
-						console.log('No new chunk found, upload complete.');
-						return resolve([...etags, { part: part.pardId, etag: eTag }]);
-					}
+					if (!newPart) return resolve([...etags, { part: part.pardId, etag: eTag }]);
 
-					console.log('New chunk found, uploading...');
 					this.uploadPart(newPart, etags)
 						.then((tags) => resolve([...tags, { part: part.pardId, etag: eTag }]))
 						.catch(() => reject());
 				})
-				.catch((err) => {
-					console.error(err);
-					console.log('Upload failed, retrying...');
+				.catch((err) =>
 					this.uploadPart(part, etags, retry + 1)
 						.then((tags) => resolve(tags))
-						.catch(() => reject());
-				});
+						.catch(() => reject())
+				);
 		});
 	}
 }

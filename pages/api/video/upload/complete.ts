@@ -6,15 +6,6 @@ function completeUpload(req: NextApiRequest, res: NextApiResponse) {
 	return new Promise((resolve) => {
 		const { videoId, uploadId, tags }: { videoId: string; uploadId: string; tags: { part: number; etag: string }[] } = req.body;
 
-		console.log(
-			tags
-				.map((tag) => ({
-					PartNumber: tag.part,
-					ETag: tag.etag,
-				})) // Sort by ascending part number
-				.sort((a, b) => a.PartNumber - b.PartNumber)
-		);
-
 		s3Client
 			.send(
 				new CompleteMultipartUploadCommand({
@@ -26,18 +17,13 @@ function completeUpload(req: NextApiRequest, res: NextApiResponse) {
 							.map((tag) => ({
 								PartNumber: tag.part,
 								ETag: tag.etag,
-							})) // Sort by ascending part number
+							}))
 							.sort((a, b) => a.PartNumber - b.PartNumber),
 					},
 				})
 			)
-			.then(() => {
-				resolve(res.status(200).json({ success: true }));
-			})
-			.catch((err) => {
-				console.log(err);
-				resolve(res.status(500).json({ success: false, error: 'Internal server error' }));
-			});
+			.then(() => resolve(res.status(200).json({ success: true })))
+			.catch((err) => resolve(res.status(500).json({ success: false, error: 'Internal server error' })));
 	});
 }
 
