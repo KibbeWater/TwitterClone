@@ -32,7 +32,14 @@ export interface IUser {
 
 interface IUserMethods {
 	authorize: () => Promise<ISession>;
-	post: (content: string, quote?: Types.ObjectId, images?: string[], parent?: string, mentions?: IUser[]) => Promise<IPost | null>;
+	post: (
+		content: string,
+		quote?: Types.ObjectId,
+		images?: string[],
+		videos?: string[],
+		parent?: string,
+		mentions?: IUser[]
+	) => Promise<IPost | null>;
 	likePost: (post: Types.ObjectId, shouldLike: boolean) => Promise<ILike | null>;
 	createRelationship: (target: Types.ObjectId, type: 'follow' | 'block' | 'mute') => Promise<IRelationship | null>;
 	removeRelationship: (target: Types.ObjectId) => Promise<IRelationship | null>;
@@ -228,8 +235,15 @@ userSchema.methods.authorize = async function (ip?: string) {
 	return session;
 };
 
-userSchema.methods.post = async function (content: string, quote?: Types.ObjectId, images?: string[], parent?: string, mentions?: IUser[]) {
-	return Post.post(this._id, content, quote, images, parent, mentions);
+userSchema.methods.post = async function (
+	content: string,
+	quote?: Types.ObjectId,
+	images?: string[],
+	videos?: string[],
+	parent?: string,
+	mentions?: IUser[]
+) {
+	return Post.post(this._id, content, quote, images, videos, parent, mentions);
 };
 
 userSchema.methods.likePost = async function (post: Types.ObjectId, shouldLike: boolean) {

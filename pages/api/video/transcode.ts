@@ -10,7 +10,15 @@ function transcodeVideo(req: NextApiRequest, res: NextApiResponse) {
 
 		transcodeJob(videoId, 'mp4')
 			.then((result) => {
-				resolve(res.status(200).json({ success: true, trackId: result }));
+				resolve(
+					res
+						.status(200)
+						.json({
+							success: true,
+							trackId: result.trackId,
+							url: `https://${process.env.CLOUDFRONT_DOMAIN as string}/${result.output}`,
+						})
+				);
 			})
 			.catch((error) => {
 				resolve(res.status(500).json({ success: false, error: 'Internal server error occured' }));

@@ -18,7 +18,7 @@ const emcClient = new MediaConvertClient({
 	},
 });
 
-export function TranscodeVideo(videoId: string, extension: string): Promise<string> {
+export function TranscodeVideo(videoId: string, extension: string): Promise<{ trackId: string; output: string }> {
 	return new Promise((resolve, reject) => {
 		const input = `${VIDEO_DIRECTORY_RAW}${videoId}.${extension}`;
 		const output = `${VIDEO_DIRECTORY_TRANSCODED}${videoId}`;
@@ -29,13 +29,14 @@ export function TranscodeVideo(videoId: string, extension: string): Promise<stri
 					Role: 'arn:aws:iam::338749429218:role/service-role/Transposer',
 					Settings: CreateJob(`s3://${S3_BUCKET}/${input}`, {
 						destination: `s3://${S3_BUCKET}/${output}`,
+						segmentLength: 5,
 						outputs: DEFAULT_OUTPUTS,
 					}),
 				})
 			)
 			.then((data) => {
 				if (!data.Job?.Arn) return reject('MediaConvert job creation failed');
-				resolve(data.Job?.Arn);
+				resolve({ trackId: data.Job?.Arn, output });
 			})
 			.catch(() => reject('MediaConvert job creation failed'));
 	});

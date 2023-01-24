@@ -62,7 +62,7 @@ export default function PostReply({ user, post, onPost }: { user: IUser; post: s
 		setLoading(true);
 		syncImages()
 			.then((urls) => {
-				SendPost(text, undefined, urls, post)
+				SendPost(text, undefined, urls, undefined, post)
 					.then(() => {
 						setText('');
 						setImages([]);

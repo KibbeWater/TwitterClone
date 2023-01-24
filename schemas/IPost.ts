@@ -11,6 +11,7 @@ export interface IPost {
 	content: string;
 	quote?: Types.ObjectId;
 	images?: string[];
+	videos?: string[];
 	parent?: Types.ObjectId;
 
 	comments: [Types.ObjectId];
@@ -27,6 +28,7 @@ interface PostModel extends Model<IPost> {
 		content: string,
 		quote?: Types.ObjectId,
 		images?: string[],
+		videos?: string[],
 		parent?: string,
 		mentions?: IUser[]
 	) => Promise<IPost | null>;
@@ -41,6 +43,7 @@ const postSchema = new Schema<IPost, PostModel>(
 		content: { type: String, required: true },
 		quote: { type: Types.ObjectId, ref: 'Post' },
 		images: [{ type: String }],
+		videos: [{ type: String }],
 		parent: { type: Types.ObjectId, ref: 'Post' },
 
 		comments: [{ type: Types.ObjectId, ref: 'Post' }],
@@ -58,6 +61,7 @@ const postSchema = new Schema<IPost, PostModel>(
 				content: string,
 				quote?: Types.ObjectId,
 				images?: string[],
+				videos?: string[],
 				parent?: string,
 				mentions?: IUser[]
 			) {
@@ -66,6 +70,7 @@ const postSchema = new Schema<IPost, PostModel>(
 						user,
 						content,
 						images: [...(images ? images : [])],
+						videos: [...(videos ? videos : [])],
 						quote,
 						comments: [],
 						parent,

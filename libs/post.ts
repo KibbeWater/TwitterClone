@@ -8,8 +8,9 @@ let lastPost = '';
 let lastPostDate: number | null = null;
 let postDates: number[] = [];
 
-export function SendPost(content: string, quoteId?: string, images?: string[], parent?: string): Promise<IPost> {
+export function SendPost(content: string, quoteId?: string, images?: string[], videos?: string[], parent?: string): Promise<IPost> {
 	return new Promise((resolve, reject) => {
+		if (videos && videos.length > 1) return reject('Too many videos');
 		if (lastPostDate) postDates.push(new Date().getTime() - lastPostDate);
 
 		if (postDates.length > 3) {
@@ -44,6 +45,7 @@ export function SendPost(content: string, quoteId?: string, images?: string[], p
 				content,
 				quote: quoteId,
 				images,
+				videos,
 				parent,
 			})
 			.then((res) => {

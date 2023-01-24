@@ -46,9 +46,17 @@ export default function PostTwaat({ onPost, placeholder, btnText, children, inli
 	const btnPostClick = async () => {
 		if (loadingPost) return;
 		setLoadingPost(true);
-		SendPost(text, undefined, await syncMedia(), parent).then((res) => {
+
+		SendPost(
+			text,
+			undefined,
+			await Promise.all(images.map(async (img) => (await syncImage(img)).url)),
+			await Promise.all(videos.map(async (vid) => (await syncVideo(vid)).url)),
+			parent
+		).then((res) => {
 			setText('');
 			setImages([]);
+			setVideos([]);
 			if (onPost) onPost();
 			setLoadingPost(false);
 		});
@@ -99,47 +107,28 @@ export default function PostTwaat({ onPost, placeholder, btnText, children, inli
 		input.click();
 	};
 
-	const syncMedia = () => {
-		const syncImage = (image: string): Promise<{ success: boolean; url: string; error?: string }> => {
-			return new Promise((resolve, reject) => {
-				axios
-					.post<{ success: boolean; url: string; error?: string }>('/api/post/upload', { image })
-					.then((res) => resolve(res.data));
-			});
-		};
+	const syncImage = (image: string): Promise<{ success: boolean; url: string; error?: string }> => {
+		return new Promise((resolve, reject) => {
+			axios.post<{ success: boolean; url: string; error?: string }>('/api/post/upload', { image }).then((res) => resolve(res.data));
+		});
+	};
 
-		// Video uploads are a bit different, we need to upload the raw video data to the server with content-type: video/mp4.
-		const syncVideo = (video: string): Promise<{ videoId: string; identifier: string }> => {
-			return new Promise((resolve, reject) => {
-				if (!video.startsWith('data:')) return;
+	const syncVideo = (video: string): Promise<{ videoId: string; identifier: string; url: string }> => {
+		return new Promise((resolve, reject) => {
+			if (!video.startsWith('data:')) return;
 
-				const ext = video.split(';')[0].split('/')[1];
-				if (ext !== 'mp4') return alert('Video must be an mp4');
+			const ext = video.split(';')[0].split('/')[1];
+			if (ext !== 'mp4') return alert('Video must be an mp4');
 
-				const uploader = new MultipartUploader(video);
-				uploader.upload().then((videoId) => {
-					console.log('Uploaded video with id', videoId);
-					TranscodeVideo(videoId).then((trackId) => {
-						if (!trackId) return alert('Failed to init video transcoding');
-						console.log('Transcoding video with id', trackId);
-						resolve({ videoId, identifier: trackId });
-					});
+			const uploader = new MultipartUploader(video);
+			uploader.upload().then((videoId) => {
+				console.log('Uploaded video with id', videoId);
+				TranscodeVideo(videoId).then((vid) => {
+					if (!vid) return alert('Failed to init video transcoding');
+					console.log('Transcoding video with id', vid.trackId);
+					resolve({ videoId, identifier: vid.trackId, url: `${vid.url}.m3u8` });
 				});
 			});
-		};
-
-		return new Promise<string[]>((resolve, reject) => {
-			if (images.length === 0 && videos.length === 0) return resolve([]);
-			Promise.all([...images.map(async (image) => syncImage(image)), ...videos.map(async (video) => syncVideo(video))])
-				.then((res) => {
-					console.log(res);
-					// @ts-ignore
-					resolve(res.map((r) => (r.videoId ? null : r.url)));
-				})
-				.catch((err) => {
-					console.error(err);
-					reject(err);
-				});
 		});
 	};
 
@@ -176,11 +165,8 @@ export default function PostTwaat({ onPost, placeholder, btnText, children, inli
 						className={'grid grid-cols-2 gap-1 mt-3 b-1'}
 						ref={postAlbumRef}
 						style={{
-							height:
-								images.length !== 0 || videos.length !== 0
-									? `${(postAlbumRef.current || { clientWidth: 1 }).clientWidth * 0.6}px`
-									: '1px',
-							opacity: images.length !== 0 || videos.length !== 0 ? 1 : 0,
+							height: images.length !== 0 ? `${(postAlbumRef.current || { clientWidth: 1 }).clientWidth * 0.6}px` : '1px',
+							opacity: images.length !== 0 ? 1 : 0,
 						}}
 					>
 						{images.map((img, i) => (
@@ -210,6 +196,13 @@ export default function PostTwaat({ onPost, placeholder, btnText, children, inli
 								</div>
 							</div>
 						))}
+					</div>
+					<div
+						className={'grid grid-cols-2 gap-1 mt-3 b-1'}
+						style={{
+							opacity: videos.length > 0 ? 1 : 0,
+						}}
+					>
 						{videos.map((video, i) => (
 							<div
 								key={`post-video-${i}`}
@@ -219,14 +212,7 @@ export default function PostTwaat({ onPost, placeholder, btnText, children, inli
 									(videos.length == 1 ? ' col-span-2' : '')
 								}
 							>
-								<video
-									src={video}
-									controls
-									className={'object-cover w-full h-full rounded-xl'}
-									/* alt={`Album video ${i}`} */
-									/* sizes={'100vw'} */
-									/* fill */
-								/>
+								<video src={video} controls className={'object-cover w-full h-full rounded-xl'} />
 								<div
 									className={
 										'absolute top-2 left-2 z-10 w-7 h-7 flex justify-center items-center rounded-full' +

@@ -9,7 +9,7 @@ import { faComment, faHeart as farHeart } from '@fortawesome/free-regular-svg-ic
 
 import { IPost } from '../../schemas/IPost';
 import { IUser } from '../../schemas/IUser';
-import { RefObject, useContext, useEffect, useReducer, useRef, useState } from 'react';
+import { RefObject, useContext, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import { UserContext } from '../Handlers/UserHandler';
 import { DeletePost, LikePost } from '../../libs/post';
 import { ILike } from '../../schemas/ILike';
@@ -35,6 +35,34 @@ function FormatDate(date: Date) {
 	else if (diff < 86400000) return Math.floor(diff / 3600000) + 'h';
 	else if (diff < 31536000000) return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 	else return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function VideoPlayer({ video, videoCount, videoIndex, key }: { video: string; videoCount: number; videoIndex: number; key: string }) {
+	return (
+		<div
+			key={key}
+			className={
+				'w-full h-full absolute top-0 right-0 bottom-0 left-0 m-auto' +
+				(videoCount == 1 || (videoCount == 3 && videoIndex == 0) ? ' row-span-2' : '') +
+				(videoCount == 1 ? ' col-span-2' : '')
+			}
+		>
+			<video
+				ref={async (node) => {
+					const HLS = (await import('hls.js')).default;
+					if (node && HLS.isSupported()) {
+						const hls = new HLS();
+						hls.loadSource(video);
+						hls.attachMedia(node);
+					}
+				}}
+				className={'object-cover w-full h-full'}
+				controls
+			>
+				<source src={video} type='application/x-mpegURL' />
+			</video>
+		</div>
+	);
 }
 
 type Props = {
@@ -80,12 +108,24 @@ export default function Post({ post, isRef, onMutate }: Props) {
 		if (post.likes) setHasLiked((post.likes as unknown as ILike[]).filter((like) => like.user == me?._id).length > 0);
 	}, [me, post.likes]);
 
+	/* useMemo(() => <VideoPlayer video={video} key={`post-${post._id}-video-${i}`} videoCount={videos.length} videoIndex={i} />, [video]) */
+
+	// Use memo to prevent rerendering of videos
+	const memodVideos = useMemo(
+		() =>
+			(post.videos || []).map((video, i) => (
+				<VideoPlayer video={video} key={`post-${post._id}-video-${i}`} videoCount={(post.videos || []).length} videoIndex={i} />
+			)),
+		[post.videos]
+	);
+
 	if (!post) return null;
 
 	const user = post.user as unknown as IUser | null;
 	const quote = post.quote as unknown as IPost | null;
 
 	const images = post.images || [];
+	const videos = post.videos || [];
 
 	const isMe = me?._id === user?._id;
 	const isAdmin = me?.group == Group.Admin;
@@ -222,7 +262,7 @@ export default function Post({ post, isRef, onMutate }: Props) {
 				</div>
 				<div
 					ref={imageDisplay}
-					className='w-9/12 grid grid-cols-2 rounded-xl overflow-hidden gap-[2px] justify-self-center border-[1px] border-gray-700'
+					className='w-9/12 mb-2 grid grid-cols-2 rounded-xl overflow-hidden gap-[2px] justify-self-center border-[1px] border-gray-700'
 					style={{
 						height: images.length !== 0 ? `${(imageDisplay.current || { clientWidth: 1 }).clientWidth * 0.6}px` : '1px',
 						opacity: images.length !== 0 ? 1 : 0,
@@ -254,6 +294,14 @@ export default function Post({ post, isRef, onMutate }: Props) {
 								</div>
 							)
 					)}
+				</div>
+				<div
+					className='w-9/12 aspect-video relative grid grid-cols-2 rounded-xl overflow-hidden gap-[2px] justify-self-center border-[1px] border-gray-700'
+					style={{
+						display: videos.length !== 0 ? 'block' : 'none',
+					}}
+				>
+					{memodVideos}
 				</div>
 				{!quote || isRef ? (
 					<></>
