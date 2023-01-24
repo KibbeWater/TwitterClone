@@ -1,13 +1,13 @@
 'use client';
 
 import { useContext, useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
-import axios, { AxiosError } from 'axios';
+import { m as motion } from 'framer-motion';
+import axios from 'redaxios';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 
-import { IUser } from '../../schemas/IUser';
+import { IUser } from '../../types/IUser';
 import { ModalContext } from '../Handlers/ModalHandler';
 
 type AuthProps = {
@@ -48,7 +48,7 @@ export default function LoginModal({ switchMode }: AuthProps) {
 			.then(() => {
 				window.location.reload();
 			})
-			.catch((err: AxiosError) => {
+			.catch((err) => {
 				setLoading(false);
 				console.log(err);
 				setError((err.response?.data as any).error || 'An error occurred');

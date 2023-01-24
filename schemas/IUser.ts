@@ -186,7 +186,7 @@ export const userSchema = new Schema<IUser, UserModel, IUserMethods>(
 						if (err) return reject(err);
 						if (!data) return reject('No data returned');
 
-						usr.avatar = `https://${S3_BUCKET}.s3.${S3_REGION}.amazonaws.com/${key}`;
+						usr.avatar = `https://${process.env.CLOUDFRONT_DOMAIN || ''}/${key}`;
 						await usr.save();
 
 						resolve(usr.avatar);
@@ -217,7 +217,7 @@ export const userSchema = new Schema<IUser, UserModel, IUserMethods>(
 						if (err) return reject(err);
 						if (!data) return reject('No data returned');
 
-						usr.banner = `https://${S3_BUCKET}.s3.${S3_REGION}.amazonaws.com/${key}`;
+						usr.banner = `https://${process.env.CLOUDFRONT_DOMAIN || ''}/${key}`;
 						await usr.save();
 
 						resolve(usr.banner);

@@ -5,7 +5,7 @@ import { useContext } from 'react';
 import { faClose } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-import { IPost } from '../../schemas/IPost';
+import { IPost } from '../../types/IPost';
 import { ModalContext } from '../Handlers/ModalHandler';
 import PostTwaat from '../Post/PostTwaat';
 

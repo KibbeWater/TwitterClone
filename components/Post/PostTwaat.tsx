@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios from 'redaxios';
 import Image from 'next/image';
 import { useContext, useEffect, useRef, useState } from 'react';
 

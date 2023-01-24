@@ -1,6 +1,6 @@
 import { faImage, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import axios from 'axios';
+import axios from 'redaxios';
 import Image from 'next/image';
 import { useContext, useEffect, useRef, useState } from 'react';
 import { KeyedMutator } from 'swr';

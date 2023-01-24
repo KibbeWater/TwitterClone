@@ -3,11 +3,13 @@
 import axios from 'axios';
 import { useEffect, useRef, useState } from 'react';
 import useSWRInfinite from 'swr/infinite';
+import axios from 'redaxios';
 
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-import { IPost } from '../../schemas/IPost';
+import { IPost } from '../../types/IPost';
+import { IUser } from '../../types/IUser';
 import PostModal from './Post';
 import PostTwaat from './PostTwaat';
 

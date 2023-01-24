@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { SafeUser } from '../../libs/user';
-import { IPost } from '../../schemas/IPost';
+import { IPost } from '../../types/IPost';
 
 export default function PostContent({ post, onClick }: { post: IPost; onClick?: (e: any) => void }) {
 	const mentions = (post.mentions as unknown as SafeUser[] | null) || [];

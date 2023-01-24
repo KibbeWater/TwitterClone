@@ -1,6 +1,6 @@
 'use client';
 
-import axios from 'axios';
+import axios from 'redaxios';
 import { useContext, useEffect, useRef, useState } from 'react';
 import useSWRInfinite from 'swr/infinite';
 
@@ -9,9 +9,10 @@ import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 
 import PageTemplate from '../../components/PageTemplate';
 import Post from '../../components/Post/Post';
-import { IPost } from '../../schemas/IPost';
+
 import { ModalContext } from '../../components/Handlers/ModalHandler';
 import PostTwaat from '../../components/Post/PostTwaat';
+import { IPost } from '../../types/IPost';
 
 export default function Page() {
 	const [isVisible, setIsVisible] = useState(false);

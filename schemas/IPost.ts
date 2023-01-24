@@ -48,7 +48,7 @@ const postSchema = new Schema<IPost, PostModel>(
 
 		comments: [{ type: Types.ObjectId, ref: 'Post' }],
 		likes: [{ type: Types.ObjectId, ref: 'Like' }],
-		retwaats: [{ type: Types.ObjectId, ref: 'Retwaat' }],
+		retwaats: [{ type: Types.ObjectId, ref: 'Post' }],
 		mentions: [{ type: Types.ObjectId, ref: 'User', default: [] }],
 
 		date: { type: Number, required: true },

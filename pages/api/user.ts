@@ -1,12 +1,11 @@
-import { Types } from 'mongoose';
 import { getCookie } from 'cookies-next';
 import { NextApiRequest, NextApiResponse } from 'next';
+
 import DB from '../../libs/database';
 import { TransformSafe } from '../../libs/user';
 import { NormalizeObject } from '../../libs/utils';
-import { ILike } from '../../schemas/ILike';
-import { IPost } from '../../schemas/IPost';
 import User, { IUser } from '../../schemas/IUser';
+import { IPost } from '../../types/IPost';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
 	if (req.method !== 'GET') return res.status(405).json({ success: false, error: 'Method not allowed' });

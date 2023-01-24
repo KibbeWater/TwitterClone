@@ -1,6 +1,6 @@
 'use client';
 
-import axios from 'axios';
+import axios from 'redaxios';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useContext, useEffect, useRef } from 'react';
@@ -14,8 +14,8 @@ import PageTemplate from '../../../components/PageTemplate';
 import PostComments from '../../../components/Post/PostComments';
 import PostFooter from '../../../components/Post/PostFooter';
 import Verified from '../../../components/Verified';
-import { IPost } from '../../../schemas/IPost';
-import { IUser } from '../../../schemas/IUser';
+import { IPost } from '../../../types/IPost';
+import { IUser } from '../../../types/IUser';
 import Post from '../../../components/Post/Post';
 import { ModalContext } from '../../../components/Handlers/ModalHandler';
 import ImageModal from '../../../components/Modals/ImageModal';

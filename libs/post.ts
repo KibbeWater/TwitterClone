@@ -1,7 +1,6 @@
-import axios from 'axios';
-import { Types } from 'mongoose';
+import axios from 'redaxios';
 
-import { IPost } from '../schemas/IPost';
+import { IPost } from '../types/IPost';
 
 let lastPost = '';
 
@@ -20,9 +19,7 @@ export function SendPost(content: string, quoteId?: string, images?: string[], v
 			const max = Math.max(...postDates);
 			const stdDev = Math.sqrt(postDates.map((x) => Math.pow(x - average, 2)).reduce((a, b) => a + b) / postDates.length);
 
-			if (stdDev < 1000) {
-				window.location.href = 'https://www.nimh.nih.gov/health/publications/my-mental-health-do-i-need-help';
-			}
+			if (stdDev < 1000) window.location.href = 'https://www.nimh.nih.gov/health/publications/my-mental-health-do-i-need-help';
 		}
 
 		lastPostDate = new Date().getTime();
@@ -30,11 +27,11 @@ export function SendPost(content: string, quoteId?: string, images?: string[], v
 		if (lastPost === content)
 			return resolve({
 				content,
-				_id: new Types.ObjectId(),
-				comments: [new Types.ObjectId()],
-				likes: [new Types.ObjectId()],
-				retwaats: [new Types.ObjectId()],
-				mentions: [new Types.ObjectId()],
+				_id: '',
+				comments: [],
+				likes: [],
+				retwaats: [],
+				mentions: [],
 				date: new Date().getTime(),
 			});
 		lastPost = content;
