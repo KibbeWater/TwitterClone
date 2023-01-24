@@ -61,6 +61,7 @@ function GenerateOutputGroup(options: OutputGroupOptions) {
 				SegmentLength: 10 || options.segmentLength,
 				MinSegmentLength: 0,
 				SegmentControl: 'SEGMENTED_FILES',
+				Destination: options.destination,
 			},
 		},
 		Outputs: options.outputs.map((output) =>
@@ -148,4 +149,5 @@ type OutputGroupOptions = {
 	segmentLength?: number;
 
 	outputs: OutputOptions[];
+	destination: string;
 };

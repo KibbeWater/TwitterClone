@@ -16,7 +16,7 @@ export const s3Client = new S3Client({
 export const S3_BUCKET = process.env.S3_BUCKET as string;
 
 // 50 MB
-const CHUNK_SIZE = 1024 * 1024 * 50;
+const CHUNK_SIZE = 1024 * 1024 * 10;
 
 type UploadURL = { url: string; partId: number; key: string };
 type Part = { chunk: ArrayBuffer; pardId: number; url: UploadURL };

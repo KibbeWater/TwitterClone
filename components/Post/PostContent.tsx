@@ -12,8 +12,6 @@ export default function PostContent({ post, onClick }: { post: IPost; onClick?: 
 			onClick={onClick}
 		>
 			{post.content.split(' ').map((word, idx, arr) => {
-				if (!word.startsWith('@')) return null;
-
 				const tag = word.substring(1).toLowerCase();
 				const mentionTag = mentions.find((mention) => mention.tag.toLowerCase() === tag);
 				if (mentionTag)

@@ -229,28 +229,31 @@ export default function Post({ post, isRef, onMutate }: Props) {
 					}}
 					onClick={routePost}
 				>
-					{images.map((img, i) => (
-						<div
-							key={`post-${post._id}-image-${i}`}
-							className={
-								'w-full h-full relative' +
-								(images.length == 1 || (images.length == 3 && i == 0) ? ' row-span-2' : '') +
-								(images.length == 1 ? ' col-span-2' : '')
-							}
-						>
-							<Image
-								src={img}
-								className={'object-cover w-full h-full'}
-								alt={`Album image ${i}`}
-								sizes={'100vw'}
-								fill
-								quality={100}
-								onClick={() => {
-									if (setModal) setModal(<ImageModal src={img} post={post} />);
-								}}
-							/>
-						</div>
-					))}
+					{images.map(
+						(img, i) =>
+							img && (
+								<div
+									key={`post-${post._id}-image-${i}`}
+									className={
+										'w-full h-full relative' +
+										(images.length == 1 || (images.length == 3 && i == 0) ? ' row-span-2' : '') +
+										(images.length == 1 ? ' col-span-2' : '')
+									}
+								>
+									<Image
+										src={img}
+										className={'object-cover w-full h-full'}
+										alt={`Album image ${i}`}
+										sizes={'100vw'}
+										fill
+										quality={100}
+										onClick={() => {
+											if (setModal) setModal(<ImageModal src={img} post={post} />);
+										}}
+									/>
+								</div>
+							)
+					)}
 				</div>
 				{!quote || isRef ? (
 					<></>

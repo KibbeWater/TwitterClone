@@ -82,9 +82,6 @@ export default function PostTwaat({ onPost, placeholder, btnText, children, inli
 					const data = e.target?.result;
 					const isVideo = file.type.startsWith('video');
 
-					console.log(file.type);
-					console.log(data);
-
 					if (!isVideo) {
 						if (!data || typeof data !== 'string') return console.error('Invalid data');
 						if (data.length > 2 * 1024 * 1024) return alert('Image is too big, max size is 2MB');

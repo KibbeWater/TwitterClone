@@ -1,7 +1,6 @@
-import { AbortMultipartUploadCommand, CompleteMultipartUploadCommand } from '@aws-sdk/client-s3';
 import { NextApiRequest, NextApiResponse } from 'next';
-import { TranscodeVideo as transcodeJob } from '../../../../libs/server/transcoder/transcoder';
-import { s3Client, S3_BUCKET } from '../../../../libs/storage';
+
+import { TranscodeVideo as transcodeJob } from '../../../libs/server/transcoder/transcoder';
 
 function transcodeVideo(req: NextApiRequest, res: NextApiResponse) {
 	return new Promise((resolve) => {
