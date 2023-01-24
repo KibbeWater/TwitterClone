@@ -18,8 +18,9 @@ export const S3_BUCKET = process.env.S3_BUCKET as string;
 // 50 MB
 const CHUNK_SIZE = 1024 * 1024 * 50;
 
-type UploadURL = { url: string; partId: number; key: string; uploadId: string };
+type UploadURL = { url: string; partId: number; key: string };
 type Part = { chunk: ArrayBuffer; pardId: number; url: UploadURL };
+type ETagRes = { part: number; etag: string };
 
 export class MultipartUploader {
 	private data: ArrayBuffer;
@@ -47,31 +48,28 @@ export class MultipartUploader {
 
 			await this.retreiveUploadInformation();
 
-			console.log(this.uploadURLs);
-
-			const uploadThreads = [...Array(1)].map(() => this.uploadPart(this.dispatchChunk()));
-
-			console.log(uploadThreads);
+			const uploadThreads = [...Array(5)].map(() => this.uploadPart(this.dispatchChunk()));
 
 			Promise.all(uploadThreads)
-				.then(() => {
-					resolve(this.videoId);
-					console.log(uploadThreads);
+				.then((tags) => {
+					axios
+						.post('/api/video/upload/complete', {
+							videoId: this.videoId,
+							uploadId: this.uploadId,
+							tags: tags.reduce((acc, curr) => [...acc, ...curr], []),
+						})
+						.then(() => resolve(this.videoId))
+						.catch((err) => reject(err));
 				})
-				.catch((err) => {
-					console.error(err);
-					/* axios
+				.catch((err) =>
+					axios
 						.post('/api/video/upload/cancel', {
 							videoId: this.videoId,
 							uploadId: this.uploadId,
 						})
-						.then(() => {
-							reject('Upload failed, aborted.');
-						})
-						.catch(() => {
-							reject('Upload failed, failed abortion.');
-						}); */
-				});
+						.then(() => reject('Upload failed, aborted.'))
+						.catch(() => reject('Upload failed, failed abortion.'))
+				);
 		});
 	}
 
@@ -105,48 +103,47 @@ export class MultipartUploader {
 		const chunk = this.chunks.shift();
 		const partId = this.currentPart++;
 
-		console.log('New chunk requested...');
-
 		if (!chunk) return null;
-
-		console.log('Chunk found...');
 
 		const url = this.uploadURLs.find((u) => u.partId === partId);
 		if (!url) return null;
 
-		console.log('Matching URL found, dispatching...');
-
 		return { chunk, pardId: partId, url };
 	}
 
-	private uploadPart(part: Part | null, retry: number = 0): Promise<void> {
+	private uploadPart(part: Part | null, etags: ETagRes[] = [], retry: number = 0): Promise<ETagRes[]> {
 		return new Promise((resolve, reject) => {
 			console.log('Uploading part...');
 
 			if (retry > 5) return reject();
-			if (!part) return resolve();
+			if (!part) return resolve(etags);
 
 			console.log(`Part exists, we're on attempt ${retry}...`);
 
 			axios
 				.put(part.url.url, part.chunk)
-				.then(() => {
+				.then((res) => {
 					console.log('Upload successful, dispatching new chunk...');
+
+					let eTag = res.headers.etag as string;
+					eTag = eTag.replaceAll('"', '');
+
 					const newPart = this.dispatchChunk();
 					if (!newPart) {
 						console.log('No new chunk found, upload complete.');
-						return resolve();
+						return resolve([...etags, { part: part.pardId, etag: eTag }]);
 					}
 
 					console.log('New chunk found, uploading...');
-					this.uploadPart(newPart)
-						.then(() => resolve())
+					this.uploadPart(newPart, etags)
+						.then((tags) => resolve([...tags, { part: part.pardId, etag: eTag }]))
 						.catch(() => reject());
 				})
-				.catch(() => {
+				.catch((err) => {
+					console.error(err);
 					console.log('Upload failed, retrying...');
-					this.uploadPart(part, retry + 1)
-						.then(() => resolve())
+					this.uploadPart(part, etags, retry + 1)
+						.then((tags) => resolve(tags))
 						.catch(() => reject());
 				});
 		});

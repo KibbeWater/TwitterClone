@@ -53,7 +53,7 @@ export function uploadImage(dataUri: string): Promise<string | null> {
 export function videoChunkUpload(fileName: string, partId: number, uploadId: string) {
 	return new Promise<string | null>((resolve, reject) => {
 		const bucket = S3_BUCKET;
-		const key = `video-raw/${fileName}`;
+		const key = `video_raw/${fileName}`;
 
 		getSignedUrl(
 			s3Client,

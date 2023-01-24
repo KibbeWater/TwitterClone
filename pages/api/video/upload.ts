@@ -5,7 +5,7 @@ import { s3Client } from '../../../libs/storage';
 
 function initializeUpload(req: NextApiRequest, res: NextApiResponse) {
 	return new Promise((resolve) => {
-		const { chunks }: { chunks: number } = req.body;
+		const { chunks, contentLength }: { chunks: number; contentLength: number } = req.body;
 
 		// Generate random 16 char id for the video.
 		const id = [...Array(16)]
@@ -18,21 +18,16 @@ function initializeUpload(req: NextApiRequest, res: NextApiResponse) {
 				new CreateMultipartUploadCommand({
 					Bucket: process.env.S3_BUCKET as string,
 					Key: `video_raw/${id}.mp4`,
-					ContentType: 'video/mp4',
-					Metadata: {
-						chunks: chunks.toString(),
-					},
 				})
 			)
 			.then((data) => {
 				const urlPromises = [...Array(chunks)].map((_, i) => {
-					return new Promise<{ url: string; partId: number; key: string; uploadId: string }>((resolve) => {
+					return new Promise<{ url: string; partId: number; key: string }>((resolve) => {
 						videoChunkUpload(`${id}.mp4`, i + 1, data.UploadId as string).then((url) =>
 							resolve({
 								url: url as string,
 								partId: i + 1,
 								key: `video_raw/${id}.mp4`,
-								uploadId: data.UploadId as string,
 							})
 						);
 					});
