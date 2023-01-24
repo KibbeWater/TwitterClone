@@ -47,6 +47,8 @@ export class MultipartUploader {
 
 			await this.retreiveUploadInformation();
 
+			console.log(this.uploadURLs);
+
 			const uploadThreads = [...Array(1)].map(() => this.uploadPart(this.dispatchChunk()));
 
 			console.log(uploadThreads);
@@ -58,7 +60,7 @@ export class MultipartUploader {
 				})
 				.catch((err) => {
 					console.error(err);
-					axios
+					/* axios
 						.post('/api/video/upload/cancel', {
 							videoId: this.videoId,
 							uploadId: this.uploadId,
@@ -68,7 +70,7 @@ export class MultipartUploader {
 						})
 						.catch(() => {
 							reject('Upload failed, failed abortion.');
-						});
+						}); */
 				});
 		});
 	}
@@ -98,43 +100,55 @@ export class MultipartUploader {
 		});
 	}
 
-	private currentPart = 0;
+	private currentPart = 1;
 	private dispatchChunk(): Part | null {
 		const chunk = this.chunks.shift();
 		const partId = this.currentPart++;
 
+		console.log('New chunk requested...');
+
 		if (!chunk) return null;
+
+		console.log('Chunk found...');
 
 		const url = this.uploadURLs.find((u) => u.partId === partId);
 		if (!url) return null;
+
+		console.log('Matching URL found, dispatching...');
 
 		return { chunk, pardId: partId, url };
 	}
 
 	private uploadPart(part: Part | null, retry: number = 0): Promise<void> {
 		return new Promise((resolve, reject) => {
+			console.log('Uploading part...');
+
 			if (retry > 5) return reject();
 			if (!part) return resolve();
 
-			axios
-				.put(part.url.url, part.chunk, {
-					headers: {
-						'Content-Type': 'application/octet-stream',
-					},
-				})
-				.then(() => {
-					const newPart = this.dispatchChunk();
-					if (!newPart) return resolve();
+			console.log(`Part exists, we're on attempt ${retry}...`);
 
-					this.uploadPart(newPart, retry + 1)
+			axios
+				.put(part.url.url, part.chunk)
+				.then(() => {
+					console.log('Upload successful, dispatching new chunk...');
+					const newPart = this.dispatchChunk();
+					if (!newPart) {
+						console.log('No new chunk found, upload complete.');
+						return resolve();
+					}
+
+					console.log('New chunk found, uploading...');
+					this.uploadPart(newPart)
 						.then(() => resolve())
 						.catch(() => reject());
 				})
-				.catch(() =>
+				.catch(() => {
+					console.log('Upload failed, retrying...');
 					this.uploadPart(part, retry + 1)
 						.then(() => resolve())
-						.catch(() => reject())
-				);
+						.catch(() => reject());
+				});
 		});
 	}
 }
