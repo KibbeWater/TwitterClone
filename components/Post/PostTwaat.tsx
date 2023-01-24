@@ -8,6 +8,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { SendPost } from '../../libs/post';
 import { UserContext } from '../Handlers/UserHandler';
 import TextareaAutosize from '../TextAutosize';
+import { MultipartUploader } from '../../libs/storage';
 
 type Props = {
 	placeholder?: string;
@@ -113,30 +114,14 @@ export default function PostTwaat({ onPost, placeholder, btnText, children, inli
 		const syncVideo = (video: string): Promise<{ videoId: string; identifier: string }> => {
 			return new Promise((resolve, reject) => {
 				if (!video.startsWith('data:')) return;
-				const buffer = Buffer.from(video.split(',')[1], 'base64');
-				const contentType = video.split(';')[0].split(':')[1];
+
 				const ext = video.split(';')[0].split('/')[1];
+				if (ext !== 'mp4') return alert('Video must be an mp4');
 
-				console.log('Uploading video with content-type: ' + contentType);
-				console.log(
-					'Uploading to: ' +
-						(process.env.VIDEO_UPLOAD_ENDPOINT ||
-							'https://56psb6iyn6vh6grykkw7mqnxqi0akfyl.lambda-url.eu-central-1.on.aws') /* +
-						'/upload' */
-				);
-
-				axios
-					.post<{ videoId: string; identifier: string }>(
-						process.env.VIDEO_UPLOAD_ENDPOINT || 'https://56psb6iyn6vh6grykkw7mqnxqi0akfyl.lambda-url.eu-central-1.on.aws' /* +
-							'/upload' */,
-						buffer,
-						{
-							headers: {
-								'Content-Type': contentType,
-							},
-						}
-					)
-					.then((res) => resolve(res.data));
+				const uploader = new MultipartUploader(video);
+				uploader.upload().then((videoId) => {
+					console.log('Uploaded video with id', videoId);
+				});
 			});
 		};
 

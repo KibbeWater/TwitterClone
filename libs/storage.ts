@@ -15,76 +15,11 @@ export const s3Client = new S3Client({
 
 export const S3_BUCKET = process.env.S3_BUCKET as string;
 
-export function createURL(key: string) {
-	return new Promise<string>((resolve, reject) => {
-		getSignedUrl(
-			s3Client,
-			new GetObjectCommand({
-				Bucket: S3_BUCKET,
-				Key: key,
-			})
-		)
-			.then((url) => {
-				resolve(url);
-			})
-			.catch((err) => {
-				reject(err);
-			});
-	});
-}
-
-export function uploadImage(dataUri: string): Promise<string | null> {
-	return new Promise<string | null>((resolve, reject) => {
-		if (!dataUri.startsWith('data:')) resolve(null);
-
-		const buffer = Buffer.from(dataUri.split(',')[1], 'base64');
-		const contentType = dataUri.split(';')[0].split(':')[1];
-		const ext = dataUri.split(';')[0].split('/')[1];
-
-		const bucket = S3_BUCKET;
-		const key = `images/${GenerateStorageKey()}.${ext}`;
-
-		const command = new PutObjectCommand({
-			Bucket: bucket,
-			Key: key,
-			Body: buffer,
-			ContentType: contentType,
-		});
-
-		s3Client
-			.send(command)
-			.then((data) => {
-				resolve(`https://${S3_BUCKET}.s3.${S3_REGION}.amazonaws.com/${key}`);
-			})
-			.catch((err) => {
-				reject(err);
-			});
-	});
-}
-
-export function videoChunkUpload(fileName: string, partId: number, uploadId: string) {
-	return new Promise<string | null>((resolve, reject) => {
-		const bucket = S3_BUCKET;
-		const key = `video-raw/${fileName}`;
-
-		getSignedUrl(
-			s3Client,
-			new UploadPartCommand({
-				Bucket: bucket,
-				Key: key,
-				PartNumber: partId,
-				UploadId: uploadId,
-			})
-		).then((url) => {
-			resolve(url);
-		});
-	});
-}
-
 // 50 MB
 const CHUNK_SIZE = 1024 * 1024 * 50;
 
 type UploadURL = { url: string; partId: number; key: string; uploadId: string };
+type Part = { chunk: ArrayBuffer; pardId: number; url: UploadURL };
 
 export class MultipartUploader {
 	private data: ArrayBuffer;
@@ -92,7 +27,7 @@ export class MultipartUploader {
 
 	private uploadURLs: UploadURL[] = [];
 	private videoId: string = '';
-	private uploadKey: string = '';
+	private uploadId: string = '';
 
 	constructor(file: string) {
 		// Parse file as a data URI, retreive the base64 encoded data and decode it into a raw buffer. Retreive also the content type, length and extension.
@@ -105,11 +40,37 @@ export class MultipartUploader {
 		this.data = buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength);
 	}
 
-	public async upload() {
-		// Generate chunks of the file.
-		this.chunks = await this.generateChunks(CHUNK_SIZE);
+	public async upload(): Promise<string> {
+		return new Promise(async (resolve, reject) => {
+			// Generate chunks of the file.
+			this.chunks = await this.generateChunks(CHUNK_SIZE);
 
-		await this.retreiveUploadInformation();
+			await this.retreiveUploadInformation();
+
+			const uploadThreads = [...Array(1)].map(() => this.uploadPart(this.dispatchChunk()));
+
+			console.log(uploadThreads);
+
+			Promise.all(uploadThreads)
+				.then(() => {
+					resolve(this.videoId);
+					console.log(uploadThreads);
+				})
+				.catch((err) => {
+					console.error(err);
+					axios
+						.post('/api/video/upload/cancel', {
+							videoId: this.videoId,
+							uploadId: this.uploadId,
+						})
+						.then(() => {
+							reject('Upload failed, aborted.');
+						})
+						.catch(() => {
+							reject('Upload failed, failed abortion.');
+						});
+				});
+		});
 	}
 
 	private async generateChunks(chunkSize: number) {
@@ -122,21 +83,23 @@ export class MultipartUploader {
 		return chunks;
 	}
 
-	private retreiveUploadInformation() {
+	private retreiveUploadInformation(): Promise<void> {
 		return new Promise((resolve, reject) => {
 			axios
-				.post<{ success: boolean; videoId: string; urls: UploadURL[] }>('/api/video/upload', {
+				.post<{ success: boolean; videoId: string; uploadId: string; urls: UploadURL[] }>('/api/video/upload', {
 					chunks: this.chunks.length,
 				})
 				.then((res) => {
 					this.uploadURLs = res.data.urls;
 					this.videoId = res.data.videoId;
+					this.uploadId = res.data.uploadId;
+					resolve();
 				});
 		});
 	}
 
 	private currentPart = 0;
-	private dispatchChunk(): { chunk: ArrayBuffer; pardId: number; url: UploadURL } | null {
+	private dispatchChunk(): Part | null {
 		const chunk = this.chunks.shift();
 		const partId = this.currentPart++;
 
@@ -148,27 +111,30 @@ export class MultipartUploader {
 		return { chunk, pardId: partId, url };
 	}
 
-	private uploadPart(chunk: ArrayBuffer, retry: number = 0): Promise<void> {
+	private uploadPart(part: Part | null, retry: number = 0): Promise<void> {
 		return new Promise((resolve, reject) => {
-			// Upload parts, after 5 retries, reject the promise.
-			// If successful, get a new dispatched chunk and upload it until it returns null.
-			if (retry > 5) reject();
-
-			const part = this.dispatchChunk();
+			if (retry > 5) return reject();
 			if (!part) return resolve();
 
 			axios
-				.put(part.url.url, chunk, {
+				.put(part.url.url, part.chunk, {
 					headers: {
 						'Content-Type': 'application/octet-stream',
 					},
 				})
 				.then(() => {
-					this.uploadPart(chunk, retry + 1);
+					const newPart = this.dispatchChunk();
+					if (!newPart) return resolve();
+
+					this.uploadPart(newPart, retry + 1)
+						.then(() => resolve())
+						.catch(() => reject());
 				})
-				.catch(() => {
-					this.uploadPart(chunk, retry + 1);
-				});
+				.catch(() =>
+					this.uploadPart(part, retry + 1)
+						.then(() => resolve())
+						.catch(() => reject())
+				);
 		});
 	}
 }
