@@ -6,6 +6,8 @@ function cancelUpload(req: NextApiRequest, res: NextApiResponse) {
 	return new Promise((resolve) => {
 		const { videoId, uploadId } = req.body;
 
+		if (!videoId || !uploadId) return resolve(res.status(400).json({ success: false, error: 'Bad request' }));
+
 		s3Client
 			.send(
 				new AbortMultipartUploadCommand({

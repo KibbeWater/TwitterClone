@@ -1,10 +1,13 @@
-import { AbortMultipartUploadCommand, CompleteMultipartUploadCommand } from '@aws-sdk/client-s3';
+import { CompleteMultipartUploadCommand } from '@aws-sdk/client-s3';
 import { NextApiRequest, NextApiResponse } from 'next';
+
 import { s3Client, S3_BUCKET } from '../../../../libs/storage';
 
 function completeUpload(req: NextApiRequest, res: NextApiResponse) {
 	return new Promise((resolve) => {
 		const { videoId, uploadId, tags }: { videoId: string; uploadId: string; tags: { part: number; etag: string }[] } = req.body;
+
+		if (!videoId || !uploadId || !tags) return resolve(res.status(400).json({ success: false, error: 'Bad request' }));
 
 		s3Client
 			.send(

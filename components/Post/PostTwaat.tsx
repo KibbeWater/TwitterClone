@@ -9,6 +9,7 @@ import { SendPost } from '../../libs/post';
 import { UserContext } from '../Handlers/UserHandler';
 import TextareaAutosize from '../TextAutosize';
 import { MultipartUploader } from '../../libs/storage';
+import { TranscodeVideo } from '../../libs/transcoder';
 
 type Props = {
 	placeholder?: string;
@@ -121,6 +122,11 @@ export default function PostTwaat({ onPost, placeholder, btnText, children, inli
 				const uploader = new MultipartUploader(video);
 				uploader.upload().then((videoId) => {
 					console.log('Uploaded video with id', videoId);
+					TranscodeVideo(videoId).then((trackId) => {
+						if (!trackId) return alert('Failed to init video transcoding');
+						console.log('Transcoding video with id', trackId);
+						resolve({ videoId, identifier: trackId });
+					});
 				});
 			});
 		};
