@@ -135,7 +135,40 @@ export class MultipartUploader {
 		});
 	}
 
-	private uploadPart(retry: number = 0) {
-		return new Promise((resolve, reject) => {});
+	private currentPart = 0;
+	private dispatchChunk(): { chunk: ArrayBuffer; pardId: number; url: UploadURL } | null {
+		const chunk = this.chunks.shift();
+		const partId = this.currentPart++;
+
+		if (!chunk) return null;
+
+		const url = this.uploadURLs.find((u) => u.partId === partId);
+		if (!url) return null;
+
+		return { chunk, pardId: partId, url };
+	}
+
+	private uploadPart(chunk: ArrayBuffer, retry: number = 0): Promise<void> {
+		return new Promise((resolve, reject) => {
+			// Upload parts, after 5 retries, reject the promise.
+			// If successful, get a new dispatched chunk and upload it until it returns null.
+			if (retry > 5) reject();
+
+			const part = this.dispatchChunk();
+			if (!part) return resolve();
+
+			axios
+				.put(part.url.url, chunk, {
+					headers: {
+						'Content-Type': 'application/octet-stream',
+					},
+				})
+				.then(() => {
+					this.uploadPart(chunk, retry + 1);
+				})
+				.catch(() => {
+					this.uploadPart(chunk, retry + 1);
+				});
+		});
 	}
 }
