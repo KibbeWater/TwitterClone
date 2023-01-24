@@ -1,7 +1,7 @@
 'use client';
 
 import { useContext, useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
+import { m as motion } from 'framer-motion';
 import axios from 'redaxios';
 
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
