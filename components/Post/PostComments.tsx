@@ -1,9 +1,8 @@
 'use client';
 
-import axios from 'axios';
 import { useEffect, useRef, useState } from 'react';
-import useSWRInfinite from 'swr/infinite';
 import axios from 'redaxios';
+import useSWRInfinite from 'swr/infinite';
 
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';

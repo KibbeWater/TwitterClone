@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios from 'redaxios';
 
 export function TranscodeVideo(videoId: string): Promise<{ url: string; trackId: string } | null> {
 	return new Promise((resolve) => {

@@ -1,19 +1,4 @@
-import { GetObjectCommand, PutObjectCommand, S3Client, UploadPartCommand } from '@aws-sdk/client-s3';
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import axios from 'axios';
-import { GenerateStorageKey } from './utils';
-
-export const S3_REGION = process.env.S3_REGION || 'us-east-1';
-
-export const s3Client = new S3Client({
-	region: S3_REGION,
-	credentials: {
-		accessKeyId: process.env.S3_ACCESS_KEY_ID as string,
-		secretAccessKey: process.env.S3_SECRET_ACCESS_KEY as string,
-	},
-});
-
-export const S3_BUCKET = process.env.S3_BUCKET as string;
+import axios from 'redaxios';
 
 // 50 MB
 const CHUNK_SIZE = 1024 * 1024 * 10;
@@ -118,7 +103,7 @@ export class MultipartUploader {
 			axios
 				.put(part.url.url, part.chunk)
 				.then((res) => {
-					let eTag = res.headers.etag as string;
+					let eTag = res.headers.get('etag') as string;
 					eTag = eTag.replaceAll('"', '');
 
 					const newPart = this.dispatchChunk();

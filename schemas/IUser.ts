@@ -1,14 +1,15 @@
-import mongoose, { Model, model, Schema, Types } from 'mongoose';
+import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { compareSync, hashSync } from 'bcryptjs';
-import Session, { ISession } from './ISession';
-import Post, { IPost } from './IPost';
+import mongoose, { Model, model, Schema, Types } from 'mongoose';
+
+import { s3Client, S3_BUCKET } from '../libs/server/storage';
+import { TransformSafe } from '../libs/user';
 import { GenerateStorageKey, NormalizeObject } from '../libs/utils';
 import Like, { ILike } from './ILike';
-import Relationship, { IRelationship } from './IRelationship';
-import { PutObjectCommand } from '@aws-sdk/client-s3';
-import { s3Client, S3_BUCKET, S3_REGION } from '../libs/storage';
 import Notification, { INotification } from './INotification';
-import { TransformSafe } from '../libs/user';
+import Post, { IPost } from './IPost';
+import Relationship, { IRelationship } from './IRelationship';
+import Session, { ISession } from './ISession';
 
 export interface IUser {
 	_id: Types.ObjectId;

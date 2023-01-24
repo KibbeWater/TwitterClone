@@ -1,5 +1,5 @@
 import { CreateJobCommand, MediaConvertClient } from '@aws-sdk/client-mediaconvert';
-import { S3_BUCKET, S3_REGION } from '../../storage';
+import { S3_BUCKET, S3_REGION } from '../../server/storage';
 import { CreateJob, DEFAULT_OUTPUTS } from './outputs';
 
 export const SUPPORTED_RESOLUTIONS = ['4K', '2K', 'HD', 'SD'];

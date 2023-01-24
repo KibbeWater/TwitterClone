@@ -1,6 +1,6 @@
 import { AbortMultipartUploadCommand } from '@aws-sdk/client-s3';
 import { NextApiRequest, NextApiResponse } from 'next';
-import { s3Client, S3_BUCKET } from '../../../../libs/storage';
+import { s3Client, S3_BUCKET } from '../../../../libs/server/storage';
 
 function cancelUpload(req: NextApiRequest, res: NextApiResponse) {
 	return new Promise((resolve) => {

@@ -1,7 +1,6 @@
 import { CreateMultipartUploadCommand } from '@aws-sdk/client-s3';
 import { NextApiRequest, NextApiResponse } from 'next';
-import { videoChunkUpload } from '../../../libs/server/storage';
-import { s3Client } from '../../../libs/storage';
+import { s3Client, videoChunkUpload } from '../../../libs/server/storage';
 
 function initializeUpload(req: NextApiRequest, res: NextApiResponse) {
 	return new Promise((resolve) => {
