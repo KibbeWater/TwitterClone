@@ -8,6 +8,7 @@ export type IPost = {
 	content: string;
 	quote?: IPost;
 	images?: string[];
+	videos?: string[];
 	parent?: IPost;
 
 	comments: IPost[];
