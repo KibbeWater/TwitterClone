@@ -10,6 +10,7 @@ import { UserContext } from '../Handlers/UserHandler';
 import TextareaAutosize from '../TextAutosize';
 import { MultipartUploader } from '../../libs/storage';
 import { TranscodeVideo } from '../../libs/transcoder';
+import { Group } from '../../libs/utils';
 
 type Props = {
 	placeholder?: string;
@@ -86,23 +87,6 @@ export default function PostTwaat({ onPost, placeholder, btnText, children, inli
 				const file = files[i];
 				const reader = new FileReader();
 
-				/* reader.onload = (e) => {
-					const data = e.target?.result;
-					const isVideo = file.type.startsWith('video');
-
-					if (!isVideo) {
-						if (!data || typeof data !== 'string') return console.error('Invalid data');
-						if (data.length > 2 * 1024 * 1024) return alert('Image is too big, max size is 2MB');
-					} else {
-						if (!data || typeof data !== 'string') return console.error('Invalid data');
-					}
-
-					//setImages((prev) => (prev.length < 4 ? [...prev, data] : prev));
-					if (!isVideo) setImages((prev) => (prev.length < 4 ? [...prev, data] : prev));
-					else setVideos((prev) => (prev.length < 1 ? [...prev, data] : prev));
-				};
-				reader.readAsDataURL(file); */
-
 				// Read as array buffer and if it's an image, convert it to a data url
 				reader.onload = (e) => {
 					const data = e.target?.result as ArrayBuffer;
@@ -116,6 +100,7 @@ export default function PostTwaat({ onPost, placeholder, btnText, children, inli
 
 						setImages((prev) => (prev.length < 4 ? [...prev, url] : prev));
 					} else {
+						if (user.group !== Group.Admin) return alert('You are not allowed to upload videos');
 						if (!data || !(data instanceof ArrayBuffer)) return console.error('Invalid data');
 						setVideos((prev) => (prev.length < 1 ? [...prev, data] : prev));
 					}

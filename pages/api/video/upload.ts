@@ -1,10 +1,28 @@
 import { CreateMultipartUploadCommand } from '@aws-sdk/client-s3';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { s3Client, videoChunkUpload } from '../../../libs/server/storage';
+import { Connect } from '../../../libs/database';
+import { getCookie } from 'cookies-next';
+import User from '../../../schemas/IUser';
+import { Group } from '../../../libs/utils';
 
 function initializeUpload(req: NextApiRequest, res: NextApiResponse) {
-	return new Promise((resolve) => {
+	return new Promise(async (resolve) => {
 		const { chunks, contentLength }: { chunks: number; contentLength: number } = req.body;
+
+		await Connect();
+
+		const token = getCookie('token', { req, res }) as string;
+		if (!token) return resolve(res.status(401).json({ success: false, error: 'Unauthorized' }));
+
+		// Await user authentication.
+		try {
+			const user = await User.authenticate(token);
+			if (!user) return resolve(res.status(401).json({ success: false, error: 'Unauthorized' }));
+			if (user.group !== Group.Admin) return resolve(res.status(401).json({ success: false, error: 'Unauthorized' }));
+		} catch (error) {
+			return resolve(res.status(401).json({ success: false, error: 'Unauthorized' }));
+		}
 
 		// Generate random 16 char id for the video.
 		const id = [...Array(16)]
