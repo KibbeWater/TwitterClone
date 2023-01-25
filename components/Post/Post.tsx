@@ -42,7 +42,7 @@ function VideoPlayer({ video, videoCount, videoIndex, key }: { video: string; vi
 		<div
 			key={key}
 			className={
-				'w-full h-full absolute top-0 right-0 bottom-0 left-0 m-auto' +
+				'absolute aspect-video h-full w-full' +
 				(videoCount == 1 || (videoCount == 3 && videoIndex == 0) ? ' row-span-2' : '') +
 				(videoCount == 1 ? ' col-span-2' : '')
 			}
@@ -56,7 +56,7 @@ function VideoPlayer({ video, videoCount, videoIndex, key }: { video: string; vi
 						hls.attachMedia(node);
 					}
 				}}
-				className={'object-cover w-full h-full'}
+				className={'w-full h-full object-contain'}
 				controls
 			>
 				<source src={video} type='application/x-mpegURL' />
