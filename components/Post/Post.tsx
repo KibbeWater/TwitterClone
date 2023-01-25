@@ -3,7 +3,15 @@
 import Image from 'next/image';
 
 import { faComment, faHeart as farHeart } from '@fortawesome/free-regular-svg-icons';
-import { faArrowUpFromBracket, faEllipsis, faHeart as fasHeart, faRepeat, faTrash, faUser } from '@fortawesome/free-solid-svg-icons';
+import {
+	faArrowUpFromBracket,
+	faEllipsis,
+	faHeart as fasHeart,
+	faPlay,
+	faRepeat,
+	faTrash,
+	faUser,
+} from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
@@ -38,29 +46,63 @@ function FormatDate(date: Date) {
 }
 
 function VideoPlayer({ video, videoCount, videoIndex, key }: { video: string; videoCount: number; videoIndex: number; key: string }) {
+	const playBtn = useRef<HTMLDivElement>(null);
+	const videoRef = useRef<HTMLVideoElement>(null);
+
+	useEffect(() => {
+		import('hls.js').then((hlsModules) => {
+			const HLS = hlsModules.default;
+
+			if (!videoRef.current) return;
+
+			if (videoRef.current && HLS.isSupported()) {
+				const hls = new HLS();
+				hls.attachMedia(videoRef.current);
+
+				videoRef.current.addEventListener('play', () => {
+					if ((videoRef.current as HTMLVideoElement).readyState >= 2) return;
+
+					hls.loadSource(video);
+					hls.on(HLS.Events.MANIFEST_PARSED, () => {
+						(videoRef.current as HTMLVideoElement).play();
+					});
+				});
+			}
+		});
+	}, [videoRef.current]);
+
+	const playVideo = () => {
+		// playBtn has to be shown if this should run
+		if (!playBtn.current) return;
+		if (playBtn.current.classList.contains('hidden')) return;
+
+		console.log('Running playVideo');
+
+		if (videoRef.current) {
+			videoRef.current.play();
+			videoRef.current.controls = true;
+			playBtn.current?.classList.add('hidden');
+		}
+	};
+
+	console.log('Rendering VideoPlayer');
+
 	return (
 		<div
 			key={key}
+			onClick={playVideo}
 			className={
 				'absolute aspect-video h-full w-full' +
 				(videoCount == 1 || (videoCount == 3 && videoIndex == 0) ? ' row-span-2' : '') +
 				(videoCount == 1 ? ' col-span-2' : '')
 			}
 		>
-			<video
-				ref={async (node) => {
-					const HLS = (await import('hls.js')).default;
-					if (node && HLS.isSupported()) {
-						const hls = new HLS();
-						hls.loadSource(video);
-						hls.attachMedia(node);
-					}
-				}}
-				className={'w-full h-full object-contain'}
-				controls
-			>
-				<source src={video} type='application/x-mpegURL' />
-			</video>
+			<div ref={playBtn}>
+				<div className={'absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2'}>
+					<FontAwesomeIcon icon={faPlay} className={'text-4xl text-white'} />
+				</div>
+			</div>
+			<video ref={videoRef} className={'w-full h-full object-contain'} />
 		</div>
 	);
 }
