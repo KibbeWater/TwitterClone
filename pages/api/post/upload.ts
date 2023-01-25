@@ -1,7 +1,7 @@
 import { getCookie } from 'cookies-next';
 import { NextApiRequest, NextApiResponse } from 'next';
 import DB from '../../../libs/database';
-import { uploadImage } from '../../../libs/storage';
+import { uploadImage } from '../../../libs/server/storage';
 import User from '../../../schemas/IUser';
 
 export const config = {

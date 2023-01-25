@@ -1,4 +1,4 @@
-import { faHeart, faRepeat, faUser } from '@fortawesome/free-solid-svg-icons';
+import { faAt, faHeart, faRepeat, faUser } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -36,15 +36,15 @@ export default function Notification({ notif }: { notif: INotification }) {
 				</>
 			);
 			break;
-
 		default:
 			break;
 	}
 
-	if (notif.type == 'reply') {
+	if (notif.type == 'reply' || notif.type == 'mention') {
 		if (!notif.post)
 			return (
-				<p className='text-black dark:text-white w-full text-center py-2 border-b-[1px] border-gray-700'>Content not available</p>
+				//{/* <p className='text-black dark:text-white w-full text-center py-2 border-b-[1px] border-gray-700'>Content not available</p> */}
+				null
 			);
 		return <Post post={notif.post as unknown as IPost} />;
 	}
@@ -53,9 +53,17 @@ export default function Notification({ notif }: { notif: INotification }) {
 		<div className={`w-full flex px-4 py-2 border-b-[1px] border-gray-700`}>
 			<div className='h-full justify-end mt-1'>
 				<FontAwesomeIcon
-					icon={type == 'follow' ? faUser : type == 'like' ? faHeart : faRepeat}
+					icon={type == 'follow' ? faUser : type == 'like' ? faHeart : type == 'mention' ? faAt : faRepeat}
 					size={'xl'}
-					className={type == 'follow' ? 'text-red-500' : type == 'like' ? 'text-red-500' : 'text-green-500'}
+					className={
+						type == 'follow'
+							? 'text-red-500'
+							: type == 'like'
+							? 'text-red-500'
+							: type == 'mention'
+							? 'text-sky-500'
+							: 'text-green-500'
+					}
 				/>
 			</div>
 			<div className='flex flex-col justify-center ml-4'>

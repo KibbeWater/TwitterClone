@@ -1,6 +1,6 @@
 import axios from 'redaxios';
 import Image from 'next/image';
-import { useContext, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 
 import { faXmark, faImage } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -8,6 +8,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { SendPost } from '../../libs/post';
 import { UserContext } from '../Handlers/UserHandler';
 import TextareaAutosize from '../TextAutosize';
+import { MultipartUploader } from '../../libs/storage';
+import { TranscodeVideo } from '../../libs/transcoder';
+import { Group } from '../../libs/utils';
 
 type Props = {
 	placeholder?: string;
@@ -22,62 +25,109 @@ type Props = {
 
 export default function PostTwaat({ onPost, placeholder, btnText, children, inline, avatarSize = 48, padding, parent }: Props) {
 	const [text, setText] = useState('');
-	const [images, setImages] = useState([] as string[]);
+
+	const [images, setImages] = useState<string[]>([]);
+	const [videos, setVideos] = useState<ArrayBuffer[]>([]);
+
 	const [loadingPost, setLoadingPost] = useState(false);
 
 	const postAlbumRef = useRef<HTMLDivElement>(null);
 
 	const { user } = useContext(UserContext);
 
+	useEffect(() => {
+		if (images.length > 0 && videos.length > 0) {
+			setImages([]);
+			setVideos([]);
+		}
+	}, [images, videos]);
+
 	if (!user) return null;
 
 	const btnPostClick = async () => {
 		if (loadingPost) return;
 		setLoadingPost(true);
-		SendPost(text, undefined, await syncImages(), parent).then((res) => {
+
+		SendPost(
+			text,
+			undefined,
+			await Promise.all(images.map(async (img) => (await syncImage(img)).url)),
+			await Promise.all(videos.map(async (vid) => (await syncVideo(vid)).url)),
+			parent
+		).then((res) => {
 			setText('');
 			setImages([]);
+			setVideos([]);
 			if (onPost) onPost();
 			setLoadingPost(false);
 		});
 	};
 
-	const uploadImages = () => {
-		// We wanna get a max of 4 images which can only be 2MB each
+	const uploadMedia = () => {
+		// We wanna get a max of 4 images (2MB each) OR 1 video (no limit)
 		const input = document.createElement('input');
 		input.type = 'file';
 		input.multiple = true;
-		input.accept = 'image/*';
+		input.accept = 'image/*,video/*';
 		input.onchange = () => {
 			const files = input.files;
-			if (files)
+			if (!files) return alert('No files selected');
+
+			// The user can only select 4 images and no videos OR 1 video and no images
+			if (files.length > 4) return alert('You can only select a maximum of 4 images');
+			if (files.length > 1) {
 				for (let i = 0; i < files.length; i++) {
 					const file = files[i];
-					const reader = new FileReader();
-					reader.onload = (e) => {
-						const data = e.target?.result;
-						if (!data || typeof data !== 'string') return console.error('Invalid data');
-						if (data.length > 2 * 1024 * 1024) return alert('Image is too big, max size is 2MB');
-
-						setImages((prev) => (prev.length < 4 ? [...prev, data] : prev));
-					};
-					reader.readAsDataURL(file);
+					if (file.type.startsWith('video')) return alert('You can only select 1 video');
 				}
+			}
+
+			// Check if the user selected images that were too big
+			for (let i = 0; i < files.length; i++) {
+				const file = files[i];
+				const reader = new FileReader();
+
+				// Read as array buffer and if it's an image, convert it to a data url
+				reader.onload = (e) => {
+					const data = e.target?.result as ArrayBuffer;
+					const isVideo = file.type.startsWith('video');
+
+					if (!isVideo) {
+						if (!data || !(data instanceof ArrayBuffer)) return console.error('Invalid data');
+						if (data.byteLength > 2 * 1024 * 1024) return alert('Image is too big, max size is 2MB');
+
+						const url = `data:${file.type};base64,${Buffer.from(data).toString('base64')}`;
+
+						setImages((prev) => (prev.length < 4 ? [...prev, url] : prev));
+					} else {
+						if (user.group !== Group.Admin) return alert('You are not allowed to upload videos');
+						if (!data || !(data instanceof ArrayBuffer)) return console.error('Invalid data');
+						setVideos((prev) => (prev.length < 1 ? [...prev, data] : prev));
+					}
+				};
+				reader.readAsArrayBuffer(file);
+			}
 		};
 		input.click();
 	};
 
-	const syncImages = () => {
-		return new Promise<string[]>((resolve, reject) => {
-			if (images.length === 0) return resolve([]);
-			Promise.all(images.map((image) => axios.post<{ success: boolean; url: string }>('/api/post/upload', { image })))
-				.then((res) => {
-					resolve(res.map((r) => r.data.url));
-				})
-				.catch((err) => {
-					console.error(err);
-					reject(err);
+	const syncImage = (image: string): Promise<{ success: boolean; url: string; error?: string }> => {
+		return new Promise((resolve, reject) => {
+			axios.post<{ success: boolean; url: string; error?: string }>('/api/post/upload', { image }).then((res) => resolve(res.data));
+		});
+	};
+
+	const syncVideo = (video: ArrayBuffer): Promise<{ videoId: string; identifier: string; url: string }> => {
+		return new Promise((resolve, reject) => {
+			const uploader = new MultipartUploader(video);
+			uploader.upload().then((videoId) => {
+				console.log('Uploaded video with id', videoId);
+				TranscodeVideo(videoId).then((vid) => {
+					if (!vid) return alert('Failed to init video transcoding');
+					console.log('Transcoding video with id', vid.trackId);
+					resolve({ videoId, identifier: vid.trackId, url: `${vid.url}.m3u8` });
 				});
+			});
 		});
 	};
 
@@ -146,11 +196,51 @@ export default function PostTwaat({ onPost, placeholder, btnText, children, inli
 							</div>
 						))}
 					</div>
+					<div
+						className={'grid grid-cols-2 gap-1 mt-3 b-1 w-full aspect-video rounded-xl overflow-hidden'}
+						style={{
+							display: videos.length > 0 ? 'block' : 'none',
+						}}
+					>
+						{videos.map((video, i) => {
+							// Is video more than 200mb?
+							const isLarge = video.byteLength > 200 * 1024 * 1024;
+							const videoURL = isLarge ? null : URL.createObjectURL(new Blob([video]));
+
+							return (
+								<div
+									key={`post-video-${i}`}
+									className={
+										'w-full h-full relative' +
+										(videos.length == 1 || (videos.length == 3 && i == 0) ? ' row-span-2' : '') +
+										(videos.length == 1 ? ' col-span-2' : '')
+									}
+								>
+									{!isLarge ? (
+										<video src={videoURL as string} controls className={'object-cover w-full h-full rounded-xl'} />
+									) : (
+										<div className={'w-full h-full bg-white/5 flex justify-center items-center'}>
+											<p className={'text-white text-xl'}>Video is too large to preview</p>
+										</div>
+									)}
+									<div
+										className={
+											'absolute top-2 left-2 z-10 w-7 h-7 flex justify-center items-center rounded-full' +
+											' backdrop-blur-md bg-black/60 hover:bg-black/40 cursor-pointer'
+										}
+										onClick={() => setVideos((prev) => prev.filter((_, j) => j !== i))}
+									>
+										<FontAwesomeIcon icon={faXmark} />
+									</div>
+								</div>
+							);
+						})}
+					</div>
 					{!inline ? <div className='h-px w-full opacity-50 bg-gray-500' /> : null}
 					<div className='flex justify-between items-center mt-2 h-min'>
 						<div
 							className='flex items-center justify-center w-10 h-10 rounded-full transition-colors text-red-500 bg-accent-primary-500/0 hover:bg-accent-primary-500/20 hover:cursor-pointer'
-							onClick={() => uploadImages()}
+							onClick={() => uploadMedia()}
 						>
 							<FontAwesomeIcon icon={faImage} size={'lg'} />
 						</div>

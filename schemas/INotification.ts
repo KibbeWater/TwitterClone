@@ -50,14 +50,15 @@ export const notificationSchema = new Schema<INotification, NotificationModel>(
 							if (err) reject(err);
 							else {
 								const latestNotification = user?.notifications[user?.notifications.length - 1];
-								if (latestNotification?.type === type && type !== 'mention' && type !== 'reply') {
-									const notif = Notification.findByIdAndUpdate(
-										latestNotification._id,
-										{ $push: { targets: targets } },
-										{ new: true }
+								if (latestNotification?.type === type && type !== 'mention' && type !== 'reply')
+									resolve(
+										Notification.findByIdAndUpdate(
+											latestNotification._id,
+											{ $push: { targets: targets } },
+											{ new: true }
+										)
 									);
-									resolve(notif);
-								} else {
+								else
 									this.create({
 										user,
 										type,
@@ -66,12 +67,9 @@ export const notificationSchema = new Schema<INotification, NotificationModel>(
 										date: Date.now(),
 									}).then((notification) => {
 										User.findByIdAndUpdate(user._id, { $push: { notifications: notification } }, { new: true }).then(
-											(user) => {
-												resolve(notification);
-											}
+											() => resolve(notification)
 										);
 									});
-								}
 							}
 						});
 				});
@@ -97,13 +95,11 @@ export const notificationSchema = new Schema<INotification, NotificationModel>(
 										type: 'follow',
 										targets: [target],
 										date: Date.now(),
-									}).then((notification) => {
+									}).then((notification) =>
 										User.findByIdAndUpdate(user._id, { $push: { notifications: notification } }, { new: true }).then(
-											(user) => {
-												resolve(notification);
-											}
-										);
-									});
+											() => resolve(notification)
+										)
+									);
 								}
 							}
 						});

@@ -3,19 +3,28 @@
 import Image from 'next/image';
 
 import { faComment, faHeart as farHeart } from '@fortawesome/free-regular-svg-icons';
-import { faArrowUpFromBracket, faEllipsis, faHeart as fasHeart, faRepeat, faTrash, faUser } from '@fortawesome/free-solid-svg-icons';
+import {
+	faArrowUpFromBracket,
+	faEllipsis,
+	faHeart as fasHeart,
+	faPlay,
+	faRepeat,
+	faTrash,
+	faUser,
+} from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useContext, useEffect, useReducer, useRef, useState } from 'react';
 
+import { useMemo } from 'react';
 import { DeletePost, LikePost } from '../../libs/post';
 import { CreateRelationship } from '../../libs/user';
 import { Group } from '../../libs/utils';
 import { ILike } from '../../types/ILike';
-import { IRelationship } from '../../types/IRelationship';
 import { IPost } from '../../types/IPost';
+import { IRelationship } from '../../types/IRelationship';
 import { IUser } from '../../types/IUser';
 import { ModalContext } from '../Handlers/ModalHandler';
 import { UserContext } from '../Handlers/UserHandler';
@@ -34,6 +43,64 @@ function FormatDate(date: Date) {
 	else if (diff < 86400000) return Math.floor(diff / 3600000) + 'h';
 	else if (diff < 31536000000) return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 	else return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function VideoPlayer({ video, videoCount, videoIndex, key }: { video: string; videoCount: number; videoIndex: number; key: string }) {
+	const playBtn = useRef<HTMLDivElement>(null);
+	const videoRef = useRef<HTMLVideoElement>(null);
+
+	useEffect(() => {
+		import('hls.js').then((hlsModules) => {
+			const HLS = hlsModules.default;
+
+			if (!videoRef.current) return;
+
+			if (videoRef.current && HLS.isSupported()) {
+				const hls = new HLS();
+				hls.attachMedia(videoRef.current);
+
+				videoRef.current.addEventListener('play', () => {
+					if ((videoRef.current as HTMLVideoElement).readyState >= 2) return;
+
+					hls.loadSource(video);
+					hls.on(HLS.Events.MANIFEST_PARSED, () => {
+						(videoRef.current as HTMLVideoElement).play();
+					});
+				});
+			}
+		});
+	}, [videoRef.current]);
+
+	const playVideo = () => {
+		// playBtn has to be shown if this should run
+		if (!playBtn.current) return;
+		if (playBtn.current.classList.contains('hidden')) return;
+
+		if (videoRef.current) {
+			videoRef.current.play();
+			videoRef.current.controls = true;
+			playBtn.current?.classList.add('hidden');
+		}
+	};
+
+	return (
+		<div
+			key={key}
+			onClick={playVideo}
+			className={
+				'absolute aspect-video h-full w-full' +
+				(videoCount == 1 || (videoCount == 3 && videoIndex == 0) ? ' row-span-2' : '') +
+				(videoCount == 1 ? ' col-span-2' : '')
+			}
+		>
+			<div ref={playBtn}>
+				<div className={'absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2'}>
+					<FontAwesomeIcon icon={faPlay} className={'text-4xl text-white'} />
+				</div>
+			</div>
+			<video ref={videoRef} className={'w-full h-full object-contain'} />
+		</div>
+	);
 }
 
 type Props = {
@@ -81,12 +148,24 @@ export default function Post({ post, isRef, onMutate }: Props) {
 		if (post.likes) setHasLiked((post.likes as unknown as ILike[]).filter((like) => like.user == me?._id).length > 0);
 	}, [me, post.likes]);
 
+	/* useMemo(() => <VideoPlayer video={video} key={`post-${post._id}-video-${i}`} videoCount={videos.length} videoIndex={i} />, [video]) */
+
+	// Use memo to prevent rerendering of videos
+	const memodVideos = useMemo(
+		() =>
+			(post.videos || []).map((video, i) => (
+				<VideoPlayer video={video} key={`post-${post._id}-video-${i}`} videoCount={(post.videos || []).length} videoIndex={i} />
+			)),
+		[post.videos]
+	);
+
 	if (!post) return null;
 
 	const user = post.user as unknown as IUser | null;
 	const quote = post.quote as unknown as IPost | null;
 
 	const images = post.images || [];
+	const videos = post.videos || [];
 
 	const isMe = me?._id === user?._id;
 	const isAdmin = me?.group == Group.Admin;
@@ -223,35 +302,46 @@ export default function Post({ post, isRef, onMutate }: Props) {
 				</div>
 				<div
 					ref={imageDisplay}
-					className='w-9/12 grid grid-cols-2 rounded-xl overflow-hidden gap-[2px] justify-self-center border-[1px] border-gray-700'
+					className='w-9/12 mb-2 grid grid-cols-2 rounded-xl overflow-hidden gap-[2px] justify-self-center border-[1px] border-gray-700'
 					style={{
 						height: images.length !== 0 ? `${(imageDisplay.current || { clientWidth: 1 }).clientWidth * 0.6}px` : '1px',
 						opacity: images.length !== 0 ? 1 : 0,
 					}}
 					onClick={routePost}
 				>
-					{images.map((img, i) => (
-						<div
-							key={`post-${post._id}-image-${i}`}
-							className={
-								'w-full h-full relative' +
-								(images.length == 1 || (images.length == 3 && i == 0) ? ' row-span-2' : '') +
-								(images.length == 1 ? ' col-span-2' : '')
-							}
-						>
-							<Image
-								src={img}
-								className={'object-cover w-full h-full'}
-								alt={`Album image ${i}`}
-								sizes={'100vw'}
-								fill
-								quality={100}
-								onClick={() => {
-									if (setModal) setModal(<ImageModal src={img} post={post} />);
-								}}
-							/>
-						</div>
-					))}
+					{images.map(
+						(img, i) =>
+							img && (
+								<div
+									key={`post-${post._id}-image-${i}`}
+									className={
+										'w-full h-full relative' +
+										(images.length == 1 || (images.length == 3 && i == 0) ? ' row-span-2' : '') +
+										(images.length == 1 ? ' col-span-2' : '')
+									}
+								>
+									<Image
+										src={img}
+										className={'object-cover w-full h-full'}
+										alt={`Album image ${i}`}
+										sizes={'100vw'}
+										fill
+										quality={100}
+										onClick={() => {
+											if (setModal) setModal(<ImageModal src={img} post={post} />);
+										}}
+									/>
+								</div>
+							)
+					)}
+				</div>
+				<div
+					className='w-9/12 aspect-video relative grid grid-cols-2 rounded-xl overflow-hidden gap-[2px] justify-self-center border-[1px] border-gray-700'
+					style={{
+						display: videos.length !== 0 ? 'block' : 'none',
+					}}
+				>
+					{memodVideos}
 				</div>
 				{!quote || isRef ? (
 					<></>
