@@ -1,7 +1,7 @@
-import axios from 'redaxios';
-
 // 50 MB
 const CHUNK_SIZE = 1024 * 1024 * 10;
+const CHUNK_MIN_SIZE = 5242880;
+const CHUNK_MAX_SIZE = 1024 * 1024 * 30;
 
 type UploadURL = { url: string; partId: number; key: string };
 type Part = { chunk: ArrayBuffer; pardId: number; url: UploadURL };
@@ -34,6 +34,8 @@ export class MultipartUploader {
 
 			const uploadThreads = [...Array(5)].map(() => this.uploadPart(this.dispatchChunk()));
 
+			const axios = (await import('axios')).default;
+
 			Promise.all(uploadThreads)
 				.then((tags) => {
 					axios
@@ -60,15 +62,38 @@ export class MultipartUploader {
 	private async generateChunks(chunkSize: number) {
 		const chunks: ArrayBuffer[] = [];
 
-		for (let i = 0; i < this.data.byteLength; i += chunkSize) {
-			chunks.push(this.data.slice(i, i + chunkSize));
+		let newChunkSize = chunkSize;
+
+		if (this.data.byteLength % chunkSize < CHUNK_MIN_SIZE) {
+			while (this.data.byteLength % newChunkSize < CHUNK_MIN_SIZE && newChunkSize <= CHUNK_MAX_SIZE) {
+				newChunkSize += 1024 * 1024 * 0.5;
+			}
+
+			if (this.data.byteLength % newChunkSize > CHUNK_MAX_SIZE) {
+				while (this.data.byteLength % newChunkSize < CHUNK_MIN_SIZE) {
+					newChunkSize += 1024 * 1024 * 0.5;
+				}
+			}
 		}
+
+		console.log('We are generating chunks with a size of ' + newChunkSize + ' bytes');
+
+		for (let i = 0; i < this.data.byteLength; i += newChunkSize) {
+			chunks.push(this.data.slice(i, i + newChunkSize));
+		}
+
+		console.log(
+			'We have generated ' + chunks.length + ' chunks',
+			chunks.map((c) => c.byteLength)
+		);
 
 		return chunks;
 	}
 
 	private retreiveUploadInformation(): Promise<void> {
-		return new Promise((resolve, reject) => {
+		return new Promise(async (resolve, reject) => {
+			const axios = (await import('axios')).default;
+
 			axios
 				.post<{ success: boolean; videoId: string; uploadId: string; urls: UploadURL[] }>('/api/video/upload', {
 					chunks: this.chunks.length,
@@ -96,14 +121,16 @@ export class MultipartUploader {
 	}
 
 	private uploadPart(part: Part | null, etags: ETagRes[] = [], retry: number = 0): Promise<ETagRes[]> {
-		return new Promise((resolve, reject) => {
+		return new Promise(async (resolve, reject) => {
 			if (retry > 5) return reject();
 			if (!part) return resolve(etags);
 
+			const axios = (await import('axios')).default;
+
 			axios
-				.put(part.url.url, part.chunk)
+				.put(part.url.url, part.chunk, {})
 				.then((res) => {
-					let eTag = res.headers.get('etag') as string;
+					let eTag = res.headers.etag as string;
 					eTag = eTag.replaceAll('"', '');
 
 					const newPart = this.dispatchChunk();

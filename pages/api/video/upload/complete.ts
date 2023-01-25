@@ -26,7 +26,10 @@ function completeUpload(req: NextApiRequest, res: NextApiResponse) {
 				})
 			)
 			.then(() => resolve(res.status(200).json({ success: true })))
-			.catch((err) => resolve(res.status(500).json({ success: false, error: 'Internal server error' })));
+			.catch((err) => {
+				console.error(err);
+				resolve(res.status(500).json({ success: false, error: 'Internal server error' }));
+			});
 	});
 }
 
