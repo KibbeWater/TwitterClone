@@ -76,16 +76,12 @@ function VideoPlayer({ video, videoCount, videoIndex, key }: { video: string; vi
 		if (!playBtn.current) return;
 		if (playBtn.current.classList.contains('hidden')) return;
 
-		console.log('Running playVideo');
-
 		if (videoRef.current) {
 			videoRef.current.play();
 			videoRef.current.controls = true;
 			playBtn.current?.classList.add('hidden');
 		}
 	};
-
-	console.log('Rendering VideoPlayer');
 
 	return (
 		<div
