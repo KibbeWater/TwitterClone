@@ -26,7 +26,7 @@ export default function PostTwaat({ onPost, placeholder, btnText, children, inli
 	const [text, setText] = useState('');
 
 	const [images, setImages] = useState<string[]>([]);
-	const [videos, setVideos] = useState<string[]>([]);
+	const [videos, setVideos] = useState<ArrayBuffer[]>([]);
 
 	const [loadingPost, setLoadingPost] = useState(false);
 
@@ -86,7 +86,7 @@ export default function PostTwaat({ onPost, placeholder, btnText, children, inli
 				const file = files[i];
 				const reader = new FileReader();
 
-				reader.onload = (e) => {
+				/* reader.onload = (e) => {
 					const data = e.target?.result;
 					const isVideo = file.type.startsWith('video');
 
@@ -101,7 +101,26 @@ export default function PostTwaat({ onPost, placeholder, btnText, children, inli
 					if (!isVideo) setImages((prev) => (prev.length < 4 ? [...prev, data] : prev));
 					else setVideos((prev) => (prev.length < 1 ? [...prev, data] : prev));
 				};
-				reader.readAsDataURL(file);
+				reader.readAsDataURL(file); */
+
+				// Read as array buffer and if it's an image, convert it to a data url
+				reader.onload = (e) => {
+					const data = e.target?.result as ArrayBuffer;
+					const isVideo = file.type.startsWith('video');
+
+					if (!isVideo) {
+						if (!data || !(data instanceof ArrayBuffer)) return console.error('Invalid data');
+						if (data.byteLength > 2 * 1024 * 1024) return alert('Image is too big, max size is 2MB');
+
+						const url = `data:${file.type};base64,${Buffer.from(data).toString('base64')}`;
+
+						setImages((prev) => (prev.length < 4 ? [...prev, url] : prev));
+					} else {
+						if (!data || !(data instanceof ArrayBuffer)) return console.error('Invalid data');
+						setVideos((prev) => (prev.length < 1 ? [...prev, data] : prev));
+					}
+				};
+				reader.readAsArrayBuffer(file);
 			}
 		};
 		input.click();
@@ -113,13 +132,8 @@ export default function PostTwaat({ onPost, placeholder, btnText, children, inli
 		});
 	};
 
-	const syncVideo = (video: string): Promise<{ videoId: string; identifier: string; url: string }> => {
+	const syncVideo = (video: ArrayBuffer): Promise<{ videoId: string; identifier: string; url: string }> => {
 		return new Promise((resolve, reject) => {
-			if (!video.startsWith('data:')) return;
-
-			const ext = video.split(';')[0].split('/')[1];
-			if (ext !== 'mp4') return alert('Video must be an mp4');
-
 			const uploader = new MultipartUploader(video);
 			uploader.upload().then((videoId) => {
 				console.log('Uploaded video with id', videoId);
@@ -198,32 +212,44 @@ export default function PostTwaat({ onPost, placeholder, btnText, children, inli
 						))}
 					</div>
 					<div
-						className={'grid grid-cols-2 gap-1 mt-3 b-1'}
+						className={'grid grid-cols-2 gap-1 mt-3 b-1 w-full aspect-video rounded-xl overflow-hidden'}
 						style={{
-							opacity: videos.length > 0 ? 1 : 0,
+							display: videos.length > 0 ? 'block' : 'none',
 						}}
 					>
-						{videos.map((video, i) => (
-							<div
-								key={`post-video-${i}`}
-								className={
-									'w-full h-full relative' +
-									(videos.length == 1 || (videos.length == 3 && i == 0) ? ' row-span-2' : '') +
-									(videos.length == 1 ? ' col-span-2' : '')
-								}
-							>
-								<video src={video} controls className={'object-cover w-full h-full rounded-xl'} />
+						{videos.map((video, i) => {
+							// Is video more than 200mb?
+							const isLarge = video.byteLength > 200 * 1024 * 1024;
+							const videoURL = isLarge ? null : URL.createObjectURL(new Blob([video]));
+
+							return (
 								<div
+									key={`post-video-${i}`}
 									className={
-										'absolute top-2 left-2 z-10 w-7 h-7 flex justify-center items-center rounded-full' +
-										' backdrop-blur-md bg-black/60 hover:bg-black/40 cursor-pointer'
+										'w-full h-full relative' +
+										(videos.length == 1 || (videos.length == 3 && i == 0) ? ' row-span-2' : '') +
+										(videos.length == 1 ? ' col-span-2' : '')
 									}
-									onClick={() => setVideos((prev) => prev.filter((_, j) => j !== i))}
 								>
-									<FontAwesomeIcon icon={faXmark} />
+									{!isLarge ? (
+										<video src={videoURL as string} controls className={'object-cover w-full h-full rounded-xl'} />
+									) : (
+										<div className={'w-full h-full bg-white/5 flex justify-center items-center'}>
+											<p className={'text-white text-xl'}>Video is too large to preview</p>
+										</div>
+									)}
+									<div
+										className={
+											'absolute top-2 left-2 z-10 w-7 h-7 flex justify-center items-center rounded-full' +
+											' backdrop-blur-md bg-black/60 hover:bg-black/40 cursor-pointer'
+										}
+										onClick={() => setVideos((prev) => prev.filter((_, j) => j !== i))}
+									>
+										<FontAwesomeIcon icon={faXmark} />
+									</div>
 								</div>
-							</div>
-						))}
+							);
+						})}
 					</div>
 					{!inline ? <div className='h-px w-full opacity-50 bg-gray-500' /> : null}
 					<div className='flex justify-between items-center mt-2 h-min'>

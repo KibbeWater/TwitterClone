@@ -15,15 +15,9 @@ export class MultipartUploader {
 	private videoId: string = '';
 	private uploadId: string = '';
 
-	constructor(file: string) {
-		// Parse file as a data URI, retreive the base64 encoded data and decode it into a raw buffer. Retreive also the content type, length and extension.
-		const buffer = Buffer.from(file.split(',')[1], 'base64');
-		const contentType = file.split(';')[0].split(':')[1];
-		const contentLength = buffer.length;
-		const ext = file.split(';')[0].split('/')[1];
-
+	constructor(file: ArrayBuffer) {
 		// Convert the raw buffer into an ArrayBuffer.
-		this.data = buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength);
+		this.data = file;
 	}
 
 	public async upload(): Promise<string> {
