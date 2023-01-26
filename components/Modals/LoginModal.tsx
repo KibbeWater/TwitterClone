@@ -1,14 +1,13 @@
 'use client';
 
-import { useContext, useEffect, useState } from 'react';
 import { m as motion } from 'framer-motion';
+import { useEffect, useState } from 'react';
 import axios from 'redaxios';
 
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { IUser } from '../../types/IUser';
-import { ModalContext } from '../Handlers/ModalHandler';
 
 type AuthProps = {
 	switchMode: () => void;
