@@ -1,5 +1,5 @@
 import { faImage, faXmark } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { FontAwesomeSvgIcon } from 'react-fontawesome-svg-icon';
 import axios from 'redaxios';
 import Image from 'next/image';
 import { useContext, useEffect, useRef, useState } from 'react';
@@ -141,7 +141,7 @@ export default function EditProfileModal({
 		>
 			<div className={'w-full h-12 flex justify-between sticky top-0 left-0 right-0 items-center bg-black/60 backdrop-blur-sm'}>
 				<div className={'flex items-center'}>
-					<FontAwesomeIcon
+					<FontAwesomeSvgIcon
 						icon={faXmark}
 						size={'xl'}
 						className={'text-white ml-4 m-6 cursor-pointer'}
@@ -174,7 +174,7 @@ export default function EditProfileModal({
 							}
 							onClick={() => uploadBanner()}
 						>
-							<FontAwesomeIcon icon={faImage} className={'text-white'} />
+							<FontAwesomeSvgIcon icon={faImage} className={'text-white'} />
 						</button>
 						{banner ? (
 							<button
@@ -183,7 +183,7 @@ export default function EditProfileModal({
 								}
 								onClick={() => setBanner('')}
 							>
-								<FontAwesomeIcon icon={faXmark} size={'lg'} className={'text-white'} />
+								<FontAwesomeSvgIcon icon={faXmark} size={'lg'} className={'text-white'} />
 							</button>
 						) : null}
 					</div>
@@ -196,7 +196,7 @@ export default function EditProfileModal({
 							}
 							onClick={() => uploadAvatar()}
 						>
-							<FontAwesomeIcon icon={faImage} color={'white'} />
+							<FontAwesomeSvgIcon icon={faImage} color={'white'} />
 						</div>
 						<Image
 							src={avatar || '/default_avatar.png'}

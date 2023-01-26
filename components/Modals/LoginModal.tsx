@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import axios from 'redaxios';
 
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { FontAwesomeSvgIcon } from 'react-fontawesome-svg-icon';
 
 import { IUser } from '../../types/IUser';
 
@@ -93,7 +93,7 @@ export default function LoginModal({ switchMode }: AuthProps) {
 					error
 				) : loading ? (
 					<>
-						{'Loading'} <FontAwesomeIcon icon={faSpinner} className='animate-spin ml-2' />
+						{'Loading'} <FontAwesomeSvgIcon icon={faSpinner} className='animate-spin ml-2' />
 					</>
 				) : (
 					'Login'
