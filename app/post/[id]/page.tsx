@@ -20,6 +20,7 @@ import Post from '../../../components/Post/Post';
 import { ModalContext } from '../../../components/Handlers/ModalHandler';
 import ImageModal from '../../../components/Modals/ImageModal';
 import PostContent from '../../../components/Post/PostContent';
+import { fullCDNImageLoader } from '../../../libs/utils';
 
 type Props = {
 	params: {
@@ -38,8 +39,6 @@ export default function Page({ params }: Props) {
 
 	const { user: me } = useContext(UserContext);
 	const { modal, setModal } = useContext(ModalContext);
-
-	const imageDisplay = useRef<HTMLDivElement>(null);
 
 	useEffect(() => {
 		mutate();
@@ -96,11 +95,9 @@ export default function Page({ params }: Props) {
 				<div className='mx-3 mt-2'>
 					<PostContent post={post} />
 					<div
-						ref={imageDisplay}
-						className='w-full grid grid-cols-2 rounded-xl overflow-hidden gap-[2px] justify-self-center border-[1px] border-gray-700'
+						className='w-full aspect-[5/3] grid grid-cols-2 rounded-xl overflow-hidden gap-[2px] justify-self-center border-[1px] border-gray-700'
 						style={{
-							height: images.length !== 0 ? `${(imageDisplay.current || { clientWidth: 1 }).clientWidth * 0.6}px` : '1px',
-							opacity: images.length !== 0 ? 1 : 0,
+							display: images.length !== 0 ? 'grid' : 'none',
 						}}
 					>
 						{images.map((img, i) => (
@@ -118,6 +115,7 @@ export default function Page({ params }: Props) {
 									alt={`Album image ${i}`}
 									sizes={'100vw'}
 									fill
+									loader={fullCDNImageLoader}
 									onClick={() => {
 										if (setModal) setModal(<ImageModal src={img} post={post} />);
 									}}

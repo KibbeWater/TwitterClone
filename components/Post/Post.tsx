@@ -21,7 +21,7 @@ import { useContext, useEffect, useReducer, useRef, useState } from 'react';
 import { useMemo } from 'react';
 import { DeletePost, LikePost } from '../../libs/post';
 import { CreateRelationship } from '../../libs/user';
-import { Group } from '../../libs/utils';
+import { fullCDNImageLoader, Group } from '../../libs/utils';
 import { ILike } from '../../types/ILike';
 import { IPost } from '../../types/IPost';
 import { IRelationship } from '../../types/IRelationship';
@@ -123,8 +123,6 @@ export default function Post({ post, isRef, onMutate }: Props) {
 			(rel: IRelationship) => rel.target?.toString() == (post.user as IUser | undefined)?._id && rel.type == 'follow'
 		)
 	);
-
-	const imageDisplay = useRef<HTMLDivElement>(null);
 
 	const router = useRouter();
 
@@ -260,7 +258,7 @@ export default function Post({ post, isRef, onMutate }: Props) {
 					</motion.div>
 				</div>
 			) : null}
-			<div className='w-12 h-12 relative shrink-0'>
+			<div className='w-12 h-12 relative shrink-0' onClick={() => window.location.assign(`/@${user.tag}`)}>
 				<div className='w-12 h-12 absolute'>
 					<Image
 						className={'w-full h-full rounded-full object-cover cursor-pointer transition-opacity hover:opacity-80'}
@@ -301,11 +299,9 @@ export default function Post({ post, isRef, onMutate }: Props) {
 					<PostContent post={post} onClick={routePost} />
 				</div>
 				<div
-					ref={imageDisplay}
-					className='w-9/12 mb-2 grid grid-cols-2 rounded-xl overflow-hidden gap-[2px] justify-self-center border-[1px] border-gray-700'
+					className='w-9/12 aspect-[5/3] mb-2 grid grid-cols-2 rounded-xl overflow-hidden gap-[2px] justify-self-center border-[1px] border-gray-700'
 					style={{
-						height: images.length !== 0 ? `${(imageDisplay.current || { clientWidth: 1 }).clientWidth * 0.6}px` : '1px',
-						opacity: images.length !== 0 ? 1 : 0,
+						display: images.length !== 0 ? 'grid' : 'none',
 					}}
 					onClick={routePost}
 				>
@@ -327,6 +323,7 @@ export default function Post({ post, isRef, onMutate }: Props) {
 										sizes={'100vw'}
 										fill
 										quality={100}
+										loader={fullCDNImageLoader}
 										onClick={() => {
 											if (setModal) setModal(<ImageModal src={img} post={post} />);
 										}}
