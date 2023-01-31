@@ -71,6 +71,10 @@ function VideoPlayer({ video, videoCount, videoIndex, key }: { video: string; vi
 		});
 	}, [videoRef.current]);
 
+	// Get the thumbnail, ${videoId}_thumb.xxxxxxx.jpg. Video looks like this: https://${url}.cloudfront.net/video_streaming/${videoId}_${resolution}p.m3u8
+	const thumbCont = '0';
+	const thumbUrl = video.replace('.m3u8', `_thumb.000000${thumbCont}.jpg`);
+
 	const playVideo = () => {
 		// playBtn has to be shown if this should run
 		if (!playBtn.current) return;
@@ -98,7 +102,7 @@ function VideoPlayer({ video, videoCount, videoIndex, key }: { video: string; vi
 					<FontAwesomeIcon icon={faPlay} className={'text-4xl text-white'} />
 				</div>
 			</div>
-			<video ref={videoRef} className={'w-full h-full object-contain'} />
+			<video ref={videoRef} poster={thumbUrl} className={'w-full h-full object-contain'} />
 		</div>
 	);
 }
