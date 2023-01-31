@@ -1,4 +1,4 @@
-import { JobSettings } from '@aws-sdk/client-mediaconvert';
+import { JobSettings, OutputGroup } from '@aws-sdk/client-mediaconvert';
 
 export const DEFAULT_OUTPUTS = [
 	{
@@ -45,7 +45,7 @@ export function CreateJob(input: string | string[], options: OutputGroupOptions)
 				FileInput: input,
 			};
 		}),
-		OutputGroups: [GenerateOutputGroup(options)],
+		OutputGroups: [GenerateOutputGroup(options), GenerateThumbOutput(options.destination) as OutputGroup],
 		TimecodeConfig: {
 			Source: 'ZEROBASED',
 		},
@@ -89,17 +89,37 @@ function GenerateOutput(options: OutputOptions) {
 	};
 }
 
-function GenerateAudioOutput(options: AudioOutputOptions = { bitrate: 96000, sampleRate: 48000 }) {
+function GenerateThumbOutput(destination: string) {
 	return {
-		CodecSettings: {
-			Codec: 'AAC',
-			AacSettings: {
-				Bitrate: options.bitrate,
-				CodingMode: 'CODING_MODE_2_0',
-				SampleRate: options.sampleRate,
+		Name: 'Thumbnail',
+		OutputGroupSettings: {
+			Type: 'FILE_GROUP_SETTINGS',
+			FileGroupSettings: {
+				Destination: destination,
 			},
 		},
-		AudioSourceName: 'Audio Selector 1',
+		Outputs: [
+			{
+				VideoDescription: {
+					CodecSettings: {
+						Codec: 'FRAME_CAPTURE',
+						FrameCaptureSettings: {
+							Quality: 80,
+							FramerateNumerator: 30,
+							FramerateDenominator: 300,
+							MaxCaptures: 1,
+						},
+					},
+					Width: 1920,
+					Height: 1080,
+				},
+				ContainerSettings: {
+					Container: 'RAW',
+				},
+				NameModifier: '_thumb',
+				Extension: 'jpg',
+			},
+		],
 	};
 }
 
@@ -119,6 +139,20 @@ function GenerateVideoOutput(options: VideoOutputOptions = { width: 1920, height
 		},
 		Width: options.width,
 		Height: options.height,
+	};
+}
+
+function GenerateAudioOutput(options: AudioOutputOptions = { bitrate: 96000, sampleRate: 48000 }) {
+	return {
+		CodecSettings: {
+			Codec: 'AAC',
+			AacSettings: {
+				Bitrate: options.bitrate,
+				CodingMode: 'CODING_MODE_2_0',
+				SampleRate: options.sampleRate,
+			},
+		},
+		AudioSourceName: 'Audio Selector 1',
 	};
 }
 

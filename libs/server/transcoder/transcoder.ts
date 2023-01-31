@@ -38,6 +38,9 @@ export function TranscodeVideo(videoId: string, extension: string): Promise<{ tr
 				if (!data.Job?.Arn) return reject('MediaConvert job creation failed');
 				resolve({ trackId: data.Job?.Arn, output });
 			})
-			.catch(() => reject('MediaConvert job creation failed'));
+			.catch((err) => {
+				console.error(err);
+				reject('MediaConvert job creation failed');
+			});
 	});
 }
