@@ -32,6 +32,7 @@ import ImageModal from '../Modals/ImageModal';
 import PostModal from '../Modals/PostModal';
 import Verified from '../Verified';
 import PostContent from './PostContent';
+import { VideoPlayer } from './VideoPlayer';
 
 function FormatDate(date: Date) {
 	const now = new Date();
@@ -43,68 +44,6 @@ function FormatDate(date: Date) {
 	else if (diff < 86400000) return Math.floor(diff / 3600000) + 'h';
 	else if (diff < 31536000000) return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 	else return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-}
-
-function VideoPlayer({ video, videoCount, videoIndex, key }: { video: string; videoCount: number; videoIndex: number; key: string }) {
-	const playBtn = useRef<HTMLDivElement>(null);
-	const videoRef = useRef<HTMLVideoElement>(null);
-
-	useEffect(() => {
-		import('hls.js').then((hlsModules) => {
-			const HLS = hlsModules.default;
-
-			if (!videoRef.current) return;
-
-			if (videoRef.current && HLS.isSupported()) {
-				const hls = new HLS();
-				hls.attachMedia(videoRef.current);
-
-				videoRef.current.addEventListener('play', () => {
-					if ((videoRef.current as HTMLVideoElement).readyState >= 2) return;
-
-					hls.loadSource(video);
-					hls.on(HLS.Events.MANIFEST_PARSED, () => {
-						(videoRef.current as HTMLVideoElement).play();
-					});
-				});
-			}
-		});
-	}, [videoRef.current]);
-
-	// Get the thumbnail, ${videoId}_thumb.xxxxxxx.jpg. Video looks like this: https://${url}.cloudfront.net/video_streaming/${videoId}_${resolution}p.m3u8
-	const thumbCont = '0';
-	const thumbUrl = video.replace('.m3u8', `_thumb.000000${thumbCont}.jpg`);
-
-	const playVideo = () => {
-		// playBtn has to be shown if this should run
-		if (!playBtn.current) return;
-		if (playBtn.current.classList.contains('hidden')) return;
-
-		if (videoRef.current) {
-			videoRef.current.play();
-			videoRef.current.controls = true;
-			playBtn.current?.classList.add('hidden');
-		}
-	};
-
-	return (
-		<div
-			key={key}
-			onClick={playVideo}
-			className={
-				'absolute aspect-video h-full w-full' +
-				(videoCount == 1 || (videoCount == 3 && videoIndex == 0) ? ' row-span-2' : '') +
-				(videoCount == 1 ? ' col-span-2' : '')
-			}
-		>
-			<div ref={playBtn}>
-				<div className={'absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2'}>
-					<FontAwesomeIcon icon={faPlay} className={'text-4xl text-white'} />
-				</div>
-			</div>
-			<video ref={videoRef} poster={thumbUrl} className={'w-full h-full object-contain'} />
-		</div>
-	);
 }
 
 type Props = {
@@ -150,13 +89,20 @@ export default function Post({ post, isRef, onMutate }: Props) {
 		if (post.likes) setHasLiked((post.likes as unknown as ILike[]).filter((like) => like.user == me?._id).length > 0);
 	}, [me, post.likes]);
 
-	/* useMemo(() => <VideoPlayer video={video} key={`post-${post._id}-video-${i}`} videoCount={videos.length} videoIndex={i} />, [video]) */
+	const videoCount = (post.videos || []).length;
 
-	// Use memo to prevent rerendering of videos
 	const memodVideos = useMemo(
 		() =>
 			(post.videos || []).map((video, i) => (
-				<VideoPlayer video={video} key={`post-${post._id}-video-${i}`} videoCount={(post.videos || []).length} videoIndex={i} />
+				<VideoPlayer
+					video={video}
+					className={
+						'absolute aspect-video h-full w-full' +
+						(videoCount == 1 || (videoCount == 3 && i == 0) ? ' row-span-2' : '') +
+						(videoCount == 1 ? ' col-span-2' : '')
+					}
+					key={`post-${post._id}-video-${i}`}
+				/>
 			)),
 		[post.videos]
 	);

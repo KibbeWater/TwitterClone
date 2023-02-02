@@ -3,7 +3,7 @@
 import axios from 'redaxios';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useContext, useEffect, useRef } from 'react';
+import { useContext, useEffect, useMemo, useRef } from 'react';
 import useSWR from 'swr';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -21,6 +21,7 @@ import { ModalContext } from '../../../components/Handlers/ModalHandler';
 import ImageModal from '../../../components/Modals/ImageModal';
 import PostContent from '../../../components/Post/PostContent';
 import { fullCDNImageLoader } from '../../../libs/utils';
+import { VideoPlayer } from '../../../components/Post/VideoPlayer';
 
 type Props = {
 	params: {
@@ -36,9 +37,28 @@ export default function Page({ params }: Props) {
 	const user = post?.user as unknown as IUser;
 	const quote = post?.quote as unknown as IPost;
 	const images = post?.images || [];
+	const videos = post?.videos || [];
 
 	const { user: me } = useContext(UserContext);
 	const { modal, setModal } = useContext(ModalContext);
+
+	const videoCount = (videos || []).length;
+
+	const memodVideos = useMemo(
+		() =>
+			(videos || []).map((video, i) => (
+				<VideoPlayer
+					video={video}
+					className={
+						'absolute aspect-video h-full w-full' +
+						(videoCount == 1 || (videoCount == 3 && i == 0) ? ' row-span-2' : '') +
+						(videoCount == 1 ? ' col-span-2' : '')
+					}
+					key={`post-${post?._id}-video-${i}`}
+				/>
+			)),
+		[videos]
+	);
 
 	useEffect(() => {
 		mutate();
@@ -95,7 +115,7 @@ export default function Page({ params }: Props) {
 				<div className='mx-3 mt-2'>
 					<PostContent post={post} />
 					<div
-						className='w-full aspect-[5/3] grid grid-cols-2 rounded-xl overflow-hidden gap-[2px] justify-self-center border-[1px] border-gray-700'
+						className='w-full aspect-[5/3] mt-2 grid grid-cols-2 rounded-xl overflow-hidden gap-[2px] justify-self-center border-[1px] border-gray-700'
 						style={{
 							display: images.length !== 0 ? 'grid' : 'none',
 						}}
@@ -122,6 +142,14 @@ export default function Page({ params }: Props) {
 								/>
 							</div>
 						))}
+					</div>
+					<div
+						className='w-full aspect-video mt-2 relative grid grid-cols-2 rounded-xl overflow-hidden gap-[2px] justify-self-center border-[1px] border-gray-700'
+						style={{
+							display: videos.length !== 0 ? 'block' : 'none',
+						}}
+					>
+						{memodVideos}
 					</div>
 					{quote ? (
 						<div
