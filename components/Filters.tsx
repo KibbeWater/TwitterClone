@@ -37,6 +37,8 @@ export default function Filters() {
 
 	const [results, setResults] = useState([] as IUser[]);
 
+	const isActive = active || search.length > 0 || results.length > 0;
+
 	useEffect(() => {
 		const controller = new AbortController();
 		if (search.length === 0) return setResults([]);
@@ -57,11 +59,11 @@ export default function Filters() {
 			<div className={'h-full w-[70%] ml-8 pt-1'}>
 				<div
 					className={`w-full h-10 rounded-3xl mb-2 flex items-center ${
-						active ? 'bg-white dark:bg-black' : 'bg-[#eff3f4] dark:bg-neutral-800'
-					} ${active ? 'border-[#e26161]' : 'border-transparent'} border-[1px]`}
+						isActive ? 'bg-white dark:bg-black' : 'bg-[#eff3f4] dark:bg-neutral-800'
+					} ${isActive ? 'border-[#e26161]' : 'border-transparent'} border-[1px]`}
 				>
 					<div
-						className={`${active ? 'flex' : 'hidden'} absolute top-11 w-80 ${
+						className={`${isActive ? 'flex' : 'hidden'} absolute top-11 w-80 ${
 							results.length === 0 ? 'h-24 justify-center ' : 'flex-col '
 						} bg-white dark:bg-neutral-900 shadow-2xl rounded-2xl`}
 					>
@@ -82,7 +84,7 @@ export default function Filters() {
 							onChange={(e) => setSearch(e.target.value)}
 							value={search}
 							className={`w-full h-full ${
-								active ? 'bg-white dark:bg-black' : 'bg-[#eff3f4] dark:bg-neutral-800'
+								isActive ? 'bg-white dark:bg-black' : 'bg-[#eff3f4] dark:bg-neutral-800'
 							} text-sm outline-none rounded-r-3xl text-black dark:text-white`}
 							placeholder='Search Twatter'
 						/>
