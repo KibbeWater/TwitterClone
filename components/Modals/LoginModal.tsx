@@ -9,6 +9,7 @@ import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 
 import { IUser } from '../../types/IUser';
 import { ModalContext } from '../Handlers/ModalHandler';
+import { UserContext } from '../Handlers/UserHandler';
 
 type AuthProps = {
 	switchMode: () => void;
@@ -41,12 +42,18 @@ export default function LoginModal({ switchMode }: AuthProps) {
 
 	const [hoveringLogin, setHoveringLogin] = useState(false);
 
+	const { mutate } = useContext(UserContext);
+	const { setModal } = useContext(ModalContext);
+
 	const btnLoginClick = () => {
 		setLoading(true);
 
 		Login(username, password)
 			.then(() => {
-				window.location.reload();
+				if (mutate && setModal) {
+					mutate();
+					setModal(null);
+				} else window.location.reload();
 			})
 			.catch((err) => {
 				setLoading(false);
