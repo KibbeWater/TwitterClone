@@ -5,7 +5,7 @@ import { m as motion } from 'framer-motion';
 import axios from 'redaxios';
 
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { FontAwesomeSvgIcon } from 'react-fontawesome-svg-icon';
 import { setCookie } from 'cookies-next';
 import { ModalContext } from '../Handlers/ModalHandler';
 
@@ -113,7 +113,7 @@ export default function RegisterModal({ switchMode }: AuthProps) {
 					error
 				) : loading ? (
 					<>
-						{'Loading'} <FontAwesomeIcon icon={faSpinner} className='animate-spin ml-2' />
+						{'Loading'} <FontAwesomeSvgIcon icon={faSpinner} className='animate-spin ml-2' />
 					</>
 				) : (
 					'Register'

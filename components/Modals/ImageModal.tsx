@@ -1,7 +1,7 @@
 'use client';
 
 import { faArrowLeft, faArrowRight, faEllipsis, faSpinner, faXmark } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { FontAwesomeSvgIcon } from 'react-fontawesome-svg-icon';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useContext, useEffect, useRef, useState } from 'react';
@@ -81,7 +81,7 @@ export default function ImageModal({ src, post }: Props) {
 					}
 					onClick={() => setCommentsOpen((prev) => !prev)}
 				>
-					<FontAwesomeIcon icon={commentsOpen ? faArrowRight : faArrowLeft} />
+					<FontAwesomeSvgIcon icon={commentsOpen ? faArrowRight : faArrowLeft} />
 				</div>
 				<div
 					className={
@@ -92,7 +92,7 @@ export default function ImageModal({ src, post }: Props) {
 						if (setModal) setModal(null);
 					}}
 				>
-					<FontAwesomeIcon icon={faXmark} />
+					<FontAwesomeSvgIcon icon={faXmark} />
 				</div>
 				<div className='grow h-full w-full relative'>
 					<div className='absolute left-0 right-0 top-0 bottom-0 m-auto' onClick={closeOnBg}>
@@ -140,7 +140,7 @@ export default function ImageModal({ src, post }: Props) {
 					</div>
 					<div>
 						<div className='group/postMenu bg-red-500/0 hover:bg-red-500/30 hover:cursor-pointer w-8 h-8 rounded-full flex justify-center items-center'>
-							<FontAwesomeIcon icon={faEllipsis} className={'group-hover/postMenu:text-accent-primary-500 text-black'} />
+							<FontAwesomeSvgIcon icon={faEllipsis} className={'group-hover/postMenu:text-accent-primary-500 text-black'} />
 						</div>
 					</div>
 				</div>
@@ -183,7 +183,7 @@ export default function ImageModal({ src, post }: Props) {
 					className={'w-full mt-4 flex justify-center items-center' + (!isValidating ? ' invisible' : ' visible')}
 					ref={loadingRef}
 				>
-					<FontAwesomeIcon icon={faSpinner} size={'2x'} color={'black'} className={'animate-spin'} />
+					<FontAwesomeSvgIcon icon={faSpinner} size={'2x'} color={'black'} className={'animate-spin'} />
 				</div>
 			</div>
 		</div>

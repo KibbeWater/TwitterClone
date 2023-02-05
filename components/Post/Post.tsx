@@ -12,8 +12,8 @@ import {
 	faTrash,
 	faUser,
 } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { motion } from 'framer-motion';
+import { FontAwesomeSvgIcon } from 'react-fontawesome-svg-icon';
+import { m as motion } from 'framer-motion';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useContext, useEffect, useReducer, useRef, useState } from 'react';
@@ -32,6 +32,7 @@ import ImageModal from '../Modals/ImageModal';
 import PostModal from '../Modals/PostModal';
 import Verified from '../Verified';
 import PostContent from './PostContent';
+import { LazyMotionWrapper } from '../LazyMotionWrapper';
 
 function FormatDate(date: Date) {
 	const now = new Date();
@@ -99,7 +100,7 @@ function VideoPlayer({ video, videoCount, videoIndex, key }: { video: string; vi
 		>
 			<div ref={playBtn}>
 				<div className={'absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2'}>
-					<FontAwesomeIcon icon={faPlay} className={'text-4xl text-white'} />
+					<FontAwesomeSvgIcon icon={faPlay} className={'text-4xl text-white'} />
 				</div>
 			</div>
 			<video ref={videoRef} poster={thumbUrl} className={'w-full h-full object-contain'} />
@@ -193,73 +194,76 @@ export default function Post({ post, isRef, onMutate }: Props) {
 						className='w-7 h-7 rounded-full hover:bg-black/20 flex justify-center items-center'
 						onClick={() => setOptionsActive((prev) => !prev)}
 					>
-						<FontAwesomeIcon icon={faEllipsis} className={'text-black dark:text-white'} />
+						<FontAwesomeSvgIcon icon={faEllipsis} className={'text-black dark:text-white'} />
 					</div>
-					<motion.div
-						className={
-							'absolute top-7 right-0 w-max py-3 bg-gray-100 dark:bg-neutral-900 shadow-lg rounded-2xl cursor-default overflow-hidden z-20 flex flex-col'
-						}
-						/* Animate using clip to slowly reveal */
-						initial={{ opacity: 0, maxHeight: 0 }}
-						variants={{
-							enter: { opacity: 1, maxHeight: 120 },
-							exit: { opacity: 0, maxHeight: 0 },
-						}}
-						animate={optionsActive ? 'enter' : 'exit'}
-						transition={{ duration: 0.3 }}
-					>
-						{!isMe ? (
-							<button
-								disabled={loading || !optionsActive}
-								className='w-full px-6 py-2 text-center enabled:hover:bg-black/5 enabled:cursor-pointer transition-colors'
-								onClick={() => {
-									setLoading(true);
-									const curFollowing = isFollowing;
-									setIsFollowing(!isFollowing);
-									CreateRelationship(user._id.toString(), isFollowing ? 'remove' : 'follow')
-										.then(() => {
-											setLoading(false);
-											if (mutateMe) mutateMe();
-										})
-										.catch(() => {
-											setLoading(false);
-											setIsFollowing(curFollowing);
-										});
-								}}
-							>
-								<p className='text-black dark:text-white font-semibold leading-none'>
-									<span className='mr-1'>
-										<FontAwesomeIcon icon={faUser} className={'text-black dark:text-white'} />
-									</span>{' '}
-									{!isFollowing ? `Follow @${user.username}` : `Unfollow @${user.username}`}
-								</p>
-							</button>
-						) : null}
-						{isMe || isAdmin ? (
-							<button
-								disabled={loading || !optionsActive}
-								className='w-full px-6 py-2 text-center enabled:hover:bg-black/5 enabled:cursor-pointer transition-colors grow-0'
-								onClick={() => {
-									setLoading(true);
-									DeletePost(post._id.toString())
-										.then(() => {
-											if (onMutate) onMutate(post);
-										})
-										.catch((err) => {
-											alert(err);
-											setLoading(false);
-										});
-								}}
-							>
-								<p className='text-red-500 font-semibold leading-none'>
-									<span className='mr-1'>
-										<FontAwesomeIcon icon={faTrash} color={'red'} />
-									</span>{' '}
-									Delete Post
-								</p>
-							</button>
-						) : null}
-					</motion.div>
+
+					<LazyMotionWrapper>
+						<motion.div
+							className={
+								'absolute top-7 right-0 w-max py-3 bg-gray-100 dark:bg-neutral-900 shadow-lg rounded-2xl cursor-default overflow-hidden z-20 flex flex-col'
+							}
+							/* Animate using clip to slowly reveal */
+							initial={{ opacity: 0, maxHeight: 0 }}
+							variants={{
+								enter: { opacity: 1, maxHeight: 120 },
+								exit: { opacity: 0, maxHeight: 0 },
+							}}
+							animate={optionsActive ? 'enter' : 'exit'}
+							transition={{ duration: 0.3 }}
+						>
+							{!isMe ? (
+								<button
+									disabled={loading || !optionsActive}
+									className='w-full px-6 py-2 text-center enabled:hover:bg-black/5 enabled:cursor-pointer transition-colors'
+									onClick={() => {
+										setLoading(true);
+										const curFollowing = isFollowing;
+										setIsFollowing(!isFollowing);
+										CreateRelationship(user._id.toString(), isFollowing ? 'remove' : 'follow')
+											.then(() => {
+												setLoading(false);
+												if (mutateMe) mutateMe();
+											})
+											.catch(() => {
+												setLoading(false);
+												setIsFollowing(curFollowing);
+											});
+									}}
+								>
+									<p className='text-black dark:text-white font-semibold leading-none'>
+										<span className='mr-1'>
+											<FontAwesomeSvgIcon icon={faUser} className={'text-black dark:text-white'} />
+										</span>{' '}
+										{!isFollowing ? `Follow @${user.username}` : `Unfollow @${user.username}`}
+									</p>
+								</button>
+							) : null}
+							{isMe || isAdmin ? (
+								<button
+									disabled={loading || !optionsActive}
+									className='w-full px-6 py-2 text-center enabled:hover:bg-black/5 enabled:cursor-pointer transition-colors grow-0'
+									onClick={() => {
+										setLoading(true);
+										DeletePost(post._id.toString())
+											.then(() => {
+												if (onMutate) onMutate(post);
+											})
+											.catch((err) => {
+												alert(err);
+												setLoading(false);
+											});
+									}}
+								>
+									<p className='text-red-500 font-semibold leading-none'>
+										<span className='mr-1'>
+											<FontAwesomeSvgIcon icon={faTrash} color={'red'} />
+										</span>{' '}
+										Delete Post
+									</p>
+								</button>
+							) : null}
+						</motion.div>
+					</LazyMotionWrapper>
 				</div>
 			) : null}
 			<div className='w-12 h-12 relative shrink-0' onClick={() => window.location.assign(`/@${user.tag}`)}>
@@ -364,7 +368,7 @@ export default function Post({ post, isRef, onMutate }: Props) {
 									'border-0 p-0 h-8 w-8 mr-1 rounded-full flex items-center justify-center transition-colors bg-black/0 cursor-pointer hover:bg-red-500/40 group/btnComment'
 								}
 							>
-								<FontAwesomeIcon
+								<FontAwesomeSvgIcon
 									icon={faComment}
 									size={'lg'}
 									className={'text-black dark:text-white group-hover/btnComment:text-accent-primary-500'}
@@ -381,7 +385,7 @@ export default function Post({ post, isRef, onMutate }: Props) {
 									if (setModal) setModal(<PostModal quote={post} />);
 								}}
 							>
-								<FontAwesomeIcon
+								<FontAwesomeSvgIcon
 									icon={faRepeat}
 									size={'lg'}
 									className={'text-black dark:text-white group-hover/btnRetweet:text-green-500'}
@@ -408,7 +412,7 @@ export default function Post({ post, isRef, onMutate }: Props) {
 										.catch(() => setHasLiked(oldLikedState));
 								}}
 							>
-								<FontAwesomeIcon
+								<FontAwesomeSvgIcon
 									icon={hasLiked ? fasHeart : farHeart}
 									size={'lg'}
 									className={
@@ -426,7 +430,7 @@ export default function Post({ post, isRef, onMutate }: Props) {
 									'border-0 p-0 h-8 w-8 mr-1 rounded-full flex items-center justify-center transition-colors bg-black/0 cursor-pointer hover:bg-red-500/40 group/btnShare disabled:cursor-default'
 								}
 							>
-								<FontAwesomeIcon
+								<FontAwesomeSvgIcon
 									icon={faArrowUpFromBracket}
 									size={'lg'}
 									className={'text-black dark:text-white group-hover/btnShare:text-red-500'}

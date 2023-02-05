@@ -3,7 +3,7 @@
 import { useContext } from 'react';
 
 import { faClose } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { FontAwesomeSvgIcon } from 'react-fontawesome-svg-icon';
 
 import { IPost } from '../../types/IPost';
 import { ModalContext } from '../Handlers/ModalHandler';
@@ -23,7 +23,7 @@ export default function PostModal({ quote }: { quote?: IPost }) {
 						if (setModal) setModal(null);
 					}}
 				>
-					<FontAwesomeIcon className={'text-black dark:text-white'} icon={faClose} size={'xl'} />
+					<FontAwesomeSvgIcon className={'text-black dark:text-white'} icon={faClose} size={'xl'} />
 				</div>
 			</div>
 			<div className={'grow flex break-words px-4 pb-[10px]'}>

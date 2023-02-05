@@ -35,6 +35,7 @@
 		"next": "13.0.4",
 		"react": "18.2.0",
 		"react-dom": "18.2.0",
+		"react-fontawesome-svg-icon": "^1.1.2",
 		"react-google-recaptcha": "^2.1.0",
 		"react-textarea-autosize": "^8.4.0",
 		"redaxios": "^0.5.1",

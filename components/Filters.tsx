@@ -1,6 +1,6 @@
 'use client';
 
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { FontAwesomeSvgIcon } from 'react-fontawesome-svg-icon';
 import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 import { useState } from 'react';
 
@@ -23,7 +23,7 @@ export default function Filters() {
 						<p className={'text-zinc-400 text-sm text-center'}>Try searching for people, topics or keywords</p>
 					</div>
 					<div className={'mx-5'}>
-						<FontAwesomeIcon icon={faMagnifyingGlass} className='text-black dark:text-white' />
+						<FontAwesomeSvgIcon icon={faMagnifyingGlass} className='text-black dark:text-white' />
 					</div>
 					<div className={'w-full h-full'}>
 						<input
