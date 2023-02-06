@@ -7,10 +7,6 @@ import { NormalizeObject } from '../../libs/utils';
 import User, { IUser } from '../../schemas/IUser';
 import { IPost } from '../../types/IPost';
 
-export const config = {
-	runtime: 'edge',
-};
-
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
 	if (req.method !== 'GET') return res.status(405).json({ success: false, error: 'Method not allowed' });
 
