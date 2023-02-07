@@ -39,7 +39,6 @@ export default function Page({ params }: Props) {
 	const images = post?.images || [];
 	const videos = post?.videos || [];
 
-	const { user: me } = useContext(UserContext);
 	const { modal, setModal } = useContext(ModalContext);
 
 	const videoCount = (videos || []).length;
