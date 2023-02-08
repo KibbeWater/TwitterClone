@@ -276,7 +276,8 @@ export default function Post({ post, isRef, onMutate }: Props) {
 										alt={`Album image ${i}`}
 										sizes={'100vw'}
 										fill
-										loader={fullCDNImageLoader}
+										/* loader={fullCDNImageLoader} */
+										quality={70}
 										onClick={() => {
 											if (setModal) setModal(<ImageModal src={img} post={post} />);
 										}}
