@@ -267,12 +267,11 @@ export default function Post({ post, isRef, onMutate }: Props) {
 									}
 								>
 									<Image
-										src={img}
+										src={img + '?format=webp'}
 										className={'object-cover w-full h-full'}
 										alt={`Album image ${i}`}
 										sizes={'100vw'}
 										fill
-										quality={100}
 										loader={fullCDNImageLoader}
 										onClick={() => {
 											if (setModal) setModal(<ImageModal src={img} post={post} />);
