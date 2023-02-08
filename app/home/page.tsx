@@ -4,7 +4,7 @@ import axios from 'redaxios';
 import { useContext, useEffect, useRef, useState } from 'react';
 import useSWRInfinite from 'swr/infinite';
 
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { FontAwesomeSvgIcon } from 'react-fontawesome-svg-icon';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 
 import PageTemplate from '../../components/PageTemplate';
@@ -65,7 +65,7 @@ export default function Page() {
 					className={'w-full mt-4 flex justify-center items-center' + (!isValidating ? ' invisible' : ' visible')}
 					ref={loadingRef}
 				>
-					<FontAwesomeIcon icon={faSpinner} size={'2x'} className={'animate-spin text-black dark:text-white'} />
+					<FontAwesomeSvgIcon icon={faSpinner} size={'2x'} className={'animate-spin text-black dark:text-white'} />
 				</div>
 			</div>
 		</PageTemplate>

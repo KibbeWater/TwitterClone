@@ -6,16 +6,15 @@ import { config } from '@fortawesome/fontawesome-svg-core';
 import '@fortawesome/fontawesome-svg-core/styles.css';
 config.autoAddCss = false;
 
-import Navbar from '../components/Navbar';
+import { AnalyticsWrapper } from '../components/AnalyticsWrapper';
 import Filters from '../components/Filters';
 import ModalHandler from '../components/Handlers/ModalHandler';
-import User from '../schemas/IUser';
-import UserAuth from '../components/Modals/UserAuth';
-import { Connect } from '../libs/database';
-import UserHandler from '../components/Handlers/UserHandler';
 import ThemeProvider from '../components/Handlers/ThemeHandler';
-import { AnalyticsWrapper } from '../components/AnalyticsWrapper';
-import { LazyMotionWrapper } from '../components/LazyMotionWrapper';
+import UserHandler from '../components/Handlers/UserHandler';
+import UserAuth from '../components/Modals/UserAuth';
+import Navbar from '../components/Navbar';
+import { Connect } from '../libs/database';
+import User from '../schemas/IUser';
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
 	const token = cookies().get('token')?.value as string;
@@ -28,17 +27,15 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 		<ThemeProvider>
 			<head />
 			<body className='bg-white dark:bg-black'>
-				<LazyMotionWrapper>
-					<UserHandler>
-						<ModalHandler modalOverride={modal}>
-							<div className='parent w-screen h-screen flex'>
-								<Navbar />
-								<main className={'flex-1 overflow-y-auto scrollbar-hide'}>{children}</main>
-								<Filters />
-							</div>
-						</ModalHandler>
-					</UserHandler>
-				</LazyMotionWrapper>
+				<UserHandler>
+					<ModalHandler modalOverride={modal}>
+						<div className='parent w-screen h-screen flex'>
+							<Navbar />
+							<main className={'flex-1 overflow-y-auto scrollbar-hide'}>{children}</main>
+							<Filters />
+						</div>
+					</ModalHandler>
+				</UserHandler>
 				<AnalyticsWrapper />
 			</body>
 		</ThemeProvider>

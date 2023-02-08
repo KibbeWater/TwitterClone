@@ -1,6 +1,6 @@
 'use client';
 
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { FontAwesomeSvgIcon } from 'react-fontawesome-svg-icon';
 import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
@@ -74,7 +74,7 @@ export default function Filters() {
 						)}
 					</div>
 					<div className={'mx-5'}>
-						<FontAwesomeIcon icon={faMagnifyingGlass} className='text-black dark:text-white' />
+						<FontAwesomeSvgIcon icon={faMagnifyingGlass} className='text-black dark:text-white' />
 					</div>
 					<div className={'w-full h-full'}>
 						<input

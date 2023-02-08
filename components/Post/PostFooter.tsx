@@ -2,7 +2,7 @@
 
 import { useContext, useState } from 'react';
 
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { FontAwesomeSvgIcon } from 'react-fontawesome-svg-icon';
 import { faComment, faHeart as farHeart } from '@fortawesome/free-regular-svg-icons';
 import { faArrowUpFromBracket, faHeart as fasHeart, faRepeat } from '@fortawesome/free-solid-svg-icons';
 
@@ -30,7 +30,7 @@ export default function PostFooter({ post, color }: { post: IPost; color?: strin
 						'border-0 p-0 h-8 w-8 mr-1 rounded-full flex items-center justify-center transition-colors bg-black/0 cursor-pointer hover:bg-red-500/40 group/btnComment'
 					}
 				>
-					<FontAwesomeIcon
+					<FontAwesomeSvgIcon
 						icon={faComment}
 						size={'lg'}
 						color={clr}
@@ -47,7 +47,7 @@ export default function PostFooter({ post, color }: { post: IPost; color?: strin
 						if (setModal) setModal(<PostModal quote={post} />);
 					}}
 				>
-					<FontAwesomeIcon
+					<FontAwesomeSvgIcon
 						icon={faRepeat}
 						size={'lg'}
 						color={clr}
@@ -70,7 +70,7 @@ export default function PostFooter({ post, color }: { post: IPost; color?: strin
 							.catch(() => setHasLiked((prev) => !prev));
 					}}
 				>
-					<FontAwesomeIcon
+					<FontAwesomeSvgIcon
 						icon={hasLiked ? fasHeart : farHeart}
 						size={'lg'}
 						color={clr}
@@ -88,7 +88,7 @@ export default function PostFooter({ post, color }: { post: IPost; color?: strin
 						'border-0 p-0 h-8 w-8 mr-1 rounded-full flex items-center justify-center transition-colors bg-black/0 cursor-pointer hover:bg-red-500/40 group/btnShare disabled:cursor-default'
 					}
 				>
-					<FontAwesomeIcon
+					<FontAwesomeSvgIcon
 						icon={faArrowUpFromBracket}
 						size={'lg'}
 						color={clr}

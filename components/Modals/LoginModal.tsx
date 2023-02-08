@@ -1,11 +1,11 @@
 'use client';
 
-import { useContext, useEffect, useState } from 'react';
 import { m as motion } from 'framer-motion';
+import { useContext, useEffect, useState } from 'react';
 import axios from 'redaxios';
 
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeSvgIcon } from 'react-fontawesome-svg-icon';
 
 import { IUser } from '../../types/IUser';
 import { ModalContext } from '../Handlers/ModalHandler';
@@ -101,7 +101,7 @@ export default function LoginModal({ switchMode }: AuthProps) {
 					error
 				) : loading ? (
 					<>
-						{'Loading'} <FontAwesomeIcon icon={faSpinner} className='animate-spin ml-2' />
+						{'Loading'} <FontAwesomeSvgIcon icon={faSpinner} className='animate-spin ml-2' />
 					</>
 				) : (
 					'Login'

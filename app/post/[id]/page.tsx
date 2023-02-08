@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useContext, useEffect, useMemo, useRef } from 'react';
 import useSWR from 'swr';
 
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { FontAwesomeSvgIcon } from 'react-fontawesome-svg-icon';
 import { faEllipsis, faSpinner } from '@fortawesome/free-solid-svg-icons';
 
 import { UserContext } from '../../../components/Handlers/UserHandler';
@@ -68,7 +68,7 @@ export default function Page({ params }: Props) {
 			<PageTemplate name='Loading...'>
 				<div className='flex justify-center items-center my-5'>
 					<p className='text-black dark:text-white'>Loading...</p>{' '}
-					<FontAwesomeIcon icon={faSpinner} size={'lg'} className={'animate-spin ml-3 text-black dark:text-white'} />
+					<FontAwesomeSvgIcon icon={faSpinner} size={'lg'} className={'animate-spin ml-3 text-black dark:text-white'} />
 				</div>
 			</PageTemplate>
 		);
@@ -107,7 +107,7 @@ export default function Page({ params }: Props) {
 					</div>
 					<div>
 						<div className='group/postMenu bg-red-500/0 hover:bg-red-500/30 hover:cursor-pointer w-8 h-8 rounded-full flex justify-center items-center'>
-							<FontAwesomeIcon icon={faEllipsis} className={'group-hover/postMenu:text-accent-primary-500 text-black'} />
+							<FontAwesomeSvgIcon icon={faEllipsis} className={'group-hover/postMenu:text-accent-primary-500 text-black'} />
 						</div>
 					</div>
 				</div>
