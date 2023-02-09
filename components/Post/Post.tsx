@@ -331,6 +331,7 @@ export default function Post({ post, isRef, onMutate }: Props) {
 								onClick={() => {
 									if (setModal) setModal(<PostModal quote={post} />);
 								}}
+								aria-label='Retweet'
 							>
 								<FontAwesomeSvgIcon
 									icon={faRepeat}
@@ -358,6 +359,7 @@ export default function Post({ post, isRef, onMutate }: Props) {
 										})
 										.catch(() => setHasLiked(oldLikedState));
 								}}
+								aria-label='Like'
 							>
 								<FontAwesomeSvgIcon
 									icon={hasLiked ? fasHeart : farHeart}
@@ -376,6 +378,7 @@ export default function Post({ post, isRef, onMutate }: Props) {
 								className={
 									'border-0 p-0 h-8 w-8 mr-1 rounded-full flex items-center justify-center transition-colors bg-black/0 cursor-pointer hover:bg-red-500/40 group/btnShare disabled:cursor-default'
 								}
+								aria-label='Share'
 							>
 								<FontAwesomeSvgIcon
 									icon={faArrowUpFromBracket}

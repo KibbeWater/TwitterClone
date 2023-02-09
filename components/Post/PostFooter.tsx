@@ -29,6 +29,7 @@ export default function PostFooter({ post, color }: { post: IPost; color?: strin
 					className={
 						'border-0 p-0 h-8 w-8 mr-1 rounded-full flex items-center justify-center transition-colors bg-black/0 cursor-pointer hover:bg-red-500/40 group/btnComment'
 					}
+					aria-label='Comment'
 				>
 					<FontAwesomeSvgIcon
 						icon={faComment}
@@ -46,6 +47,7 @@ export default function PostFooter({ post, color }: { post: IPost; color?: strin
 					onClick={() => {
 						if (setModal) setModal(<PostModal quote={post} />);
 					}}
+					aria-label='Retweet'
 				>
 					<FontAwesomeSvgIcon
 						icon={faRepeat}
@@ -69,6 +71,7 @@ export default function PostFooter({ post, color }: { post: IPost; color?: strin
 							.then(() => setLoadingLikes(false))
 							.catch(() => setHasLiked((prev) => !prev));
 					}}
+					aria-label='Like'
 				>
 					<FontAwesomeSvgIcon
 						icon={hasLiked ? fasHeart : farHeart}
@@ -87,6 +90,7 @@ export default function PostFooter({ post, color }: { post: IPost; color?: strin
 					className={
 						'border-0 p-0 h-8 w-8 mr-1 rounded-full flex items-center justify-center transition-colors bg-black/0 cursor-pointer hover:bg-red-500/40 group/btnShare disabled:cursor-default'
 					}
+					aria-label='Share'
 				>
 					<FontAwesomeSvgIcon
 						icon={faArrowUpFromBracket}
