@@ -32,6 +32,7 @@ const nextConfig = {
 			{ protocol: 'https', hostname: '*.amazonaws.com' },
 			{ protocol: 'https', hostname: '*.cloudfront.net' },
 		],
+		minimumCacheTTL: 300,
 	},
 
 	reactStrictMode: true,
