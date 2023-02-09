@@ -3,7 +3,7 @@
 import { FontAwesomeSvgIcon } from 'react-fontawesome-svg-icon';
 import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 import { useEffect, useState } from 'react';
-import axios from 'axios';
+import axios from 'redaxios';
 import { IUser } from '../types/IUser';
 import Image from 'next/image';
 import Verified from './Verified';
@@ -43,14 +43,16 @@ export default function Filters() {
 		const controller = new AbortController();
 		if (search.length === 0) return setResults([]);
 		else
-			axios
-				.get<{ success: boolean; error?: string; users: IUser[] }>(`/api/search?q=${search}`, { signal: controller.signal })
-				.then((res) => {
-					if (!res.data.success) return console.error(res.data.error);
-					setResults(res.data.users);
-					console.log(res.data.users);
-				})
-				.catch((err) => {});
+			import('axios').then((pkg) => {
+				pkg.default
+					.get<{ success: boolean; error?: string; users: IUser[] }>(`/api/search?q=${search}`, { signal: controller.signal })
+					.then((res) => {
+						if (!res.data.success) return console.error(res.data.error);
+						setResults(res.data.users);
+						console.log(res.data.users);
+					})
+					.catch((err) => {});
+			});
 		return () => controller.abort();
 	}, [search]);
 

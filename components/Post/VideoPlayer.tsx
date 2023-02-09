@@ -1,5 +1,5 @@
 import { faPlay } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { FontAwesomeSvgIcon } from 'react-fontawesome-svg-icon';
 import { useEffect, useMemo, useRef } from 'react';
 
 /* export function useVideoPlayer(video: string, className?: string, key?: string) {
@@ -56,7 +56,7 @@ export function VideoPlayer({ video, className, key }: { video: string; classNam
 		<div key={key} onClick={playVideo} className={className}>
 			<div ref={playBtn}>
 				<div className={'absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2'}>
-					<FontAwesomeIcon icon={faPlay} className={'text-4xl text-white'} />
+					<FontAwesomeSvgIcon icon={faPlay} className={'text-4xl text-white'} />
 				</div>
 			</div>
 			<video ref={videoRef} poster={thumbUrl} className={'w-full h-full object-contain'} />
