@@ -1,27 +1,26 @@
 'use client';
 
-import axios from 'redaxios';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useContext, useEffect, useMemo, useRef } from 'react';
+import { useContext, useEffect, useMemo } from 'react';
+import axios from 'redaxios';
 import useSWR from 'swr';
 
-import { FontAwesomeSvgIcon } from 'react-fontawesome-svg-icon';
 import { faEllipsis, faSpinner } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeSvgIcon } from 'react-fontawesome-svg-icon';
 
-import { UserContext } from '../../../components/Handlers/UserHandler';
-import PageTemplate from '../../../components/PageTemplate';
-import PostComments from '../../../components/Post/PostComments';
-import PostFooter from '../../../components/Post/PostFooter';
-import Verified from '../../../components/Verified';
-import { IPost } from '../../../types/IPost';
-import { IUser } from '../../../types/IUser';
-import Post from '../../../components/Post/Post';
 import { ModalContext } from '../../../components/Handlers/ModalHandler';
 import ImageModal from '../../../components/Modals/ImageModal';
+import PageTemplate from '../../../components/PageTemplate';
+import Post from '../../../components/Post/Post';
+import PostComments from '../../../components/Post/PostComments';
 import PostContent from '../../../components/Post/PostContent';
-import { fullCDNImageLoader } from '../../../libs/utils';
+import PostFooter from '../../../components/Post/PostFooter';
 import { VideoPlayer } from '../../../components/Post/VideoPlayer';
+import Verified from '../../../components/Verified';
+import { fullCDNImageLoader } from '../../../libs/utils';
+import { IPost } from '../../../types/IPost';
+import { IUser } from '../../../types/IUser';
 
 type Props = {
 	params: {
