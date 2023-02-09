@@ -9,16 +9,16 @@ import { FontAwesomeSvgIcon } from 'react-fontawesome-svg-icon';
 
 import { IUser } from '../../types/IUser';
 import { ModalContext } from '../Handlers/ModalHandler';
-import { UserContext } from '../Handlers/UserHandler';
+import { LocalUser, UserContext } from '../Handlers/UserHandler';
 
 type AuthProps = {
 	switchMode: () => void;
 };
 
-function Login(username: string, password: string): Promise<IUser> {
+function Login(username: string, password: string): Promise<LocalUser> {
 	return new Promise((resolve, reject) => {
 		axios
-			.post<{ success: boolean; token: string; user: IUser; error: string }>('/api/user/login', { username, password })
+			.post<{ success: boolean; token: string; user: LocalUser; error: string }>('/api/user/login', { username, password })
 			.then((res) => {
 				const data = res.data;
 
@@ -49,9 +49,9 @@ export default function LoginModal({ switchMode }: AuthProps) {
 		setLoading(true);
 
 		Login(username, password)
-			.then(() => {
+			.then((user) => {
 				if (mutate && setModal) {
-					mutate();
+					mutate({ success: true, user });
 					setModal(null);
 				} else window.location.reload();
 			})
