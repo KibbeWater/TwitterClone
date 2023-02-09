@@ -6,24 +6,13 @@ const ThemeContext = createContext({
 	setTheme: (theme: string) => {},
 });
 
-function isLocalStorageAvailable() {
-	var test = 'test';
-	try {
-		localStorage.setItem(test, test);
-		localStorage.removeItem(test);
-		return true;
-	} catch (e) {
-		return false;
-	}
-}
-
 export function useTheme() {
 	return useContext(ThemeContext);
 }
 
 export default function ThemeHandler({ children }: { children: React.ReactNode }) {
 	const [theme, setTheme] = useState(
-		isLocalStorageAvailable()
+		localStorage
 			? localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
 			: 'light'
 	);

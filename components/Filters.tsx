@@ -10,7 +10,7 @@ import Verified from './Verified';
 
 function UserEntry({ user }: { user: IUser }) {
 	return (
-		<div className={'w-full h-18 flex gap-3 px-4 py-2 hover:bg-black/50'} onClick={() => window.location.assign(`/@${user.tag}`)}>
+		<div className={'w-full h-16 flex gap-3 px-4 py-2 hover:bg-black/20'} onClick={() => window.location.assign(`/@${user.tag}`)}>
 			<div className='aspect-square h-full rounded-full overflow-hidden'>
 				<Image
 					src={user.avatar || '/default_avatar.png'}
@@ -65,7 +65,7 @@ export default function Filters() {
 					<div
 						className={`${isActive ? 'flex' : 'hidden'} absolute top-11 w-80 ${
 							results.length === 0 ? 'h-24 justify-center ' : 'flex-col '
-						} bg-white dark:bg-neutral-900 shadow-2xl rounded-2xl`}
+						} bg-white dark:bg-neutral-900 shadow-2xl rounded-2xl overflow-hidden`}
 					>
 						{results.length !== 0 ? (
 							results.map((user, i) => <UserEntry user={user} key={`search-result-${user._id}`} />)
