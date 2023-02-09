@@ -21,11 +21,11 @@ export function VideoPlayer({ video, className, key }: { video: string; classNam
 			if (!videoRef.current) return;
 
 			if (videoRef.current && HLS.isSupported()) {
-				const hls = new HLS();
+				const hls = new HLS({ startLevel: -1, debug: true });
 				hls.attachMedia(videoRef.current);
 
 				videoRef.current.addEventListener('play', () => {
-					if ((videoRef.current as HTMLVideoElement).readyState >= 2) return;
+					if ((videoRef.current as HTMLVideoElement).readyState >= 1) return;
 
 					hls.loadSource(video);
 					hls.on(HLS.Events.MANIFEST_PARSED, () => {

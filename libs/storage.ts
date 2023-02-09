@@ -15,9 +15,21 @@ export class MultipartUploader {
 	private videoId: string = '';
 	private uploadId: string = '';
 
+	private callbacks: ((value: any) => void)[] = [];
+	private successfullUploads: number = 0;
+
 	constructor(file: ArrayBuffer) {
 		// Convert the raw buffer into an ArrayBuffer.
 		this.data = file;
+	}
+
+	public onProgress(callback: (value: any) => void) {
+		this.callbacks.push(callback);
+	}
+
+	private fireProgress(newUploads?: number) {
+		if (newUploads) this.successfullUploads += newUploads;
+		this.callbacks.forEach((callback) => callback(this.successfullUploads / this.chunks.length));
 	}
 
 	public async upload(): Promise<string> {
@@ -70,16 +82,9 @@ export class MultipartUploader {
 			}
 		}
 
-		console.log('We are generating chunks with a size of ' + newChunkSize + ' bytes');
-
 		for (let i = 0; i < this.data.byteLength; i += newChunkSize) {
 			chunks.push(this.data.slice(i, i + newChunkSize));
 		}
-
-		console.log(
-			'We have generated ' + chunks.length + ' chunks',
-			chunks.map((c) => c.byteLength)
-		);
 
 		return chunks;
 	}
@@ -126,6 +131,8 @@ export class MultipartUploader {
 				.then((res) => {
 					let eTag = res.headers.etag as string;
 					eTag = eTag.replaceAll('"', '');
+
+					this.fireProgress(1);
 
 					const newPart = this.dispatchChunk();
 					if (!newPart) return resolve([...etags, { part: part.pardId, etag: eTag }]);

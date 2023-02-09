@@ -1,6 +1,6 @@
 import axios from 'redaxios';
 import Image from 'next/image';
-import { useContext, useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 
 import { faXmark, faImage } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeSvgIcon } from 'react-fontawesome-svg-icon';
@@ -11,6 +11,7 @@ import TextareaAutosize from '../TextAutosize';
 import { MultipartUploader } from '../../libs/storage';
 import { TranscodeVideo } from '../../libs/transcoder';
 import { Group } from '../../libs/utils';
+import ProgressBar from '../ProgressBar';
 
 type Props = {
 	placeholder?: string;
@@ -23,11 +24,13 @@ type Props = {
 	parent?: string;
 };
 
+type VideoObj = { uploading: boolean; data: ArrayBuffer; progress: number };
+
 export default function PostTwaat({ onPost, placeholder, btnText, children, inline, avatarSize = 48, padding, parent }: Props) {
 	const [text, setText] = useState('');
 
 	const [images, setImages] = useState<string[]>([]);
-	const [videos, setVideos] = useState<ArrayBuffer[]>([]);
+	const [videos, setVideos] = useState<VideoObj[]>([]);
 
 	const [loadingPost, setLoadingPost] = useState(false);
 
@@ -52,7 +55,7 @@ export default function PostTwaat({ onPost, placeholder, btnText, children, inli
 			text,
 			undefined,
 			await Promise.all(images.map(async (img) => (await syncImage(img)).url)),
-			await Promise.all(videos.map(async (vid) => (await syncVideo(vid)).url)),
+			await Promise.all(videos.map(async (vid, i) => (await syncVideo(i, vid.data)).url)),
 			parent
 		).then((res) => {
 			setText('');
@@ -102,7 +105,7 @@ export default function PostTwaat({ onPost, placeholder, btnText, children, inli
 					} else {
 						if (user.group !== Group.Admin) return alert('You are not allowed to upload videos');
 						if (!data || !(data instanceof ArrayBuffer)) return console.error('Invalid data');
-						setVideos((prev) => (prev.length < 1 ? [...prev, data] : prev));
+						setVideos((prev) => (prev.length < 1 ? [...prev, { data, progress: 0, uploading: false }] : prev));
 					}
 				};
 				reader.readAsArrayBuffer(file);
@@ -117,14 +120,28 @@ export default function PostTwaat({ onPost, placeholder, btnText, children, inli
 		});
 	};
 
-	const syncVideo = (video: ArrayBuffer): Promise<{ videoId: string; identifier: string; url: string }> => {
+	const syncVideo = (idx: number, video: ArrayBuffer): Promise<{ videoId: string; identifier: string; url: string }> => {
 		return new Promise((resolve, reject) => {
 			const uploader = new MultipartUploader(video);
+			setVideos((prev) => {
+				prev[idx] = { uploading: true, data: video, progress: 0 };
+				return [...prev];
+			});
+
+			uploader.onProgress((progress) =>
+				setVideos((prev) => {
+					prev[idx] = { uploading: true, data: video, progress };
+					return [...prev];
+				})
+			);
+
 			uploader.upload().then((videoId) => {
-				console.log('Uploaded video with id', videoId);
+				setVideos((prev) => {
+					prev[idx] = { uploading: false, data: video, progress: 100 };
+					return [...prev];
+				});
 				TranscodeVideo(videoId).then((vid) => {
 					if (!vid) return alert('Failed to init video transcoding');
-					console.log('Transcoding video with id', vid.trackId);
 					resolve({ videoId, identifier: vid.trackId, url: `${vid.url}.m3u8` });
 				});
 			});
@@ -204,8 +221,8 @@ export default function PostTwaat({ onPost, placeholder, btnText, children, inli
 					>
 						{videos.map((video, i) => {
 							// Is video more than 200mb?
-							const isLarge = video.byteLength > 200 * 1024 * 1024;
-							const videoURL = isLarge ? null : URL.createObjectURL(new Blob([video]));
+							const isLarge = video.data.byteLength > 200 * 1024 * 1024;
+							const videoURL = isLarge ? null : URL.createObjectURL(new Blob([video.data]));
 
 							return (
 								<div
@@ -225,13 +242,21 @@ export default function PostTwaat({ onPost, placeholder, btnText, children, inli
 									)}
 									<div
 										className={
-											'absolute top-2 left-2 z-10 w-7 h-7 flex justify-center items-center rounded-full' +
-											' backdrop-blur-md bg-black/60 hover:bg-black/40 cursor-pointer'
+											'absolute top-2 left-2 w-7 h-7 flex justify-center items-center rounded-full' +
+											' backdrop-blur-md bg-black/60 hover:bg-black/40 cursor-pointer z-20'
 										}
 										onClick={() => setVideos((prev) => prev.filter((_, j) => j !== i))}
 									>
 										<FontAwesomeSvgIcon icon={faXmark} />
 									</div>
+									{video.uploading ? (
+										<ProgressBar
+											progress={Math.round(video.progress * 100)}
+											className={
+												'absolute top-0 left-0 w-full h-full flex justify-center items-center z-10 opacity-20 backdrop-blur-sm'
+											}
+										/>
+									) : null}
 								</div>
 							);
 						})}
