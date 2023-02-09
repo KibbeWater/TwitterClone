@@ -9,6 +9,7 @@ type Props = {
 export default async function Head({ params }: Props) {
 	const tag = params.tag.replace('%20', '');
 
+	await Connect();
 	const user = await User.findOne({ username: tag });
 
 	if (!user)

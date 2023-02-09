@@ -1,3 +1,4 @@
+import { Connect } from '../../../libs/database';
 import Post from '../../../schemas/IPost';
 import { IUser } from '../../../types/IUser';
 
@@ -8,6 +9,7 @@ type Props = {
 };
 
 export default async function Head({ params }: Props) {
+	await Connect();
 	const post = await Post.findOne({ _id: params.id }).populate('user');
 
 	const user = post?.user as IUser | undefined;
