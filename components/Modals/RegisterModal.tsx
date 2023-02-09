@@ -8,6 +8,7 @@ import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeSvgIcon } from 'react-fontawesome-svg-icon';
 import { setCookie } from 'cookies-next';
 import { ModalContext } from '../Handlers/ModalHandler';
+import { UserContext } from '../Handlers/UserHandler';
 
 type AuthProps = {
 	switchMode: () => void;
@@ -44,6 +45,9 @@ export default function RegisterModal({ switchMode }: AuthProps) {
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState('');
 
+	const { mutate } = useContext(UserContext);
+	const { setModal } = useContext(ModalContext);
+
 	const btnRegClick = () => {
 		setLoading(true);
 		if (password !== confirm) {
@@ -54,7 +58,10 @@ export default function RegisterModal({ switchMode }: AuthProps) {
 
 		Register(username, password, confirm)
 			.then(() => {
-				window.location.reload();
+				if (mutate && setModal) {
+					mutate();
+					setModal(null);
+				} else window.location.reload();
 			})
 			.catch((err) => {
 				setError(err);

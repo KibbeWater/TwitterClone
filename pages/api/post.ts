@@ -142,8 +142,6 @@ function GetReq(req: NextApiRequest, res: NextApiResponse) {
 				.sort({ date: -1 })
 				.skip(pageNumber * pageLimit)
 				.limit(pageLimit)
-				.lean()
-				.exec()
 				.then((posts) => {
 					return resolve(res.status(200).json({ success: true, posts: posts, pages }));
 				})

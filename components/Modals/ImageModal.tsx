@@ -15,6 +15,7 @@ import PostModal from '../Post/Post';
 import { ModalContext } from '../Handlers/ModalHandler';
 import axios from 'redaxios';
 import PostTwaat from '../Post/PostTwaat';
+import { fullCDNImageLoader } from '../../libs/utils';
 
 type Props = {
 	src: string;
@@ -95,14 +96,15 @@ export default function ImageModal({ src, post }: Props) {
 					<FontAwesomeSvgIcon icon={faXmark} />
 				</div>
 				<div className='grow h-full w-full relative'>
-					<div className='absolute left-0 right-0 top-0 bottom-0 m-auto' onClick={closeOnBg}>
+					<div className='absolute left-0 right-0 top-0 bottom-0 m-auto flex' onClick={closeOnBg}>
 						<Image
-							className={'object-contain !w-auto left-0 right-0 m-auto'}
+							className='w-auto h-full object-contain'
 							quality={100}
 							src={src}
-							alt={'Post Image'}
-							sizes={'100%'}
+							sizes={'100vw'}
 							fill
+							alt={'Post Image'}
+							loader={fullCDNImageLoader}
 						/>
 					</div>
 				</div>
