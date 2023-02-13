@@ -6,7 +6,7 @@ export const DEFAULT_OUTPUTS = [
 		video: {
 			width: 1920,
 			height: 1080,
-			framerate: 120,
+			framerate: 60,
 			bitrate: 16000000,
 		},
 		audio: {
@@ -19,7 +19,7 @@ export const DEFAULT_OUTPUTS = [
 		video: {
 			width: 1280,
 			height: 720,
-			framerate: 120,
+			framerate: 60,
 			bitrate: 12000000,
 		},
 		audio: {
