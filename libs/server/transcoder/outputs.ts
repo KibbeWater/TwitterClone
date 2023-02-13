@@ -58,7 +58,7 @@ function GenerateOutputGroup(options: OutputGroupOptions) {
 		OutputGroupSettings: {
 			Type: 'HLS_GROUP_SETTINGS',
 			HlsGroupSettings: {
-				SegmentLength: 10 || options.segmentLength,
+				SegmentLength: options.segmentLength || 10,
 				MinSegmentLength: 0,
 				SegmentControl: 'SEGMENTED_FILES',
 				Destination: options.destination,

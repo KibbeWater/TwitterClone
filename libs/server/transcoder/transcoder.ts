@@ -29,7 +29,7 @@ export function TranscodeVideo(videoId: string, extension: string): Promise<{ tr
 					Role: 'arn:aws:iam::338749429218:role/service-role/Transposer',
 					Settings: CreateJob(`s3://${S3_BUCKET}/${input}`, {
 						destination: `s3://${S3_BUCKET}/${output}`,
-						segmentLength: 5,
+						segmentLength: 3,
 						outputs: DEFAULT_OUTPUTS,
 					}),
 				})
