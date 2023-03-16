@@ -1,6 +1,5 @@
 'use client';
 
-import axios from 'axios';
 import { useEffect, useRef, useState } from 'react';
 import axios from 'redaxios';
 import useSWRInfinite from 'swr/infinite';
@@ -9,7 +8,6 @@ import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeSvgIcon } from 'react-fontawesome-svg-icon';
 
 import { IPost } from '../../types/IPost';
-import { IUser } from '../../types/IUser';
 import PostModal from './Post';
 import PostTwaat from './PostTwaat';
 
