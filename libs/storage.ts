@@ -1,62 +1,151 @@
-import { GetObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { GenerateStorageKey } from './utils';
+// 50 MB
+const CHUNK_SIZE = 1024 * 1024 * 10;
+const CHUNK_MIN_SIZE = 5242880;
+const CHUNK_MAX_SIZE = 1024 * 1024 * 30;
 
-export const S3_REGION = process.env.S3_REGION || 'us-east-1';
+type UploadURL = { url: string; partId: number; key: string };
+type Part = { chunk: ArrayBuffer; pardId: number; url: UploadURL };
+type ETagRes = { part: number; etag: string };
 
-export const s3Client = new S3Client({
-	region: S3_REGION,
-	credentials: {
-		accessKeyId: process.env.S3_ACCESS_KEY_ID as string,
-		secretAccessKey: process.env.S3_SECRET_ACCESS_KEY as string,
-	},
-});
+export class MultipartUploader {
+	private data: ArrayBuffer;
+	private chunks: ArrayBuffer[] = [];
 
-export const S3_BUCKET = process.env.S3_BUCKET as string;
+	private uploadURLs: UploadURL[] = [];
+	private videoId: string = '';
+	private uploadId: string = '';
 
-export function createURL(key: string) {
-	return new Promise<string>((resolve, reject) => {
-		getSignedUrl(
-			s3Client,
-			new GetObjectCommand({
-				Bucket: S3_BUCKET,
-				Key: key,
-			})
-		)
-			.then((url) => {
-				resolve(url);
-			})
-			.catch((err) => {
-				reject(err);
-			});
-	});
-}
+	private callbacks: ((value: any) => void)[] = [];
+	private successfullUploads: number = 0;
 
-export function uploadImage(dataUri: string): Promise<string | null> {
-	return new Promise<string | null>((resolve, reject) => {
-		if (!dataUri.startsWith('data:')) resolve(null);
+	constructor(file: ArrayBuffer) {
+		// Convert the raw buffer into an ArrayBuffer.
+		this.data = file;
+	}
 
-		const buffer = Buffer.from(dataUri.split(',')[1], 'base64');
-		const contentType = dataUri.split(';')[0].split(':')[1];
-		const ext = dataUri.split(';')[0].split('/')[1];
+	public onProgress(callback: (value: any) => void) {
+		this.callbacks.push(callback);
+	}
 
-		const bucket = S3_BUCKET;
-		const key = `images/${GenerateStorageKey()}.${ext}`;
+	private fireProgress(newUploads?: number) {
+		if (newUploads) this.successfullUploads += newUploads;
+		this.callbacks.forEach((callback) => callback(this.successfullUploads / this.chunks.length));
+	}
 
-		const command = new PutObjectCommand({
-			Bucket: bucket,
-			Key: key,
-			Body: buffer,
-			ContentType: contentType,
+	public async upload(): Promise<string> {
+		return new Promise(async (resolve, reject) => {
+			this.chunks = await this.generateChunks(CHUNK_SIZE);
+
+			await this.retreiveUploadInformation();
+
+			const uploadThreads = [...Array(5)].map(() => this.uploadPart(this.dispatchChunk()));
+
+			const axios = (await import('axios')).default;
+
+			Promise.all(uploadThreads)
+				.then((tags) => {
+					axios
+						.post('/api/video/upload/complete', {
+							videoId: this.videoId,
+							uploadId: this.uploadId,
+							tags: tags.reduce((acc, curr) => [...acc, ...curr], []),
+						})
+						.then(() => resolve(this.videoId))
+						.catch((err) => reject(err));
+				})
+				.catch((err) =>
+					axios
+						.post('/api/video/upload/cancel', {
+							videoId: this.videoId,
+							uploadId: this.uploadId,
+						})
+						.then(() => reject('Upload failed, aborted.'))
+						.catch(() => reject('Upload failed, failed abortion.'))
+				);
 		});
+	}
 
-		s3Client
-			.send(command)
-			.then((data) => {
-				resolve(`https://${S3_BUCKET}.s3.${S3_REGION}.amazonaws.com/${key}`);
-			})
-			.catch((err) => {
-				reject(err);
-			});
-	});
+	private async generateChunks(chunkSize: number) {
+		const chunks: ArrayBuffer[] = [];
+
+		let newChunkSize = chunkSize;
+
+		if (this.data.byteLength % chunkSize < CHUNK_MIN_SIZE) {
+			while (this.data.byteLength % newChunkSize < CHUNK_MIN_SIZE && newChunkSize <= CHUNK_MAX_SIZE) {
+				newChunkSize += 1024 * 1024 * 0.5;
+			}
+
+			if (this.data.byteLength % newChunkSize > CHUNK_MAX_SIZE) {
+				while (this.data.byteLength % newChunkSize < CHUNK_MIN_SIZE) {
+					newChunkSize += 1024 * 1024 * 0.5;
+				}
+			}
+		}
+
+		for (let i = 0; i < this.data.byteLength; i += newChunkSize) {
+			chunks.push(this.data.slice(i, i + newChunkSize));
+		}
+
+		return chunks;
+	}
+
+	private retreiveUploadInformation(): Promise<void> {
+		return new Promise(async (resolve, reject) => {
+			const axios = (await import('axios')).default;
+
+			axios
+				.post<{ success: boolean; videoId: string; uploadId: string; urls: UploadURL[] }>('/api/video/upload', {
+					chunks: this.chunks.length,
+				})
+				.then((res) => {
+					this.uploadURLs = res.data.urls;
+					this.videoId = res.data.videoId;
+					this.uploadId = res.data.uploadId;
+					resolve();
+				});
+		});
+	}
+
+	private currentPart = 1;
+	private dispatchChunk(): Part | null {
+		const chunk = this.chunks.shift();
+		const partId = this.currentPart++;
+
+		if (!chunk) return null;
+
+		const url = this.uploadURLs.find((u) => u.partId === partId);
+		if (!url) return null;
+
+		return { chunk, pardId: partId, url };
+	}
+
+	private uploadPart(part: Part | null, etags: ETagRes[] = [], retry: number = 0): Promise<ETagRes[]> {
+		return new Promise(async (resolve, reject) => {
+			if (retry > 5) return reject();
+			if (!part) return resolve(etags);
+
+			const axios = (await import('axios')).default;
+
+			axios
+				.put(part.url.url, part.chunk, {})
+				.then((res) => {
+					let eTag = res.headers.etag as string;
+					eTag = eTag.replaceAll('"', '');
+
+					this.fireProgress(1);
+
+					const newPart = this.dispatchChunk();
+					if (!newPart) return resolve([...etags, { part: part.pardId, etag: eTag }]);
+
+					this.uploadPart(newPart, etags)
+						.then((tags) => resolve([...tags, { part: part.pardId, etag: eTag }]))
+						.catch(() => reject());
+				})
+				.catch((err) =>
+					this.uploadPart(part, etags, retry + 1)
+						.then((tags) => resolve(tags))
+						.catch(() => reject())
+				);
+		});
+	}
 }

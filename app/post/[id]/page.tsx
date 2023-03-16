@@ -1,25 +1,26 @@
 'use client';
 
-import axios from 'axios';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useContext, useEffect, useRef } from 'react';
+import { useContext, useEffect, useMemo } from 'react';
+import axios from 'redaxios';
 import useSWR from 'swr';
 
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEllipsis, faSpinner } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeSvgIcon } from 'react-fontawesome-svg-icon';
 
-import { UserContext } from '../../../components/Handlers/UserHandler';
-import PageTemplate from '../../../components/PageTemplate';
-import PostComments from '../../../components/Post/PostComments';
-import PostFooter from '../../../components/Post/PostFooter';
-import Verified from '../../../components/Verified';
-import { IPost } from '../../../schemas/IPost';
-import { IUser } from '../../../schemas/IUser';
-import Post from '../../../components/Post/Post';
 import { ModalContext } from '../../../components/Handlers/ModalHandler';
 import ImageModal from '../../../components/Modals/ImageModal';
+import PageTemplate from '../../../components/PageTemplate';
+import Post from '../../../components/Post/Post';
+import PostComments from '../../../components/Post/PostComments';
 import PostContent from '../../../components/Post/PostContent';
+import PostFooter from '../../../components/Post/PostFooter';
+import { VideoPlayer } from '../../../components/Post/VideoPlayer';
+import Verified from '../../../components/Verified';
+import { fullCDNImageLoader } from '../../../libs/utils';
+import { IPost } from '../../../types/IPost';
+import { IUser } from '../../../types/IUser';
 
 type Props = {
 	params: {
@@ -35,11 +36,27 @@ export default function Page({ params }: Props) {
 	const user = post?.user as unknown as IUser;
 	const quote = post?.quote as unknown as IPost;
 	const images = post?.images || [];
+	const videos = post?.videos || [];
 
-	const { user: me } = useContext(UserContext);
 	const { modal, setModal } = useContext(ModalContext);
 
-	const imageDisplay = useRef<HTMLDivElement>(null);
+	const videoCount = (videos || []).length;
+
+	const memodVideos = useMemo(
+		() =>
+			(videos || []).map((video, i) => (
+				<VideoPlayer
+					video={video}
+					className={
+						'absolute aspect-video h-full w-full' +
+						(videoCount == 1 || (videoCount == 3 && i == 0) ? ' row-span-2' : '') +
+						(videoCount == 1 ? ' col-span-2' : '')
+					}
+					key={`post-${post?._id}-video-${i}`}
+				/>
+			)),
+		[videos]
+	);
 
 	useEffect(() => {
 		mutate();
@@ -50,7 +67,7 @@ export default function Page({ params }: Props) {
 			<PageTemplate name='Loading...'>
 				<div className='flex justify-center items-center my-5'>
 					<p className='text-black dark:text-white'>Loading...</p>{' '}
-					<FontAwesomeIcon icon={faSpinner} size={'lg'} className={'animate-spin ml-3 text-black dark:text-white'} />
+					<FontAwesomeSvgIcon icon={faSpinner} size={'lg'} className={'animate-spin ml-3 text-black dark:text-white'} />
 				</div>
 			</PageTemplate>
 		);
@@ -89,18 +106,16 @@ export default function Page({ params }: Props) {
 					</div>
 					<div>
 						<div className='group/postMenu bg-red-500/0 hover:bg-red-500/30 hover:cursor-pointer w-8 h-8 rounded-full flex justify-center items-center'>
-							<FontAwesomeIcon icon={faEllipsis} className={'group-hover/postMenu:text-accent-primary-500 text-black'} />
+							<FontAwesomeSvgIcon icon={faEllipsis} className={'group-hover/postMenu:text-accent-primary-500 text-black'} />
 						</div>
 					</div>
 				</div>
 				<div className='mx-3 mt-2'>
 					<PostContent post={post} />
 					<div
-						ref={imageDisplay}
-						className='w-full grid grid-cols-2 rounded-xl overflow-hidden gap-[2px] justify-self-center border-[1px] border-gray-700'
+						className='w-full aspect-[5/3] mt-2 grid grid-cols-2 rounded-xl overflow-hidden gap-[2px] justify-self-center border-[1px] border-gray-700'
 						style={{
-							height: images.length !== 0 ? `${(imageDisplay.current || { clientWidth: 1 }).clientWidth * 0.6}px` : '1px',
-							opacity: images.length !== 0 ? 1 : 0,
+							display: images.length !== 0 ? 'grid' : 'none',
 						}}
 					>
 						{images.map((img, i) => (
@@ -118,12 +133,21 @@ export default function Page({ params }: Props) {
 									alt={`Album image ${i}`}
 									sizes={'100vw'}
 									fill
+									loader={fullCDNImageLoader}
 									onClick={() => {
 										if (setModal) setModal(<ImageModal src={img} post={post} />);
 									}}
 								/>
 							</div>
 						))}
+					</div>
+					<div
+						className='w-full aspect-video mt-2 relative grid grid-cols-2 rounded-xl overflow-hidden gap-[2px] justify-self-center border-[1px] border-gray-700'
+						style={{
+							display: videos.length !== 0 ? 'block' : 'none',
+						}}
+					>
+						{memodVideos}
 					</div>
 					{quote ? (
 						<div

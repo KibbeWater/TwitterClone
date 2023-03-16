@@ -1,5 +1,5 @@
 import { faClose } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { FontAwesomeSvgIcon } from 'react-fontawesome-svg-icon';
 import { useContext } from 'react';
 import { SafeUser } from '../../libs/user';
 import { ModalContext } from '../Handlers/ModalHandler';
@@ -17,7 +17,7 @@ export default function AdminModal({ user }: { user: SafeUser }) {
 		<div className='w-6/12 h-4/6 bg-white rounded-lg flex flex-col'>
 			<div className={'h-10 w-full p-1 flex justify-end'}>
 				<div className={'w-8 h-8 rounded-full flex items-center justify-center bg-black/0 hover:bg-black/10'} onClick={closeModal}>
-					<FontAwesomeIcon className={'text-black'} icon={faClose} size={'xl'} />
+					<FontAwesomeSvgIcon className={'text-black'} icon={faClose} size={'xl'} />
 				</div>
 			</div>
 			<div className='grow flex'>

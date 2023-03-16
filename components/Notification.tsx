@@ -1,10 +1,10 @@
 import { faAt, faHeart, faRepeat, faUser } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { FontAwesomeSvgIcon } from 'react-fontawesome-svg-icon';
 import Image from 'next/image';
 import Link from 'next/link';
-import { INotification } from '../schemas/INotification';
-import { IPost } from '../schemas/IPost';
-import { IUser } from '../schemas/IUser';
+import { INotification } from '../types/INotification';
+import { IPost } from '../types/IPost';
+import { IUser } from '../types/IUser';
 import Post from './Post/Post';
 
 export default function Notification({ notif }: { notif: INotification }) {
@@ -52,7 +52,7 @@ export default function Notification({ notif }: { notif: INotification }) {
 	return (
 		<div className={`w-full flex px-4 py-2 border-b-[1px] border-gray-700`}>
 			<div className='h-full justify-end mt-1'>
-				<FontAwesomeIcon
+				<FontAwesomeSvgIcon
 					icon={type == 'follow' ? faUser : type == 'like' ? faHeart : type == 'mention' ? faAt : faRepeat}
 					size={'xl'}
 					className={

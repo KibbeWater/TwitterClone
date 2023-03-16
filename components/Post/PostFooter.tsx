@@ -2,12 +2,12 @@
 
 import { useContext, useState } from 'react';
 
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { FontAwesomeSvgIcon } from 'react-fontawesome-svg-icon';
 import { faComment, faHeart as farHeart } from '@fortawesome/free-regular-svg-icons';
 import { faArrowUpFromBracket, faHeart as fasHeart, faRepeat } from '@fortawesome/free-solid-svg-icons';
 
-import { ILike } from '../../schemas/ILike';
-import { IPost } from '../../schemas/IPost';
+import { ILike } from '../../types/ILike';
+import { IPost } from '../../types/IPost';
 import { ModalContext } from '../Handlers/ModalHandler';
 import PostModal from '../Modals/PostModal';
 import { UserContext } from '../Handlers/UserHandler';
@@ -29,8 +29,9 @@ export default function PostFooter({ post, color }: { post: IPost; color?: strin
 					className={
 						'border-0 p-0 h-8 w-8 mr-1 rounded-full flex items-center justify-center transition-colors bg-black/0 cursor-pointer hover:bg-red-500/40 group/btnComment'
 					}
+					aria-label='Comment'
 				>
-					<FontAwesomeIcon
+					<FontAwesomeSvgIcon
 						icon={faComment}
 						size={'lg'}
 						color={clr}
@@ -46,8 +47,9 @@ export default function PostFooter({ post, color }: { post: IPost; color?: strin
 					onClick={() => {
 						if (setModal) setModal(<PostModal quote={post} />);
 					}}
+					aria-label='Retweet'
 				>
-					<FontAwesomeIcon
+					<FontAwesomeSvgIcon
 						icon={faRepeat}
 						size={'lg'}
 						color={clr}
@@ -69,8 +71,9 @@ export default function PostFooter({ post, color }: { post: IPost; color?: strin
 							.then(() => setLoadingLikes(false))
 							.catch(() => setHasLiked((prev) => !prev));
 					}}
+					aria-label='Like'
 				>
-					<FontAwesomeIcon
+					<FontAwesomeSvgIcon
 						icon={hasLiked ? fasHeart : farHeart}
 						size={'lg'}
 						color={clr}
@@ -87,8 +90,9 @@ export default function PostFooter({ post, color }: { post: IPost; color?: strin
 					className={
 						'border-0 p-0 h-8 w-8 mr-1 rounded-full flex items-center justify-center transition-colors bg-black/0 cursor-pointer hover:bg-red-500/40 group/btnShare disabled:cursor-default'
 					}
+					aria-label='Share'
 				>
-					<FontAwesomeIcon
+					<FontAwesomeSvgIcon
 						icon={faArrowUpFromBracket}
 						size={'lg'}
 						color={clr}

@@ -28,10 +28,20 @@ const nextConfig = {
 	},
 
 	images: {
-		remotePatterns: [{ protocol: 'https', hostname: '*.amazonaws.com' }],
+		remotePatterns: [
+			{ protocol: 'https', hostname: '*.amazonaws.com' },
+			{ protocol: 'https', hostname: '*.cloudfront.net' },
+		],
+		minimumCacheTTL: 24 * 60 * 60,
 	},
 
 	reactStrictMode: true,
 };
 
-module.exports = nextConfig;
+const withBundleAnalyzer = require('@next/bundle-analyzer')({
+	enabled: process.env.ANALYZE === 'true',
+});
+
+module.exports = (phase, defaultConfig) => {
+	return withBundleAnalyzer(nextConfig);
+};

@@ -4,14 +4,14 @@ import { useContext, useEffect, useReducer } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { FontAwesomeSvgIcon } from 'react-fontawesome-svg-icon';
 import { faFeatherPointed, faUser, faHome, faEllipsis, faMoon, faSun, faBell } from '@fortawesome/free-solid-svg-icons';
 
 import { ModalContext } from './Handlers/ModalHandler';
 import PostModal from './Modals/PostModal';
 import { UserContext } from './Handlers/UserHandler';
 import { useTheme } from './Handlers/ThemeHandler';
-import { INotification } from '../schemas/INotification';
+import { INotification } from '../types/INotification';
 
 export default function Navbar() {
 	const [activateUserPanel, setActivateUserPanel] = useReducer((state) => !state, false);
@@ -39,14 +39,20 @@ export default function Navbar() {
 					<Link
 						href='/home'
 						className={
-							'h-16 w-16 mb-1 rounded-full transition-all flex items-center justify-center bg-transparent hover:bg-accent-primary-500/25'
+							'h-12 w-12 ml-1 mb-1 rounded-full transition-all flex items-center justify-center bg-transparent hover:bg-accent-primary-500/25'
 						}
 					>
-						<Image src='/assets/favicons/icon-512x512.png' alt='Home' width={45} height={45} />
+						<Image
+							src='/assets/favicons/icon-512x512.png'
+							alt='Home'
+							className='dark:brightness-0 dark:invert transition-all'
+							width={35}
+							height={35}
+						/>
 					</Link>
 					<Link href='/home' className={'lg:h-12 h-16 mb-2 rounded-full bg-transparent hover:bg-gray-600/25 flex items-center'}>
 						<div className='w-8 ml-4 flex items-center justify-center'>
-							<FontAwesomeIcon icon={faHome} size={'xl'} className={'text-black dark:text-white'} />
+							<FontAwesomeSvgIcon icon={faHome} size={'xl'} className={'text-black dark:text-white'} />
 						</div>
 
 						<span className='ml-5 font-bold text-lg hidden lg:block text-black dark:text-white'>Home</span>
@@ -56,7 +62,7 @@ export default function Navbar() {
 						className={'lg:h-12 h-16 mb-2 rounded-full bg-transparent hover:bg-gray-600/25 flex items-center'}
 					>
 						<div className='w-8 ml-4 flex items-center justify-center relative'>
-							<FontAwesomeIcon icon={faBell} size={'xl'} className={'text-black dark:text-white'} />
+							<FontAwesomeSvgIcon icon={faBell} size={'xl'} className={'text-black dark:text-white'} />
 							{unreadNotifications.length > 0 ? (
 								<div className='w-5 h-5 bg-red-500 rounded-full absolute left-2/4 bottom-2/4 z-20 border-2 dark:border-black border-white box-content'>
 									<div className='w-5 h-5 bg-red-500 rounded-full absolute top-0 bottom-0 left-0 right-0 m-auto animate-ping z-10' />
@@ -74,7 +80,7 @@ export default function Navbar() {
 						className={'lg:h-12 h-16 mb-2 rounded-full bg-transparent hover:bg-gray-600/25 flex items-center'}
 					>
 						<div className='w-8 ml-4 flex items-center justify-center'>
-							<FontAwesomeIcon icon={faUser} size={'xl'} className={'text-black dark:text-white'} />
+							<FontAwesomeSvgIcon icon={faUser} size={'xl'} className={'text-black dark:text-white'} />
 						</div>
 						<span className='ml-5 font-bold text-lg hidden lg:block text-black dark:text-white'>Profile</span>
 					</Link>
@@ -87,7 +93,7 @@ export default function Navbar() {
 							if (setModal) setModal(<PostModal />);
 						}}
 					>
-						<FontAwesomeIcon
+						<FontAwesomeSvgIcon
 							icon={faFeatherPointed}
 							size={'2xl'}
 							color={'white'}
@@ -127,7 +133,7 @@ export default function Navbar() {
 									</div>
 								</div>
 								<div className='mr-2 hidden lg:block'>
-									<FontAwesomeIcon icon={faEllipsis} className={'text-black dark:text-white'} />
+									<FontAwesomeSvgIcon icon={faEllipsis} className={'text-black dark:text-white'} />
 								</div>
 							</button>
 							<div
@@ -157,14 +163,14 @@ export default function Navbar() {
 										{theme === 'dark' ? (
 											<p className='text-left font-semibold text-black dark:text-white leading-none'>
 												<span>
-													<FontAwesomeIcon icon={faSun} className={'text-black dark:text-white mr-1'} />
+													<FontAwesomeSvgIcon icon={faSun} className={'text-black dark:text-white mr-1'} />
 												</span>{' '}
 												Light Mode
 											</p>
 										) : (
 											<p className='text-left font-semibold text-black dark:text-white leading-none'>
 												<span>
-													<FontAwesomeIcon icon={faMoon} className={'text-black dark:text-white mr-1'} />
+													<FontAwesomeSvgIcon icon={faMoon} className={'text-black dark:text-white mr-1'} />
 												</span>{' '}
 												Dark Mode (BETA)
 											</p>

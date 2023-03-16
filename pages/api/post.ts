@@ -13,14 +13,17 @@ function PostReq(req: NextApiRequest, res: NextApiResponse) {
 		const token = getCookie('token', { req, res }) as string;
 		if (!token) return resolve(res.status(401).json({ success: false, error: 'Unauthorized' }));
 
-		const { content, quote, images, parent } = req.body;
+		const { content, quote, images, videos, parent } = req.body;
 
 		if (!content && !images) return resolve(res.status(400).json({ success: false, error: 'Bad request' }));
 		if (content === '') return resolve(res.status(400).json({ success: false, error: 'Bad request' }));
 		if (images && !Array.isArray(images)) return resolve(res.status(400).json({ success: false, error: 'Bad request' }));
+		if (videos && !Array.isArray(videos)) return resolve(res.status(400).json({ success: false, error: 'Bad request' }));
 
 		let newContent = content;
 		if (newContent.length > 2000) newContent = newContent.slice(0, 2000);
+
+		if (videos && videos.length > 1) return resolve(res.status(400).json({ success: false, error: 'Bad request' }));
 
 		const mentions: string[] = newContent.match(/@([a-zA-Z0-9_]+)/g);
 		let validMentions: IUser[] = [];
@@ -40,7 +43,7 @@ function PostReq(req: NextApiRequest, res: NextApiResponse) {
 					if (!user) return resolve(res.status(401).json({ success: false, error: 'Unauthorized' }));
 
 					new User(user)
-						.post(content, quote, images, parent, validMentions)
+						.post(content, quote, images, videos, parent, validMentions)
 						.then(async (post) => {
 							if (!post) return resolve(res.status(500).json({ success: false, error: 'Internal server error' }));
 
@@ -139,8 +142,6 @@ function GetReq(req: NextApiRequest, res: NextApiResponse) {
 				.sort({ date: -1 })
 				.skip(pageNumber * pageLimit)
 				.limit(pageLimit)
-				.lean()
-				.exec()
 				.then((posts) => {
 					return resolve(res.status(200).json({ success: true, posts: posts, pages }));
 				})

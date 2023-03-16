@@ -1,14 +1,14 @@
 'use client';
 
-import axios from 'axios';
+import axios from 'redaxios';
 import Image from 'next/image';
 import { useRef, useState } from 'react';
 
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { FontAwesomeSvgIcon } from 'react-fontawesome-svg-icon';
 import { faImage, faXmark } from '@fortawesome/free-solid-svg-icons';
 
 import { SendPost } from '../../libs/post';
-import { IUser } from '../../schemas/IUser';
+import { IUser } from '../../types/IUser';
 import TextareaAutosize from '../TextAutosize';
 
 export default function PostReply({ user, post, onPost }: { user: IUser; post: string; onPost?: () => void }) {
@@ -62,7 +62,7 @@ export default function PostReply({ user, post, onPost }: { user: IUser; post: s
 		setLoading(true);
 		syncImages()
 			.then((urls) => {
-				SendPost(text, undefined, urls, post)
+				SendPost(text, undefined, urls, undefined, post)
 					.then(() => {
 						setText('');
 						setImages([]);
@@ -128,7 +128,7 @@ export default function PostReply({ user, post, onPost }: { user: IUser; post: s
 								}
 								onClick={() => setImages((prev) => prev.filter((_, j) => j !== i))}
 							>
-								<FontAwesomeIcon icon={faXmark} />
+								<FontAwesomeSvgIcon icon={faXmark} />
 							</div>
 						</div>
 					))}
@@ -138,7 +138,7 @@ export default function PostReply({ user, post, onPost }: { user: IUser; post: s
 						className='flex items-center justify-center w-8 h-8 rounded-full transition-colors text-red-500 bg-accent-primary-500/0 hover:bg-accent-primary-500/20 hover:cursor-pointer'
 						onClick={() => uploadImages()}
 					>
-						<FontAwesomeIcon icon={faImage} />
+						<FontAwesomeSvgIcon icon={faImage} />
 					</div>
 				</div>
 			</div>

@@ -1,7 +1,7 @@
 'use client';
 
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { FontAwesomeSvgIcon } from 'react-fontawesome-svg-icon';
 import { useRouter } from 'next/navigation';
 
 export default function PageTemplate({ children, name }: { children?: React.ReactNode; name: string }) {
@@ -18,7 +18,7 @@ export default function PageTemplate({ children, name }: { children?: React.Reac
 					className='w-8 h-8 flex items-center justify-center bg-gray-700/0 mr-5 rounded-full hover:bg-gray-700/20 cursor-pointer transition-colors'
 					onClick={() => router.back()}
 				>
-					<FontAwesomeIcon icon={faArrowLeft} className={'text-black dark:text-white'} />
+					<FontAwesomeSvgIcon icon={faArrowLeft} className={'text-black dark:text-white'} />
 				</div>
 
 				<h1 className={'font-bold m-0 text-black dark:text-white text-xl'}>{name}</h1>

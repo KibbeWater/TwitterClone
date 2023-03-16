@@ -2,12 +2,14 @@
 
 import axios from 'axios';
 import { useEffect, useRef, useState } from 'react';
+import axios from 'redaxios';
 import useSWRInfinite from 'swr/infinite';
 
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeSvgIcon } from 'react-fontawesome-svg-icon';
 
-import { IPost } from '../../schemas/IPost';
+import { IPost } from '../../types/IPost';
+import { IUser } from '../../types/IUser';
 import PostModal from './Post';
 import PostTwaat from './PostTwaat';
 
@@ -65,7 +67,7 @@ export default function PostComments({ post, placeholder }: { post: IPost; place
 				<PostModal key={reply._id.toString()} post={reply as unknown as IPost} />
 			))}
 			<div className={'w-full mt-4 flex justify-center items-center' + (!isValidating ? ' invisible' : ' visible')} ref={loadingRef}>
-				<FontAwesomeIcon icon={faSpinner} size={'2x'} className={'animate-spin text-black dark:text-white'} />
+				<FontAwesomeSvgIcon icon={faSpinner} size={'2x'} className={'animate-spin text-black dark:text-white'} />
 			</div>
 		</>
 	);

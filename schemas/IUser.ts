@@ -1,14 +1,15 @@
-import mongoose, { Model, model, Schema, Types } from 'mongoose';
+import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { compareSync, hashSync } from 'bcryptjs';
-import Session, { ISession } from './ISession';
-import Post, { IPost } from './IPost';
+import mongoose, { Model, model, Schema, Types } from 'mongoose';
+
+import { s3Client, S3_BUCKET } from '../libs/server/storage';
+import { TransformSafe } from '../libs/user';
 import { GenerateStorageKey, NormalizeObject } from '../libs/utils';
 import Like, { ILike } from './ILike';
-import Relationship, { IRelationship } from './IRelationship';
-import { PutObjectCommand } from '@aws-sdk/client-s3';
-import { s3Client, S3_BUCKET, S3_REGION } from '../libs/storage';
 import Notification, { INotification } from './INotification';
-import { TransformSafe } from '../libs/user';
+import Post, { IPost } from './IPost';
+import Relationship, { IRelationship } from './IRelationship';
+import Session, { ISession } from './ISession';
 
 export interface IUser {
 	_id: Types.ObjectId;
@@ -32,7 +33,14 @@ export interface IUser {
 
 interface IUserMethods {
 	authorize: () => Promise<ISession>;
-	post: (content: string, quote?: Types.ObjectId, images?: string[], parent?: string, mentions?: IUser[]) => Promise<IPost | null>;
+	post: (
+		content: string,
+		quote?: Types.ObjectId,
+		images?: string[],
+		videos?: string[],
+		parent?: string,
+		mentions?: IUser[]
+	) => Promise<IPost | null>;
 	likePost: (post: Types.ObjectId, shouldLike: boolean) => Promise<ILike | null>;
 	createRelationship: (target: Types.ObjectId, type: 'follow' | 'block' | 'mute') => Promise<IRelationship | null>;
 	removeRelationship: (target: Types.ObjectId) => Promise<IRelationship | null>;
@@ -179,7 +187,7 @@ export const userSchema = new Schema<IUser, UserModel, IUserMethods>(
 						if (err) return reject(err);
 						if (!data) return reject('No data returned');
 
-						usr.avatar = `https://${S3_BUCKET}.s3.${S3_REGION}.amazonaws.com/${key}`;
+						usr.avatar = `https://${process.env.CLOUDFRONT_DOMAIN || ''}/${key}`;
 						await usr.save();
 
 						resolve(usr.avatar);
@@ -210,7 +218,7 @@ export const userSchema = new Schema<IUser, UserModel, IUserMethods>(
 						if (err) return reject(err);
 						if (!data) return reject('No data returned');
 
-						usr.banner = `https://${S3_BUCKET}.s3.${S3_REGION}.amazonaws.com/${key}`;
+						usr.banner = `https://${process.env.CLOUDFRONT_DOMAIN || ''}/${key}`;
 						await usr.save();
 
 						resolve(usr.banner);
@@ -228,8 +236,15 @@ userSchema.methods.authorize = async function (ip?: string) {
 	return session;
 };
 
-userSchema.methods.post = async function (content: string, quote?: Types.ObjectId, images?: string[], parent?: string, mentions?: IUser[]) {
-	return Post.post(this._id, content, quote, images, parent, mentions);
+userSchema.methods.post = async function (
+	content: string,
+	quote?: Types.ObjectId,
+	images?: string[],
+	videos?: string[],
+	parent?: string,
+	mentions?: IUser[]
+) {
+	return Post.post(this._id, content, quote, images, videos, parent, mentions);
 };
 
 userSchema.methods.likePost = async function (post: Types.ObjectId, shouldLike: boolean) {

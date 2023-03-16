@@ -1,23 +1,24 @@
 'use client';
 
+import { m as motion } from 'framer-motion';
 import { useContext, useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
-import axios, { AxiosError } from 'axios';
+import axios from 'redaxios';
 
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeSvgIcon } from 'react-fontawesome-svg-icon';
 
-import { IUser } from '../../schemas/IUser';
+import { IUser } from '../../types/IUser';
 import { ModalContext } from '../Handlers/ModalHandler';
+import { LocalUser, UserContext } from '../Handlers/UserHandler';
 
 type AuthProps = {
 	switchMode: () => void;
 };
 
-function Login(username: string, password: string): Promise<IUser> {
+function Login(username: string, password: string): Promise<LocalUser> {
 	return new Promise((resolve, reject) => {
 		axios
-			.post<{ success: boolean; token: string; user: IUser; error: string }>('/api/user/login', { username, password })
+			.post<{ success: boolean; token: string; user: LocalUser; error: string }>('/api/user/login', { username, password })
 			.then((res) => {
 				const data = res.data;
 
@@ -41,14 +42,20 @@ export default function LoginModal({ switchMode }: AuthProps) {
 
 	const [hoveringLogin, setHoveringLogin] = useState(false);
 
+	const { mutate } = useContext(UserContext);
+	const { setModal } = useContext(ModalContext);
+
 	const btnLoginClick = () => {
 		setLoading(true);
 
 		Login(username, password)
-			.then(() => {
-				window.location.reload();
+			.then((user) => {
+				if (mutate && setModal) {
+					mutate({ success: true, user });
+					setModal(null);
+				} else window.location.reload();
 			})
-			.catch((err: AxiosError) => {
+			.catch((err) => {
 				setLoading(false);
 				console.log(err);
 				setError((err.response?.data as any).error || 'An error occurred');
@@ -94,7 +101,7 @@ export default function LoginModal({ switchMode }: AuthProps) {
 					error
 				) : loading ? (
 					<>
-						{'Loading'} <FontAwesomeIcon icon={faSpinner} className='animate-spin ml-2' />
+						{'Loading'} <FontAwesomeSvgIcon icon={faSpinner} className='animate-spin ml-2' />
 					</>
 				) : (
 					'Login'

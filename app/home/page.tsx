@@ -1,17 +1,18 @@
 'use client';
 
-import axios from 'axios';
+import axios from 'redaxios';
 import { useContext, useEffect, useRef, useState } from 'react';
 import useSWRInfinite from 'swr/infinite';
 
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { FontAwesomeSvgIcon } from 'react-fontawesome-svg-icon';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 
 import PageTemplate from '../../components/PageTemplate';
 import Post from '../../components/Post/Post';
-import { IPost } from '../../schemas/IPost';
+
 import { ModalContext } from '../../components/Handlers/ModalHandler';
 import PostTwaat from '../../components/Post/PostTwaat';
+import { IPost } from '../../types/IPost';
 
 export default function Page() {
 	const [isVisible, setIsVisible] = useState(false);
@@ -64,7 +65,7 @@ export default function Page() {
 					className={'w-full mt-4 flex justify-center items-center' + (!isValidating ? ' invisible' : ' visible')}
 					ref={loadingRef}
 				>
-					<FontAwesomeIcon icon={faSpinner} size={'2x'} className={'animate-spin text-black dark:text-white'} />
+					<FontAwesomeSvgIcon icon={faSpinner} size={'2x'} className={'animate-spin text-black dark:text-white'} />
 				</div>
 			</div>
 		</PageTemplate>

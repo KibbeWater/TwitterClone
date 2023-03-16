@@ -1,3 +1,5 @@
+import { ImageLoader } from 'next/image';
+
 export enum Group {
 	'User' = 0,
 	'Admin' = 1,
@@ -13,3 +15,5 @@ export function GenerateStorageKey() {
 		.join('')
 		.toLowerCase();
 }
+
+export const fullCDNImageLoader: ImageLoader = ({ src, width, quality }) => src;

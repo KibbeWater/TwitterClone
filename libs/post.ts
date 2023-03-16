@@ -1,15 +1,15 @@
-import axios from 'axios';
-import { Types } from 'mongoose';
+import axios from 'redaxios';
 
-import { IPost } from '../schemas/IPost';
+import { IPost } from '../types/IPost';
 
 let lastPost = '';
 
 let lastPostDate: number | null = null;
 let postDates: number[] = [];
 
-export function SendPost(content: string, quoteId?: string, images?: string[], parent?: string): Promise<IPost> {
+export function SendPost(content: string, quoteId?: string, images?: string[], videos?: string[], parent?: string): Promise<IPost> {
 	return new Promise((resolve, reject) => {
+		if (videos && videos.length > 1) return reject('Too many videos');
 		if (lastPostDate) postDates.push(new Date().getTime() - lastPostDate);
 
 		if (postDates.length > 3) {
@@ -19,9 +19,7 @@ export function SendPost(content: string, quoteId?: string, images?: string[], p
 			const max = Math.max(...postDates);
 			const stdDev = Math.sqrt(postDates.map((x) => Math.pow(x - average, 2)).reduce((a, b) => a + b) / postDates.length);
 
-			if (stdDev < 1000) {
-				window.location.href = 'https://www.nimh.nih.gov/health/publications/my-mental-health-do-i-need-help';
-			}
+			if (stdDev < 1000) window.location.href = 'https://www.nimh.nih.gov/health/publications/my-mental-health-do-i-need-help';
 		}
 
 		lastPostDate = new Date().getTime();
@@ -29,11 +27,11 @@ export function SendPost(content: string, quoteId?: string, images?: string[], p
 		if (lastPost === content)
 			return resolve({
 				content,
-				_id: new Types.ObjectId(),
-				comments: [new Types.ObjectId()],
-				likes: [new Types.ObjectId()],
-				retwaats: [new Types.ObjectId()],
-				mentions: [new Types.ObjectId()],
+				_id: '',
+				comments: [],
+				likes: [],
+				retwaats: [],
+				mentions: [],
 				date: new Date().getTime(),
 			});
 		lastPost = content;
@@ -44,6 +42,7 @@ export function SendPost(content: string, quoteId?: string, images?: string[], p
 				content,
 				quote: quoteId,
 				images,
+				videos,
 				parent,
 			})
 			.then((res) => {

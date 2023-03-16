@@ -2,10 +2,11 @@
 
 import React, { useContext, useEffect, useRef } from 'react';
 import Image from 'next/image';
+import axios from 'redaxios';
 import useSWR from 'swr';
 
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { FontAwesomeSvgIcon } from 'react-fontawesome-svg-icon';
 
 import { ModalContext } from '../../../components/Handlers/ModalHandler';
 import EditProfileModal from '../../../components/Modals/EditProfileModal';
@@ -13,11 +14,10 @@ import PageTemplate from '../../../components/PageTemplate';
 import Post from '../../../components/Post/Post';
 import { UserContext } from '../../../components/Handlers/UserHandler';
 import { CreateRelationship, SafeUser } from '../../../libs/user';
-import { IRelationship } from '../../../schemas/IRelationship';
+import { IRelationship } from '../../../types/IRelationship';
 import Verified from '../../../components/Verified';
 import { Group } from '../../../libs/utils';
 import AdminModal from '../../../components/Modals/AdminModal';
-import axios from 'axios';
 
 type Props = {
 	params: {
@@ -73,7 +73,7 @@ export default function Page({ params }: Props) {
 			<PageTemplate name='Loading...'>
 				<div className='flex justify-center items-center my-5'>
 					<p className='text-black dark:text-white'>Loading...</p>{' '}
-					<FontAwesomeIcon icon={faSpinner} size={'lg'} className={'animate-spin ml-3 text-black dark:text-white'} />
+					<FontAwesomeSvgIcon icon={faSpinner} size={'lg'} className={'animate-spin ml-3 text-black dark:text-white'} />
 				</div>
 			</PageTemplate>
 		);
