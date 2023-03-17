@@ -10,6 +10,7 @@ export default function PostContent({ post, onClick }: { post: IPost; onClick?: 
 			className={'text-black w-full max-w-full dark:text-gray-200 whitespace-normal'}
 			style={{ wordBreak: 'break-word' }}
 			onClick={onClick}
+			key={`${post._id}-content`}
 		>
 			{post.content.split(' ').map((word, idx, arr) => {
 				const tag = word.substring(1).toLowerCase();
