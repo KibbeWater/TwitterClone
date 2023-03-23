@@ -1,5 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
+import { SafeUser } from '../../libs/user';
+
 import TextareaAutosize from '../TextAutosize';
+import UserEntry from '../UserEntry';
 
 type TweetAreaProps = {
 	placeholder?: string;
@@ -8,10 +11,29 @@ type TweetAreaProps = {
 	onChange?: (text: string) => void;
 };
 
+const MentionRegex = /@\w+/g;
+
 export default function TweetArea({ placeholder, inline, value, onChange }: TweetAreaProps) {
 	const [text, setText] = useState(value || '');
 	const [tag, setTag] = useState('');
-	const [popoverPosition, setPopoverPosition] = useState<{ top: number; left: number } | null>(null);
+	const [users, setUsers] = useState<SafeUser[]>([]);
+
+	useEffect(() => {
+		const controller = new AbortController();
+		if (tag.length === 0) return setUsers([]);
+		else
+			import('axios').then((pkg) => {
+				pkg.default
+					.get<{ success: boolean; error?: string; users: SafeUser[] }>(`/api/search?q=${tag}`, { signal: controller.signal })
+					.then((res) => {
+						if (!res.data.success) return console.error(res.data.error);
+						setUsers(res.data.users);
+						console.log(res.data.users);
+					})
+					.catch((err) => {});
+			});
+		return () => controller.abort();
+	}, [tag]);
 
 	const parent = useRef<HTMLDivElement>(null);
 
@@ -31,35 +53,12 @@ export default function TweetArea({ placeholder, inline, value, onChange }: Twee
 		const value = e.target.value;
 		const regex = /@\w+/g; // regex to match @username
 		const match = value.match(regex);
-		if (match && match.length > 0) {
-			const username = match[0].substring(1); // remove @ symbol from username
-			setTag(username);
 
-			// Get position of tag
-			const textarea = e.target;
-			const textareaRect = textarea.getBoundingClientRect();
-			const parentRect = parent.current?.getBoundingClientRect();
-			const scrollTop = textarea.scrollTop;
-			const lineHeight = parseFloat(window.getComputedStyle(textarea).lineHeight);
-			const tagRect = textareaRect.bottom - scrollTop - lineHeight;
+		const lastMatch = match && match.length > 0 && match[match.length - 1];
+		console.log(lastMatch);
+		if (lastMatch && value.endsWith(lastMatch)) return setTag(lastMatch.substring(1)); // remove @ symbol from username
 
-			const topRelativeToParent = tagRect - (parentRect?.top || 0);
-
-			// Calculate the length of the text on the current line
-			const cursorPos = e.target.selectionStart;
-			const cursorRect = getCaretCoordinates(e.target, cursorPos);
-			const cursorDistanceFromEnd = textareaRect.right - cursorRect.left;
-			const charWidth = parseFloat(window.getComputedStyle(textarea).fontSize);
-			const textWidthOnCurrentLine = cursorDistanceFromEnd / charWidth;
-
-			// Position the popover at the end of the textarea text
-			const leftRelativeToParent = textareaRect.left - (parentRect?.left || 0) + textWidthOnCurrentLine * charWidth;
-
-			setPopoverPosition({ top: topRelativeToParent, left: leftRelativeToParent });
-		} else {
-			setTag('');
-			setPopoverPosition(null);
-		}
+		setTag('');
 	};
 
 	return (
@@ -76,8 +75,19 @@ export default function TweetArea({ placeholder, inline, value, onChange }: Twee
 				maxLength={2000}
 				onChange={handleInputChange}
 			/>
-			{tag && popoverPosition && (
-				<div style={{ position: 'absolute', top: popoverPosition.top, left: popoverPosition.left }}>Popover content for {tag}</div>
+			{tag && (
+				<div className='min-w-[18rem] max-h-96 shadow-lg rounded-md bg-white dark:bg-black absolute z-10 overflow-auto overflow-x-hidden'>
+					{users.map((usr, idx) => (
+						<UserEntry
+							user={usr}
+							key={`mention-search-result-${usr._id}`}
+							onClick={(e) => {
+								setText(text.replace(`@${tag}`, `@${usr.tag} `));
+								setTag('');
+							}}
+						/>
+					))}
+				</div>
 			)}
 		</div>
 	);

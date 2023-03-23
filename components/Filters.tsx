@@ -1,41 +1,16 @@
 'use client';
 
-import { FontAwesomeSvgIcon } from 'react-fontawesome-svg-icon';
 import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 import { useEffect, useState } from 'react';
-import axios from 'redaxios';
-import { IUser } from '../types/IUser';
-import Image from 'next/image';
-import Verified from './Verified';
-
-function UserEntry({ user }: { user: IUser }) {
-	return (
-		<div className={'w-full h-16 flex gap-3 px-4 py-2 hover:bg-black/20'} onClick={() => window.location.assign(`/@${user.tag}`)}>
-			<div className='aspect-square h-full rounded-full overflow-hidden'>
-				<Image
-					src={user.avatar || '/default_avatar.png'}
-					alt={`${user.username}'s avatar`}
-					height={40}
-					width={40}
-					className={'object-cover h-full w-full'}
-				/>
-			</div>
-			<div className='flex flex-col py-1'>
-				<div className='flex items-center'>
-					<p className='font-bold text-black dark:text-white leading-none'>{user.username}</p>
-					{user.verified ? <Verified color='red' /> : null}
-				</div>
-				<p className='text-gray-500 leading-none mt-px'>@{user.tag}</p>
-			</div>
-		</div>
-	);
-}
+import { FontAwesomeSvgIcon } from 'react-fontawesome-svg-icon';
+import { SafeUser } from '../libs/user';
+import UserEntry from './UserEntry';
 
 export default function Filters() {
 	const [active, setActive] = useState(false);
 	const [search, setSearch] = useState('');
 
-	const [results, setResults] = useState([] as IUser[]);
+	const [results, setResults] = useState([] as SafeUser[]);
 
 	const isActive = active || search.length > 0 || results.length > 0;
 
@@ -45,7 +20,7 @@ export default function Filters() {
 		else
 			import('axios').then((pkg) => {
 				pkg.default
-					.get<{ success: boolean; error?: string; users: IUser[] }>(`/api/search?q=${search}`, { signal: controller.signal })
+					.get<{ success: boolean; error?: string; users: SafeUser[] }>(`/api/search?q=${search}`, { signal: controller.signal })
 					.then((res) => {
 						if (!res.data.success) return console.error(res.data.error);
 						setResults(res.data.users);
@@ -70,7 +45,13 @@ export default function Filters() {
 						} bg-white dark:bg-neutral-900 shadow-2xl rounded-2xl overflow-hidden`}
 					>
 						{results.length !== 0 ? (
-							results.map((user, i) => <UserEntry user={user} key={`search-result-${user._id}`} />)
+							results.map((user, i) => (
+								<UserEntry
+									user={user}
+									key={`search-result-${user._id}`}
+									onClick={() => window.location.assign(`/@${user.tag}`)}
+								/>
+							))
 						) : (
 							<p className={'text-zinc-400 text-sm text-center mt-3'}>Try searching for people, topics or keywords</p>
 						)}
