@@ -3,6 +3,7 @@ import { SafeUser } from '../../libs/user';
 
 import TextareaAutosize from '../TextAutosize';
 import UserEntry from '../UserEntry';
+import CustomTextarea from './CustomTextarea';
 
 type TweetAreaProps = {
 	placeholder?: string;
@@ -10,8 +11,6 @@ type TweetAreaProps = {
 	inline?: boolean;
 	onChange?: (text: string) => void;
 };
-
-const MentionRegex = /@\w+/g;
 
 export default function TweetArea({ placeholder, inline, value, onChange }: TweetAreaProps) {
 	const [text, setText] = useState(value || '');
@@ -47,15 +46,14 @@ export default function TweetArea({ placeholder, inline, value, onChange }: Twee
 		onChange(text);
 	}, [text]);
 
-	const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-		setText(e.target.value);
+	const handleInputChange = (content: string) => {
+		setText(content);
 
-		const value = e.target.value;
+		const value = content;
 		const regex = /@\w+/g; // regex to match @username
 		const match = value.match(regex);
 
 		const lastMatch = match && match.length > 0 && match[match.length - 1];
-		console.log(lastMatch);
 		if (lastMatch && value.endsWith(lastMatch)) return setTag(lastMatch.substring(1)); // remove @ symbol from username
 
 		setTag('');
@@ -63,8 +61,18 @@ export default function TweetArea({ placeholder, inline, value, onChange }: Twee
 
 	return (
 		<div style={{ position: 'relative' }} ref={parent}>
-			<TextareaAutosize
-				minRows={1}
+			{/* <TextareaAutosize
+				placeholder={placeholder || "What's happening?"}
+				className={
+					!inline
+						? 'w-full outline-none border-0 resize-none text-xl bg-transparent text-black dark:text-white'
+						: 'text-black dark:text-white bg-transparent border-0 text-lg leading-6 columns-4 resize-none w-full p-0 m-0 outline-none'
+				}
+				value={text}
+				maxLength={2000}
+				onChange={handleInputChange}
+			/> */}
+			<CustomTextarea
 				placeholder={placeholder || "What's happening?"}
 				className={
 					!inline
@@ -92,52 +100,3 @@ export default function TweetArea({ placeholder, inline, value, onChange }: Twee
 		</div>
 	);
 }
-
-/* type TweetAreaProps = {
-	placeholder?: string;
-	className?: string;
-	onChange?: (text: string) => void;
-	value?: string;
-	maxLength?: number;
-};
-
-export default function TweetArea({ placeholder, className, maxLength, value, onChange }: TweetAreaProps) {
-
-	const divRef = useRef<HTMLDivElement>(null);
-
-	const handleChange = (e: React.ChangeEvent<HTMLDivElement>) => {
-		if (!divRef.current) return;
-
-		let content = e.target.innerHTML;
-		if (maxLength && content.length > maxLength) content = content.slice(0, maxLength);
-
-		// If the content ends with "@(username)", we want to add a modal at the end of the content
-		// Preferably, we want to use regex to check if the content ends with a required @ and then a optional username following it. Any character after that is not allowed (such as a space)
-		const regex = /@([a-zA-Z0-9_]{1,15})$/;
-		const match = content.match(regex);
-
-		divRef.current.innerHTML = e.target.innerHTML;
-		onChange && onChange(e.target.innerHTML);
-	};
-
-	useEffect(() => {
-		if (!value || !divRef.current) return;
-		divRef.current.textContent = value;
-	}, [value]);
-
-	return (
-		<div
-			ref={divRef}
-			className={[
-				className?.replaceAll('placeholder:', 'empty:before:'),
-				'empty:before:content-[attr(data-placeholder)] empty:before:text-gray-500 cursor-text break-all',
-			]
-				.filter((p) => p)
-				.join(' ')}
-			data-placeholder={placeholder}
-			onInput={handleChange}
-			contentEditable
-			suppressContentEditableWarning
-		/>
-	);
-} */
