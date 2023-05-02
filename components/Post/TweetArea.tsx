@@ -70,7 +70,7 @@ export default function TweetArea({ placeholder, inline, value, onChange }: Twee
 				}
 				value={text}
 				maxLength={2000}
-				onChange={handleInputChange}
+				onChange={(e) => handleInputChange(e.target.value)}
 			/> */}
 			<CustomTextarea
 				placeholder={placeholder || "What's happening?"}
