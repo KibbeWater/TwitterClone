@@ -8,7 +8,6 @@ import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeSvgIcon } from 'react-fontawesome-svg-icon';
 
 import { IPost } from '../../types/IPost';
-import { IUser } from '../../types/IUser';
 import PostModal from './Post';
 import PostTwaat from './PostTwaat';
 

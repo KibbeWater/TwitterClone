@@ -12,6 +12,7 @@ import { MultipartUploader } from '../../libs/storage';
 import { TranscodeVideo } from '../../libs/transcoder';
 import { Group } from '../../libs/utils';
 import ProgressBar from '../ProgressBar';
+import TweetArea from './TweetArea';
 
 type Props = {
 	placeholder?: string;
@@ -165,18 +166,7 @@ export default function PostTwaat({ onPost, placeholder, btnText, children, inli
 				</div>
 
 				<div className='flex flex-col pl-5 pr-1 w-full' style={{ marginTop: inline ? 12 : 0 }}>
-					<TextareaAutosize
-						minRows={1}
-						placeholder={placeholder || "What's happening?"}
-						className={
-							!inline
-								? 'w-full outline-none border-0 resize-none text-xl bg-transparent text-black dark:text-white'
-								: 'text-black dark:text-white bg-transparent border-0 text-lg leading-6 columns-4 resize-none w-full p-0 m-0 outline-none'
-						}
-						value={text}
-						maxLength={2000}
-						onChange={(e) => setText(e.target.value)}
-					/>
+					<TweetArea placeholder={placeholder || "What's happening?"} inline={inline} value={text} onChange={(t) => setText(t)} />
 					<div
 						className={'grid grid-cols-2 gap-1 mt-3 b-1'}
 						ref={postAlbumRef}

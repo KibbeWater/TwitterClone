@@ -2,12 +2,11 @@
 import axios from 'redaxios';
 import useSWR from 'swr';
 import { SafeUser } from '../../libs/user';
+import { UserSearchResult } from '../../types/UserSearch';
 
 function UserItem({ user }: { user: SafeUser }) {
 	return <p>{user.username}</p>;
 }
-
-type UserSearchResult = { success: boolean; users: SafeUser[]; error?: string };
 
 const fetcher = (url: string) => axios.get(url).then((res) => res.data);
 export default function UserSearch({ search }: { search: string }) {
