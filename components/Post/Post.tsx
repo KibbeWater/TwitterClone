@@ -218,6 +218,8 @@ export default function Post({ post, isRef, onMutate }: Props) {
 						className={'w-full h-full rounded-full object-cover cursor-pointer transition-opacity hover:opacity-80'}
 						src={user.avatar || '/default_avatar.png'}
 						alt={`${user.tag}'s avatar`}
+						placeholder='blur'
+						blurDataURL='/default_avatar.png'
 						quality={70}
 						width={48}
 						height={48}

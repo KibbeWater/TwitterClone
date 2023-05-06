@@ -32,7 +32,7 @@
 		"framer-motion": "^7.6.12",
 		"hls.js": "^1.3.1",
 		"mongoose": "^6.7.3",
-		"next": "13.0.4",
+		"next": "^13.4.1",
 		"react": "18.2.0",
 		"react-dom": "18.2.0",
 		"react-fontawesome-svg-icon": "^1.1.2",
