@@ -61,7 +61,7 @@ export default function TweetArea({ placeholder, inline, value, onChange }: Twee
 
 	return (
 		<div style={{ position: 'relative' }} ref={parent}>
-			{/* <TextareaAutosize
+			<TextareaAutosize
 				placeholder={placeholder || "What's happening?"}
 				className={
 					!inline
@@ -71,8 +71,8 @@ export default function TweetArea({ placeholder, inline, value, onChange }: Twee
 				value={text}
 				maxLength={2000}
 				onChange={(e) => handleInputChange(e.target.value)}
-			/> */}
-			<CustomTextarea
+			/>
+			{/* <CustomTextarea
 				placeholder={placeholder || "What's happening?"}
 				className={
 					!inline
@@ -82,9 +82,9 @@ export default function TweetArea({ placeholder, inline, value, onChange }: Twee
 				value={text}
 				maxLength={2000}
 				onChange={handleInputChange}
-			/>
+			/> */}
 			{tag && (
-				<div className='min-w-[18rem] max-h-96 shadow-lg rounded-md bg-white dark:bg-black absolute z-10 overflow-auto overflow-x-hidden'>
+				<div className='min-w-[18rem] max-h-96 min-h-[2rem] shadow-lg rounded-md bg-neutral-50 dark:bg-neutral-950 absolute z-10 overflow-auto overflow-x-hidden'>
 					{users.map((usr, idx) => (
 						<UserEntry
 							user={usr}

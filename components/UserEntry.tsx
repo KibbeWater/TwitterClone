@@ -4,7 +4,7 @@ import Verified from './Verified';
 
 export default function UserEntry({ user, onClick }: { user: SafeUser; onClick?: (e: React.MouseEvent<HTMLDivElement>) => void }) {
 	return (
-		<div className={'w-full h-16 flex gap-3 px-4 py-2 hover:bg-black/20'} onClick={onClick}>
+		<div className={'w-full h-16 flex gap-3 px-4 py-2 hover:bg-black/20 dark:hover:bg-white/5'} onClick={onClick}>
 			<div className='aspect-square h-full rounded-full overflow-hidden'>
 				<Image
 					src={user.avatar || '/default_avatar.png'}
