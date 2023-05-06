@@ -38,5 +38,6 @@ next-env.d.ts
 .vscode/
 env.json
 .env.local
+.env
 package-lock.json
 playground.mongodb
