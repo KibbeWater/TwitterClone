@@ -1,6 +1,7 @@
 import './globals.css';
 
 import { cookies } from 'next/headers';
+import type { Metadata } from 'next';
 
 import { config } from '@fortawesome/fontawesome-svg-core';
 import '@fortawesome/fontawesome-svg-core/styles.css';
@@ -15,6 +16,11 @@ import UserAuth from '../components/Modals/UserAuth';
 import Navbar from '../components/Navbar';
 import { Connect } from '../libs/database';
 import User from '../schemas/IUser';
+
+/* export const metadata: Metadata = {
+	title: 'Home',
+	description: 'The social network by crackheads',
+}; */
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
 	const token = cookies().get('token')?.value as string;
