@@ -5,6 +5,7 @@ import Post from '../../schemas/IPost';
 import DB, { Connect } from '../../libs/database';
 import { Group } from '../../libs/utils';
 import Notification from '../../schemas/INotification';
+import { TransformSafe } from '../../libs/user';
 
 function PostReq(req: NextApiRequest, res: NextApiResponse) {
 	return new Promise(async (resolve) => {
@@ -142,8 +143,13 @@ function GetReq(req: NextApiRequest, res: NextApiResponse) {
 				.sort({ date: -1 })
 				.skip(pageNumber * pageLimit)
 				.limit(pageLimit)
+				.lean()
 				.then((posts) => {
-					return resolve(res.status(200).json({ success: true, posts: posts, pages }));
+					return resolve(
+						res
+							.status(200)
+							.json({ success: true, posts: posts.map((post) => ({ ...post, user: TransformSafe(post.user) })), pages })
+					);
 				})
 				.catch(() => {
 					return resolve(res.status(500).json({ success: false, error: 'Internal server error' }));
