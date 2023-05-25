@@ -6,6 +6,7 @@ import DB, { Connect } from '../../libs/database';
 import { Group } from '../../libs/utils';
 import Notification from '../../schemas/INotification';
 import { TransformSafe } from '../../libs/user';
+import { IPost } from '../../types/IPost';
 
 function PostReq(req: NextApiRequest, res: NextApiResponse) {
 	return new Promise(async (resolve) => {
@@ -122,13 +123,21 @@ function GetReq(req: NextApiRequest, res: NextApiResponse) {
 				.skip(pageNumber * pageLimit)
 				.limit(pageLimit)
 				.lean()
-				.exec()
 				.then((post) =>
 					post
 						? resolve(
 								res.status(200).json({
 									success: true,
-									post: post,
+									post: {
+										...post,
+										user: TransformSafe(post.user),
+										mentions: post.mentions && post.mentions.map(TransformSafe),
+										comments: post.comments.map((comment) => ({
+											...comment,
+											user: TransformSafe((comment as unknown as IPost).user),
+										})),
+										quote: post.quote && { ...post.quote, user: TransformSafe((post.quote as unknown as IPost).user) },
+									},
 								})
 						  )
 						: resolve(res.status(404).json({ success: false, error: 'Not found' }))
@@ -146,12 +155,23 @@ function GetReq(req: NextApiRequest, res: NextApiResponse) {
 				.lean()
 				.then((posts) => {
 					return resolve(
-						res
-							.status(200)
-							.json({ success: true, posts: posts.map((post) => ({ ...post, user: TransformSafe(post.user) })), pages })
+						res.status(200).json({
+							success: true,
+							posts: posts.map((post) => ({
+								...post,
+								user: TransformSafe(post.user),
+								mentions: post.mentions && post.mentions.map(TransformSafe),
+								comments: post.comments.map((comment) => ({
+									...comment,
+									user: TransformSafe((comment as unknown as IPost).user),
+								})),
+								quote: post.quote && { ...post.quote, user: TransformSafe((post.quote as unknown as IPost).user) },
+							})),
+							pages,
+						})
 					);
 				})
-				.catch(() => {
+				.catch((err) => {
 					return resolve(res.status(500).json({ success: false, error: 'Internal server error' }));
 				});
 		});
