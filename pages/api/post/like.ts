@@ -23,5 +23,5 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
 	if (!post) return res.status(500).json({ success: false, error: 'Internal server error' });
 
-	return res.status(200).json({ success: true, post });
+	return res.status(200).json({ success: true, data: post });
 }

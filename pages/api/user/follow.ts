@@ -26,5 +26,5 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
 	if (!relationship) return res.status(500).json({ success: false, error: 'Internal server error' });
 
-	return res.status(200).json({ success: true, relationship });
+	return res.status(200).json({ success: true, data: relationship });
 }

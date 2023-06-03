@@ -54,9 +54,7 @@ function initializeUpload(req: NextApiRequest, res: NextApiResponse) {
 					resolve(
 						res.status(200).json({
 							success: true,
-							videoId: id,
-							uploadId: data.UploadId as string,
-							urls: urls,
+							data: { videoId: id, uploadId: data.UploadId as string, urls: urls },
 						})
 					);
 				});

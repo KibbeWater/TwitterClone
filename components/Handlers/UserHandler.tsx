@@ -11,7 +11,7 @@ export const UserContext = createContext<{
 	user?: LocalUser;
 	mutate?: KeyedMutator<{
 		success: boolean;
-		user: LocalUser;
+		data: LocalUser;
 	}>;
 }>({});
 
@@ -22,9 +22,9 @@ export type LocalUser = IUser & {
 };
 
 export default function UserHandler({ children }: { children?: React.ReactNode }) {
-	const { data, mutate } = useSWR<{ success: boolean; user: LocalUser }>(`/api/user`, (url) => fetch(url).then((r) => r.json()));
+	const { data, mutate } = useSWR<{ success: boolean; data: LocalUser }>(`/api/user`, (url) => fetch(url).then((r) => r.json()));
 
-	const user = data?.user;
+	const user = data?.data;
 
 	return <UserContext.Provider value={{ user, mutate }}>{children}</UserContext.Provider>;
 }

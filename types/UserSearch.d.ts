@@ -1,1 +1,1 @@
-export type UserSearchResult = { success: boolean; users: SafeUser[]; error?: string };
+export type UserSearchResult = { success: boolean; data: SafeUser[]; error?: string };

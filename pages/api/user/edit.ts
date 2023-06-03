@@ -28,5 +28,5 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 	if (avatar !== undefined) dbUser.avatar = avatar;
 	if (banner !== undefined) dbUser.banner = banner;
 
-	return res.status(200).json({ success: true, user: await dbUser.save() });
+	return res.status(200).json({ success: true, data: await dbUser.save() });
 }

@@ -18,9 +18,9 @@ export default function Page() {
 	const [isVisible, setIsVisible] = useState(false);
 
 	const fetcher = (url: string) => axios.get(url).then((res) => res.data);
-	const { data, size, setSize, mutate, isValidating } = useSWRInfinite<{ success: boolean; posts: IPost[]; pages: number }>(
-		(pageIndex: number, previousPageData: { success: boolean; posts: IPost[]; pages: number } | null) => {
-			if (previousPageData && !previousPageData.posts) return null;
+	const { data, size, setSize, mutate, isValidating } = useSWRInfinite<{ success: boolean; data: IPost[]; pages: number }>(
+		(pageIndex: number, previousPageData: { success: boolean; data: IPost[]; pages: number } | null) => {
+			if (previousPageData && !previousPageData.data) return null;
 			return `/api/post?page=${pageIndex}`;
 		},
 		fetcher
@@ -52,7 +52,7 @@ export default function Page() {
 		if (isVisible && !isRefreshing && size < totalPages) setSize(size + 1);
 	}, [isVisible, isRefreshing, totalPages]);
 
-	let posts = data ? data.map((page) => page.posts).flat() : [];
+	let posts = data ? data.map((page) => page.data).flat() : [];
 
 	return (
 		<PageTemplate name='Home'>

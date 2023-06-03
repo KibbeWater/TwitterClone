@@ -32,10 +32,10 @@ export default function Page({ params }: Props) {
 	const { user } = useContext(UserContext);
 	const bannerRef = useRef<HTMLDivElement>(null);
 
-	const { data, mutate } = useSWR<{ success: boolean; user: SafeUser }>(`/api/user?tag=${params.tag}`, (url) =>
+	const { data, mutate } = useSWR<{ success: boolean; data: SafeUser }>(`/api/user?tag=${params.tag}`, (url) =>
 		axios.get(url).then((r) => r.data)
 	);
-	const profile = data?.user;
+	const profile = data?.data;
 
 	const [isFollowing, setIsFollowing] = React.useState(
 		!!user?.relationships.find((rel: IRelationship) => rel.target?.toString() == profile?._id.toString() && rel.type == 'follow')

@@ -47,9 +47,9 @@ export default function PostReply({ user, post, onPost }: { user: IUser; post: s
 	const syncImages = () => {
 		return new Promise<string[]>((resolve, reject) => {
 			if (images.length === 0) return resolve([]);
-			Promise.all(images.map((image) => axios.post<{ success: boolean; url: string }>('/api/post/upload', { image })))
+			Promise.all(images.map((image) => axios.post<{ success: boolean; data: string }>('/api/post/upload', { image })))
 				.then((res) => {
-					resolve(res.map((r) => r.data.url));
+					resolve(res.map((r) => r.data.data));
 				})
 				.catch((err) => {
 					console.error(err);

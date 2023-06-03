@@ -17,7 +17,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
 					if (!info) return resolve(res.status(500).json({ success: false, error: 'Invalid credentials' }));
 
 					setCookie('token', info.token, { req, res });
-					resolve(res.status(200).json({ success: true, user: info.user }));
+					resolve(res.status(200).json({ success: true, data: info.user }));
 				})
 				.catch((err) => {
 					console.error(err);

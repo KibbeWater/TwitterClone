@@ -12,7 +12,7 @@ const fetcher = (url: string) => axios.get(url).then((res) => res.data);
 export default function UserSearch({ search }: { search: string }) {
 	const { data, error, isValidating } = useSWR<UserSearchResult>(`/api/users?search=${search}`, fetcher);
 
-	const users = data?.users || [];
+	const users = data?.data || [];
 
 	if (!search) return null;
 	return (

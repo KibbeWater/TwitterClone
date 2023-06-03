@@ -26,7 +26,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
 
 					new User(newUser).authorize().then((session) => {
 						if (!session) return resolve(res.status(500).json({ success: false, error: 'Failed to create session' }));
-						resolve(res.status(200).json({ success: true, token: session.token }));
+						resolve(res.status(200).json({ success: true, data: session.token }));
 					});
 				})
 				.catch((err) => {

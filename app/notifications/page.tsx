@@ -21,7 +21,7 @@ export default function Page() {
 	}, [user]);
 
 	useEffect(() => {
-		axios.post('/api/notifications/read').then((res) => {
+		axios.post('/api/notifications/read').then(() => {
 			if (mutate) mutate();
 		});
 	}, []);

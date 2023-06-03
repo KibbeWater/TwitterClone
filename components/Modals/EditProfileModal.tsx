@@ -40,10 +40,10 @@ function uploadImages({ banner, avatar }: { banner?: string; avatar?: string }):
 	return new Promise((resolve) => {
 		if (!banner && !avatar) return resolve({});
 
-		axios.post<{ success: boolean; banner?: string; avatar?: string }>('/api/user/upload', { banner, avatar }).then((res) => {
+		axios.post<{ success: boolean; data: { banner?: string; avatar?: string } }>('/api/user/upload', { banner, avatar }).then((res) => {
 			let result: { banner?: string; avatar?: string } = {};
-			if (res.data.avatar) result.avatar = res.data.avatar;
-			if (res.data.banner) result.banner = res.data.banner;
+			if (res.data.data.avatar) result.avatar = res.data.data.avatar;
+			if (res.data.data.banner) result.banner = res.data.data.banner;
 			resolve(result);
 		});
 	});
@@ -54,7 +54,7 @@ export default function EditProfileModal({
 }: {
 	mutate?: KeyedMutator<{
 		success: boolean;
-		user: SafeUser;
+		data: SafeUser;
 	}>;
 }) {
 	const { user, mutate: mutateUser } = useContext(UserContext);

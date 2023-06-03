@@ -22,7 +22,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
 			(user.posts as IPost[]) = user.posts.filter((post: IPost) => !post.parent);
 
-			return res.status(200).json({ success: true, user: TransformSafe(user) });
+			return res.status(200).json({ success: true, data: TransformSafe(user) });
 		}
 
 		if (tag) {
@@ -31,12 +31,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
 			(user2.posts as IPost[]) = user2.posts.filter((post: IPost) => !post.parent);
 
-			return res.status(200).json({ success: true, user: TransformSafe(user2) });
+			return res.status(200).json({ success: true, data: TransformSafe(user2) });
 		}
 
 		const user = await User.authenticate(token);
 		if (!user) return res.status(401).json({ success: false, error: 'Unauthorized' });
 
-		res.status(200).json({ success: true, user: NormalizeObject<typeof user>(user) });
+		res.status(200).json({ success: true, data: NormalizeObject<typeof user>(user) });
 	});
 }

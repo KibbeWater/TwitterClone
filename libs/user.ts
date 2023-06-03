@@ -10,7 +10,7 @@ export function CreateRelationship(userId: string, type: 'follow' | 'block' | 'm
 				type,
 			})
 			.then((res) => {
-				if (res.data.success) resolve(res.data.relationship);
+				if (res.data.success) resolve(res.data.data.relationship);
 				else reject(res.data.error);
 			})
 			.catch((err) => {

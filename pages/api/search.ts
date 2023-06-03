@@ -9,7 +9,7 @@ function GET(req: NextApiRequest, res: NextApiResponse) {
 		if (q === undefined) resolve(res.status(400).json({ success: false, error: 'Missing query' }));
 
 		User.find({ username: { $regex: q, $options: 'i' } }, {}, { limit: 10 })
-			.then((users) => resolve(res.status(200).json({ success: true, users: users.map(TransformSafe).filter((u) => u) })))
+			.then((users) => resolve(res.status(200).json({ success: true, data: users.map(TransformSafe).filter((u) => u) })))
 			.catch((err) =>
 				resolve(res.status(500).json({ success: false, error: 'Unexpected error occured whilst fetching query results' }))
 			);

@@ -40,6 +40,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 			result.banner = bannerURL;
 		}
 
-		return res.status(200).json({ success: true, ...result });
+		return res.status(200).json({ success: true, data: result });
 	});
 }

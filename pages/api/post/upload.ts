@@ -30,7 +30,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 		uploadImage(image)
 			.then((url) => {
 				if (!url) return res.status(500).json({ success: false, error: 'Internal server error' });
-				return res.status(200).json({ success: true, url });
+				return res.status(200).json({ success: true, data: url });
 			})
 			.catch((err) => {
 				console.error(err);

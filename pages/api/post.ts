@@ -51,7 +51,7 @@ function PostReq(req: NextApiRequest, res: NextApiResponse) {
 
 							validMentions.forEach(async (mention) => Notification.createPostNotification(mention, 'mention', post, [user]));
 
-							resolve(res.status(200).json({ success: true, post }));
+							resolve(res.status(200).json({ success: true, data: post }));
 						})
 						.catch(() => resolve(res.status(500).json({ success: false, error: 'Internal server error' })));
 				})
@@ -128,7 +128,7 @@ function GetReq(req: NextApiRequest, res: NextApiResponse) {
 						? resolve(
 								res.status(200).json({
 									success: true,
-									post: {
+									data: {
 										...post,
 										user: TransformSafe(post.user),
 										mentions: post.mentions && post.mentions.map(TransformSafe),
@@ -157,7 +157,7 @@ function GetReq(req: NextApiRequest, res: NextApiResponse) {
 					return resolve(
 						res.status(200).json({
 							success: true,
-							posts: posts.map((post) => ({
+							data: posts.map((post) => ({
 								...post,
 								user: TransformSafe(post.user),
 								mentions: post.mentions && post.mentions.map(TransformSafe),

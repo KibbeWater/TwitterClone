@@ -28,11 +28,11 @@ type Props = {
 	};
 };
 export default function Page({ params }: Props) {
-	const { data, mutate } = useSWR<{ success: boolean; post: IPost & { comments: IPost[] } }>(`/api/post?id=${params.id}`, (url: string) =>
+	const { data, mutate } = useSWR<{ success: boolean; data: IPost & { comments: IPost[] } }>(`/api/post?id=${params.id}`, (url: string) =>
 		axios.get(url).then((res) => res.data)
 	);
 
-	const post = data?.post;
+	const post = data?.data;
 	const user = post?.user as unknown as IUser;
 	const quote = post?.quote as unknown as IPost;
 	const images = post?.images || [];

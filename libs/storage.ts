@@ -94,13 +94,14 @@ export class MultipartUploader {
 			const axios = (await import('axios')).default;
 
 			axios
-				.post<{ success: boolean; videoId: string; uploadId: string; urls: UploadURL[] }>('/api/video/upload', {
+				.post<{ success: boolean; data: { videoId: string; uploadId: string; urls: UploadURL[] } }>('/api/video/upload', {
 					chunks: this.chunks.length,
 				})
 				.then((res) => {
-					this.uploadURLs = res.data.urls;
-					this.videoId = res.data.videoId;
-					this.uploadId = res.data.uploadId;
+					const data = res.data;
+					this.uploadURLs = data.data.urls;
+					this.videoId = data.data.videoId;
+					this.uploadId = data.data.uploadId;
 					resolve();
 				});
 		});

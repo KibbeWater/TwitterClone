@@ -30,9 +30,9 @@ export default function ImageModal({ src, post }: Props) {
 	const { setModal } = useContext(ModalContext);
 
 	const fetcher = (url: string) => axios.get(url).then((res) => res.data);
-	const { data, size, setSize, mutate, isValidating } = useSWRInfinite<{ success: boolean; posts: IPost[]; pages: number }>(
-		(pageIndex: number, previousPageData: { success: boolean; posts: IPost[]; pages: number } | null) => {
-			if (previousPageData && !previousPageData.posts) return null;
+	const { data, size, setSize, mutate, isValidating } = useSWRInfinite<{ success: boolean; data: IPost[]; pages: number }>(
+		(pageIndex: number, previousPageData: { success: boolean; data: IPost[]; pages: number } | null) => {
+			if (previousPageData && !previousPageData.data) return null;
 			return `/api/post?page=${pageIndex}&parent=${post._id}`;
 		},
 		fetcher
@@ -41,7 +41,7 @@ export default function ImageModal({ src, post }: Props) {
 	const isRefreshing = isValidating && data && data.length === size;
 	const totalPages = data ? data[data.length - 1].pages : 0;
 
-	let posts = data ? data.map((page) => page.posts).flat() : [];
+	let posts = data ? data.map((page) => page.data).flat() : [];
 	const pages = (data ? data.map((page) => page.pages).flat() : [])[0];
 
 	const loadingRef = useRef<HTMLDivElement>(null);

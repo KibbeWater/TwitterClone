@@ -55,7 +55,7 @@ export default function PostTwaat({ onPost, placeholder, btnText, children, inli
 		SendPost(
 			text,
 			undefined,
-			await Promise.all(images.map(async (img) => (await syncImage(img)).url)),
+			await Promise.all(images.map(async (img) => (await syncImage(img)).data)),
 			await Promise.all(videos.map(async (vid, i) => (await syncVideo(i, vid.data)).url)),
 			parent
 		).then((res) => {
@@ -115,9 +115,9 @@ export default function PostTwaat({ onPost, placeholder, btnText, children, inli
 		input.click();
 	};
 
-	const syncImage = (image: string): Promise<{ success: boolean; url: string; error?: string }> => {
+	const syncImage = (image: string): Promise<{ success: boolean; data: string; error?: string }> => {
 		return new Promise((resolve, reject) => {
-			axios.post<{ success: boolean; url: string; error?: string }>('/api/post/upload', { image }).then((res) => resolve(res.data));
+			axios.post<{ success: boolean; data: string; error?: string }>('/api/post/upload', { image }).then((res) => resolve(res.data));
 		});
 	};
 
