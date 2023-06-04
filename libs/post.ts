@@ -38,7 +38,7 @@ export function SendPost(content: string, quoteId?: string, images?: string[], v
 
 		if (!content) return reject(new Error('Missing content'));
 		axios
-			.post<{ success: boolean; post: IPost; error: string }>('/api/post', {
+			.post<{ success: boolean; data: IPost; error: string }>('/api/post', {
 				content,
 				quote: quoteId,
 				images,
@@ -46,7 +46,7 @@ export function SendPost(content: string, quoteId?: string, images?: string[], v
 				parent,
 			})
 			.then((res) => {
-				if (res.data.success) resolve(res.data.post);
+				if (res.data.success) resolve(res.data.data);
 				else reject(res.data.error);
 			})
 			.catch((err) => {
@@ -58,12 +58,12 @@ export function SendPost(content: string, quoteId?: string, images?: string[], v
 export function LikePost(id: string, shouldLike: boolean): Promise<IPost> {
 	return new Promise((resolve, reject) => {
 		axios
-			.post<{ success: boolean; post: IPost; error: string }>('/api/post/like', {
+			.post<{ success: boolean; data: IPost; error: string }>('/api/post/like', {
 				id,
 				like: shouldLike,
 			})
 			.then((res) => {
-				if (res.data.success) resolve(res.data.post);
+				if (res.data.success) resolve(res.data.data);
 				else reject(res.data.error);
 			})
 			.catch((err) => {

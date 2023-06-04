@@ -23,11 +23,11 @@ export default function TweetArea({ placeholder, inline, value, onChange }: Twee
 		else
 			import('axios').then((pkg) => {
 				pkg.default
-					.get<{ success: boolean; error?: string; users: SafeUser[] }>(`/api/search?q=${tag}`, { signal: controller.signal })
+					.get<{ success: boolean; error?: string; data: SafeUser[] }>(`/api/search?q=${tag}`, { signal: controller.signal })
 					.then((res) => {
 						if (!res.data.success) return console.error(res.data.error);
-						setUsers(res.data.users);
-						console.log(res.data.users);
+						setUsers(res.data.data);
+						console.log(res.data.data);
 					})
 					.catch((err) => {});
 			});

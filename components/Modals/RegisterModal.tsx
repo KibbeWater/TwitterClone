@@ -19,7 +19,7 @@ function Register(username: string, password: string, confirm: string): Promise<
 		if (password !== confirm) return reject('Password does not match');
 
 		axios
-			.post<{ success: boolean; token: string; error: string }>('/api/user/register', {
+			.post<{ success: boolean; data: string; error: string }>('/api/user/register', {
 				username,
 				password,
 				confirm,
@@ -27,7 +27,7 @@ function Register(username: string, password: string, confirm: string): Promise<
 			.then((res) => {
 				const data = res.data;
 
-				if (data.success) resolve(setCookie('token', data.token));
+				if (data.success) resolve(setCookie('token', data.data));
 				else reject(data.error);
 			})
 			.catch((err) => {

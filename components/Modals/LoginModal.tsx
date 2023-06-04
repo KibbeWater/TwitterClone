@@ -18,12 +18,12 @@ type AuthProps = {
 function Login(username: string, password: string): Promise<LocalUser> {
 	return new Promise((resolve, reject) => {
 		axios
-			.post<{ success: boolean; token: string; user: LocalUser; error: string }>('/api/user/login', { username, password })
+			.post<{ success: boolean; data: LocalUser; error: string }>('/api/user/login', { username, password })
 			.then((res) => {
 				const data = res.data;
 
 				if (data.success) {
-					resolve(data.user);
+					resolve(data.data);
 				} else reject(data.error);
 			})
 			.catch((err) => {
@@ -51,7 +51,7 @@ export default function LoginModal({ switchMode }: AuthProps) {
 		Login(username, password)
 			.then((user) => {
 				if (mutate && setModal) {
-					mutate({ success: true, user });
+					mutate({ success: true, data: user });
 					setModal(null);
 				} else window.location.reload();
 			})
