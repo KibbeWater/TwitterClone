@@ -1,6 +1,7 @@
 import { setCookie } from 'cookies-next';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import DB from '../../../libs/database';
+import Session from '../../../schemas/ISession';
 import User from '../../../schemas/IUser';
 
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -16,8 +17,15 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
 				.then((info) => {
 					if (!info) return resolve(res.status(500).json({ success: false, error: 'Invalid credentials' }));
 
-					setCookie('token', info.token, { req, res });
-					resolve(res.status(200).json({ success: true, data: info.user }));
+					Session.findOne({ token: info.token })
+						.then((session) => {
+							setCookie('token', info.token, { req, res });
+							resolve(res.status(200).json({ success: true, data: { user: info.user, session } }));
+						})
+						.catch((err) => {
+							console.error(err);
+							resolve(res.status(500).json({ success: false, error: 'Internal server error' }));
+						});
 				})
 				.catch((err) => {
 					console.error(err);

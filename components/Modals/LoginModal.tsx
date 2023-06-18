@@ -10,6 +10,7 @@ import { FontAwesomeSvgIcon } from 'react-fontawesome-svg-icon';
 import { IUser } from '../../types/IUser';
 import { ModalContext } from '../Handlers/ModalHandler';
 import { LocalUser, UserContext } from '../Handlers/UserHandler';
+import { ISession } from '../../types/ISession';
 
 type AuthProps = {
 	switchMode: () => void;
@@ -18,12 +19,15 @@ type AuthProps = {
 function Login(username: string, password: string): Promise<LocalUser> {
 	return new Promise((resolve, reject) => {
 		axios
-			.post<{ success: boolean; data: LocalUser; error: string }>('/api/user/login', { username, password })
+			.post<{ success: boolean; data: { user: LocalUser; session: ISession }; error: string }>('/api/user/login', {
+				username,
+				password,
+			})
 			.then((res) => {
 				const data = res.data;
 
 				if (data.success) {
-					resolve(data.data);
+					resolve(data.data.user);
 				} else reject(data.error);
 			})
 			.catch((err) => {
