@@ -18,6 +18,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
 					if (!info) return resolve(res.status(500).json({ success: false, error: 'Invalid credentials' }));
 
 					Session.findOne({ token: info.token })
+						.populate('owner')
 						.then((session) => {
 							setCookie('token', info.token, { req, res });
 							resolve(res.status(200).json({ success: true, data: { user: info.user, session } }));
