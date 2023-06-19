@@ -51,7 +51,7 @@ function PostReq(req: NextApiRequest, res: NextApiResponse) {
 
 							validMentions.forEach(async (mention) => Notification.createPostNotification(mention, 'mention', post, [user]));
 
-							Post.getPost(post._id)
+							Post.findById(post._id)
 								.lean()
 								.then((post2) => {
 									if (!post2) return resolve(res.status(500).json({ success: false, error: 'Internal server error' }));
