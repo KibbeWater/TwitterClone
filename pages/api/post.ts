@@ -51,7 +51,13 @@ function PostReq(req: NextApiRequest, res: NextApiResponse) {
 
 							validMentions.forEach(async (mention) => Notification.createPostNotification(mention, 'mention', post, [user]));
 
-							resolve(res.status(200).json({ success: true, data: post }));
+							Post.findById(post._id)
+								.lean()
+								.then((post2) => {
+									if (!post2) return resolve(res.status(500).json({ success: false, error: 'Internal server error' }));
+
+									resolve(res.status(200).json({ success: true, data: {...post2, user: TransformSafe(post2.user)} }));
+								}).catch(() => resolve(res.status(500).json({ success: false, error: 'Internal server error' })))
 						})
 						.catch(() => resolve(res.status(500).json({ success: false, error: 'Internal server error' })));
 				})
