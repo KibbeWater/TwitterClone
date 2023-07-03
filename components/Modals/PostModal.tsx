@@ -27,7 +27,7 @@ export default function PostModal({ quote }: { quote?: IPost }) {
 				</div>
 			</div>
 			<div className={'grow flex break-words px-4 pb-[10px]'}>
-				<PostTwaat parent={quote?._id.toString()} />
+				<PostTwaat quote={quote} />
 			</div>
 		</div>
 	);
