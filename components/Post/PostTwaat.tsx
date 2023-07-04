@@ -172,7 +172,7 @@ export default function PostTwaat({ onPost, placeholder, btnText, children, inli
 					{quote ? (
 						<div
 							className={
-								'group/quote mt-1 pl-1 rounded-md border-[1px] border-gray-700 transition-colors bg-black/0 hover:bg-black/10'
+								'group/quote mt-1 pl-1 rounded-md border-[1px] border-gray-500 transition-colors bg-black/0 hover:bg-black/10'
 							}
 						>
 							<PostComponent post={quote} isRef={true} />
