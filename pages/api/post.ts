@@ -142,6 +142,7 @@ function GetReq(req: NextApiRequest, res: NextApiResponse) {
 											...comment,
 											user: TransformSafe((comment as unknown as IPost).user),
 										})),
+										parent: post.parent && { ...post.parent, user: TransformSafe((post.parent as unknown as IPost).user) },
 										quote: post.quote && { ...post.quote, user: TransformSafe((post.quote as unknown as IPost).user) },
 									},
 								})
