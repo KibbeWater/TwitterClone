@@ -14,6 +14,7 @@ import { Group } from '../../libs/utils';
 import ProgressBar from '../ProgressBar';
 import TweetArea from './TweetArea';
 import PostComponent from './Post';
+import { IPost } from '../../types/IPost';
 
 type Props = {
 	placeholder?: string;
