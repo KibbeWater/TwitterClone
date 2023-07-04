@@ -82,6 +82,10 @@ const postSchema = new Schema<IPost, PostModel>(
 						const quotePost = await this.findById(post.quote);
 						if (quotePost) {
 							quotePost.retwaats.push(post._id);
+							if (quotePost.user?._id.toString() !== user.toString())
+								await Notification.createPostNotification(quotePost.user as unknown as IUser, 'retwaat', post, [
+									(await User.findById(user)) as IUser,
+								]);
 							await quotePost.save();
 						}
 					}
@@ -90,9 +94,10 @@ const postSchema = new Schema<IPost, PostModel>(
 						const parentPost = await this.findById(post.parent);
 						if (parentPost) {
 							parentPost.comments.push(post._id);
-							await Notification.createPostNotification(parentPost.user as unknown as IUser, 'reply', post, [
-								(await User.findById(user)) as IUser,
-							]);
+							if (parentPost.user?._id.toString() !== user.toString())
+								await Notification.createPostNotification(parentPost.user as unknown as IUser, 'reply', post, [
+									(await User.findById(user)) as IUser,
+								]);
 							await parentPost.save();
 						}
 					}

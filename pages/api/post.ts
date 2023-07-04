@@ -49,15 +49,18 @@ function PostReq(req: NextApiRequest, res: NextApiResponse) {
 						.then(async (post) => {
 							if (!post) return resolve(res.status(500).json({ success: false, error: 'Internal server error' }));
 
-							validMentions.forEach(async (mention) => Notification.createPostNotification(mention, 'mention', post, [user]));
+							validMentions.forEach(async (mention) => {
+								if (user?._id !== mention._id) Notification.createPostNotification(mention, 'mention', post, [user]);
+							});
 
 							Post.findById(post._id)
 								.lean()
 								.then((post2) => {
 									if (!post2) return resolve(res.status(500).json({ success: false, error: 'Internal server error' }));
 
-									resolve(res.status(200).json({ success: true, data: {...post2, user: TransformSafe(post2.user)} }));
-								}).catch(() => resolve(res.status(500).json({ success: false, error: 'Internal server error' })))
+									resolve(res.status(200).json({ success: true, data: { ...post2, user: TransformSafe(post2.user) } }));
+								})
+								.catch(() => resolve(res.status(500).json({ success: false, error: 'Internal server error' })));
 						})
 						.catch(() => resolve(res.status(500).json({ success: false, error: 'Internal server error' })));
 				})
@@ -142,7 +145,10 @@ function GetReq(req: NextApiRequest, res: NextApiResponse) {
 											...comment,
 											user: TransformSafe((comment as unknown as IPost).user),
 										})),
-										parent: post.parent && { ...post.parent, user: TransformSafe((post.parent as unknown as IPost).user) },
+										parent: post.parent && {
+											...post.parent,
+											user: TransformSafe((post.parent as unknown as IPost).user),
+										},
 										quote: post.quote && { ...post.quote, user: TransformSafe((post.quote as unknown as IPost).user) },
 									},
 								})
