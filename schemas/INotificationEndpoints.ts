@@ -6,10 +6,16 @@ export interface IPushNotificationDevice {
 	user?: Types.ObjectId;
 	deviceType: DeviceTypeEnum;
 	device: string;
+	deviceArn: string;
 }
 
 interface PushNotificationDeviceModel extends Model<IPushNotificationDevice> {
-	createDevice: (user: Types.ObjectId, deviceType: DeviceTypeEnum, device: string) => Promise<IPushNotificationDevice | null>;
+	createDevice: (
+		user: Types.ObjectId,
+		deviceType: DeviceTypeEnum,
+		device: string,
+		deviceArn: string
+	) => Promise<IPushNotificationDevice | null>;
 }
 
 const notificationDeviceSchema = new Schema<IPushNotificationDevice, PushNotificationDeviceModel>(
@@ -17,16 +23,17 @@ const notificationDeviceSchema = new Schema<IPushNotificationDevice, PushNotific
 		user: { type: Types.ObjectId, ref: 'User' },
 		deviceType: { type: Number, required: true },
 		device: { type: String, required: true },
+		deviceArn: { type: String, required: true },
 	},
 	{
 		statics: {
-			createDevice: function (user: Types.ObjectId, deviceType: DeviceTypeEnum, device: string) {
+			createDevice: function (user: Types.ObjectId, deviceType: DeviceTypeEnum, device: string, deviceArn: string) {
 				return new Promise<IPushNotificationDevice | null>(async (resolve, reject) => {
 					try {
 						const deviceExists = await this.findOne({ user, deviceType, device });
 						if (deviceExists) return resolve(deviceExists);
 
-						const newDevice = await this.create({ user, deviceType, device });
+						const newDevice = await this.create({ user, deviceType, device, deviceArn });
 						return resolve(newDevice);
 					} catch (err) {
 						console.error(err);

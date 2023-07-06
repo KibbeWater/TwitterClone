@@ -38,8 +38,9 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
 
 					sns.send(command).then(async (data) => {
 						if (!data) return resolve(res.status(400).json({ success: false, error: 'Failed to register device' }));
+						if (!data.EndpointArn) return resolve(res.status(400).json({ success: false, error: 'Failed to register device' }));
 
-						NotificationDevice.createDevice(user._id, 0 as unknown as DeviceTypeEnum, deviceID)
+						NotificationDevice.createDevice(user._id, 0 as unknown as DeviceTypeEnum, deviceID, data.EndpointArn as string)
 							.then((device) => {
 								if (!device) return resolve(res.status(500).json({ success: false, error: 'Failed to create device' }));
 								return resolve(res.status(200).json({ success: true, data: device }));
