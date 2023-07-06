@@ -1,25 +1,46 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema, Document, Types, Model, model } from 'mongoose';
 import { DeviceTypeEnum } from '../types/INotificationEndpoints';
+import { IUser } from '../types/IUser';
 
-interface IPushNotificationDevice extends Document {
-	id: string;
-	user: mongoose.Types.ObjectId;
+export interface IPushNotificationDevice {
+	_id: Types.ObjectId;
+	user?: Types.ObjectId;
 	deviceType: DeviceTypeEnum;
 	device: string;
 }
 
-const pushNotificationDeviceSchema: Schema = new Schema({
-	id: { type: String, required: true },
-	user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-	deviceType: { type: Number, required: true },
-	device: { type: String, required: true },
-});
+interface PushNotificationDeviceModel extends Model<IPushNotificationDevice> {
+	createDevice: (user: Types.ObjectId, deviceType: DeviceTypeEnum, device: string) => Promise<IPushNotificationDevice | null>;
+}
 
-pushNotificationDeviceSchema.statics.createDevice = async function (device: IPushNotificationDevice): Promise<IPushNotificationDevice> {
-	const newDevice = new this(device);
-	return newDevice.save();
-};
+const notificationDeviceSchema = new Schema<IPushNotificationDevice, PushNotificationDeviceModel>(
+	{
+		user: { type: Types.ObjectId, ref: 'User' },
+		deviceType: { type: Number, required: true },
+		device: { type: String, required: true },
+	},
+	{
+		statics: {
+			createDevice: function (user: Types.ObjectId, IUser, deviceType: DeviceTypeEnum, device: string) {
+				return new Promise<IPushNotificationDevice | null>(async (resolve, reject) => {
+					try {
+						const deviceExists = await this.findOne({ user: user._id, deviceType, device });
+						if (deviceExists) return resolve(deviceExists);
 
-const PushNotificationDevice = mongoose.model<IPushNotificationDevice>('PushNotificationDevice', pushNotificationDeviceSchema);
+						const newDevice = await this.create({ user: user._id, deviceType, device });
+						return resolve(newDevice);
+					} catch (err) {
+						console.error(err);
+						return resolve(null);
+					}
+				});
+			},
+		},
+	}
+);
 
-export { PushNotificationDevice };
+const PushNotificationDevice =
+	(mongoose.models.Post as PushNotificationDeviceModel) ||
+	model<IPushNotificationDevice, PushNotificationDeviceModel>('Post', notificationDeviceSchema);
+
+export default PushNotificationDevice;
