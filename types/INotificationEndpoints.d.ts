@@ -4,7 +4,7 @@ export type DeviceTypeEnum = {
 	WEB: 2;
 };
 
-export type INotification = {
+export type INotificationDevice = {
 	_id: string;
 	user?: IUser;
 	deviceType: DeviceTypeEnum;

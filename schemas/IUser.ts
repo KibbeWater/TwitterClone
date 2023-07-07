@@ -27,6 +27,7 @@ export interface IUser {
 	posts: [Types.ObjectId];
 	likes: [Types.ObjectId];
 	notifications: [Types.ObjectId];
+	notificationDevices: [Types.ObjectId];
 
 	group: number;
 }
@@ -74,6 +75,7 @@ export const userSchema = new Schema<IUser, UserModel, IUserMethods>(
 		posts: [{ type: Types.ObjectId, ref: 'Post' }],
 		likes: [{ type: Types.ObjectId, ref: 'Like' }],
 		notifications: [{ type: Types.ObjectId, ref: 'Notification' }],
+		notificationDevices: [{ type: Types.ObjectId, ref: 'PushNotificationDevice' }],
 
 		group: { type: Number, default: 0 },
 	},
