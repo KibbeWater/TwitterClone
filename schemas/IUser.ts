@@ -2,7 +2,7 @@ import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { compareSync, hashSync } from 'bcryptjs';
 import mongoose, { Model, model, Schema, Types } from 'mongoose';
 
-import { PublishBatchCommand, PublishBatchRequestEntry, SNSClient } from '@aws-sdk/client-sns';
+import { PublishBatchCommand, PublishBatchRequestEntry, PublishCommand, SNSClient } from '@aws-sdk/client-sns';
 import { s3Client, S3_BUCKET } from '../libs/server/storage';
 import { TransformSafe } from '../libs/user';
 import { GenerateStorageKey, NormalizeObject } from '../libs/utils';
@@ -299,33 +299,39 @@ userSchema.methods.sendNotification = async function (title: string, body: strin
 
 	const tokens = devices.map((d) => d.deviceArn);
 
-	const messages: PublishBatchRequestEntry[] = tokens.map((token) => ({
-		Id: new Types.ObjectId().toHexString(),
-		MessageStructure: 'json',
-		Message: JSON.stringify({
-			default: 'Default message',
-			APNS: JSON.stringify({
-				aps: {
-					alert: {
-						title,
-						body,
-					},
-					sound: 'default',
-					badge: 1,
-				},
-			}),
-		}),
-	}));
+	const promises = tokens.map((token) =>
+		sns.send(
+			new PublishCommand({
+				MessageStructure: 'json',
+				Message: JSON.stringify({
+					default: 'Default message',
+					APNS: JSON.stringify({
+						aps: {
+							alert: {
+								title,
+								body,
+							},
+							sound: 'default',
+							badge: 1,
+						},
+					}),
+					APNS_SANDBOX: JSON.stringify({
+						aps: {
+							alert: {
+								title,
+								body,
+							},
+							sound: 'default',
+							badge: 1,
+						},
+					}),
+				}),
+				TargetArn: token,
+			})
+		)
+	);
 
-	// Send messages 10 at a time
-	for (let i = 0; i < messages.length; i += 10) {
-		const command = new PublishBatchCommand({
-			TopicArn: process.env.SNS_TOPIC_ARN as string,
-			PublishBatchRequestEntries: messages.slice(i, i + 10),
-		});
-
-		await sns.send(command);
-	}
+	await Promise.all(promises);
 };
 
 userSchema.methods.sendFollowNotification = async function (follower: IUser) {
