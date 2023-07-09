@@ -46,9 +46,30 @@ export const notificationSchema = new Schema<INotification, NotificationModel>(
 				return new Promise((resolve, reject) => {
 					User.findById(user._id)
 						.populate<{ notifications: INotification[] }>('notifications')
-						.exec((err, user: any) => {
+						.exec(async (err, user: any) => {
 							if (err) reject(err);
 							else {
+								switch (type) {
+									case 'like':
+										if (targets != undefined && targets.length > 0)
+											await new User(user).sendLikeNotification(targets[0], post);
+										break;
+									case 'retwaat':
+										if (targets != undefined && targets.length > 0)
+											await new User(user).sendRetwaatNotification(targets[0], post);
+										break;
+									case 'reply':
+										if (targets != undefined && targets.length > 0)
+											await new User(user).sendReplyNotification(targets[0], post);
+										break;
+									case 'mention':
+										if (targets != undefined && targets.length > 0)
+											await new User(user).sendMentionNotification(targets[0], post);
+										break;
+
+									default:
+										break;
+								}
 								const latestNotification = user?.notifications[user?.notifications.length - 1];
 								if (latestNotification?.type === type && type !== 'mention' && type !== 'reply')
 									resolve(
@@ -78,9 +99,10 @@ export const notificationSchema = new Schema<INotification, NotificationModel>(
 				return new Promise((resolve, reject) => {
 					User.findById(user._id)
 						.populate<{ notifications: INotification[] }>('notifications')
-						.exec((err, user: any) => {
+						.exec(async (err, user: any) => {
 							if (err) reject(err);
 							else {
+								await new User(target).sendFollowNotification(user);
 								const latestNotification = user?.notifications[user?.notifications.length - 1];
 								if (latestNotification?.type === 'follow') {
 									const notif = Notification.findByIdAndUpdate(

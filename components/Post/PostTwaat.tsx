@@ -13,6 +13,8 @@ import { TranscodeVideo } from '../../libs/transcoder';
 import { Group } from '../../libs/utils';
 import ProgressBar from '../ProgressBar';
 import TweetArea from './TweetArea';
+import PostComponent from './Post';
+import { IPost } from '../../types/IPost';
 
 type Props = {
 	placeholder?: string;
@@ -23,11 +25,12 @@ type Props = {
 	avatarSize?: number;
 	padding?: number;
 	parent?: string;
+	quote?: IPost;
 };
 
 type VideoObj = { uploading: boolean; data: ArrayBuffer; progress: number };
 
-export default function PostTwaat({ onPost, placeholder, btnText, children, inline, avatarSize = 48, padding, parent }: Props) {
+export default function PostTwaat({ onPost, placeholder, btnText, children, inline, avatarSize = 48, padding, parent, quote }: Props) {
 	const [text, setText] = useState('');
 
 	const [images, setImages] = useState<string[]>([]);
@@ -54,7 +57,7 @@ export default function PostTwaat({ onPost, placeholder, btnText, children, inli
 
 		SendPost(
 			text,
-			undefined,
+			quote?._id.toString(),
 			await Promise.all(images.map(async (img) => (await syncImage(img)).data)),
 			await Promise.all(videos.map(async (vid, i) => (await syncVideo(i, vid.data)).url)),
 			parent
@@ -167,6 +170,17 @@ export default function PostTwaat({ onPost, placeholder, btnText, children, inli
 
 				<div className='flex flex-col pl-5 pr-1 w-full' style={{ marginTop: inline ? 12 : 0 }}>
 					<TweetArea placeholder={placeholder || "What's happening?"} inline={inline} value={text} onChange={(t) => setText(t)} />
+					{quote ? (
+						<div
+							className={
+								'group/quote mt-1 pl-1 rounded-md border-[1px] border-gray-500 transition-colors bg-black/0 hover:bg-black/10'
+							}
+						>
+							<PostComponent post={quote} isRef={true} />
+						</div>
+					) : (
+						<></>
+					)}
 					<div
 						className={'grid grid-cols-2 gap-1 mt-3 b-1'}
 						ref={postAlbumRef}

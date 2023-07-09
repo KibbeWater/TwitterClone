@@ -57,7 +57,7 @@ export default function Post({ post, isRef, onMutate }: Props) {
 	const { setModal } = useContext(ModalContext);
 	const { user: me, mutate: mutateMe } = useContext(UserContext);
 
-	const [hasLiked, setHasLiked] = useState((post.likes as unknown as ILike[]).filter((like) => like.user == me?._id).length > 0);
+	const [hasLiked, setHasLiked] = useState(((post.likes as unknown as ILike[]) ?? []).filter((like) => like.user == me?._id).length > 0);
 	const [count, addCount] = useReducer((count: number) => count + 1, 0);
 	const [loadingLikes, setLoadingLikes] = useState(false);
 	const [optionsActive, setOptionsActive] = useState(false);

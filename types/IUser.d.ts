@@ -1,5 +1,6 @@
 import { ILike } from './ILike';
 import { INotification } from './INotification';
+import { INotificationDevice } from './INotificationEndpoints';
 import { IPost } from './IPost';
 import { IRelationship } from './IRelationship';
 import { ISession } from './ISession';
@@ -20,6 +21,7 @@ export type IUser = {
 	posts: [IPost];
 	likes: [ILike];
 	notifications: [INotification];
+	notificationDevices: [INotificationDevice];
 
 	group: number;
 };
