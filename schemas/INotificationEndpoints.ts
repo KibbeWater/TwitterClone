@@ -1,5 +1,6 @@
 import mongoose, { Schema, Document, Types, Model, model } from 'mongoose';
 import { DeviceTypeEnum } from '../types/INotificationEndpoints';
+import User from './IUser';
 
 export interface IPushNotificationDevice {
 	_id: Types.ObjectId;
@@ -33,8 +34,19 @@ const notificationDeviceSchema = new Schema<IPushNotificationDevice, PushNotific
 						const deviceExists = await this.findOne({ user, deviceType, device });
 						if (deviceExists) return resolve(deviceExists);
 
-						const newDevice = await this.create({ user, deviceType, device, deviceArn });
-						return resolve(newDevice);
+						this.create({ user, deviceType, device, deviceArn })
+							.then((newDevice) =>
+								User.findByIdAndUpdate(user._id, { $push: { notificationDevices: newDevice } }, { new: true })
+									.then(() => resolve(newDevice))
+									.catch((err) => {
+										console.error(err);
+										return resolve(null);
+									})
+							)
+							.catch((err) => {
+								console.error(err);
+								return resolve(null);
+							});
 					} catch (err) {
 						console.error(err);
 						return resolve(null);

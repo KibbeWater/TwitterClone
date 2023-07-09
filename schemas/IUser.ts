@@ -2,15 +2,16 @@ import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { compareSync, hashSync } from 'bcryptjs';
 import mongoose, { Model, model, Schema, Types } from 'mongoose';
 
+import { PublishBatchCommand, PublishBatchRequestEntry, SNSClient } from '@aws-sdk/client-sns';
 import { s3Client, S3_BUCKET } from '../libs/server/storage';
 import { TransformSafe } from '../libs/user';
 import { GenerateStorageKey, NormalizeObject } from '../libs/utils';
 import Like, { ILike } from './ILike';
 import Notification, { INotification } from './INotification';
+import NotificationDevices from './INotificationEndpoints';
 import Post, { IPost } from './IPost';
 import Relationship, { IRelationship } from './IRelationship';
 import Session, { ISession } from './ISession';
-
 export interface IUser {
 	_id: Types.ObjectId;
 	tag: string;
@@ -47,6 +48,13 @@ interface IUserMethods {
 	removeRelationship: (target: Types.ObjectId) => Promise<IRelationship | null>;
 	logout: (token: string) => Promise<void>;
 	readNotifications: () => Promise<void>;
+
+	sendNotification: (title: string, body: string) => Promise<void>;
+	sendFollowNotification: (target: IUser) => Promise<void>;
+	sendLikeNotification: (liker: IUser, post: IPost) => Promise<void>;
+	sendRetwaatNotification: (retwaater: IUser, post: IPost) => Promise<void>;
+	sendReplyNotification: (replyer: IUser, post: IPost) => Promise<void>;
+	sendMentionNotification: (mentioner: IUser, post: IPost) => Promise<void>;
 }
 
 interface UserModel extends Model<IUser, {}, IUserMethods> {
@@ -276,6 +284,73 @@ userSchema.methods.logout = async function (token: string) {
 userSchema.methods.readNotifications = async function () {
 	await Notification.updateMany({ user: this._id, read: false }, { $set: { read: true } }, { multi: true }).exec();
 };
+
+userSchema.methods.sendNotification = async function (title: string, body: string) {
+	const devices = await NotificationDevices.find({ user: this._id }).exec();
+	if (!devices) return;
+
+	const sns = new SNSClient({
+		region: process.env.SNS_REGION,
+		credentials: {
+			accessKeyId: process.env.SNS_ACCESS_KEY_ID as string,
+			secretAccessKey: process.env.SNS_SECRET_ACCESS_KEY as string,
+		},
+	});
+
+	const tokens = devices.map((d) => d.deviceArn);
+
+	const messages: PublishBatchRequestEntry[] = tokens.map((token) => ({
+		Id: new Types.ObjectId().toHexString(),
+		MessageStructure: 'json',
+		Message: JSON.stringify({
+			default: 'Default message',
+			APNS: JSON.stringify({
+				aps: {
+					alert: {
+						title,
+						body,
+					},
+					sound: 'default',
+					badge: 1,
+				},
+			}),
+		}),
+	}));
+
+	// Send messages 10 at a time
+	for (let i = 0; i < messages.length; i += 10) {
+		const command = new PublishBatchCommand({
+			TopicArn: process.env.SNS_TOPIC_ARN as string,
+			PublishBatchRequestEntries: messages.slice(i, i + 10),
+		});
+
+		await sns.send(command);
+	}
+};
+
+userSchema.methods.sendFollowNotification = async function (follower: IUser) {
+	await this.sendNotification(`New Follower`, `${follower.username} is now following you`);
+};
+
+userSchema.methods.sendLikeNotification = async function (liker: IUser, post: IPost) {
+	await this.sendNotification(`${liker.username} Liked your Twaat`, post.content);
+};
+
+userSchema.methods.sendRetwaatNotification = async function (retwaater: IUser, post: IPost) {
+	await this.sendNotification(`${retwaater.username} Retwaated your Twaat`, post.content);
+};
+
+userSchema.methods.sendReplyNotification = async function (replyer: IUser, post: IPost) {
+	await this.sendNotification(`${replyer.username} replied`, post.content);
+};
+
+userSchema.methods.sendMentionNotification = async function (mentioner: IUser, post: IPost) {
+	await this.sendNotification(`${mentioner.username} mentioned you`, post.content);
+};
+
+/* sendRetwaatNotification: (retwaater: IUser, post: IPost) => Promise<void>;
+sendReplyNotification: (replyer: IUser, post: IPost) => Promise<void>;
+sendMentionNotification: (mentioner: IUser, post: IPost) => Promise<void>; */
 
 function populateUser(user: mongoose.Query<any, any, {}, any>) {
 	user.populate<{ posts: IPost[] }>('posts').populate<{
