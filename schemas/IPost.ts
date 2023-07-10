@@ -32,7 +32,7 @@ interface PostModel extends Model<IPost> {
 		parent?: string,
 		mentions?: IUser[]
 	) => Promise<IPost | null>;
-	getPost: (id: Types.ObjectId) => Promise<IPost | null>;
+	getPost: (id: string) => Promise<IPost | null>;
 	deletePost: (id: Types.ObjectId) => Promise<void>;
 }
 
@@ -112,12 +112,19 @@ const postSchema = new Schema<IPost, PostModel>(
 					resolve(post);
 				});
 			},
-			getPost: function (id: Types.ObjectId) {
+			getPost: function (id: string) {
 				return this.findById(id)
-					.populate<{ quote: IPost; user: IUser; comments: IPost[]; likes: ILike[] }>(['quote', 'user', 'comments', 'likes'])
-					.populate<{ user: IUser & { user: IUser } }>({ path: 'quote', populate: { path: 'user' } })
-					.populate<{ user: IUser & { user: IUser } }>({ path: 'comments', populate: { path: 'user' } })
-					.exec();
+					.populate<{ quote: IPost; parent: IPost; user: IUser; comments: IPost[]; likes: ILike[] }>([
+						'quote',
+						'parent',
+						'user',
+						'comments',
+						'likes',
+					])
+					.populate<{ quote: IUser & { user: IUser } }>({ path: 'quote', populate: { path: 'user' } })
+					.populate<{ parent: IUser & { user: IUser } }>({ path: 'parent', populate: { path: 'user' } })
+					.populate<{ comments: IUser & { user: IUser } }>({ path: 'comments', populate: { path: 'user' } })
+					.lean();
 			},
 			deletePost: function (id: Types.ObjectId) {
 				return new Promise<void>(async (resolve, reject) => {
@@ -191,17 +198,10 @@ const postSchema = new Schema<IPost, PostModel>(
 	.populate<{ user: IUser & { user: IUser } }>({ path: 'quote', populate: { path: 'user' } })
 */
 function populatePost(post: mongoose.Query<any, any, {}, any>) {
-	post.populate<{ user: IUser; quote: IPost; comments: IPost[]; likes: ILike[]; mentions: IUser[] }>([
-		'user',
-		'comments',
-		'likes',
-		'quote',
-		'mentions',
-	]);
-	post.populate<{ user: IUser & { user: IUser } }>({ path: 'quote', populate: { path: 'user' } });
+	post.populate<{ user: IUser; comments: IPost[]; likes: ILike[]; mentions: IUser[] }>(['user', 'comments', 'likes', 'mentions']);
 }
 
-function safePost(post: IPost): IPost & { user: SafeUser; quote?: IPost & { user: SafeUser } } {
+function safePost(post: IPost): IPost & { user: SafeUser; quote?: IPost & { user: SafeUser }; parent?: IPost & { user: SafeUser } } {
 	return {
 		...post,
 		// @ts-ignore

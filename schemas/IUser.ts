@@ -365,6 +365,8 @@ function populateUser(user: mongoose.Query<any, any, {}, any>) {
 		{ path: 'posts', populate: { path: 'user' } },
 		{ path: 'posts', populate: { path: 'quote' } },
 		{ path: 'posts', populate: { path: 'quote', populate: { path: 'user' } } },
+		{ path: 'posts', populate: { path: 'parent' } },
+		{ path: 'posts', populate: { path: 'parent', populate: { path: 'user' } } },
 		{ path: 'posts', populate: { path: 'likes' } },
 	]);
 	return user;
