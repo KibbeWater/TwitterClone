@@ -36,7 +36,7 @@ const notificationDeviceSchema = new Schema<IPushNotificationDevice, PushNotific
 
 						this.create({ user, deviceType, device, deviceArn })
 							.then((newDevice) =>
-								User.findByIdAndUpdate(user._id, { $push: { notificationDevices: newDevice } }, { new: true })
+								User.findByIdAndUpdate(user, { $push: { notificationDevices: newDevice } }, { new: true })
 									.then(() => resolve(newDevice))
 									.catch((err) => {
 										console.error(err);
