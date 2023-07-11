@@ -1,4 +1,4 @@
-import mongoose, { Model, model, Schema, Types } from 'mongoose';
+import mongoose, { Model, model, Query, Schema, Types } from 'mongoose';
 import { SafeUser, TransformSafe } from '../libs/user';
 import Like, { ILike } from './ILike';
 import Notification, { INotification } from './INotification';
@@ -198,7 +198,7 @@ const postSchema = new Schema<IPost, PostModel>(
 	.populate<{ user: IUser & { user: IUser } }>({ path: 'quote', populate: { path: 'user' } })
 */
 function populatePost(post: mongoose.Query<any, any, {}, any>) {
-  post.populate<{ user: IUser; quote: IPost; parent: IPost; likes: ILike[]; mentions: IUser[] }>([
+	post.populate<{ user: IUser; quote: IPost; parent: IPost; likes: ILike[]; mentions: IUser[] }>([
 		'user',
 		'parent',
 		'likes',
@@ -213,9 +213,9 @@ function safePost(post: IPost): IPost & { user: SafeUser; quote?: IPost & { user
 		// @ts-ignore
 		user: TransformSafe(post.user),
 		// @ts-ignore
-		quote: post.quote ? TransformSafe((post.quote as unknown as IPost).user) : null,
+		quote: post.quote ? { ...post.quote, user: TransformSafe((post.quote as unknown as IPost).user) } : undefined,
 		// @ts-ignore
-		parent: post.parent ? TransformSafe((post.parent as unknown as IPost).user) : null,
+		parent: post.parent ? { ...post.parent, user: TransformSafe((post.parent as unknown as IPost).user) } : undefined,
 	};
 }
 
@@ -227,14 +227,13 @@ postSchema.pre('findOne', function () {
 	populatePost(this);
 });
 
-// Use the post schema to modify the populated users to make them safe to send to the client
-postSchema.post('find', function (posts: IPost[]) {
-	posts.map(safePost);
+/* postSchema.post<Query<[IPost], [IPost]>>('find', async function (doc) {
+	console.log(doc.map((post) => safePost(post)));
+	doc.forEach((post) => safePost(post));
 });
 
-// @ts-ignore
-/* postSchema.post('findOne', function (post: IPost) {
-	return safePost(post) as IPost;
+postSchema.post<Query<IPost | null, IPost | null>>('findOne', async function (doc) {
+	if (doc) doc = safePost(doc) as unknown as IPost;
 }); */
 
 // Fix recompilation error

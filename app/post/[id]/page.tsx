@@ -22,6 +22,20 @@ import { fullCDNImageLoader } from '../../../libs/utils';
 import { IPost } from '../../../types/IPost';
 import { IUser } from '../../../types/IUser';
 
+function PostThreadSeparator({ isSmall }: { isSmall?: boolean }) {
+	return isSmall ? (
+		<div className='flex flex-col px-3 pb-3'>
+			<div className='w-1 h-7 rounded-lg bg-neutral-200 dark:bg-neutral-900 ml-5'></div>
+			<div className='w-1 h-4 rounded-full bg-neutral-200 dark:bg-neutral-900 ml-5 my-2'></div>
+			<div className='w-1 h-2 rounded-full bg-neutral-200 dark:bg-neutral-900 ml-5'></div>
+		</div>
+	) : (
+		<div className='flex flex-col px-3'>
+			<div className='w-1 h-9 rounded-lg bg-neutral-200 dark:bg-neutral-900 ml-5'></div>
+		</div>
+	);
+}
+
 type Props = {
 	params: {
 		id: string;
@@ -58,6 +72,16 @@ export default function Page({ params }: Props) {
 		[videos]
 	);
 
+	const parents = useMemo(() => {
+		const parents = [];
+		let parent = post?.parent;
+		while (parent) {
+			parents.push(parent);
+			parent = parent.parent;
+		}
+		return parents.reverse();
+	}, [post?.parent]);
+
 	useEffect(() => {
 		mutate();
 	}, [modal]);
@@ -74,16 +98,12 @@ export default function Page({ params }: Props) {
 
 	return (
 		<PageTemplate name='Twaat'>
-			{post.parent && (
+			{parents.map((parent, idx, arr) => (
 				<>
-					<Post post={post.parent} isRef={true} />
-					<div className='flex flex-col px-3 pb-3'>
-						<div className='w-1 h-7 rounded-lg bg-neutral-200 dark:bg-neutral-900 ml-5'></div>
-						<div className='w-1 h-4 rounded-full bg-neutral-200 dark:bg-neutral-900 ml-5 my-2'></div>
-						<div className='w-1 h-2 rounded-full bg-neutral-200 dark:bg-neutral-900 ml-5'></div>
-					</div>
+					<Post post={parent} isRef={true} />
+					<PostThreadSeparator isSmall={idx + 1 >= arr.length} />
 				</>
-			)}
+			))}
 			<div className='flex flex-col'>
 				<div className='flex justify-between mx-3'>
 					<div className='flex'>

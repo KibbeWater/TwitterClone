@@ -131,7 +131,7 @@ function GetReq(req: NextApiRequest, res: NextApiResponse) {
 				.sort({ date: -1 })
 				.skip(pageNumber * pageLimit)
 				.limit(pageLimit)
-        .populate<{ quote: IPost & { user: IUser }; parent: IPost & { user: IUser } }>(['quote', 'parent'])
+				.populate<{ quote: IPost & { user: IUser }; parent: IPost & { user: IUser } }>(['quote', 'parent'])
 				.lean()
 				.then((post) =>
 					post
@@ -142,10 +142,6 @@ function GetReq(req: NextApiRequest, res: NextApiResponse) {
 										...post,
 										user: TransformSafe(post.user),
 										mentions: post.mentions && post.mentions.map(TransformSafe),
-										comments: post.comments.map((comment) => ({
-											...comment,
-											user: TransformSafe((comment as unknown as IPost).user),
-										})),
 										parent: post.parent && {
 											...post.parent,
 											user: TransformSafe((post.parent as unknown as IPost).user),
@@ -157,31 +153,6 @@ function GetReq(req: NextApiRequest, res: NextApiResponse) {
 						: resolve(res.status(404).json({ success: false, error: 'Not found' }))
 				);
 
-		/* if (id && typeof id === 'string')
-			return Post.getPost(id).then((post) =>
-				post
-					? resolve(
-							res.status(200).json({
-								success: true,
-								data: {
-									...post,
-									user: TransformSafe(post.user),
-									mentions: post.mentions && post.mentions.map(TransformSafe),
-									comments: post.comments.map((comment) => ({
-										...comment,
-										user: TransformSafe((comment as unknown as IPost).user),
-									})),
-									parent: post.parent && {
-										...post.parent,
-										user: TransformSafe((post.parent as unknown as IPost).user),
-									},
-									quote: post.quote && { ...post.quote, user: TransformSafe((post.quote as unknown as IPost).user) },
-								},
-							})
-					  )
-					: resolve(res.status(404).json({ success: false, error: 'Not found' }))
-			); */
-
 		DB(async () => {
 			if (profile) {
 				const count = await Post.countDocuments({ user: profile });
@@ -190,7 +161,7 @@ function GetReq(req: NextApiRequest, res: NextApiResponse) {
 					.sort({ date: -1 })
 					.skip(pageNumber * pageLimit)
 					.limit(pageLimit)
-					.populate<{ parent: IPost }>('parent')
+					.populate<{ quote: IPost & { user: IUser }; parent: IPost & { user: IUser } }>(['quote', 'parent'])
 					.lean()
 					.then((posts) => {
 						return resolve(
@@ -200,10 +171,10 @@ function GetReq(req: NextApiRequest, res: NextApiResponse) {
 									...post,
 									user: TransformSafe(post.user),
 									mentions: post.mentions && post.mentions.map(TransformSafe),
-									comments: post.comments.map((comment) => ({
-										...comment,
-										user: TransformSafe((comment as unknown as IPost).user),
-									})),
+									parent: post.parent && {
+										...post.parent,
+										user: TransformSafe((post.parent as unknown as IPost).user),
+									},
 									quote: post.quote && { ...post.quote, user: TransformSafe((post.quote as unknown as IPost).user) },
 								})),
 								pages,
@@ -224,7 +195,7 @@ function GetReq(req: NextApiRequest, res: NextApiResponse) {
 				.sort({ date: -1 })
 				.skip(pageNumber * pageLimit)
 				.limit(pageLimit)
-        .populate<{ quote: IPost & { user: IUser }; parent: IPost & { user: IUser } }>(['quote', 'parent'])
+				.populate<{ quote: IPost & { user: IUser }; parent: IPost & { user: IUser } }>(['quote', 'parent'])
 				.lean()
 				.then((posts) => {
 					return resolve(
@@ -234,10 +205,10 @@ function GetReq(req: NextApiRequest, res: NextApiResponse) {
 								...post,
 								user: TransformSafe(post.user),
 								mentions: post.mentions && post.mentions.map(TransformSafe),
-								comments: post.comments.map((comment) => ({
-									...comment,
-									user: TransformSafe((comment as unknown as IPost).user),
-								})),
+								parent: post.parent && {
+									...post.parent,
+									user: TransformSafe((post.parent as unknown as IPost).user),
+								},
 								quote: post.quote && { ...post.quote, user: TransformSafe((post.quote as unknown as IPost).user) },
 							})),
 							pages,
