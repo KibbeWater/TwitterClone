@@ -74,6 +74,16 @@ export default function Page({ params }: Props) {
 
 	return (
 		<PageTemplate name='Twaat'>
+			{post.parent && (
+				<>
+					<Post post={post.parent} isRef={true} />
+					<div className='flex flex-col px-3 pb-3'>
+						<div className='w-1 h-7 rounded-lg bg-neutral-200 dark:bg-neutral-900 ml-5'></div>
+						<div className='w-1 h-4 rounded-full bg-neutral-200 dark:bg-neutral-900 ml-5 my-2'></div>
+						<div className='w-1 h-2 rounded-full bg-neutral-200 dark:bg-neutral-900 ml-5'></div>
+					</div>
+				</>
+			)}
 			<div className='flex flex-col'>
 				<div className='flex justify-between mx-3'>
 					<div className='flex'>
