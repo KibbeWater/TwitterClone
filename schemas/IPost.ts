@@ -198,7 +198,13 @@ const postSchema = new Schema<IPost, PostModel>(
 	.populate<{ user: IUser & { user: IUser } }>({ path: 'quote', populate: { path: 'user' } })
 */
 function populatePost(post: mongoose.Query<any, any, {}, any>) {
-	post.populate<{ user: IUser; comments: IPost[]; likes: ILike[]; mentions: IUser[] }>(['user', 'comments', 'likes', 'mentions']);
+  post.populate<{ user: IUser; quote: IPost; parent: IPost; likes: ILike[]; mentions: IUser[] }>([
+		'user',
+		'parent',
+		'likes',
+		'quote',
+		'mentions',
+	]);
 }
 
 function safePost(post: IPost): IPost & { user: SafeUser; quote?: IPost & { user: SafeUser }; parent?: IPost & { user: SafeUser } } {
@@ -208,6 +214,8 @@ function safePost(post: IPost): IPost & { user: SafeUser; quote?: IPost & { user
 		user: TransformSafe(post.user),
 		// @ts-ignore
 		quote: post.quote ? TransformSafe((post.quote as unknown as IPost).user) : null,
+		// @ts-ignore
+		parent: post.parent ? TransformSafe((post.parent as unknown as IPost).user) : null,
 	};
 }
 

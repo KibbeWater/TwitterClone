@@ -118,7 +118,7 @@ function GetReq(req: NextApiRequest, res: NextApiResponse) {
 	return new Promise(async (resolve) => {
 		if (req.method !== 'GET') return resolve(res.status(405).json({ success: false, error: 'Method not allowed' }));
 
-		let { id, page, limit, parent } = req.query;
+		let { id, page, limit, parent, profile } = req.query;
 
 		const parsedLimit = parseInt(limit as string);
 		const parsedPage = parseInt(page as string);
@@ -131,7 +131,7 @@ function GetReq(req: NextApiRequest, res: NextApiResponse) {
 				.sort({ date: -1 })
 				.skip(pageNumber * pageLimit)
 				.limit(pageLimit)
-				.populate<{ quote: IPost & { user: IUser }; parent: IPost & { user: IUser } }>(['quote', 'parent'])
+        .populate<{ quote: IPost & { user: IUser }; parent: IPost & { user: IUser } }>(['quote', 'parent'])
 				.lean()
 				.then((post) =>
 					post
@@ -183,6 +183,39 @@ function GetReq(req: NextApiRequest, res: NextApiResponse) {
 			); */
 
 		DB(async () => {
+			if (profile) {
+				const count = await Post.countDocuments({ user: profile });
+				const pages = Math.ceil(count / pageLimit);
+				return Post.find({ user: profile, parent: parent ? parent : null })
+					.sort({ date: -1 })
+					.skip(pageNumber * pageLimit)
+					.limit(pageLimit)
+					.populate<{ parent: IPost }>('parent')
+					.lean()
+					.then((posts) => {
+						return resolve(
+							res.status(200).json({
+								success: true,
+								data: posts.map((post) => ({
+									...post,
+									user: TransformSafe(post.user),
+									mentions: post.mentions && post.mentions.map(TransformSafe),
+									comments: post.comments.map((comment) => ({
+										...comment,
+										user: TransformSafe((comment as unknown as IPost).user),
+									})),
+									quote: post.quote && { ...post.quote, user: TransformSafe((post.quote as unknown as IPost).user) },
+								})),
+								pages,
+							})
+						);
+					})
+					.catch((err) => {
+						console.error(err);
+						return resolve(res.status(500).json({ success: false, error: 'Internal server error' }));
+					});
+			}
+
 			const count = await Post.countDocuments();
 			const pages = Math.ceil(count / pageLimit);
 
@@ -191,7 +224,7 @@ function GetReq(req: NextApiRequest, res: NextApiResponse) {
 				.sort({ date: -1 })
 				.skip(pageNumber * pageLimit)
 				.limit(pageLimit)
-				.populate<{ quote: IPost & { user: IUser }; parent: IPost & { user: IUser } }>(['quote', 'parent'])
+        .populate<{ quote: IPost & { user: IUser }; parent: IPost & { user: IUser } }>(['quote', 'parent'])
 				.lean()
 				.then((posts) => {
 					return resolve(
