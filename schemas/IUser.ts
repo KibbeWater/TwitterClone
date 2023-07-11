@@ -300,35 +300,40 @@ userSchema.methods.sendNotification = async function (title: string, body: strin
 	const tokens = devices.map((d) => d.deviceArn);
 
 	const promises = tokens.map((token) =>
-		sns.send(
-			new PublishCommand({
-				MessageStructure: 'json',
-				Message: JSON.stringify({
-					default: 'Default message',
-					APNS: JSON.stringify({
-						aps: {
-							alert: {
-								title,
-								body,
+		sns
+			.send(
+				new PublishCommand({
+					MessageStructure: 'json',
+					Message: JSON.stringify({
+						default: 'Default message',
+						APNS: JSON.stringify({
+							aps: {
+								alert: {
+									title,
+									body,
+								},
+								sound: 'default',
+								badge: 1,
 							},
-							sound: 'default',
-							badge: 1,
-						},
-					}),
-					APNS_SANDBOX: JSON.stringify({
-						aps: {
-							alert: {
-								title,
-								body,
+						}),
+						APNS_SANDBOX: JSON.stringify({
+							aps: {
+								alert: {
+									title,
+									body,
+								},
+								sound: 'default',
+								badge: 1,
 							},
-							sound: 'default',
-							badge: 1,
-						},
+						}),
 					}),
-				}),
-				TargetArn: token,
+					TargetArn: token,
+				})
+			)
+			.catch(async (err) => {
+				if (err.errorType === 'EndpointDisabled') return await NotificationDevices.deleteOne({ deviceArn: token }).exec();
+				else throw err;
 			})
-		)
 	);
 
 	await Promise.all(promises);
