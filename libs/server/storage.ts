@@ -18,6 +18,7 @@ export const S3_BUCKET = process.env.S3_BUCKET as string;
 export function createURL(key: string) {
 	return new Promise<string>((resolve, reject) => {
 		getSignedUrl(
+			// @ts-ignore
 			s3Client,
 			new GetObjectCommand({
 				Bucket: S3_BUCKET,

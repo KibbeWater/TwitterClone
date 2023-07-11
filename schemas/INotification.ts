@@ -46,8 +46,9 @@ export const notificationSchema = new Schema<INotification, NotificationModel>(
 				return new Promise((resolve, reject) => {
 					User.findById(user._id)
 						.populate<{ notifications: INotification[] }>('notifications')
-						.exec(async (err, user: any) => {
-							if (err) reject(err);
+						.lean()
+						.then(async (user) => {
+							if (!user) reject("Error: User doesn't exist");
 							else {
 								switch (type) {
 									case 'like':
@@ -99,10 +100,11 @@ export const notificationSchema = new Schema<INotification, NotificationModel>(
 				return new Promise((resolve, reject) => {
 					User.findById(user._id)
 						.populate<{ notifications: INotification[] }>('notifications')
-						.exec(async (err, user: any) => {
-							if (err) reject(err);
+						.lean()
+						.then(async (user) => {
+							if (!user) reject("Error: User doesn't exist");
 							else {
-								await new User(target).sendFollowNotification(user);
+								await new User(target).sendFollowNotification(user as unknown as IUser);
 								const latestNotification = user?.notifications[user?.notifications.length - 1];
 								if (latestNotification?.type === 'follow') {
 									const notif = Notification.findByIdAndUpdate(
