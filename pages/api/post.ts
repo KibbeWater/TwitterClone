@@ -131,6 +131,7 @@ function GetReq(req: NextApiRequest, res: NextApiResponse) {
 				.sort({ date: -1 })
 				.skip(pageNumber * pageLimit)
 				.limit(pageLimit)
+				.populate<{ parent: IPost }>('parent')
 				.lean()
 				.then((post) =>
 					post
@@ -164,6 +165,7 @@ function GetReq(req: NextApiRequest, res: NextApiResponse) {
 					.sort({ date: -1 })
 					.skip(pageNumber * pageLimit)
 					.limit(pageLimit)
+					.populate<{ parent: IPost }>('parent')
 					.lean()
 					.then((posts) => {
 						return resolve(
@@ -197,6 +199,7 @@ function GetReq(req: NextApiRequest, res: NextApiResponse) {
 				.sort({ date: -1 })
 				.skip(pageNumber * pageLimit)
 				.limit(pageLimit)
+				.populate<{ parent: IPost }>('parent')
 				.lean()
 				.then((posts) => {
 					return resolve(
