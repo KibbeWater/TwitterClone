@@ -61,12 +61,14 @@ export default function PostTwaat({ onPost, placeholder, btnText, children, inli
 			await Promise.all(images.map(async (img) => (await syncImage(img)).data)),
 			await Promise.all(videos.map(async (vid, i) => (await syncVideo(i, vid.data)).url)),
 			parent
-		).then((res) => {
+		).then(() => {
+			console.log('post 1');
 			setText('');
 			setImages([]);
 			setVideos([]);
 			if (onPost) onPost();
 			setLoadingPost(false);
+			console.log('post 2');
 		});
 	};
 

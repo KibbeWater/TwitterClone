@@ -12,6 +12,7 @@ import NotificationDevices from './INotificationEndpoints';
 import Post, { IPost } from './IPost';
 import Relationship, { IRelationship } from './IRelationship';
 import Session, { ISession } from './ISession';
+import { ContextExclusionPlugin } from 'webpack';
 export interface IUser {
 	_id: Types.ObjectId;
 	tag: string;
@@ -331,7 +332,7 @@ userSchema.methods.sendNotification = async function (title: string, body: strin
 				})
 			)
 			.catch(async (err) => {
-				if (err.errorType === 'EndpointDisabled') return await NotificationDevices.deleteOne({ deviceArn: token }).exec();
+				if (err.name === 'EndpointDisabledException') return await NotificationDevices.deleteOne({ deviceArn: token }).exec();
 				else throw err;
 			})
 	);
