@@ -160,7 +160,7 @@ function GetReq(req: NextApiRequest, res: NextApiResponse) {
 			if (profile) {
 				const count = await Post.countDocuments({ user: profile });
 				const pages = Math.ceil(count / pageLimit);
-				return Post.find({ user: profile })
+				return Post.find({ user: profile, parent: parent ? parent : null })
 					.sort({ date: -1 })
 					.skip(pageNumber * pageLimit)
 					.limit(pageLimit)
