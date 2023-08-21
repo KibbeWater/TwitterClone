@@ -3,10 +3,10 @@ export default function Head() {
 		<>
 			<title>Twatter</title>
 			<meta content='width=device-width, initial-scale=1' name='viewport' />
-			<meta name='description' content='Not Twitter' />
+			<meta name='description' content='Not X' />
 			<meta property='og:title' content='Twatter' />
-			<meta property='og:url' content='https://twatter-kibbewater.vercel.app/home' />
-			<meta property='og:description' content='Definitely not a Twitter clone' />
+			<meta property='og:url' content='https://twatter.kibbewater.com/home' />
+			<meta property='og:description' content='Definitely not a X clone' />
 			<meta property='og:type' content='website' />
 			<meta property='og:image' content='/assets/favicons/icon-512x512.png' />
 			<meta name='theme-color' content='#f01d1d' />

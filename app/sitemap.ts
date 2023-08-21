@@ -11,12 +11,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
 	return [
 		{
-			url: 'https://twatter-kibbewater.vercel.app/home',
+			url: 'https://twatter.kibbewater.com/home',
 			lastModified: new Date(),
 		},
 		...posts.map((post) => {
 			return {
-				url: `https://twatter-kibbewater.vercel.app/post/${post._id}`,
+				url: `https://twatter.kibbewater.com/post/${post._id}`,
 				lastModified: new Date(post.date),
 			};
 		}),

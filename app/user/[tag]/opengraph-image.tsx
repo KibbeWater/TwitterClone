@@ -1,18 +1,20 @@
 import { ImageResponse, NextRequest } from 'next/server';
+import User, { IUser } from '../../../schemas/IUser';
 
-export const alt = 'About Acme';
+export const alt = 'Profile Image';
 export const size = {
-	width: 500,
-	height: 500,
+	width: 512,
+	height: 512,
 };
 export const contentType = 'image/png';
 export const runtime = 'edge';
 
-export default function handler(req: NextRequest) {
+export default async function handler(req: NextRequest) {
 	// Get the /@tag from the URL
 	const tag = req.headers.get('host')?.split('.')[0]?.replace('@', '');
+	// Example output: url = 'https://twatter.kibbewater.com/@kibbe' => tag = 'kibbe'
 
-	console.log(req.nextUrl);
+	// const user = (await User.find({ tag })) as IUser[];
 
 	return new ImageResponse(
 		(
