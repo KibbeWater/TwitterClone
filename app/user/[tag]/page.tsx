@@ -42,7 +42,7 @@ export default function Page({ params }: Props) {
 	);
 	const [followingText, setFollowingText] = React.useState('Following');
 
-	const relationshipArr = user?.relationships ? (user.relationships as unknown as IRelationship[]) : [];
+	// const relationshipArr = user?.relationships ? (user.relationships as unknown as IRelationship[]) : [];
 	// const relationships: string[] = relationshipArr.map((obj) => obj.target?.toString() as string) || [];
 
 	const bannerSrc = profile?.banner || null;
