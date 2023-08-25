@@ -122,6 +122,11 @@ export default function Post({ post, isRef, onMutate }: Props) {
 	if (!user) return null;
 
 	const routePost = (e: any) => {
+		e.preventDefault();
+		router.push(`/post/${post._id}`);
+	};
+
+	const routeAggresive = (e: any) => {
 		if (e.target !== e.currentTarget) return;
 		e.preventDefault();
 		router.push(`/post/${post._id}`);
@@ -132,7 +137,7 @@ export default function Post({ post, isRef, onMutate }: Props) {
 			className={`p-3 mb-px w-full max-w-full relative bg-transparent transition-all cursor-pointer border-b-[1px] border-gray-700 flex hover:bg-gray-500/5 ${
 				isRef ? '!border-0 !bg-transparent hover:!bg-transparent' : ''
 			}`}
-			onClick={routePost}
+			onClick={routeAggresive}
 		>
 			{!isRef ? (
 				<div className='absolute w-7 h-7 right-2 top-2'>
@@ -227,8 +232,8 @@ export default function Post({ post, isRef, onMutate }: Props) {
 				</div>
 			</div>
 
-			<div className={'pl-3 w-full flex flex-col overflow-hidden'} onClick={routePost}>
-				<div onClick={routePost} className={'max-w-full w-full pr-9 flex-nowrap flex overflow-hidden'}>
+			<div className={'pl-3 w-full flex flex-col overflow-hidden'} onClick={routeAggresive}>
+				<div onClick={routeAggresive} className={'max-w-full w-full pr-9 flex-nowrap flex overflow-hidden'}>
 					<a
 						className={
 							'text-black dark:text-white ' +
@@ -259,7 +264,7 @@ export default function Post({ post, isRef, onMutate }: Props) {
 					style={{
 						display: images.length !== 0 ? 'grid' : 'none',
 					}}
-					onClick={routePost}
+					onClick={routeAggresive}
 				>
 					{images.map(
 						(img, i) =>

@@ -42,8 +42,8 @@ export default function Page({ params }: Props) {
 	);
 	const [followingText, setFollowingText] = React.useState('Following');
 
-	const relationshipArr = user?.relationships ? (user.relationships as unknown as IRelationship[]) : [];
-	const relationships: string[] = relationshipArr.map((obj) => obj.target?.toString() as string) || [];
+	// const relationshipArr = user?.relationships ? (user.relationships as unknown as IRelationship[]) : [];
+	// const relationships: string[] = relationshipArr.map((obj) => obj.target?.toString() as string) || [];
 
 	const bannerSrc = profile?.banner || null;
 
@@ -175,7 +175,18 @@ export default function Page({ params }: Props) {
 							{profile.verified ? <Verified color='#f01d1d' /> : null}
 						</h3>
 						<p className='mt-1 text-base leading-none text-gray-500'>{`@${profile?.tag}`}</p>
-						<p className='my-1 mt-3 text-black dark:text-white'>{profile?.bio}</p>
+						<p className='my-1 mt-3 text-black dark:text-white'>
+							{profile?.bio.split('\n').map((line, i, arr) => {
+								return (
+									<>
+										<span key={i} className='block'>
+											{line}
+										</span>
+										{line === '' ? <br /> : null}
+									</>
+								);
+							})}
+						</p>
 						<div className='flex my-2'>
 							<p className='m-0 mr-2 text-black dark:text-white'>
 								<span className='font-bold'>0</span> Following
