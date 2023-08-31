@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useContext, useEffect, useRef } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import axios from 'redaxios';
 import useSWR from 'swr';
@@ -18,6 +18,7 @@ import { IRelationship } from '../../../types/IRelationship';
 import Verified from '../../../components/Verified';
 import { Group } from '../../../libs/utils';
 import AdminModal from '../../../components/Modals/AdminModal';
+import ProfileLoading from './loading';
 
 type Props = {
 	params: {
@@ -37,10 +38,10 @@ export default function Page({ params }: Props) {
 	);
 	const profile = data?.data;
 
-	const [isFollowing, setIsFollowing] = React.useState(
+	const [isFollowing, setIsFollowing] = useState(
 		!!user?.relationships.find((rel: IRelationship) => rel.target?.toString() == profile?._id.toString() && rel.type == 'follow')
 	);
-	const [followingText, setFollowingText] = React.useState('Following');
+	const [followingText, setFollowingText] = useState('Following');
 
 	// const relationshipArr = user?.relationships ? (user.relationships as unknown as IRelationship[]) : [];
 	// const relationships: string[] = relationshipArr.map((obj) => obj.target?.toString() as string) || [];
@@ -68,15 +69,7 @@ export default function Page({ params }: Props) {
 		mutate();
 	}, [modal]);
 
-	if (!profile)
-		return (
-			<PageTemplate name='Loading...'>
-				<div className='flex justify-center items-center my-5'>
-					<p className='text-black dark:text-white'>Loading...</p>{' '}
-					<FontAwesomeSvgIcon icon={faSpinner} size={'lg'} className={'animate-spin ml-3 text-black dark:text-white'} />
-				</div>
-			</PageTemplate>
-		);
+	if (!profile) return <ProfileLoading />;
 
 	return (
 		<PageTemplate name={params.tag}>
@@ -119,7 +112,7 @@ export default function Page({ params }: Props) {
 									<button
 										className='bg-black/0 px-[15px] py-2 font-semibold border-[1px] border-gray-400 text-black dark:text-white min-w-[36px] transition-all cursor-pointer rounded-full hover:bg-gray-700/10'
 										onClick={() => {
-											if (setModal) setModal(<EditProfileModal mutate={mutate} />);
+											// if (setModal) setModal(<EditProfileModal mutate={mutate} />);
 										}}
 									>
 										Edit profile
