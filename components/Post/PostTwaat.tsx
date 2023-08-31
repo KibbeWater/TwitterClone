@@ -1,13 +1,14 @@
+'use client';
+
 import axios from 'redaxios';
 import Image from 'next/image';
-import { useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 
 import { faXmark, faImage } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeSvgIcon } from 'react-fontawesome-svg-icon';
 
 import { SendPost } from '../../libs/post';
 import { UserContext } from '../Handlers/UserHandler';
-import TextareaAutosize from '../TextAutosize';
 import { MultipartUploader } from '../../libs/storage';
 import { TranscodeVideo } from '../../libs/transcoder';
 import { Group } from '../../libs/utils';

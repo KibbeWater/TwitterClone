@@ -13,6 +13,7 @@ import Post from '../../components/Post/Post';
 import { ModalContext } from '../../components/Handlers/ModalHandler';
 import PostTwaat from '../../components/Post/PostTwaat';
 import { IPost } from '../../types/IPost';
+import PostSkeleton from '../../components/Post/PostSkeleton';
 
 export default function Page() {
 	const [isVisible, setIsVisible] = useState(false);
@@ -59,8 +60,17 @@ export default function Page() {
 			<div className='pb-2 border-b-[1px] border-gray-700'>
 				<PostTwaat onPost={mutate} avatarSize={56} padding={20} />
 			</div>
+
 			<div className='flex flex-col w-full overflow-hidden items-center pb-14'>
-				{posts.map((post) => (post ? <Post key={post._id as unknown as string} post={post} onMutate={() => mutate()} /> : null))}
+				{posts.length !== 0 ? (
+					posts.map((post) => (post ? <Post key={post._id as unknown as string} post={post} onMutate={() => mutate()} /> : null))
+				) : (
+					<div className='flex flex-col w-full overflow-hidden items-center'>
+						{[...Array(10)].map((_, idx) => {
+							return <PostSkeleton key={`loading-${idx}`} />;
+						})}
+					</div>
+				)}
 				<div
 					className={'w-full mt-4 flex justify-center items-center' + (!isValidating ? ' invisible' : ' visible')}
 					ref={loadingRef}
