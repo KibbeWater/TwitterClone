@@ -9,6 +9,7 @@ import { api } from "~/utils/api";
 
 import "~/styles/globals.css";
 import "@fortawesome/fontawesome-svg-core/styles.css";
+import ModalHandler from "~/components/Handlers/ModalHandler";
 
 const MyApp: AppType<{ session: Session | null }> = ({
     Component,
@@ -25,7 +26,9 @@ const MyApp: AppType<{ session: Session | null }> = ({
             </Head>
             <ThemeProvider attribute="class">
                 <SessionProvider session={session}>
-                    <Component {...pageProps} />
+                    <ModalHandler>
+                        <Component {...pageProps} />
+                    </ModalHandler>
                 </SessionProvider>
             </ThemeProvider>
         </>

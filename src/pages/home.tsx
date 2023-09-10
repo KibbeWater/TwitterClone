@@ -1,14 +1,51 @@
+import { useState } from "react";
+import { useModal } from "~/components/Handlers/ModalHandler";
 import Layout from "~/components/Site/Layout";
 
 import { api } from "~/utils/api";
 
 export default function Home() {
+    const { modal, setModal } = useModal();
+    const [text, setText] = useState("");
+
     const { data } = api.post.getPage.useQuery({ page: 1 });
+    const { mutate: createPost } = api.post.create.useMutation();
 
     const posts = data?.posts ?? [];
 
     return (
         <Layout title="Home">
+            <div className="flex w-full h-32">
+                <input
+                    type="text"
+                    className="w-full h-full"
+                    value={text}
+                    onChange={(e) => setText(e.target.value)}
+                />
+                <button
+                    onClick={() => {
+                        createPost({ content: text });
+                    }}
+                >
+                    Send
+                </button>
+            </div>
+            <div>
+                <p>{`Active modal: ${!!modal}`}</p>
+                <button
+                    onClick={() => {
+                        if (modal) setModal(null);
+                        else
+                            setModal(
+                                <div className="bg-black">
+                                    <p>Modal</p>
+                                </div>,
+                            );
+                    }}
+                >
+                    Toggle Modal
+                </button>
+            </div>
             <div className="flex flex-col w-full overflow-hidden items-center pb-14">
                 {posts.map((post) => (
                     <p key={post.id}>{`${post.userId}: ${post.content}`}</p>

@@ -1,6 +1,10 @@
 import { z } from "zod";
 
-import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
+import {
+    createTRPCRouter,
+    protectedProcedure,
+    publicProcedure,
+} from "~/server/api/trpc";
 
 export const postRouter = createTRPCRouter({
     getPage: publicProcedure
@@ -26,4 +30,23 @@ export const postRouter = createTRPCRouter({
                 },
             };
         }),
+
+    create: protectedProcedure
+        .input(z.object({ content: z.string().min(1) }))
+        .mutation(async ({ ctx, input }) => {
+            return ctx.prisma.post.create({
+                data: {
+                    content: input.content,
+                    userId: ctx.session.user.id,
+                },
+            });
+        }),
+    /* .query(async ({ ctx, input }) => {
+            return ctx.prisma.post.create({
+                data: {
+                    content: input.content,
+                    userId: ctx.session.user.id,
+                },
+            });
+        }), */
 });

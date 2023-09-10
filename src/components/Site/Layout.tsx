@@ -10,7 +10,7 @@ export default function Layout({ title, children }: LayoutProps) {
     return (
         <>
             <Head>
-                <title>{`Twatter${title ?? `- ${title}`}`}</title>
+                <title>{`Twatter${title ? ` - ${title}` : ""}`}</title>
             </Head>
             <div className="parent w-screen h-screen flex">
                 <Navbar />
