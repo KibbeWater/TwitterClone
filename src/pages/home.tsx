@@ -1,3 +1,4 @@
+import { signIn } from "next-auth/react";
 import { useState } from "react";
 import { useModal } from "~/components/Handlers/ModalHandler";
 import Layout from "~/components/Site/Layout";
@@ -8,6 +9,7 @@ export default function Home() {
     const { modal, setModal } = useModal();
     const [text, setText] = useState("");
 
+    // TODO: We can use React Query's useInfiniteQuery to create the feed
     const { data } = api.post.getPage.useQuery({ page: 1 });
     const { mutate: createPost } = api.post.create.useMutation();
 
@@ -45,6 +47,13 @@ export default function Home() {
                 >
                     Toggle Modal
                 </button>
+                {/* <button
+                    onClick={() => {
+                        signIn(p);
+                    }}
+                >
+                    Sign In
+                </button> */}
             </div>
             <div className="flex flex-col w-full overflow-hidden items-center pb-14">
                 {posts.map((post) => (
