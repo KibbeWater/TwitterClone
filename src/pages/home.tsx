@@ -1,6 +1,7 @@
 import { signIn } from "next-auth/react";
 import { useState } from "react";
 import { useModal } from "~/components/Handlers/ModalHandler";
+import Login from "~/components/Modals/Auth/Login";
 import Layout from "~/components/Site/Layout";
 
 import { api } from "~/utils/api";
@@ -37,15 +38,10 @@ export default function Home() {
                 <button
                     onClick={() => {
                         if (modal) setModal(null);
-                        else
-                            setModal(
-                                <div className="bg-black">
-                                    <p>Modal</p>
-                                </div>,
-                            );
+                        else setModal(<Login />);
                     }}
                 >
-                    Toggle Modal
+                    Toggle Login Modal
                 </button>
                 {/* <button
                     onClick={() => {
