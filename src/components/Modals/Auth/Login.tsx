@@ -1,9 +1,11 @@
 import { useState } from "react";
 
 import { ExclamationCircleIcon } from "@heroicons/react/20/solid";
+import { signIn } from "next-auth/react";
 
 export default function Login() {
     const [email, setEmail] = useState("");
+    const [emailError, setEmailError] = useState("");
 
     return (
         <div
@@ -43,6 +45,19 @@ export default function Login() {
                     </p>
                 </div>
             </div>
+            <button
+                onClick={() => {
+                    signIn("email", { email })
+                        .then((res) => {
+                            console.log(res);
+                        })
+                        .catch((err) => {
+                            console.log(err);
+                        });
+                }}
+            >
+                Sign In
+            </button>
         </div>
     );
 }

@@ -5,7 +5,7 @@ import {
     type DefaultSession,
     type NextAuthOptions,
 } from "next-auth";
-import DiscordProvider from "next-auth/providers/discord";
+import AppleProvider from "next-auth/providers/apple";
 
 import { env } from "~/env.mjs";
 import { prisma } from "~/server/db";
@@ -49,10 +49,14 @@ export const authOptions: NextAuthOptions = {
     },
     adapter: PrismaAdapter(prisma),
     providers: [
-        DiscordProvider({
+        AppleProvider({
+            clientId: env.APPLE_ID,
+            clientSecret: env.APPLE_SECRET,
+        }),
+        /* DiscordProvider({
             clientId: env.DISCORD_CLIENT_ID,
             clientSecret: env.DISCORD_CLIENT_SECRET,
-        }),
+        }), */
         /**
          * ...add more providers here.
          *

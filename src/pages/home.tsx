@@ -37,8 +37,15 @@ export default function Home() {
                 <p>{`Active modal: ${!!modal}`}</p>
                 <button
                     onClick={() => {
-                        if (modal) setModal(null);
-                        else setModal(<Login />);
+                        /* if (modal) setModal(null);
+                        else setModal(<Login />); */
+                        signIn()
+                            .then((res) => {
+                                console.log(res);
+                            })
+                            .catch((err) => {
+                                console.log(err);
+                            });
                     }}
                 >
                     Toggle Login Modal
