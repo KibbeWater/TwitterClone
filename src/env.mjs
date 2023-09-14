@@ -23,6 +23,8 @@ export const env = createEnv({
         // Add `.min(1) on ID and SECRET if you want to make sure they're not empty
         APPLE_ID: z.string(),
         APPLE_SECRET: z.string(),
+        GOOGLE_ID: z.string(),
+        GOOGLE_SECRET: z.string(),
     },
 
     /**
@@ -45,6 +47,8 @@ export const env = createEnv({
         NEXTAUTH_URL: process.env.NEXTAUTH_URL,
         APPLE_ID: process.env.APPLE_ID,
         APPLE_SECRET: process.env.APPLE_SECRET,
+        GOOGLE_ID: process.env.GOOGLE_ID,
+        GOOGLE_SECRET: process.env.GOOGLE_SECRET,
     },
     /**
      * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation.

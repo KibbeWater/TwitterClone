@@ -6,6 +6,7 @@ import {
     type NextAuthOptions,
 } from "next-auth";
 import AppleProvider from "next-auth/providers/apple";
+import GoogleProvide from "next-auth/providers/google";
 
 import { env } from "~/env.mjs";
 import { prisma } from "~/server/db";
@@ -52,6 +53,10 @@ export const authOptions: NextAuthOptions = {
         AppleProvider({
             clientId: env.APPLE_ID,
             clientSecret: env.APPLE_SECRET,
+        }),
+        GoogleProvide({
+            clientId: env.GOOGLE_ID,
+            clientSecret: env.GOOGLE_SECRET,
         }),
         /* DiscordProvider({
             clientId: env.DISCORD_CLIENT_ID,
