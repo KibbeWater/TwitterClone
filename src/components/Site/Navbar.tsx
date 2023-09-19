@@ -3,30 +3,55 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { FontAwesomeSvgIcon } from "react-fontawesome-svg-icon";
-import {
-    faFeatherPointed,
-    faUser,
-    faHome,
-    /* faEllipsis,
-    faMoon,
-    faSun, */
-    faBell,
-} from "@fortawesome/free-solid-svg-icons";
 import { useSession } from "next-auth/react";
-import { useEffect } from "react";
+
+import {
+    UserIcon as UserSolid,
+    BellIcon as BellSolid,
+    HomeIcon as HomeSolid,
+    PencilIcon,
+} from "@heroicons/react/24/solid";
+import {
+    UserIcon as UserOutline,
+    BellIcon as BellOutline,
+    HomeIcon as HomeOutline,
+} from "@heroicons/react/24/outline";
+import { useMemo } from "react";
+import { useRouter } from "next/router";
 
 export default function Navbar() {
-    const { data: session, status } = useSession();
+    const { data: session } = useSession();
     const user = session?.user;
 
-    useEffect(() => {
-        console.log(status, user, session);
-    }, [status]);
+    const router = useRouter();
+
+    const links = useMemo(() => {
+        return [
+            {
+                name: "Home",
+                href: "/home",
+                iconSolid: HomeSolid,
+                iconOutline: HomeOutline,
+            },
+            {
+                name: "Notifications",
+                href: "/notifications",
+                iconSolid: BellSolid,
+                iconOutline: BellOutline,
+            },
+            {
+                name: "Profile",
+                href: session?.user.tag ? `@${session?.user.tag}` : "/login",
+                iconSolid: UserSolid,
+                iconOutline: UserOutline,
+            },
+        ];
+    }, [session]);
 
     return (
         <nav
             className={
-                "min-w-[10%] sm:max-w-[25%] max-w-min pt-2 w-full h-screen flex justify-end bg-white dark:bg-black border-r-[1px] border-gray-700"
+                "min-w-[10%] sm:max-w-[25%] max-w-min pt-2 w-full h-screen flex justify-end bg-white dark:bg-black border-r-[1px] border-gray-200"
             }
         >
             <div className="flex flex-col h-full">
@@ -45,69 +70,23 @@ export default function Navbar() {
                             height={35}
                         />
                     </Link>
-                    <Link
-                        href="/home"
-                        className={
-                            "lg:h-12 h-16 mb-2 rounded-full bg-transparent hover:bg-gray-600/25 flex items-center"
-                        }
-                    >
-                        <div className="w-8 ml-4 flex items-center justify-center">
-                            <FontAwesomeSvgIcon
-                                icon={faHome}
-                                size={"xl"}
-                                className={"text-black dark:text-white"}
-                            />
-                        </div>
+                    {links.map((link) => (
+                        <Link
+                            href={link.href}
+                            className={
+                                "lg:h-12 h-16 mb-2 rounded-full bg-transparent hover:bg-gray-600/25 flex items-center"
+                            }
+                            key={"link-" + link.name}
+                        >
+                            <div className="w-8 ml-4 flex items-center justify-center">
+                                {router.pathname <link.iconOutline className="text-2xl text-black dark:text-white" />}
+                            </div>
 
-                        <span className="ml-5 font-bold text-lg hidden lg:block text-black dark:text-white">
-                            Home
-                        </span>
-                    </Link>
-                    <Link
-                        href="/notifications"
-                        className={
-                            "lg:h-12 h-16 mb-2 rounded-full bg-transparent hover:bg-gray-600/25 flex items-center"
-                        }
-                    >
-                        <div className="w-8 ml-4 flex items-center justify-center relative">
-                            <FontAwesomeSvgIcon
-                                icon={faBell}
-                                size={"xl"}
-                                className={"text-black dark:text-white"}
-                            />
-                            {/* {unreadNotifications.length > 0 ? (
-                                <div className="w-5 h-5 bg-red-500 rounded-full absolute left-2/4 bottom-2/4 z-20 border-2 dark:border-black border-white box-content">
-                                    <div className="w-5 h-5 bg-red-500 rounded-full absolute top-0 bottom-0 left-0 right-0 m-auto animate-ping z-10" />
-                                    <p className="text-white leading-5 text-center align-middle text-xs">
-                                        {unreadNotifications.length > 99
-                                            ? "99+"
-                                            : unreadNotifications.length}
-                                    </p>
-                                </div>
-                            ) : null} */}
-                        </div>
-
-                        <span className="ml-5 font-bold text-lg hidden lg:block text-black dark:text-white">
-                            Notifications
-                        </span>
-                    </Link>
-                    <Link
-                        href={user ? `@${user.tag}` : "/login"}
-                        className={
-                            "lg:h-12 h-16 mb-2 rounded-full bg-transparent hover:bg-gray-600/25 flex items-center"
-                        }
-                    >
-                        <div className="w-8 ml-4 flex items-center justify-center">
-                            <FontAwesomeSvgIcon
-                                icon={faUser}
-                                size={"xl"}
-                                className={"text-black dark:text-white"}
-                            />
-                        </div>
-                        <span className="ml-5 font-bold text-lg hidden lg:block text-black dark:text-white">
-                            Profile
-                        </span>
-                    </Link>
+                            <span className="ml-5 font-bold text-lg hidden lg:block text-black dark:text-white">
+                                {link.name}
+                            </span>
+                        </Link>
+                    ))}
                     <button
                         className={
                             "w-16 h-16 lg:h-14 mb-1 rounded-full transition-all flex justify-center items-center text-white cursor-pointer bg-accent-primary-500 hover:bg-accent-primary-400 lg:w-full"
@@ -117,14 +96,7 @@ export default function Navbar() {
                             if (setModal) setModal(<PostModal />);
                         }} */
                     >
-                        <FontAwesomeSvgIcon
-                            icon={faFeatherPointed}
-                            size={"2xl"}
-                            color={"white"}
-                            className={
-                                "transition-all opacity-100 lg:opacity-0 block lg:!hidden"
-                            }
-                        />
+                        <PencilIcon className="text-2xl text-white transition-all opacity-100 lg:opacity-0 block lg:!hidden" />
                         <span className="hidden transition-all lg:block text-lg font-bold opacity-0 lg:opacity-100 text-white">
                             Twaat
                         </span>
