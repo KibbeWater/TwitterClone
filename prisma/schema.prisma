@@ -52,10 +52,11 @@ model Session {
 model User {
     id            String    @id @default(auto()) @map("_id") @db.ObjectId
     name          String?
-    tag           String?
+    tag           String?   @unique @default(cuid())
     email         String?   @unique
     emailVerified DateTime?
     image         String?
+    role          String?   @default("USER")
     posts         Post[]    @relation(name: "PostToAuthor")
     accounts      Account[]
     sessions      Session[]

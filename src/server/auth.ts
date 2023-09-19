@@ -23,14 +23,16 @@ declare module "next-auth" {
             id: string;
             tag: string;
             // ...other properties
-            // role: UserRole;
+            role: UserRole;
         };
     }
 
-    // interface User {
-    //   // ...other properties
-    //   // role: UserRole;
-    // }
+    interface User {
+        tag: string;
+        role: UserRole;
+    }
+
+    type UserRole = "USER" | "ADMIN";
 }
 
 /**
