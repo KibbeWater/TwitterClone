@@ -13,9 +13,15 @@ import {
     faBell,
 } from "@fortawesome/free-solid-svg-icons";
 import { useSession } from "next-auth/react";
+import { useEffect } from "react";
 
 export default function Navbar() {
-    const { data: session } = useSession();
+    const { data: session, status } = useSession();
+    const user = session?.user;
+
+    useEffect(() => {
+        console.log(status, user, session);
+    }, [status]);
 
     return (
         <nav
@@ -86,7 +92,7 @@ export default function Navbar() {
                         </span>
                     </Link>
                     <Link
-                        href={session ? `@${session.user.tag}` : "/login"}
+                        href={user ? `@${user.tag}` : "/login"}
                         className={
                             "lg:h-12 h-16 mb-2 rounded-full bg-transparent hover:bg-gray-600/25 flex items-center"
                         }

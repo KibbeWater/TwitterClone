@@ -29,6 +29,7 @@
     "react-dom": "18.2.0",
     "react-fontawesome-svg-icon": "^1.1.2",
     "superjson": "^1.13.1",
+    "tailwind-scrollbar-hide": "^1.1.7",
     "zod": "^3.21.4"
   },
   "devDependencies": {

@@ -1,7 +1,6 @@
 import { signIn } from "next-auth/react";
 import { useState } from "react";
 import { useModal } from "~/components/Handlers/ModalHandler";
-import Login from "~/components/Modals/Auth/Login";
 import Layout from "~/components/Site/Layout";
 
 import { api } from "~/utils/api";
