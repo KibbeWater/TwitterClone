@@ -1,19 +1,42 @@
+import { Post } from "@prisma/client";
 import { signIn } from "next-auth/react";
 import { useState } from "react";
 import { useModal } from "~/components/Handlers/ModalHandler";
+import PostComponent from "~/components/Post";
 import Layout from "~/components/Site/Layout";
 
 import { api } from "~/utils/api";
 
 export default function Home() {
-    const { modal, setModal } = useModal();
+    const [page, setPage] = useState(0);
     const [text, setText] = useState("");
 
+    const { modal } = useModal();
+
     // TODO: We can use React Query's useInfiniteQuery to create the feed
-    const { data } = api.post.getPage.useQuery({ page: 1 });
+    const { data, fetchNextPage } = api.post.getPage.useInfiniteQuery(
+        {},
+        {
+            getNextPageParam: (lastPage) => lastPage.nextCursor,
+        },
+    );
     const { mutate: createPost } = api.post.create.useMutation();
 
-    const posts = data?.posts ?? [];
+    const handleFetchNextPage = async () => {
+        await fetchNextPage();
+        setPage((prev) => prev + 1);
+    };
+
+    const handleFetchPreviousPage = () => {
+        setPage((prev) => prev - 1);
+    };
+
+    // data will be split in pages
+    const posts =
+        data?.pages.reduce(
+            (acc, cur) => [...acc, ...cur.items],
+            [] as Post[],
+        ) ?? [];
 
     return (
         <Layout title="Home">
@@ -35,9 +58,8 @@ export default function Home() {
             <div>
                 <p>{`Active modal: ${!!modal}`}</p>
                 <button
+                    className="px-2 py-px bg-blue-600 hover:bg-blue-800 transition-all duration-300 text-white rounded-md"
                     onClick={() => {
-                        /* if (modal) setModal(null);
-                        else setModal(<Login />); */
                         signIn()
                             .then((res) => {
                                 console.log(res);
@@ -47,19 +69,13 @@ export default function Home() {
                             });
                     }}
                 >
-                    Toggle Login Modal
+                    Sign in
                 </button>
-                {/* <button
-                    onClick={() => {
-                        signIn(p);
-                    }}
-                >
-                    Sign In
-                </button> */}
             </div>
             <div className="flex flex-col w-full overflow-hidden items-center pb-14">
                 {posts.map((post) => (
-                    <p key={post.id}>{`${post.userId}: ${post.content}`}</p>
+                    <PostComponent key={post.id} post={post} />
+                    /* <p key={post.id}>{`${post.userId}: ${post.content}`}</p> */
                 ))}
             </div>
         </Layout>

@@ -18,6 +18,8 @@ model Post {
     quote     Post?    @relation(name: "RepostToPost", fields: [quoteId], references: [id], onDelete: NoAction, onUpdate: NoAction)
     quoteId   String?  @db.ObjectId
     reposts   Post[]   @relation(name: "RepostToPost")
+    likeIDs   String[] @unique @db.ObjectId
+    likes     User[]   @relation(name: "LikeToPost", fields: [likeIDs], references: [id])
     images    String[]
     videos    String[]
     createdAt DateTime @default(now())
@@ -55,12 +57,14 @@ model User {
     tag           String?   @unique @default(cuid())
     email         String?   @unique
     emailVerified DateTime?
-    image         String?
+    image         String?   @default("/assets/imgs/default-avatar.png")
     role          String?   @default("USER")
     verified      Boolean?  @default(false)
     posts         Post[]    @relation(name: "PostToAuthor")
     accounts      Account[]
     sessions      Session[]
+    likes         Post[]    @relation(name: "LikeToPost", fields: [likedPosts], references: [id])
+    likedPosts    String[]  @unique @db.ObjectId
 }
 
 model VerificationToken {

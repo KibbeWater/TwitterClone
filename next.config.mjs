@@ -19,6 +19,12 @@ const config = {
         );
     },
 
+    images: {
+        remotePatterns: [
+            { protocol: "https", hostname: "*.googleusercontent.com" },
+        ],
+    },
+
     /**
      * If you are using `appDir` then you must comment the below `i18n` config out.
      *

@@ -7,9 +7,10 @@ import {
 } from "~/server/api/trpc";
 
 export const postRouter = createTRPCRouter({
-    getPage: publicProcedure
+    // DEPRECATED
+    /* getPage: publicProcedure
         .input(
-            z.object({ page: z.number().min(1), limit: z.number().optional() }),
+            z.object({ page: z.number().min(0), limit: z.number().optional() }),
         )
         .query(async ({ ctx, input }) => {
             const [posts, count] = await ctx.prisma.$transaction([
@@ -29,6 +30,48 @@ export const postRouter = createTRPCRouter({
                     limit: input.limit ?? 10,
                 },
             };
+        }), */
+
+    getPage: publicProcedure
+        .input(
+            z.object({
+                limit: z.number().optional(),
+                cursor: z.string().nullish(),
+                skip: z.number().optional(),
+            }),
+        )
+        .query(async ({ ctx, input }) => {
+            const { limit, skip, cursor } = input;
+            const items = await ctx.prisma.post.findMany({
+                take: (limit ?? 10) + 1,
+                skip: skip,
+                cursor: cursor ? { id: cursor } : undefined,
+                orderBy: {
+                    createdAt: "asc",
+                },
+                include: {
+                    user: {
+                        select: {
+                            id: true,
+                            name: true,
+                            tag: true,
+                            role: true,
+                            verified: true,
+                            image: true,
+                        },
+                    },
+                    quote: true,
+                },
+            });
+            let nextCursor: typeof cursor | undefined = undefined;
+            if (items.length > (limit ?? 10)) {
+                const nextItem = items.pop();
+                nextCursor = nextItem?.id;
+            }
+            return {
+                items,
+                nextCursor,
+            };
         }),
 
     create: protectedProcedure
@@ -41,12 +84,27 @@ export const postRouter = createTRPCRouter({
                 },
             });
         }),
-    /* .query(async ({ ctx, input }) => {
-            return ctx.prisma.post.create({
+
+    setLike: protectedProcedure
+        .input(z.object({ postId: z.string(), shouldLike: z.boolean() }))
+        .mutation(async ({ ctx, input }) => {
+            const { postId: id, shouldLike } = input;
+            return await ctx.prisma.post.update({
+                where: { id },
                 data: {
-                    content: input.content,
-                    userId: ctx.session.user.id,
+                    likes: {
+                        connect: shouldLike
+                            ? {
+                                  id: ctx.session.user.id,
+                              }
+                            : undefined,
+                        disconnect: !shouldLike
+                            ? {
+                                  id: ctx.session.user.id,
+                              }
+                            : undefined,
+                    },
                 },
             });
-        }), */
+        }),
 });

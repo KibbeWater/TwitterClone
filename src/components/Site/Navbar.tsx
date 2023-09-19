@@ -2,7 +2,6 @@
 import Image from "next/image";
 import Link from "next/link";
 
-import { FontAwesomeSvgIcon } from "react-fontawesome-svg-icon";
 import { useSession } from "next-auth/react";
 
 import {
@@ -41,7 +40,7 @@ export default function Navbar() {
             },
             {
                 name: "Profile",
-                href: session?.user.tag ? `@${session?.user.tag}` : "/login",
+                href: session?.user.tag ? `/@${session?.user.tag}` : "/login",
                 iconSolid: UserSolid,
                 iconOutline: UserOutline,
             },
@@ -79,7 +78,12 @@ export default function Navbar() {
                             key={"link-" + link.name}
                         >
                             <div className="w-8 ml-4 flex items-center justify-center">
-                                {router.pathname <link.iconOutline className="text-2xl text-black dark:text-white" />}
+                                {router.asPath.toLowerCase() !==
+                                link.href.toLowerCase() ? (
+                                    <link.iconOutline className="text-2xl text-black dark:text-white" />
+                                ) : (
+                                    <link.iconSolid className="text-2xl text-black dark:text-white" />
+                                )}
                             </div>
 
                             <span className="ml-5 font-bold text-lg hidden lg:block text-black dark:text-white">

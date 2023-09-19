@@ -14,7 +14,11 @@ export default function Layout({ title, children }: LayoutProps) {
             </Head>
             <div className="parent w-screen h-screen flex">
                 <Navbar />
-                <main className={"flex-1 overflow-y-auto scrollbar-hide"}>
+                <main
+                    className={
+                        "flex-1 overflow-y-auto scrollbar-hide dark:bg-black bg-white"
+                    }
+                >
                     {children}
                 </main>
                 {/* <Filters /> */}
