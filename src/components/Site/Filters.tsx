@@ -9,31 +9,10 @@ export default function Filters() {
     const [active, setActive] = useState(false);
     const [search, setSearch] = useState("");
 
-    const { data: results } = api.user.findUsers.useQuery({ query: search });
+    const { data: usrResults } = api.user.findUsers.useQuery({ query: search });
 
-    const isActive = active || search.length > 0 || (results?.length ?? 0) > 0;
-
-    /* useEffect(() => {
-        const controller = new AbortController();
-        if (search.length === 0) return setResults([]);
-        else
-            import("axios").then((pkg) => {
-                pkg.default
-                    .get<{
-                        success: boolean;
-                        error?: string;
-                        data: SafeUser[];
-                    }>(`/api/search?q=${search}`, { signal: controller.signal })
-                    .then((res) => {
-                        if (!res.data.success)
-                            return console.error(res.data.error);
-                        setResults(res.data.data);
-                        console.log(res.data.data);
-                    })
-                    .catch((err) => {});
-            });
-        return () => controller.abort();
-    }, [search]); */
+    const isActive = active || search.length > 0;
+    const results = search.length !== 0 ? usrResults : [];
 
     return (
         <div

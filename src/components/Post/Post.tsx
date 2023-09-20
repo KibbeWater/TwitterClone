@@ -47,7 +47,7 @@ export default function PostComponent(p: { post: Post; isRef?: boolean }) {
 
     return (
         <div
-            className={`p-3 mb-px w-full max-w-full relative bg-transparent transition-all cursor-pointer border-b-[1px] border-gray-200 flex hover:bg-gray-500/5 ${
+            className={`p-3 mb-px w-full max-w-full relative bg-transparent transition-all cursor-pointer flex hover:bg-gray-500/5 ${
                 isRef ? "!border-0 !bg-transparent hover:!bg-transparent" : ""
             }`}
             /* onClick={routeAggresive} */

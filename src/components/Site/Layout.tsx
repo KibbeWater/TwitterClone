@@ -2,6 +2,8 @@ import Head from "next/head";
 
 import Navbar from "./Navbar";
 import Filters from "./Filters";
+import LoginBanner from "./LoginBanner";
+import { useSession } from "next-auth/react";
 
 type LayoutProps = {
     title?: string;
@@ -9,12 +11,14 @@ type LayoutProps = {
 };
 
 export default function Layout({ title, children }: LayoutProps) {
+    const { status } = useSession();
+
     return (
         <>
             <Head>
                 <title>{`Twatter${title ? ` - ${title}` : ""}`}</title>
             </Head>
-            <div className="parent w-screen h-screen flex">
+            <div className="parent w-screen h-screen flex relative">
                 <Navbar />
                 <div
                     className={
@@ -39,6 +43,11 @@ export default function Layout({ title, children }: LayoutProps) {
                     <main>{children}</main>
                 </div>
                 <Filters />
+                {status === "unauthenticated" && (
+                    <div className="absolute bottom-0 left-0 right-0 w-full">
+                        <LoginBanner />
+                    </div>
+                )}
             </div>
         </>
     );

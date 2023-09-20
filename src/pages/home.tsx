@@ -60,7 +60,7 @@ export default function Home() {
             <div className="py-4 px-6 border-b-[1px] border-gray-200 dark:border-gray-700">
                 <PostComposer />
             </div>
-            <div>
+            {/* <div>
                 <p>{`Active modal: ${!!modal}`}</p>
                 <button
                     className="px-2 py-px bg-blue-600 hover:bg-blue-800 transition-all duration-300 text-white rounded-md"
@@ -76,12 +76,12 @@ export default function Home() {
                 >
                     Sign in
                 </button>
-            </div>
+            </div> */}
             <div className="flex flex-col w-full overflow-hidden items-center pb-14">
                 {posts.map((post) => (
                     <div
                         key={post.id}
-                        className="border-b-[1px] border-gray-200 dark:border-gray-700"
+                        className="border-b-[1px] border-gray-200 dark:border-gray-700 w-full"
                     >
                         <PostComponent post={post} />
                     </div>

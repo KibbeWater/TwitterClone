@@ -1,9 +1,6 @@
 import Image from "next/image";
-import { useRef, useState } from "react";
+import { useState, useEffect } from "react";
 import { Post } from "@prisma/client";
-
-import { faImage } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeSvgIcon } from "react-fontawesome-svg-icon";
 
 import PostComponent from "./Post";
 import { useSession } from "next-auth/react";
@@ -24,8 +21,6 @@ type Props = {
     quote?: Post;
 };
 
-type VideoObj = { uploading: boolean; data: ArrayBuffer; progress: number };
-
 export default function PostTwaat({
     onPost,
     placeholder,
@@ -38,21 +33,24 @@ export default function PostTwaat({
     quote,
 }: Props) {
     const [text, setText] = useState("");
+    const [tempDisabled, setTempDisabled] = useState(false);
 
-    const [images, setImages] = useState<string[]>([]);
-    const [videos, setVideos] = useState<VideoObj[]>([]);
-
-    const [loadingPost, setLoadingPost] = useState(false);
-
-    const postAlbumRef = useRef<HTMLDivElement>(null);
+    const { mutate: _sendPost, isLoading } = api.post.create.useMutation({
+        onSuccess: () => setText(""),
+        onError: () => setTempDisabled(true),
+    });
 
     const { data: session } = useSession();
     const user = session?.user;
 
     const btnPostClick = () => {
-        if (loadingPost) return;
-        setLoadingPost(true);
+        if (isLoading) return;
+        _sendPost({ content: text });
     };
+
+    useEffect(() => {
+        setTempDisabled(false);
+    }, [text]);
 
     if (!user) return null;
 
@@ -116,13 +114,10 @@ export default function PostTwaat({
                             <button
                                 className={
                                     "py-[6px] px-4 rounded-full border-0 bg-accent-primary-500 text-white cursor-pointer text-md font-bold transition-colors " +
-                                    "disabled:bg-red-700 disabled:text-gray-200 disabled:cursor-default transition-all"
+                                    "disabled:bg-red-800 disabled:text-gray-200 disabled:cursor-default transition-all duration-300"
                                 }
                                 onClick={btnPostClick}
-                                disabled={
-                                    (!text && images.length === 0) ||
-                                    loadingPost
-                                }
+                                disabled={!text || isLoading || tempDisabled}
                             >
                                 {btnText ?? "Twaat"}
                             </button>
