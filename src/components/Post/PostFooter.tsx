@@ -48,10 +48,10 @@ export default function PostFooter({ post }: { post: Post }) {
                 <Link
                     href={`/post/${post.id}`}
                     className={
-                        "border-0 p-0 h-8 w-8 mr-1 rounded-full flex items-center justify-center transition-colors bg-black/0 cursor-pointer hover:bg-red-500/40 group/btnComment"
+                        "border-0 p-1 h-8 w-8 mr-1 rounded-full flex items-center justify-center transition-colors bg-black/0 cursor-pointer hover:bg-red-500/40 group/btnComment"
                     }
                 >
-                    <ChatBubbleOvalLeftEllipsisIcon className="text-xl text-black dark:text-white group-hover/btnComment:text-red-500" />
+                    <ChatBubbleOvalLeftEllipsisIcon className="text-black dark:text-white group-hover/btnComment:text-red-500" />
                 </Link>
                 <p className="text-black dark:text-white text-sm">
                     {/* {post.comments.length} */}123
@@ -60,14 +60,14 @@ export default function PostFooter({ post }: { post: Post }) {
             <div className="flex items-center mr-2">
                 <button
                     className={
-                        "border-0 p-0 h-8 w-8 mr-1 rounded-full flex items-center justify-center transition-colors bg-black/0 cursor-pointer hover:bg-[#3cff3c]/40 group/btnRetweet"
+                        "border-0 p-1 h-8 w-8 mr-1 rounded-full flex items-center justify-center transition-colors bg-black/0 cursor-pointer hover:bg-[#3cff3c]/40 group/btnRetweet"
                     }
                     /* onClick={() => {
                         if (setModal) setModal(<PostModal quote={post} />);
                     }} */
                     aria-label="Retweet"
                 >
-                    <ArrowUturnRightIcon className="text-xl text-black dark:text-white group-hover/btnRetweet:text-green-500" />
+                    <ArrowUturnRightIcon className="text-black dark:text-white group-hover/btnRetweet:text-green-500" />
                 </button>
                 <p className="text-black dark:text-white text-sm">
                     {/* {post.retwaats.length} */}123
@@ -76,7 +76,7 @@ export default function PostFooter({ post }: { post: Post }) {
             <div className="flex items-center mr-2">
                 <button
                     className={
-                        "border-0 p-0 h-8 w-8 mr-1 rounded-full flex items-center justify-center transition-colors bg-black/0 cursor-pointer hover:bg-red-500/40 group/btnLike disabled:cursor-default"
+                        "border-0 h-8 w-8 mr-1 p-1 rounded-full flex items-center justify-center transition-colors bg-black/0 cursor-pointer hover:bg-red-500/40 group/btnLike disabled:cursor-default"
                     }
                     onClick={() => setLike(!hasLiked)}
                     aria-label="Like"
@@ -84,8 +84,8 @@ export default function PostFooter({ post }: { post: Post }) {
                     <HeartIcon
                         className={
                             hasLiked
-                                ? "text-red-500 group-hover/btnLike:text-black dark:group-hover/btnLike:text-white/60 transition-colors text-xl"
-                                : "text-black dark:text-white group-hover/btnLike:text-red-500 transition-colors text-xl"
+                                ? "text-red-500 group-hover/btnLike:text-black dark:group-hover/btnLike:text-white/60 transition-colors"
+                                : "text-black dark:text-white group-hover/btnLike:text-red-500 transition-colors"
                         }
                     />
                 </button>
@@ -96,11 +96,11 @@ export default function PostFooter({ post }: { post: Post }) {
             <div className="flex items-center mr-2">
                 <button
                     className={
-                        "border-0 p-0 h-8 w-8 mr-1 rounded-full flex items-center justify-center transition-colors bg-black/0 cursor-pointer hover:bg-red-500/40 group/btnShare disabled:cursor-default"
+                        "border-0 p-1 h-8 w-8 mr-1 rounded-full flex items-center justify-center transition-colors bg-black/0 cursor-pointer hover:bg-red-500/40 group/btnShare disabled:cursor-default"
                     }
                     aria-label="Share"
                 >
-                    <ShareIcon className="text-black dark:text-white group-hover/btnShare:text-red-500 text-xl" />
+                    <ShareIcon className="text-black dark:text-white group-hover/btnShare:text-red-500" />
                 </button>
             </div>
         </div>

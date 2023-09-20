@@ -2,7 +2,8 @@ import { Post } from "@prisma/client";
 import { signIn } from "next-auth/react";
 import { useState } from "react";
 import { useModal } from "~/components/Handlers/ModalHandler";
-import PostComponent from "~/components/Post";
+import PostComponent from "~/components/Post/Post";
+import PostComposer from "~/components/Post/PostTextarea";
 import Layout from "~/components/Site/Layout";
 
 import { api } from "~/utils/api";
@@ -40,7 +41,7 @@ export default function Home() {
 
     return (
         <Layout title="Home">
-            <div className="flex w-full h-32">
+            {/* <div className="flex w-full h-32">
                 <input
                     type="text"
                     className="w-full h-full"
@@ -54,7 +55,8 @@ export default function Home() {
                 >
                     Send
                 </button>
-            </div>
+            </div> */}
+            <PostComposer />
             <div>
                 <p>{`Active modal: ${!!modal}`}</p>
                 <button

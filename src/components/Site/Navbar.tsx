@@ -100,7 +100,7 @@ export default function Navbar() {
                             if (setModal) setModal(<PostModal />);
                         }} */
                     >
-                        <PencilIcon className="text-2xl text-white transition-all opacity-100 lg:opacity-0 block lg:!hidden" />
+                        <PencilIcon className="m-4 text-2xl text-white transition-all opacity-100 lg:opacity-0 block lg:!hidden" />
                         <span className="hidden transition-all lg:block text-lg font-bold opacity-0 lg:opacity-100 text-white">
                             Twaat
                         </span>
