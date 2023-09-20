@@ -50,7 +50,7 @@ export default function Navbar() {
     return (
         <nav
             className={
-                "min-w-[10%] sm:max-w-[25%] max-w-min pt-2 w-full h-screen flex justify-end bg-white dark:bg-black border-r-[1px] border-gray-200"
+                "min-w-[10%] sm:max-w-[25%] max-w-min pt-2 w-full h-screen flex justify-end bg-white dark:bg-black border-r-[1px] border-gray-200 dark:border-gray-700"
             }
         >
             <div className="flex flex-col h-full">

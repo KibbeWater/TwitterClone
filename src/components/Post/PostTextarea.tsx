@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState } from "react";
-import CustomTextarea from "./CustomTextbox";
 import { User } from "@prisma/client";
+import { useEffect, useRef, useState } from "react";
 import TextareaAutosize from "react-textarea-autosize";
+
+import CustomTextarea from "./CustomTextbox";
 
 type TweetAreaProps = {
     placeholder?: string;
@@ -10,7 +11,7 @@ type TweetAreaProps = {
     onChange?: (text: string) => void;
 };
 
-export default function PostComposer({
+export default function PostTextarea({
     placeholder,
     inline,
     value,
@@ -79,7 +80,9 @@ export default function PostComposer({
                 }
                 value={text}
                 maxLength={2000}
-                onChange={(e) => handleInputChange(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                    handleInputChange(e.target.value)
+                }
             />
             {/* <CustomTextarea
                 placeholder={placeholder ?? "What's happening?"}

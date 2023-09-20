@@ -1,9 +1,10 @@
-import { Post } from "@prisma/client";
+import type { Post } from "@prisma/client";
 import { signIn } from "next-auth/react";
 import { useState } from "react";
+
 import { useModal } from "~/components/Handlers/ModalHandler";
 import PostComponent from "~/components/Post/Post";
-import PostComposer from "~/components/Post/PostTextarea";
+import PostComposer from "~/components/Post/PostComposer";
 import Layout from "~/components/Site/Layout";
 
 import { api } from "~/utils/api";
@@ -56,7 +57,9 @@ export default function Home() {
                     Send
                 </button>
             </div> */}
-            <PostComposer />
+            <div className="py-4 px-6 border-b-[1px] border-gray-200 dark:border-gray-700">
+                <PostComposer />
+            </div>
             <div>
                 <p>{`Active modal: ${!!modal}`}</p>
                 <button
@@ -76,7 +79,12 @@ export default function Home() {
             </div>
             <div className="flex flex-col w-full overflow-hidden items-center pb-14">
                 {posts.map((post) => (
-                    <PostComponent key={post.id} post={post} />
+                    <div
+                        key={post.id}
+                        className="border-b-[1px] border-gray-200 dark:border-gray-700"
+                    >
+                        <PostComponent post={post} />
+                    </div>
                     /* <p key={post.id}>{`${post.userId}: ${post.content}`}</p> */
                 ))}
             </div>

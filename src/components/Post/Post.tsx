@@ -4,6 +4,7 @@ import type { Post } from "@prisma/client";
 import PostFooter from "./PostFooter";
 import Image from "next/image";
 import { CheckBadgeIcon } from "@heroicons/react/20/solid";
+import VerifiedCheck from "../Verified";
 
 function FormatDate(date: Date) {
     const now = new Date();
@@ -193,7 +194,7 @@ export default function PostComponent(p: { post: Post; isRef?: boolean }) {
                     >
                         {user.verified ? (
                             <p className="mr-[5px] flex h-[1em] items-center">
-                                <CheckBadgeIcon className="w-4 h-4 text-[#f01d1d]" />
+                                <VerifiedCheck />
                             </p>
                         ) : null}
                         {`@${user.tag}`}
@@ -212,7 +213,7 @@ export default function PostComponent(p: { post: Post; isRef?: boolean }) {
                     <p className="text-black dark:text-white">{post.content}</p>
                 </div>
                 <div
-                    className="w-9/12 aspect-[5/3] mb-2 grid grid-cols-2 rounded-xl overflow-hidden gap-[2px] justify-self-center border-[1px] border-gray-700"
+                    className="w-9/12 aspect-[5/3] mb-2 grid grid-cols-2 rounded-xl overflow-hidden gap-[2px] justify-self-center"
                     style={{
                         display: images.length !== 0 ? "grid" : "none",
                     }}
