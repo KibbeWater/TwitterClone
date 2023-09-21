@@ -5,6 +5,7 @@ import { useCallback, useState } from "react";
 import PostComponent from "~/components/Post/Post";
 import PostComposer from "~/components/Post/PostComposer";
 import Layout from "~/components/Site/Layout";
+import PostSkeleton from "~/components/Skeletons/PostSkeleton";
 
 import { api } from "~/utils/api";
 
@@ -42,43 +43,11 @@ export default function Home() {
 
     return (
         <Layout title="Home">
-            {/* <div className="flex w-full h-32">
-                <input
-                    type="text"
-                    className="w-full h-full"
-                    value={text}
-                    onChange={(e) => setText(e.target.value)}
-                />
-                <button
-                    onClick={() => {
-                        createPost({ content: text });
-                    }}
-                >
-                    Send
-                </button>
-            </div> */}
             {status === "authenticated" && (
                 <div className="py-4 px-6 border-b-[1px] border-gray-200 dark:border-gray-700">
                     <PostComposer onPost={onPost} />
                 </div>
             )}
-            {/* <div>
-                <p>{`Active modal: ${!!modal}`}</p>
-                <button
-                    className="px-2 py-px bg-blue-600 hover:bg-blue-800 transition-all duration-300 text-white rounded-md"
-                    onClick={() => {
-                        signIn()
-                            .then((res) => {
-                                console.log(res);
-                            })
-                            .catch((err) => {
-                                console.log(err);
-                            });
-                    }}
-                >
-                    Sign in
-                </button>
-            </div> */}
             <div className="flex flex-col w-full overflow-hidden items-center pb-14">
                 {posts.map((post) => (
                     <div
@@ -87,8 +56,14 @@ export default function Home() {
                     >
                         <PostComponent post={post} />
                     </div>
-                    /* <p key={post.id}>{`${post.userId}: ${post.content}`}</p> */
                 ))}
+                {posts.length <= 0 && (
+                    <div className="flex flex-col w-full overflow-hidden items-center">
+                        {[...Array<number>(10)].map((_, idx) => {
+                            return <PostSkeleton key={`loading-${idx}`} />;
+                        })}
+                    </div>
+                )}
             </div>
         </Layout>
     );

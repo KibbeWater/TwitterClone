@@ -20,7 +20,7 @@ type Props = {
     quote?: Post;
 };
 
-export default function PostTwaat({
+export default function PostComposer({
     onPost,
     placeholder,
     btnText,

@@ -8,6 +8,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import PostComponent from "~/components/Post/Post";
 import Layout from "~/components/Site/Layout";
+import ProfileSkeleton from "~/components/Skeletons/ProfileSkeleton";
 import VerifiedCheck from "~/components/Verified";
 
 import { api } from "~/utils/api";
@@ -70,7 +71,9 @@ export default function Home() {
     ); */
 
     const isMe = user?.id === profile?.id && user?.id !== undefined;
-    const bio = profile.bio! ?? "";
+    const bio = profile?.bio ?? "";
+
+    if (!profile) return <ProfileSkeleton />;
 
     return (
         <Layout title={profile?.name ?? "Loading..."}>
