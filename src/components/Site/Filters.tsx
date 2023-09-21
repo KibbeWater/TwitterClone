@@ -1,4 +1,3 @@
-import type { User } from "@prisma/client";
 import { useState } from "react";
 
 import UserContext from "../UserContext";
@@ -17,7 +16,7 @@ export default function Filters() {
     return (
         <div
             className={
-                "h-full w-[37%] border-l-[1px] border-gray-700 hidden lg:block bg-white dark:bg-black"
+                "h-full w-[37%] border-l-[1px] border-gray-200 dark:border-gray-700 hidden lg:block bg-white dark:bg-black"
             }
         >
             <div className={"h-full w-[70%] ml-8 pt-1"}>

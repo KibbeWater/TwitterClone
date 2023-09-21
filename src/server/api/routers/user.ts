@@ -18,10 +18,36 @@ export const userRouter = createTRPCRouter({
                     role: true,
                     verified: true,
                     image: true,
+                    banner: true,
                     posts: {
+                        orderBy: {
+                            createdAt: "desc",
+                        },
                         include: {
+                            user: {
+                                select: {
+                                    id: true,
+                                    name: true,
+                                    tag: true,
+                                    image: true,
+                                },
+                            },
                             quote: true,
                             parent: true,
+                        },
+                    },
+                    followers: {
+                        select: {
+                            id: true,
+                            name: true,
+                            tag: true,
+                        },
+                    },
+                    following: {
+                        select: {
+                            id: true,
+                            name: true,
+                            tag: true,
                         },
                     },
                 },

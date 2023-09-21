@@ -20,7 +20,6 @@ import { useRouter } from "next/router";
 
 export default function Navbar() {
     const { data: session } = useSession();
-    const user = session?.user;
 
     const router = useRouter();
 
@@ -54,7 +53,7 @@ export default function Navbar() {
             }
         >
             <div className="flex flex-col h-full">
-                <div className={"flex flex-col sm:mr-4 mr-2 w-16 lg:w-60"}>
+                <div className={"flex flex-col sm:mx-4 mx-2 w-16 lg:w-60"}>
                     <Link
                         href="/home"
                         className={

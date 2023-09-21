@@ -17,7 +17,6 @@ type Props = {
     inline?: boolean;
     avatarSize?: number;
     padding?: number;
-    parent?: string;
     quote?: Post;
 };
 
@@ -29,7 +28,6 @@ export default function PostTwaat({
     inline,
     avatarSize = 48,
     padding,
-    parent,
     quote,
 }: Props) {
     const [text, setText] = useState("");

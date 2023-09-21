@@ -3,7 +3,6 @@ import { useEffect, useRef } from "react";
 type TweetAreaProps = {
     placeholder?: string;
     className?: string;
-    onChange?: (text: string) => void;
     value?: string;
     maxLength?: number;
 };
@@ -13,7 +12,6 @@ export default function CustomTextarea({
     className,
     maxLength,
     value,
-    onChange,
 }: TweetAreaProps) {
     const divRef = useRef<HTMLDivElement>(null);
     const selectionRef = useRef<Selection | null>();

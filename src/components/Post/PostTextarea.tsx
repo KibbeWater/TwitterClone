@@ -1,8 +1,5 @@
-import { User } from "@prisma/client";
 import { useEffect, useRef, useState } from "react";
 import TextareaAutosize from "react-textarea-autosize";
-
-import CustomTextarea from "./CustomTextbox";
 
 type TweetAreaProps = {
     placeholder?: string;
@@ -19,7 +16,6 @@ export default function PostTextarea({
 }: TweetAreaProps) {
     const [text, setText] = useState(value ?? "");
     const [tag, setTag] = useState("");
-    const [users, setUsers] = useState<User[]>([]);
 
     /* useEffect(() => {
         const controller = new AbortController();
@@ -53,7 +49,7 @@ export default function PostTextarea({
     useEffect(() => {
         if (!onChange) return;
         onChange(text);
-    }, [text]);
+    }, [text, onChange]);
 
     const handleInputChange = (content: string) => {
         setText(content);

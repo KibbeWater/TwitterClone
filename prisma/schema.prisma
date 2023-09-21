@@ -58,6 +58,7 @@ model User {
     bio           String?   @default("")
     email         String?   @unique
     emailVerified DateTime?
+    banner        String?
     image         String?   @default("/assets/imgs/default-avatar.png")
     role          String?   @default("USER")
     verified      Boolean?  @default(false)
@@ -66,6 +67,10 @@ model User {
     sessions      Session[]
     likes         Post[]    @relation(name: "LikeToPost", fields: [likedPosts], references: [id])
     likedPosts    String[]  @db.ObjectId
+    followers     User[]    @relation(name: "FollowToUser", fields: [followerIds], references: [id])
+    followerIds   String[]  @db.ObjectId
+    following     User[]    @relation(name: "FollowToUser", fields: [followingIds], references: [id])
+    followingIds  String[]  @db.ObjectId
 }
 
 model VerificationToken {

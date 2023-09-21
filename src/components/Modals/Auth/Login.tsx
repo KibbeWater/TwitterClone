@@ -5,7 +5,6 @@ import { signIn } from "next-auth/react";
 
 export default function Login() {
     const [email, setEmail] = useState("");
-    const [emailError, setEmailError] = useState("");
 
     return (
         <div

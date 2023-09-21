@@ -1,9 +1,7 @@
-import { EllipsisHorizontalIcon } from "@heroicons/react/24/solid";
 import type { Post } from "@prisma/client";
 
 import PostFooter from "./PostFooter";
 import Image from "next/image";
-import { CheckBadgeIcon } from "@heroicons/react/20/solid";
 import VerifiedCheck from "../Verified";
 
 function FormatDate(date: Date) {

@@ -1,13 +1,24 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
+import type { Post } from "@prisma/client";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { useRouter } from "next/router";
+import { useCallback, useEffect, useState } from "react";
+
 import PostComponent from "~/components/Post/Post";
 import Layout from "~/components/Site/Layout";
 import VerifiedCheck from "~/components/Verified";
 
 import { api } from "~/utils/api";
+
+function isUserFollowing(
+    user: { id: string } | undefined,
+    profile: { followers: { id: string }[] } | undefined,
+) {
+    if (!user || !profile) return false;
+    return profile.followers.find((u) => u.id === user.id) !== undefined;
+}
 
 export default function Home() {
     const tag = useRouter().query.tag as string;
@@ -15,7 +26,37 @@ export default function Home() {
     const { data: session } = useSession();
     const user = session?.user;
 
-    const { data: profile, isError } = api.user.getProfile.useQuery({ tag });
+    const { data: profile } = api.user.getProfile.useQuery({ tag });
+    const { mutate: _setFollowing } = api.followers.setFollowing.useMutation();
+
+    const [followingText, setFollowingText] = useState<
+        "Unfollow" | "Following"
+    >("Following");
+    const [isFollowing, setIsFollowing] = useState(
+        isUserFollowing(user, profile),
+    );
+
+    const setFollowing = useCallback(
+        (shouldFollow: boolean) => {
+            if (!profile) return;
+
+            const oldFollow = isFollowing;
+            setIsFollowing(shouldFollow);
+
+            _setFollowing(
+                { id: profile.id, shouldFollow },
+                {
+                    onSuccess: () => setIsFollowing(shouldFollow),
+                    onError: () => setIsFollowing(oldFollow),
+                },
+            );
+        },
+        [profile, _setFollowing, isFollowing],
+    );
+
+    useEffect(() => {
+        setIsFollowing(isUserFollowing(user, profile));
+    }, [user, profile]);
 
     /* return (
         <Layout title={user?.name ?? "Loading..."}>
@@ -29,32 +70,25 @@ export default function Home() {
     ); */
 
     const isMe = user?.id === profile?.id && user?.id !== undefined;
-    const bio = profile?.bio ?? "";
+    const bio = profile.bio! ?? "";
 
     return (
         <Layout title={profile?.name ?? "Loading..."}>
             <div>
                 <div className="border-b-[1px] border-gray-500">
                     <div className="w-full pb-[33.3%] bg-neutral-700 relative flex justify-center">
-                        <div ref={bannerRef}>
-                            {bannerSrc ? (
-                                <Image
-                                    src={bannerSrc}
-                                    className={
-                                        "absolute h-full w-full p-[auto] top-0 bottom-0 right-0 left-0 object-cover"
-                                    }
-                                    sizes={"100vw"}
-                                    fill
-                                    priority
-                                    alt={`${profile?.name}'s Banner`}
-                                    onError={(e) =>
-                                        bannerRef.current?.classList.add(
-                                            "hidden",
-                                        )
-                                    }
-                                />
-                            ) : null}
-                        </div>
+                        {profile?.banner && (
+                            <Image
+                                src={profile.banner}
+                                className={
+                                    "absolute h-full w-full p-[auto] top-0 bottom-0 right-0 left-0 object-cover"
+                                }
+                                sizes={"100vw"}
+                                fill
+                                priority
+                                alt={`${profile?.name}'s Banner`}
+                            />
+                        )}
                     </div>
                     <div className="w-full flex justify-between relative">
                         <div className="relative h-16 mb-3">
@@ -93,12 +127,7 @@ export default function Home() {
                                             "hover:bg-red-500/10 hover:text-red-600 hover:border-red-300 hover:cursor-pointer"
                                         }
                                         onClick={() => {
-                                            CreateRelationship(
-                                                profile?._id,
-                                                "remove",
-                                            ).then((res) => {
-                                                setIsFollowing((prev) => !prev);
-                                            });
+                                            setFollowing(false);
                                         }}
                                         onMouseEnter={() =>
                                             setFollowingText("Unfollow")
@@ -115,12 +144,7 @@ export default function Home() {
                                             "bg-black dark:bg-white text-white dark:text-black px-[15px] py-2 font-bold cursor-pointer rounded-full"
                                         }
                                         onClick={() => {
-                                            CreateRelationship(
-                                                profile?._id,
-                                                "follow",
-                                            ).then((res) => {
-                                                setIsFollowing((prev) => !prev);
-                                            });
+                                            setFollowing(true);
                                         }}
                                     >
                                         Follow
@@ -177,19 +201,15 @@ export default function Home() {
                 </div>
                 <div className="flex flex-col items-center">
                     {profile?.posts.length !== undefined
-                        ? profile.posts
-                              .map((post) => {
-                                  return (
-                                      <PostComponent
-                                          key={post?.id}
-                                          post={post}
-                                      />
-                                  );
-                              })
-                              .sort(
-                                  (a, b) =>
-                                      b.props.post.date - a.props.post.date,
-                              )
+                        ? profile.posts.map((post) => {
+                              if (!post) return null;
+                              return (
+                                  <PostComponent
+                                      key={post.id}
+                                      post={post as Post}
+                                  />
+                              );
+                          })
                         : null}
                 </div>
             </div>
