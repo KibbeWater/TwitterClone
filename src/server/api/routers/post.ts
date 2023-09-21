@@ -47,7 +47,7 @@ export const postRouter = createTRPCRouter({
                 skip: skip,
                 cursor: cursor ? { id: cursor } : undefined,
                 orderBy: {
-                    createdAt: "asc",
+                    createdAt: "desc",
                 },
                 include: {
                     user: {
@@ -81,6 +81,19 @@ export const postRouter = createTRPCRouter({
                 data: {
                     content: input.content,
                     userId: ctx.session.user.id,
+                },
+                include: {
+                    user: {
+                        select: {
+                            id: true,
+                            name: true,
+                            tag: true,
+                            role: true,
+                            verified: true,
+                            image: true,
+                        },
+                    },
+                    quote: true,
                 },
             });
         }),

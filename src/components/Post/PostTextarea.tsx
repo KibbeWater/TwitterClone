@@ -46,7 +46,7 @@ export default function PostTextarea({
     const parent = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        if (!value) return;
+        if (value === undefined) return;
         setText(value);
     }, [value]);
 

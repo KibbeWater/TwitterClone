@@ -1,18 +1,18 @@
 import Image from "next/image";
 import { useState, useEffect } from "react";
-import { Post } from "@prisma/client";
+import type { Post } from "@prisma/client";
 
 import PostComponent from "./Post";
 import { useSession } from "next-auth/react";
 
 import { api } from "~/utils/api";
-import { PhotoIcon, XMarkIcon } from "@heroicons/react/20/solid";
+import { PhotoIcon } from "@heroicons/react/20/solid";
 import PostTextarea from "./PostTextarea";
 
 type Props = {
     placeholder?: string;
     btnText?: string;
-    onPost?: () => void;
+    onPost?: (post: Post) => void;
     children?: React.ReactNode;
     inline?: boolean;
     avatarSize?: number;
@@ -36,7 +36,10 @@ export default function PostTwaat({
     const [tempDisabled, setTempDisabled] = useState(false);
 
     const { mutate: _sendPost, isLoading } = api.post.create.useMutation({
-        onSuccess: () => setText(""),
+        onSuccess: (post) => {
+            onPost?.(post); // There is nothing I love more than this GOOFY ASS javascript syntax
+            setText("");
+        },
         onError: () => setTempDisabled(true),
     });
 

@@ -18,7 +18,7 @@ model Post {
     quote     Post?    @relation(name: "RepostToPost", fields: [quoteId], references: [id], onDelete: NoAction, onUpdate: NoAction)
     quoteId   String?  @db.ObjectId
     reposts   Post[]   @relation(name: "RepostToPost")
-    likeIDs   String[] @unique @db.ObjectId
+    likeIDs   String[] @db.ObjectId
     likes     User[]   @relation(name: "LikeToPost", fields: [likeIDs], references: [id])
     images    String[]
     videos    String[]
@@ -64,7 +64,7 @@ model User {
     accounts      Account[]
     sessions      Session[]
     likes         Post[]    @relation(name: "LikeToPost", fields: [likedPosts], references: [id])
-    likedPosts    String[]  @unique @db.ObjectId
+    likedPosts    String[]  @db.ObjectId
 }
 
 model VerificationToken {

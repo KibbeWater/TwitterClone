@@ -1,6 +1,6 @@
 import type { Post } from "@prisma/client";
-import { signIn } from "next-auth/react";
-import { useState } from "react";
+import { signIn, useSession } from "next-auth/react";
+import { useCallback, useState } from "react";
 
 import { useModal } from "~/components/Handlers/ModalHandler";
 import PostComponent from "~/components/Post/Post";
@@ -11,9 +11,9 @@ import { api } from "~/utils/api";
 
 export default function Home() {
     const [page, setPage] = useState(0);
-    const [text, setText] = useState("");
+    const [localPosts, setLocalPosts] = useState<Post[]>([]);
 
-    const { modal } = useModal();
+    const { status } = useSession();
 
     // TODO: We can use React Query's useInfiniteQuery to create the feed
     const { data, fetchNextPage } = api.post.getPage.useInfiniteQuery(
@@ -22,23 +22,24 @@ export default function Home() {
             getNextPageParam: (lastPage) => lastPage.nextCursor,
         },
     );
-    const { mutate: createPost } = api.post.create.useMutation();
+
+    const onPost = useCallback((p: Post) => {
+        setLocalPosts((prev) => [p, ...prev]);
+    }, []);
 
     const handleFetchNextPage = async () => {
         await fetchNextPage();
         setPage((prev) => prev + 1);
     };
 
-    const handleFetchPreviousPage = () => {
-        setPage((prev) => prev - 1);
-    };
-
     // data will be split in pages
-    const posts =
-        data?.pages.reduce(
+    const posts = [
+        ...localPosts,
+        ...(data?.pages.reduce(
             (acc, cur) => [...acc, ...cur.items],
             [] as Post[],
-        ) ?? [];
+        ) ?? []),
+    ];
 
     return (
         <Layout title="Home">
@@ -57,9 +58,11 @@ export default function Home() {
                     Send
                 </button>
             </div> */}
-            <div className="py-4 px-6 border-b-[1px] border-gray-200 dark:border-gray-700">
-                <PostComposer />
-            </div>
+            {status === "authenticated" && (
+                <div className="py-4 px-6 border-b-[1px] border-gray-200 dark:border-gray-700">
+                    <PostComposer onPost={onPost} />
+                </div>
+            )}
             {/* <div>
                 <p>{`Active modal: ${!!modal}`}</p>
                 <button
@@ -80,7 +83,7 @@ export default function Home() {
             <div className="flex flex-col w-full overflow-hidden items-center pb-14">
                 {posts.map((post) => (
                     <div
-                        key={post.id}
+                        key={`post-${post.id}`}
                         className="border-b-[1px] border-gray-200 dark:border-gray-700 w-full"
                     >
                         <PostComponent post={post} />
