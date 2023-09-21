@@ -6,6 +6,8 @@ import Image from "next/image";
 import { useRouter } from "next/router";
 import { useCallback, useEffect, useState } from "react";
 
+import { useModal } from "~/components/Handlers/ModalHandler";
+import ProfileEditor from "~/components/Modals/ProfileEditor";
 import PostComponent from "~/components/Post/Post";
 import Layout from "~/components/Site/Layout";
 import ProfileSkeleton from "~/components/Skeletons/ProfileSkeleton";
@@ -29,6 +31,7 @@ export default function Home() {
 
     const { data: profile } = api.user.getProfile.useQuery({ tag });
     const { mutate: _setFollowing } = api.followers.setFollowing.useMutation();
+    const { setModal } = useModal();
 
     const [followingText, setFollowingText] = useState<
         "Unfollow" | "Following"
@@ -117,9 +120,15 @@ export default function Home() {
                                 {isMe ? (
                                     <button
                                         className="bg-black/0 px-[15px] py-2 font-semibold border-[1px] border-gray-400 text-black dark:text-white min-w-[36px] transition-all cursor-pointer rounded-full hover:bg-gray-700/10"
-                                        onClick={() => {
-                                            // if (setModal) setModal(<EditProfileModal mutate={mutate} />);
-                                        }}
+                                        onClick={() =>
+                                            setModal(
+                                                <ProfileEditor
+                                                    name={
+                                                        user.name ?? "undefined"
+                                                    }
+                                                />,
+                                            )
+                                        }
                                     >
                                         Edit profile
                                     </button>
@@ -207,10 +216,12 @@ export default function Home() {
                         ? profile.posts.map((post) => {
                               if (!post) return null;
                               return (
-                                  <PostComponent
+                                  <div
                                       key={post.id}
-                                      post={post as Post}
-                                  />
+                                      className="border-b-[1px] border-gray-200 dark:border-gray-700 w-full"
+                                  >
+                                      <PostComponent post={post as Post} />
+                                  </div>
                               );
                           })
                         : null}

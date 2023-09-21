@@ -43,11 +43,11 @@ export default function ModalHandler({
             <>
                 {modal && (
                     <div
-                        className="absolute w-full h-full top-0 left-0 flex justify-center items-center transition-all"
+                        className="absolute w-full h-full top-0 left-0 flex justify-center items-center transition-all z-50"
                         style={{
                             backgroundColor: modal
-                                ? "rgba(0, 0, 0, 0.5)"
-                                : "rgba(0, 0, 0, 0)",
+                                ? "rgba(50, 50, 50, 0.2)"
+                                : "rgba(50, 50, 50, 0)",
                         }}
                         onClick={(e) => {
                             setModal(null);
