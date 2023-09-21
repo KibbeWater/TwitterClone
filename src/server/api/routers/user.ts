@@ -13,10 +13,17 @@ export const userRouter = createTRPCRouter({
                 select: {
                     id: true,
                     name: true,
+                    bio: true,
                     tag: true,
                     role: true,
                     verified: true,
                     image: true,
+                    posts: {
+                        include: {
+                            quote: true,
+                            parent: true,
+                        },
+                    },
                 },
             });
 
