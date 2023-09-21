@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import type { Post } from "@prisma/client";
 
 import PostComponent from "./Post";
@@ -49,6 +49,11 @@ export default function PostTwaat({
         _sendPost({ content: text });
     };
 
+    const receiveTextUpdate = useCallback<(t: string) => void>(
+        (t) => setText(t),
+        [],
+    );
+
     useEffect(() => {
         setTempDisabled(false);
     }, [text]);
@@ -88,7 +93,7 @@ export default function PostTwaat({
                         placeholder={placeholder ?? "What's happening?"}
                         inline={inline}
                         value={text}
-                        onChange={(t) => setText(t)}
+                        onChange={receiveTextUpdate}
                     />
                     {quote ? (
                         <div
