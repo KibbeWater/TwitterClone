@@ -39,7 +39,7 @@ export default function PostComponent(p: { post: Post; isRef?: boolean }) {
     };
 
     const user = post.user;
-    const avatar = user.image || "/default_avatar.png";
+    const avatar = user.image || "/assets/imgs/default-avatar.png";
 
     const images = post.images;
 
@@ -155,7 +155,7 @@ export default function PostComponent(p: { post: Post; isRef?: boolean }) {
                         src={avatar}
                         alt={`${user.tag}'s avatar`}
                         placeholder="blur"
-                        blurDataURL="/default_avatar.png"
+                        blurDataURL="/assets/imgs/default-avatar.png"
                         quality={70}
                         width={48}
                         height={48}

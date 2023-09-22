@@ -24,7 +24,7 @@ export default function UserContext({
         >
             <div className="h-full aspect-square rounded-full overflow-hidden flex-none">
                 <Image
-                    src={user.image ?? "/default_avatar.png"}
+                    src={user.image ?? "/assets/imgs/default-avatar.png"}
                     alt={`${user.name}'s avatar`}
                     height={40}
                     width={40}

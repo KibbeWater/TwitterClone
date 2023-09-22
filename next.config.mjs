@@ -22,6 +22,7 @@ const config = {
     images: {
         remotePatterns: [
             { protocol: "https", hostname: "*.googleusercontent.com" },
+            { protocol: "https", hostname: "*.cloudfront.net" },
         ],
     },
 

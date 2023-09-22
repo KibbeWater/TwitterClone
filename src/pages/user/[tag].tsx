@@ -124,6 +124,8 @@ export default function Home() {
                                                         user.name ?? "undefined"
                                                     }
                                                     bio={bio}
+                                                    avatar={profile.image!}
+                                                    banner={profile.banner}
                                                 />,
                                             )
                                         }

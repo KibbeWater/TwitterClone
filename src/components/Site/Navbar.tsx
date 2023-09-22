@@ -125,7 +125,7 @@ export default function Navbar() {
                                             <Image
                                                 src={
                                                     user?.avatar ||
-                                                    "/default_avatar.png"
+                                                    "/assets/imgs/default-avatar.png"
                                                 }
                                                 alt={"Your Avatar"}
                                                 sizes={"100vw"}

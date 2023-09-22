@@ -76,7 +76,9 @@ export default function PostComposer({
                     >
                         <Image
                             className="object-cover rounded-full w-full h-full"
-                            src={user.image ?? "/default_avatar.png"}
+                            src={
+                                user.image ?? "/assets/imgs/default-avatar.png"
+                            }
                             alt={`${user.name}'s Avatar`}
                             sizes="100vw"
                             fill

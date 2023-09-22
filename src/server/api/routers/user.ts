@@ -1,6 +1,10 @@
 import { z } from "zod";
 
-import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
+import {
+    createTRPCRouter,
+    publicProcedure,
+    protectedProcedure,
+} from "~/server/api/trpc";
 
 export const userRouter = createTRPCRouter({
     getProfile: publicProcedure
@@ -91,5 +95,21 @@ export const userRouter = createTRPCRouter({
             });
 
             return users;
+        }),
+    updateProfile: protectedProcedure
+        .input(
+            z.object({
+                name: z.string().optional(),
+                bio: z.string().optional(),
+                image: z.string().optional(),
+                banner: z.string().optional(),
+            }),
+        )
+        .mutation(async ({ ctx, input }) => {
+            const { id } = ctx.session.user;
+            return await ctx.prisma.user.update({
+                where: { id },
+                data: input,
+            });
         }),
 });
