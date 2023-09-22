@@ -4,6 +4,7 @@ import React, {
     useContext,
     useMemo,
     useState,
+    useEffect,
 } from "react";
 
 type ModalContextType = {
@@ -36,6 +37,14 @@ export default function ModalHandler({
         () => ({ setModal, modal }),
         [modal, setModal],
     );
+
+    useEffect(() => {
+        const listener = (e: KeyboardEvent) => {
+            if (e.key === "Escape") setModal(null);
+        };
+        document.addEventListener("keydown", listener);
+        return () => document.removeEventListener("keydown", listener);
+    }, [setModal]);
 
     // TODO: Animate background opacity when opening/closing modal
     return (

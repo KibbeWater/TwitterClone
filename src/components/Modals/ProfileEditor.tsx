@@ -1,13 +1,20 @@
 import { useState, useCallback } from "react";
 import { XMarkIcon } from "@heroicons/react/20/solid";
 
-import SingleLabelledInput from "../SingleLabelledInput";
+import LabelledInput from "../LabelledInput";
 import { useModal } from "../Handlers/ModalHandler";
 import { useDropzone } from "react-dropzone";
 import { CameraIcon } from "@heroicons/react/24/outline";
 
-export default function ProfileEditor({ name: defName }: { name: string }) {
+export default function ProfileEditor({
+    name: defName,
+    bio: defBio,
+}: {
+    name: string;
+    bio: string;
+}) {
     const [name, setName] = useState(defName);
+    const [bio, setBio] = useState(defBio);
 
     const { setModal } = useModal();
     const { getRootProps: avatarRProps, isDragActive: isAvatarActive } =
@@ -18,6 +25,11 @@ export default function ProfileEditor({ name: defName }: { name: string }) {
     const handleNameUpdate = useCallback<(t: string) => void>(
         (t) => setName(t),
         [setName],
+    );
+
+    const handleBioUpdate = useCallback<(t: string) => void>(
+        (t) => setBio(t),
+        [setBio],
     );
 
     return (
@@ -36,7 +48,7 @@ export default function ProfileEditor({ name: defName }: { name: string }) {
                     </h2>
                 </div>
                 <div className="flex justify-self-end mx-4">
-                    <button className="bg-white hover:bg-gray-200 transition-colors duration-500 text-black px-4 py-1 font-semibold rounded-full">
+                    <button className="dark:bg-white bg-black dark:hover:bg-gray-200 hover:bg-gray-700 transition-colors duration-300 dark:text-black text-white px-4 py-1 font-semibold rounded-full">
                         Save
                     </button>
                 </div>
@@ -44,9 +56,9 @@ export default function ProfileEditor({ name: defName }: { name: string }) {
             <div>
                 <div
                     {...bannerRProps()}
-                    className={`mx-[2px] w-[calc(100% - 4px)] pb-[33.3%] bg-neutral-700 relative flex justify-center${
+                    className={`w-full pb-[33.3%] bg-neutral-700 relative flex justify-center${
                         isBannerActive
-                            ? " outline-dashed outline-[2px] outline-accent-primary-500"
+                            ? " mx-[2px] !w-[calc(100% - 4px)] outline-dashed outline-[2px] outline-accent-primary-500"
                             : ""
                     }`}
                 >
@@ -55,6 +67,11 @@ export default function ProfileEditor({ name: defName }: { name: string }) {
                             "absolute h-full w-full p-[auto] top-0 bottom-0 right-0 left-0 bg-gray-500"
                         }
                     />
+                    <div className="absolute w-full h-full flex justify-center items-center z-10 top-0 left-0">
+                        <button className="p-2 w-10 h-10 bg-black/30 rounded-full">
+                            <CameraIcon className="text-white" />
+                        </button>
+                    </div>
                 </div>
                 <div className="w-full flex justify-between relative">
                     <div className="relative h-16 mb-3">
@@ -77,12 +94,20 @@ export default function ProfileEditor({ name: defName }: { name: string }) {
                         </div>
                     </div>
                 </div>
-                <div className="flex gap-8 mx-4">
-                    <SingleLabelledInput
+                <div className="flex flex-col gap-8 px-4">
+                    <LabelledInput
                         onChange={handleNameUpdate}
                         value={name}
-                        maxLength={40}
+                        maxLength={50}
                         label="Name"
+                    />
+                    <LabelledInput
+                        onChange={handleBioUpdate}
+                        value={bio}
+                        maxLength={160}
+                        maxRows={3}
+                        minRows={3}
+                        label="Bio"
                     />
                 </div>
             </div>

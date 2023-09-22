@@ -123,6 +123,7 @@ export default function Home() {
                                                     name={
                                                         user.name ?? "undefined"
                                                     }
+                                                    bio={bio}
                                                 />,
                                             )
                                         }
