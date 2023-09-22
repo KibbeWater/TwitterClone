@@ -85,14 +85,14 @@ export default function Home() {
                     <div className="w-full pb-[33.3%] bg-neutral-700 relative flex justify-center">
                         {profile?.banner && (
                             <Image
-                                src={profile.banner}
+                                src={profile.banner!}
                                 className={
                                     "absolute h-full w-full p-[auto] top-0 bottom-0 right-0 left-0 object-cover"
                                 }
                                 sizes={"100vw"}
                                 fill
                                 priority
-                                alt={`${profile?.name}'s Banner`}
+                                alt={`${profile.name!}'s Banner`}
                             />
                         )}
                     </div>
@@ -102,11 +102,8 @@ export default function Home() {
                                 <div>
                                     <Image
                                         className="object-cover rounded-full border-[4px] border-white dark:border-black bg-white"
-                                        src={
-                                            profile?.image ??
-                                            "/default_avatar.png"
-                                        }
-                                        alt={`${profile?.name}'s Avatar`}
+                                        src={profile.image!}
+                                        alt={`${profile.name!}'s Avatar`}
                                         sizes={"100vw"}
                                         quality={100}
                                         fill
