@@ -3,6 +3,8 @@ import type { Post } from "@prisma/client";
 import PostFooter from "./PostFooter";
 import Image from "next/image";
 import VerifiedCheck from "../Verified";
+import PostContent from "./PostContent";
+import { useRouter } from "next/router";
 
 function FormatDate(date: Date) {
     const now = new Date();
@@ -38,6 +40,8 @@ export default function PostComponent(p: { post: Post; isRef?: boolean }) {
         quote: Post;
     };
 
+    const router = useRouter();
+
     const user = post.user;
     const avatar = user.image || "/assets/imgs/default-avatar.png";
 
@@ -48,7 +52,10 @@ export default function PostComponent(p: { post: Post; isRef?: boolean }) {
             className={`p-3 mb-px w-full max-w-full relative bg-transparent transition-all cursor-pointer flex hover:bg-gray-500/5 ${
                 isRef ? "!border-0 !bg-transparent hover:!bg-transparent" : ""
             }`}
-            /* onClick={routeAggresive} */
+            onClick={(e) => {
+                e.stopPropagation();
+                router.push(`/post/${post.id}`).catch(console.error);
+            }}
         >
             {/* !isRef ? (
                 <div className="absolute w-7 h-7 right-2 top-2">
@@ -145,7 +152,10 @@ export default function PostComponent(p: { post: Post; isRef?: boolean }) {
             ) : null */}
             <div
                 className="w-12 h-12 relative shrink-0"
-                onClick={() => window.location.assign(`/@${user.tag}`)}
+                onClick={(e) => {
+                    e.stopPropagation();
+                    router.push(`/@${user.tag}`).catch(console.error);
+                }}
             >
                 <div className="w-12 h-12 absolute">
                     <Image
@@ -168,7 +178,7 @@ export default function PostComponent(p: { post: Post; isRef?: boolean }) {
                 /* onClick={routeAggresive} */
             >
                 <div
-                    /* onClick={routeAggresive} */
+                    onClick={(e) => e.stopPropagation()}
                     className={
                         "max-w-full w-full pr-9 flex-nowrap flex overflow-hidden"
                     }
@@ -206,10 +216,7 @@ export default function PostComponent(p: { post: Post; isRef?: boolean }) {
                         {FormatDate(post.createdAt)}
                     </span>
                 </div>
-                <div className="w-full max-w-full">
-                    {/* <PostContent post={post} onClick={routePost} /> */}
-                    <p className="text-black dark:text-white">{post.content}</p>
-                </div>
+                <PostContent post={post} />
                 <div
                     className="w-9/12 aspect-[5/3] mb-2 grid grid-cols-2 rounded-xl overflow-hidden gap-[2px] justify-self-center"
                     style={{

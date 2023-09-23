@@ -38,6 +38,16 @@ export const userRouter = createTRPCRouter({
                             },
                             quote: true,
                             parent: true,
+                            comments: {
+                                select: {
+                                    id: true,
+                                },
+                            },
+                            reposts: {
+                                select: {
+                                    id: true,
+                                },
+                            },
                         },
                     },
                     followers: {

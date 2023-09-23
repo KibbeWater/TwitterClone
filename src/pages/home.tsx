@@ -1,6 +1,6 @@
 import type { Post } from "@prisma/client";
 import { useSession } from "next-auth/react";
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect } from "react";
 
 import PostComponent from "~/components/Post/Post";
 import PostComposer from "~/components/Post/PostComposer";
@@ -31,6 +31,10 @@ export default function Home() {
         await fetchNextPage();
         setPage((prev) => prev + 1);
     }; */
+
+    useEffect(() => {
+        setLocalPosts([]);
+    }, [data]);
 
     // data will be split in pages
     const posts = [

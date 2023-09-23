@@ -61,6 +61,121 @@ export const postRouter = createTRPCRouter({
                         },
                     },
                     quote: true,
+                    comments: {
+                        select: {
+                            id: true,
+                        },
+                    },
+                    reposts: {
+                        select: {
+                            id: true,
+                        },
+                    },
+                },
+            });
+            let nextCursor: typeof cursor | undefined = undefined;
+            if (items.length > (limit ?? 10)) {
+                const nextItem = items.pop();
+                nextCursor = nextItem?.id;
+            }
+            return {
+                items,
+                nextCursor,
+            };
+        }),
+
+    getPost: publicProcedure
+        .input(z.object({ id: z.string() }))
+        .query(async ({ ctx, input }) => {
+            const userSelect = {
+                select: {
+                    id: true,
+                    name: true,
+                    tag: true,
+                    role: true,
+                    verified: true,
+                    image: true,
+                },
+            };
+
+            const post = await ctx.prisma.post.findUnique({
+                where: { id: input.id },
+                include: {
+                    user: userSelect,
+                    quote: true,
+                    comments: {
+                        select: {
+                            id: true,
+                        },
+                    },
+                    reposts: {
+                        select: {
+                            id: true,
+                        },
+                    },
+                    parent: {
+                        include: {
+                            user: userSelect,
+                            quote: true,
+                            parent: {
+                                include: {
+                                    user: userSelect,
+                                    quote: true,
+                                },
+                            },
+                        },
+                    },
+                },
+            });
+
+            if (!post) return null;
+
+            return post;
+        }),
+
+    getCommentPage: publicProcedure
+        .input(
+            z.object({
+                id: z.string(),
+                limit: z.number().optional(),
+                cursor: z.string().nullish(),
+                skip: z.number().optional(),
+            }),
+        )
+        .query(async ({ ctx, input }) => {
+            const { limit, skip, cursor } = input;
+            const items = await ctx.prisma.post.findMany({
+                take: (limit ?? 10) + 1,
+                skip: skip,
+                cursor: cursor ? { id: cursor } : undefined,
+                orderBy: {
+                    createdAt: "desc",
+                },
+                where: {
+                    parentId: input.id,
+                },
+                include: {
+                    user: {
+                        select: {
+                            id: true,
+                            name: true,
+                            tag: true,
+                            role: true,
+                            verified: true,
+                            image: true,
+                        },
+                    },
+                    quote: true,
+                    comments: {
+                        select: {
+                            id: true,
+                        },
+                    },
+                    reposts: {
+                        select: {
+                            id: true,
+                        },
+                    },
                 },
             });
             let nextCursor: typeof cursor | undefined = undefined;
@@ -75,12 +190,18 @@ export const postRouter = createTRPCRouter({
         }),
 
     create: protectedProcedure
-        .input(z.object({ content: z.string().min(1) }))
+        .input(
+            z.object({
+                content: z.string().min(1),
+                parent: z.string().optional(),
+            }),
+        )
         .mutation(async ({ ctx, input }) => {
             return ctx.prisma.post.create({
                 data: {
                     content: input.content,
                     userId: ctx.session.user.id,
+                    parentId: input.parent,
                 },
                 include: {
                     user: {
@@ -94,6 +215,16 @@ export const postRouter = createTRPCRouter({
                         },
                     },
                     quote: true,
+                    comments: {
+                        select: {
+                            id: true,
+                        },
+                    },
+                    reposts: {
+                        select: {
+                            id: true,
+                        },
+                    },
                 },
             });
         }),

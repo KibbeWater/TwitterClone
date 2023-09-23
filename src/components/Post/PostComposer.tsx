@@ -18,6 +18,7 @@ type Props = {
     avatarSize?: number;
     padding?: number;
     quote?: Post;
+    parent?: string;
 };
 
 export default function PostComposer({
@@ -29,6 +30,7 @@ export default function PostComposer({
     avatarSize = 48,
     padding,
     quote,
+    parent,
 }: Props) {
     const [text, setText] = useState("");
     const [tempDisabled, setTempDisabled] = useState(false);
@@ -46,7 +48,7 @@ export default function PostComposer({
 
     const btnPostClick = () => {
         if (isLoading) return;
-        _sendPost({ content: text });
+        _sendPost({ content: text, parent });
     };
 
     const receiveTextUpdate = useCallback<(t: string) => void>(

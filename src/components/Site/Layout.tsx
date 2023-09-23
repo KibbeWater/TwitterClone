@@ -4,6 +4,8 @@ import Navbar from "./Navbar";
 import Filters from "./Filters";
 import LoginBanner from "./LoginBanner";
 import { useSession } from "next-auth/react";
+import { ArrowLeftIcon } from "@heroicons/react/24/solid";
+import { useRouter } from "next/router";
 
 type LayoutProps = {
     title?: string;
@@ -12,6 +14,8 @@ type LayoutProps = {
 
 export default function Layout({ title, children }: LayoutProps) {
     const { status } = useSession();
+
+    const router = useRouter();
 
     return (
         <>
@@ -25,10 +29,20 @@ export default function Layout({ title, children }: LayoutProps) {
                         "flex-1 overflow-y-auto scrollbar-hide dark:bg-black bg-white"
                     }
                 >
-                    <div className="py-4 flex flex-col gap-8 border-b-[1px] border-gray-200 dark:border-gray-700">
-                        <h1 className="text-black dark:text-white ml-4 font-semibold text-xl">
-                            {title}
-                        </h1>
+                    <div className="py-2 flex flex-col gap-8 border-b-[1px] border-gray-200 dark:border-gray-700">
+                        <div className="ml-4 flex items-center gap-4">
+                            {router.pathname !== "/home" && (
+                                <div
+                                    onClick={() => router.back()}
+                                    className="h-full aspect-square rounded-full p-2 hover:bg-gray-600/25 transition-colors bg-transparent cursor-pointer"
+                                >
+                                    <ArrowLeftIcon className="h-6 w-6 text-black dark:text-white" />
+                                </div>
+                            )}
+                            <h1 className="text-black dark:text-white font-semibold text-xl my-2">
+                                {title}
+                            </h1>
+                        </div>
                         {/* <nav className="items-end justify-center flex">
                             <div className="hover:bg-white/30 flex-grow">
                                 <div className="flex flex-col gap-3 justify-between w-min">

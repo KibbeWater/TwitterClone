@@ -17,7 +17,14 @@ import { useEffect, useState } from "react";
 
 import { api } from "~/utils/api";
 
-export default function PostFooter({ post }: { post: Post }) {
+export default function PostFooter({
+    post,
+}: {
+    post: Post & {
+        comments?: { id: string }[];
+        reposts?: { id: string }[];
+    };
+}) {
     const user = useSession().data?.user;
 
     const [localLike, setLocalLike] = useState(false);
@@ -54,7 +61,7 @@ export default function PostFooter({ post }: { post: Post }) {
                     <ChatBubbleOvalLeftEllipsisIcon className="text-black dark:text-white group-hover/btnComment:text-red-500" />
                 </Link>
                 <p className="text-black dark:text-white text-sm">
-                    {/* {post.comments.length} */}123
+                    {post.comments?.length ?? "ERR"}
                 </p>
             </div>
             <div className="flex items-center mr-2">
@@ -62,15 +69,16 @@ export default function PostFooter({ post }: { post: Post }) {
                     className={
                         "border-0 p-1 h-8 w-8 mr-1 rounded-full flex items-center justify-center transition-colors bg-black/0 cursor-pointer hover:bg-[#3cff3c]/40 group/btnRetweet"
                     }
-                    /* onClick={() => {
-                        if (setModal) setModal(<PostModal quote={post} />);
-                    }} */
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        /* if (setModal) setModal(<PostModal quote={post} />); */
+                    }}
                     aria-label="Retweet"
                 >
                     <ArrowUturnRightIcon className="text-black dark:text-white group-hover/btnRetweet:text-green-500" />
                 </button>
                 <p className="text-black dark:text-white text-sm">
-                    {/* {post.retwaats.length} */}123
+                    {post.reposts?.length ?? "ERR"}
                 </p>
             </div>
             <div className="flex items-center mr-2">
@@ -78,7 +86,10 @@ export default function PostFooter({ post }: { post: Post }) {
                     className={
                         "border-0 h-8 w-8 mr-1 p-1 rounded-full flex items-center justify-center transition-colors bg-black/0 cursor-pointer hover:bg-red-500/40 group/btnLike disabled:cursor-default"
                     }
-                    onClick={() => setLike(!hasLiked)}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        setLike(!hasLiked);
+                    }}
                     aria-label="Like"
                 >
                     <HeartIcon
@@ -99,6 +110,7 @@ export default function PostFooter({ post }: { post: Post }) {
                         "border-0 p-1 h-8 w-8 mr-1 rounded-full flex items-center justify-center transition-colors bg-black/0 cursor-pointer hover:bg-red-500/40 group/btnShare disabled:cursor-default"
                     }
                     aria-label="Share"
+                    onClick={(e) => e.stopPropagation()}
                 >
                     <ShareIcon className="text-black dark:text-white group-hover/btnShare:text-red-500" />
                 </button>
