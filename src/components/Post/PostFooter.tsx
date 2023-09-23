@@ -1,8 +1,3 @@
-// Nothing about this file is unsafe and it compiles COMPLETELY fine without these eslint-disable comments
-// But whatever pleases the linter eh?
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import {
     ArrowUturnRightIcon,
     ChatBubbleOvalLeftEllipsisIcon,
@@ -55,7 +50,7 @@ export default function PostFooter({
     const HeartIcon = !hasLiked ? HeartOutline : HeartSolid;
 
     return (
-        <div className={"mt-3 h-8 flex justify-evenly"}>
+        <div className={"mt-3 h-8 w-full flex justify-evenly"}>
             <div className="flex items-center mr-2">
                 <Link
                     href={`/post/${post.id}`}
@@ -76,16 +71,16 @@ export default function PostFooter({
                     }
                     onClick={(e) => {
                         e.stopPropagation();
-                        if (setModal)
-                            setModal(
-                                <PostModal
-                                    quote={post}
-                                    onPost={(p) => {
-                                        if (!onPost) return false;
-                                        return onPost(p);
-                                    }}
-                                />,
-                            );
+
+                        setModal(
+                            <PostModal
+                                quote={post}
+                                onPost={(p) => {
+                                    if (!onPost) return false;
+                                    return onPost(p);
+                                }}
+                            />,
+                        );
                     }}
                     aria-label="Retweet"
                 >

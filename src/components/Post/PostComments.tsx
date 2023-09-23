@@ -53,7 +53,9 @@ export default function PostComments({
             (acc, cur) => [...acc, ...cur.items],
             [] as Post[],
         ) ?? []),
-    ];
+    ].filter((post, index, self) => {
+        return index === self.findIndex((p) => p.id === post.id);
+    });
 
     return (
         <>

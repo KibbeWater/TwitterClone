@@ -1,27 +1,14 @@
 import { XMarkIcon } from "@heroicons/react/20/solid";
 import { CameraIcon } from "@heroicons/react/24/outline";
-import { useCallback, useState, useRef, useEffect } from "react";
-
+import Image from "next/image";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useDropzone } from "react-dropzone";
+
 import { api } from "~/utils/api";
 import { useModal } from "../Handlers/ModalHandler";
 import LabelledInput from "../LabelledInput";
-import Image from "next/image";
 
-// Function to generate 32 character random string
-function generateRandomString() {
-    const randomChars =
-        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    let result = "";
-    for (let i = 0; i < 32; i++) {
-        result += randomChars.charAt(
-            Math.floor(Math.random() * randomChars.length),
-        );
-    }
-    return result;
-}
-
-type FileInfo = { file: Buffer; fileData: File };
+import { useImageUploader } from "../Hooks/ImageUpload";
 
 export default function ProfileEditor({
     name: defName,
@@ -37,19 +24,14 @@ export default function ProfileEditor({
     const [name, setName] = useState(defName);
     const [bio, setBio] = useState(defBio);
     const [avatar, setAvatar] = useState<string>(defAvatar);
-    const [avatarFile, setAvatarFile] = useState<FileInfo | undefined>(
-        undefined,
-    );
+    const [avatarFile, setAvatarFile] = useState<File | undefined>(undefined);
     const [banner, setBanner] = useState<string | undefined | null>(defBanner);
-    const [bannerFile, setBannerFile] = useState<FileInfo | undefined>(
-        undefined,
-    );
+    const [bannerFile, setBannerFile] = useState<File | undefined>(undefined);
 
-    const { data: ruleData } = api.s3.getUploadRules.useQuery();
     const { mutate: _updateProfile } = api.user.updateProfile.useMutation();
-    const { mutate: _uploadImage } = api.s3.startUploadImage.useMutation();
 
-    const { sizes: maxSizes } = ruleData ?? {};
+    const { uploadImage, rules } = useImageUploader();
+    const { sizes: maxSizes } = rules;
 
     const { closeModal } = useModal();
     const { getRootProps: avatarRProps, isDragActive: isAvatarActive } =
@@ -69,7 +51,7 @@ export default function ProfileEditor({
                     setAvatar(
                         `data:image/png;base64,${buf.toString("base64")}`,
                     );
-                    setAvatarFile({ file: buf, fileData: file as File });
+                    setAvatarFile(file as File);
                 };
                 reader.readAsArrayBuffer(file!);
             },
@@ -91,60 +73,13 @@ export default function ProfileEditor({
                     setBanner(
                         `data:image/png;base64,${buf.toString("base64")}`,
                     );
-                    setBannerFile({ file: buf, fileData: file as File });
+                    setBannerFile(file as File);
                 };
                 reader.readAsArrayBuffer(file!);
             },
         });
 
     const bannerRef = useRef<HTMLImageElement>(null);
-
-    const handleImageUpload = useCallback<
-        (file: FileInfo, type: "image" | "banner" | "avatar") => Promise<string>
-    >(
-        (file, type) => {
-            return new Promise((resolve, reject) => {
-                const filename = `${generateRandomString()}.${file.fileData.name
-                    .split(".")
-                    .pop()}`;
-                const filetype = file.fileData.type;
-
-                _uploadImage(
-                    {
-                        type,
-                        filename,
-                        filetype,
-                        filesize: file.fileData.size,
-                    },
-                    {
-                        onSuccess: (uploadInfo) => {
-                            fetch(uploadInfo.url, {
-                                method: "PUT",
-                                body: file.fileData.slice(),
-                                headers: {
-                                    "Content-Type": filetype,
-                                },
-                            })
-                                .then((res) => {
-                                    res.ok
-                                        ? resolve(uploadInfo.cdnURL)
-                                        : reject();
-                                })
-                                .catch(reject);
-                        },
-                        onError: (e) => {
-                            console.error(e);
-                            alert(
-                                "Failed to upload image, check console for more info.",
-                            );
-                            reject(e);
-                        },
-                    },
-                );
-            });
-        },
-        [_uploadImage],
-    );
 
     const handleNameUpdate = useCallback<(t: string) => void>(
         (t) => setName(t),
@@ -159,9 +94,9 @@ export default function ProfileEditor({
     const handleSave = useCallback(async () => {
         const newURLs: { avatar?: string; banner?: string } = {};
         if (bannerFile)
-            newURLs.banner = await handleImageUpload(bannerFile, "banner");
+            newURLs.banner = await uploadImage(bannerFile, "banner");
         if (avatarFile)
-            newURLs.avatar = await handleImageUpload(avatarFile, "avatar");
+            newURLs.avatar = await uploadImage(avatarFile, "avatar");
         _updateProfile(
             {
                 name: defName === name ? undefined : name,
@@ -187,13 +122,12 @@ export default function ProfileEditor({
         _updateProfile,
         bannerFile,
         avatarFile,
-        handleImageUpload,
+        uploadImage,
         closeModal,
     ]);
 
     useEffect(() => {
         if (!bannerRef.current) return;
-        // Attach an onError handler to the image, so that if it fails to load we can hide it
         const banner = bannerRef.current;
 
         bannerRef.current.onerror = () =>

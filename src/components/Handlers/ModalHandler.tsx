@@ -7,9 +7,13 @@ import React, {
     useEffect,
 } from "react";
 
+type SetModalOptions = {
+    bgOverride?: string;
+};
+
 type ModalContextType = {
     modal: React.ReactNode;
-    setModal: (modal: React.ReactNode) => void;
+    setModal: (modal: React.ReactNode, opts?: SetModalOptions) => void;
     closeModal: () => void;
 };
 
@@ -21,6 +25,7 @@ const defaultContext: ModalContextType = {
 const ModalContext = createContext<ModalContextType | undefined>(undefined);
 
 export const useModal = () => useContext(ModalContext) ?? defaultContext;
+const defaultBgColor = "rgba(50, 50, 50, 0.2)";
 
 export default function ModalHandler({
     children,
@@ -28,10 +33,16 @@ export default function ModalHandler({
     children: React.ReactNode;
 }) {
     const [modal, setActiveModal] = useState<React.ReactNode>(null);
+    const [bgOverride, setBgOverride] = useState<string | undefined>(undefined);
 
-    const setModal = useCallback((modal: React.ReactNode) => {
-        setActiveModal(modal);
-    }, []);
+    const setModal = useCallback(
+        (modal: React.ReactNode, opts?: SetModalOptions) => {
+            const { bgOverride } = opts ?? {};
+            setActiveModal(modal);
+            setBgOverride(bgOverride);
+        },
+        [],
+    );
 
     const closeModal = useCallback(() => {
         setModal(null);
@@ -59,7 +70,7 @@ export default function ModalHandler({
                         className="absolute w-full h-full top-0 left-0 flex justify-center items-center transition-all z-50"
                         style={{
                             backgroundColor: modal
-                                ? "rgba(50, 50, 50, 0.2)"
+                                ? bgOverride ?? defaultBgColor
                                 : "rgba(50, 50, 50, 0)",
                         }}
                         onClick={(e) => {

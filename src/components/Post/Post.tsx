@@ -6,6 +6,8 @@ import Image from "next/image";
 import VerifiedCheck from "../Verified";
 import PostContent from "./PostContent";
 import PostFooter from "./PostFooter";
+import { useModal } from "../Handlers/ModalHandler";
+import ImageModal from "../Modals/ImageModal";
 
 function FormatDate(date: Date) {
     const now = new Date();
@@ -43,10 +45,12 @@ export default function PostComponent(p: {
             image: string;
             verified: boolean;
         };
+        reposts: { id: string }[];
         quote: Post;
     };
 
     const router = useRouter();
+    const { setModal } = useModal();
 
     const user = post.user;
     const avatar = user.image || "/assets/imgs/default-avatar.png";
@@ -280,15 +284,18 @@ export default function PostComponent(p: {
                                         /* loader={fullCDNImageLoader} */
                                         quality={70}
                                         priority={true}
-                                        /* onClick={() => {
-                                            if (setModal)
-                                                setModal(
-                                                    <ImageModal
-                                                        src={img}
-                                                        post={post}
-                                                    />,
-                                                );
-                                        }} */
+                                        onClick={() => {
+                                            setModal(
+                                                <ImageModal
+                                                    src={img}
+                                                    post={post}
+                                                />,
+                                                {
+                                                    bgOverride:
+                                                        "rgba(0, 0, 0, 0.7)",
+                                                },
+                                            );
+                                        }}
                                     />
                                 </div>
                             ),

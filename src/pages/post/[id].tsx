@@ -8,6 +8,8 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { useMemo } from "react";
 
+import { useModal } from "~/components/Handlers/ModalHandler";
+import ImageModal from "~/components/Modals/ImageModal";
 import PostComponent from "~/components/Post/Post";
 import PostComments from "~/components/Post/PostComments";
 import PostContent from "~/components/Post/PostContent";
@@ -36,8 +38,11 @@ export default function Page() {
 
     const { data: post } = api.post.getPost.useQuery({ id: postId });
 
+    const { setModal } = useModal();
+
     const user = post?.user;
     const quote = post?.quote;
+    const images = post?.images ?? [];
 
     const parents = useMemo(() => {
         const parents = [];
@@ -126,51 +131,62 @@ export default function Page() {
                 </div>
                 <div className="mx-3 mt-2">
                     <PostContent post={post} />
-                    {/* <div
-                        className="w-full aspect-[5/3] mt-2 grid grid-cols-2 rounded-xl overflow-hidden gap-[2px] justify-self-center border-[1px] border-gray-700"
-                        style={{
-                            display: images.length !== 0 ? "grid" : "none",
-                        }}
-                    >
-                        {images.map((img, i) => (
-                            <div
-                                key={`post-${post._id}-image-${i}`}
-                                className={
-                                    "w-full h-full relative" +
-                                    (images.length == 1 ||
-                                    (images.length == 3 && i == 0)
-                                        ? " row-span-2"
-                                        : "") +
-                                    (images.length == 1 ? " col-span-2" : "")
-                                }
-                            >
-                                <Image
-                                    src={img}
-                                    className={"object-cover w-full h-full"}
-                                    alt={`Album image ${i}`}
-                                    sizes={"100vw"}
-                                    fill
-                                    loader={fullCDNImageLoader}
-                                    onClick={() => {
-                                        if (setModal)
+                    {images.length > 0 && (
+                        <div
+                            className="w-full aspect-[5/3] mt-2 cursor-pointer grid grid-cols-2 rounded-xl overflow-hidden gap-[2px] justify-self-center border-[1px] border-gray-700"
+                            style={{
+                                display: images.length !== 0 ? "grid" : "none",
+                            }}
+                        >
+                            {images.map((img, i) => (
+                                <div
+                                    key={`post-${post.id}-image-${i}`}
+                                    className={
+                                        "w-full h-full relative" +
+                                        (images.length == 1 ||
+                                        (images.length == 3 && i == 0)
+                                            ? " row-span-2"
+                                            : "") +
+                                        (images.length == 1
+                                            ? " col-span-2"
+                                            : "")
+                                    }
+                                >
+                                    <Image
+                                        src={img}
+                                        className={"object-cover w-full h-full"}
+                                        alt={`Album image ${i}`}
+                                        sizes={"100vw"}
+                                        quality={100}
+                                        fill
+                                        onClick={() => {
                                             setModal(
                                                 <ImageModal
                                                     src={img}
                                                     post={post}
                                                 />,
+                                                {
+                                                    bgOverride:
+                                                        "rgba(0, 0, 0, 0.7)",
+                                                },
                                             );
-                                    }}
-                                />
-                            </div>
-                        ))}
-                    </div> */}
+                                        }}
+                                    />
+                                </div>
+                            ))}
+                        </div>
+                    )}
                     {quote ? (
                         <div
                             className={
                                 "group/quote mt-1 pl-1 rounded-md border-[1px] border-gray-700 transition-colors bg-black/0 hover:bg-gray-500/10"
                             }
                         >
-                            <PostComponent post={quote} isRef={true} />
+                            <PostComponent
+                                post={quote}
+                                isRef={true}
+                                mini={true}
+                            />
                         </div>
                     ) : null}
                 </div>

@@ -75,6 +75,16 @@ export const postRouter = createTRPCRouter({
                                     image: true,
                                 },
                             },
+                            comments: {
+                                select: {
+                                    id: true,
+                                },
+                            },
+                            reposts: {
+                                select: {
+                                    id: true,
+                                },
+                            },
                         },
                     },
                     comments: {
@@ -136,7 +146,21 @@ export const postRouter = createTRPCRouter({
                     parent: {
                         include: {
                             user: userSelect,
-                            quote: true,
+                            quote: {
+                                include: {
+                                    user: userSelect,
+                                    comments: {
+                                        select: {
+                                            id: true,
+                                        },
+                                    },
+                                    reposts: {
+                                        select: {
+                                            id: true,
+                                        },
+                                    },
+                                },
+                            },
                             parent: {
                                 include: {
                                     user: userSelect,
@@ -185,7 +209,30 @@ export const postRouter = createTRPCRouter({
                             image: true,
                         },
                     },
-                    quote: true,
+                    quote: {
+                        include: {
+                            user: {
+                                select: {
+                                    id: true,
+                                    name: true,
+                                    tag: true,
+                                    role: true,
+                                    verified: true,
+                                    image: true,
+                                },
+                            },
+                            comments: {
+                                select: {
+                                    id: true,
+                                },
+                            },
+                            reposts: {
+                                select: {
+                                    id: true,
+                                },
+                            },
+                        },
+                    },
                     comments: {
                         select: {
                             id: true,
@@ -215,6 +262,7 @@ export const postRouter = createTRPCRouter({
                 content: z.string().min(1),
                 parent: z.string().optional(),
                 quote: z.string().optional(),
+                images: z.array(z.string()).optional(),
             }),
         )
         .mutation(async ({ ctx, input }) => {
@@ -224,6 +272,7 @@ export const postRouter = createTRPCRouter({
                     userId: ctx.session.user.id,
                     parentId: input.parent,
                     quoteId: input.quote,
+                    images: input.images,
                 },
                 include: {
                     user: {
@@ -246,6 +295,16 @@ export const postRouter = createTRPCRouter({
                                     role: true,
                                     verified: true,
                                     image: true,
+                                },
+                            },
+                            comments: {
+                                select: {
+                                    id: true,
+                                },
+                            },
+                            reposts: {
+                                select: {
+                                    id: true,
                                 },
                             },
                         },
