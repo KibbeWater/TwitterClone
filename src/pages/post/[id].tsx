@@ -7,12 +7,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useMemo } from "react";
-import { useModal } from "~/components/Handlers/ModalHandler";
+
 import PostComponent from "~/components/Post/Post";
 import PostComments from "~/components/Post/PostComments";
 import PostContent from "~/components/Post/PostContent";
 import PostFooter from "~/components/Post/PostFooter";
-
 import Layout from "~/components/Site/Layout";
 import VerifiedCheck from "~/components/Verified";
 
@@ -39,8 +38,6 @@ export default function Page() {
 
     const user = post?.user;
     const quote = post?.quote;
-
-    const { setModal } = useModal();
 
     const parents = useMemo(() => {
         const parents = [];
@@ -166,14 +163,6 @@ export default function Page() {
                                 />
                             </div>
                         ))}
-                    </div>
-                    <div
-                        className="w-full aspect-video mt-2 relative grid grid-cols-2 rounded-xl overflow-hidden gap-[2px] justify-self-center border-[1px] border-gray-700"
-                        style={{
-                            display: videos.length !== 0 ? "block" : "none",
-                        }}
-                    >
-                        {memodVideos}
                     </div> */}
                     {quote ? (
                         <div
@@ -187,7 +176,6 @@ export default function Page() {
                 </div>
                 <div>
                     <div className="flex justify-between mx-3 mt-3">
-                        {/* Format date: h:mm (AM/PM) (dot) M D, Y */}
                         <p className="text-gray-500 text-sm hover:underline cursor-pointer">
                             {new Date(post.createdAt).toLocaleString("en-US", {
                                 hour: "numeric",

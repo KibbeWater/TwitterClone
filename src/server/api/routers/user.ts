@@ -27,6 +27,9 @@ export const userRouter = createTRPCRouter({
                         orderBy: {
                             createdAt: "desc",
                         },
+                        where: {
+                            parent: null,
+                        },
                         include: {
                             user: {
                                 select: {
@@ -36,7 +39,20 @@ export const userRouter = createTRPCRouter({
                                     image: true,
                                 },
                             },
-                            quote: true,
+                            quote: {
+                                include: {
+                                    user: {
+                                        select: {
+                                            id: true,
+                                            name: true,
+                                            tag: true,
+                                            role: true,
+                                            verified: true,
+                                            image: true,
+                                        },
+                                    },
+                                },
+                            },
                             parent: true,
                             comments: {
                                 select: {

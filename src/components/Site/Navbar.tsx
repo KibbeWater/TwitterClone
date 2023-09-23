@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import Image from "next/image";
 import Link from "next/link";
 
@@ -17,9 +16,12 @@ import {
 } from "@heroicons/react/24/outline";
 import { useMemo } from "react";
 import { useRouter } from "next/router";
+import PostModal from "../Modals/PostModal";
+import { useModal } from "../Handlers/ModalHandler";
 
 export default function Navbar() {
     const { data: session } = useSession();
+    const { setModal } = useModal();
 
     const router = useRouter();
 
@@ -95,9 +97,7 @@ export default function Navbar() {
                             "w-16 h-16 lg:h-14 mb-1 rounded-full transition-all flex justify-center items-center text-white cursor-pointer bg-accent-primary-500 hover:bg-accent-primary-400 lg:w-full"
                         }
                         id="btnPost"
-                        /* onClick={() => {
-                            if (setModal) setModal(<PostModal />);
-                        }} */
+                        onClick={() => setModal(<PostModal />)}
                     >
                         <PencilIcon className="m-4 text-2xl text-white transition-all opacity-100 lg:opacity-0 block lg:!hidden" />
                         <span className="hidden transition-all lg:block text-lg font-bold opacity-0 lg:opacity-100 text-white">

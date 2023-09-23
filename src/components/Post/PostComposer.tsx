@@ -48,7 +48,7 @@ export default function PostComposer({
 
     const btnPostClick = () => {
         if (isLoading) return;
-        _sendPost({ content: text, parent });
+        _sendPost({ content: text, parent, quote: quote?.id });
     };
 
     const receiveTextUpdate = useCallback<(t: string) => void>(
@@ -114,10 +114,7 @@ export default function PostComposer({
                         <div className="h-px w-full opacity-50 bg-gray-500" />
                     ) : null}
                     <div className="flex justify-between items-center mt-2 h-min">
-                        <div
-                            className="flex items-center justify-center w-10 h-10 rounded-full transition-colors text-red-500 bg-accent-primary-500/0 hover:bg-accent-primary-500/20 hover:cursor-pointer"
-                            /* onClick={() => uploadMedia()} */
-                        >
+                        <div className="flex items-center justify-center w-10 h-10 rounded-full transition-colors text-red-500 bg-accent-primary-500/0 hover:bg-accent-primary-500/20 hover:cursor-pointer">
                             <PhotoIcon className="m-2" />
                         </div>
                         <div>

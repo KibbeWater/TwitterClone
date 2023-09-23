@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import TextareaAutosize from "react-textarea-autosize";
+import UserContext from "../UserContext";
+import { api } from "~/utils/api";
 
 type TweetAreaProps = {
     placeholder?: string;
@@ -17,27 +19,10 @@ export default function PostTextarea({
     const [text, setText] = useState(value ?? "");
     const [tag, setTag] = useState("");
 
-    /* useEffect(() => {
-        const controller = new AbortController();
-        if (tag.length === 0) return setUsers([]);
-        else
-            import("axios").then((pkg) => {
-                pkg.default
-                    .get<{
-                        success: boolean;
-                        error?: string;
-                        data: SafeUser[];
-                    }>(`/api/search?q=${tag}`, { signal: controller.signal })
-                    .then((res) => {
-                        if (!res.data.success)
-                            return console.error(res.data.error);
-                        setUsers(res.data.data);
-                        console.log(res.data.data);
-                    })
-                    .catch((err) => {});
-            });
-        return () => controller.abort();
-    }, [tag]); */
+    const { data: users } = api.user.findUsers.useQuery(
+        { query: tag },
+        { trpc: { abortOnUnmount: true } },
+    );
 
     const parent = useRef<HTMLDivElement>(null);
 
@@ -93,18 +78,22 @@ export default function PostTextarea({
             /> */}
             {tag && (
                 <div className="min-w-[18rem] max-h-96 min-h-[2rem] shadow-lg rounded-md bg-neutral-50 dark:bg-neutral-950 absolute z-10 overflow-auto overflow-x-hidden">
-                    {/* users.map((usr, idx) => (
-                        <UserEntry
-                            user={usr}
-                            key={`mention-search-result-${usr._id}`}
-                            onClick={(e) => {
-                                setText(
-                                    text.replace(`@${tag}`, `@${usr.tag} `),
-                                );
-                                setTag("");
-                            }}
-                        />
-                    )) */}
+                    {(users ?? []).map((usr) => (
+                        <div
+                            key={`mention-search-result-${usr.id}`}
+                            className="cursor-pointer"
+                        >
+                            <UserContext
+                                user={usr}
+                                onClick={() => {
+                                    setText(
+                                        text.replace(`@${tag}`, `@${usr.tag} `),
+                                    );
+                                    setTag("");
+                                }}
+                            />
+                        </div>
+                    ))}
                 </div>
             )}
         </div>

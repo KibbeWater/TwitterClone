@@ -1,10 +1,11 @@
 import type { Post } from "@prisma/client";
+import { useRouter } from "next/router";
+import { useCallback } from "react";
 
-import PostFooter from "./PostFooter";
 import Image from "next/image";
 import VerifiedCheck from "../Verified";
 import PostContent from "./PostContent";
-import { useRouter } from "next/router";
+import PostFooter from "./PostFooter";
 
 function FormatDate(date: Date) {
     const now = new Date();
@@ -27,8 +28,13 @@ function FormatDate(date: Date) {
         });
 }
 
-export default function PostComponent(p: { post: Post; isRef?: boolean }) {
-    const { isRef } = p;
+export default function PostComponent(p: {
+    post: Post;
+    isRef?: boolean;
+    mini?: boolean;
+    onMutate?: (post: Post) => void;
+}) {
+    const { isRef, mini, onMutate } = p;
     const post = p.post as Post & {
         user: {
             id: string;
@@ -46,6 +52,16 @@ export default function PostComponent(p: { post: Post; isRef?: boolean }) {
     const avatar = user.image || "/assets/imgs/default-avatar.png";
 
     const images = post.images;
+
+    const handleMutation = useCallback(
+        (post: Post) => {
+            if (onMutate) {
+                onMutate?.(post);
+                return true;
+            } else return false;
+        },
+        [onMutate],
+    );
 
     return (
         <div
@@ -150,39 +166,54 @@ export default function PostComponent(p: { post: Post; isRef?: boolean }) {
                     </LazyMotionWrapper>
                 </div>
             ) : null */}
-            <div
-                className="w-12 h-12 relative shrink-0"
-                onClick={(e) => {
-                    e.stopPropagation();
-                    router.push(`/@${user.tag}`).catch(console.error);
-                }}
-            >
-                <div className="w-12 h-12 absolute">
-                    <Image
-                        className={
-                            "w-full h-full rounded-full object-cover cursor-pointer transition-opacity hover:opacity-80"
-                        }
-                        src={avatar}
-                        alt={`${user.tag}'s avatar`}
-                        placeholder="blur"
-                        blurDataURL="/assets/imgs/default-avatar.png"
-                        quality={70}
-                        width={48}
-                        height={48}
-                    />
+            {!mini && (
+                <div
+                    className="w-12 h-12 relative shrink-0"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        router.push(`/@${user.tag}`).catch(console.error);
+                    }}
+                >
+                    <div className="w-12 h-12 absolute">
+                        <Image
+                            className={
+                                "w-full h-full rounded-full object-cover cursor-pointer transition-opacity hover:opacity-80"
+                            }
+                            src={avatar}
+                            alt={`${user.tag}'s avatar`}
+                            placeholder="blur"
+                            blurDataURL="/assets/imgs/default-avatar.png"
+                            quality={70}
+                            width={48}
+                            height={48}
+                        />
+                    </div>
                 </div>
-            </div>
+            )}
 
             <div
-                className={"pl-3 w-full flex flex-col overflow-hidden"}
-                /* onClick={routeAggresive} */
+                className={`${
+                    mini ? "" : "pl-3"
+                } w-full flex flex-col overflow-hidden`}
             >
                 <div
                     onClick={(e) => e.stopPropagation()}
                     className={
-                        "max-w-full w-full pr-9 flex-nowrap flex overflow-hidden"
+                        "max-w-full w-full pr-9 flex-nowrap flex overflow-hidden items-center"
                     }
                 >
+                    {mini && (
+                        <Image
+                            className={
+                                "h-6 w-6 mr-1 rounded-full object-cover cursor-pointer transition-opacity hover:opacity-80"
+                            }
+                            src={avatar}
+                            alt={`${user.tag}'s avatar`}
+                            quality={20}
+                            width={24}
+                            height={24}
+                        />
+                    )}
                     <a
                         className={
                             "text-black dark:text-white " +
@@ -279,10 +310,14 @@ export default function PostComponent(p: { post: Post; isRef?: boolean }) {
                             "group/quote mt-1 pl-1 rounded-md border-[1px] border-gray-700 transition-colors bg-black/0 hover:bg-gray-500/10 w-full"
                         }
                     >
-                        <PostComponent post={post.quote} isRef={true} />
+                        <PostComponent
+                            post={post.quote}
+                            isRef={true}
+                            mini={true}
+                        />
                     </div>
                 )}
-                {isRef ?? <PostFooter post={post} />}
+                {isRef ?? <PostFooter post={post} onPost={handleMutation} />}
             </div>
         </div>
     );

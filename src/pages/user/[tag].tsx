@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import type { Post } from "@prisma/client";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
@@ -61,17 +59,6 @@ export default function Home() {
     useEffect(() => {
         setIsFollowing(isUserFollowing(user, profile));
     }, [user, profile]);
-
-    /* return (
-        <Layout title={user?.name ?? "Loading..."}>
-            <h1>
-                Your username is{" "}
-                {user?.name ?? (isError ? "NOTFOUND" : "loading...")} (@
-                {user?.tag ?? (isError ? "NOTFOUND" : "loading...")})
-            </h1>
-            <h1>Verified?: {user?.verified ? "✅" : "❌"}</h1>
-        </Layout>
-    ); */
 
     const isMe = user?.id === profile?.id && user?.id !== undefined;
     const bio = profile?.bio ?? "";

@@ -51,7 +51,7 @@ export default function ProfileEditor({
 
     const { sizes: maxSizes } = ruleData ?? {};
 
-    const { setModal } = useModal();
+    const { closeModal } = useModal();
     const { getRootProps: avatarRProps, isDragActive: isAvatarActive } =
         useDropzone({
             multiple: false,
@@ -170,7 +170,7 @@ export default function ProfileEditor({
                 banner: newURLs.banner,
             },
             {
-                onSuccess: () => setModal(null),
+                onSuccess: () => closeModal(),
                 onError: (e) => {
                     console.error(e);
                     alert(
@@ -180,7 +180,6 @@ export default function ProfileEditor({
             },
         );
     }, [
-        setModal,
         defBio,
         bio,
         defName,
@@ -189,6 +188,7 @@ export default function ProfileEditor({
         bannerFile,
         avatarFile,
         handleImageUpload,
+        closeModal,
     ]);
 
     useEffect(() => {
@@ -220,7 +220,7 @@ export default function ProfileEditor({
                 <div className="flex items-center gap-8 mx-4">
                     <XMarkIcon
                         className="dark:text-white w-6 h-6 cursor-pointer"
-                        onClick={() => setModal(null)}
+                        onClick={() => closeModal()}
                     />
                     <h2 className="dark:text-white text-xl font-bold">
                         Edit profile

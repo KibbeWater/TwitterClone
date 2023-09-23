@@ -16,16 +16,21 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { api } from "~/utils/api";
+import { useModal } from "../Handlers/ModalHandler";
+import PostModal from "../Modals/PostModal";
 
 export default function PostFooter({
     post,
+    onPost,
 }: {
     post: Post & {
         comments?: { id: string }[];
         reposts?: { id: string }[];
     };
+    onPost?: (post: Post) => boolean;
 }) {
     const user = useSession().data?.user;
+    const { setModal } = useModal();
 
     const [localLike, setLocalLike] = useState(false);
     const [hasLiked, setHasLiked] = useState(
@@ -71,7 +76,16 @@ export default function PostFooter({
                     }
                     onClick={(e) => {
                         e.stopPropagation();
-                        /* if (setModal) setModal(<PostModal quote={post} />); */
+                        if (setModal)
+                            setModal(
+                                <PostModal
+                                    quote={post}
+                                    onPost={(p) => {
+                                        if (!onPost) return false;
+                                        return onPost(p);
+                                    }}
+                                />,
+                            );
                     }}
                     aria-label="Retweet"
                 >

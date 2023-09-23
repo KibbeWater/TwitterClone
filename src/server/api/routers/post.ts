@@ -49,6 +49,9 @@ export const postRouter = createTRPCRouter({
                 orderBy: {
                     createdAt: "desc",
                 },
+                where: {
+                    parent: null,
+                },
                 include: {
                     user: {
                         select: {
@@ -60,7 +63,20 @@ export const postRouter = createTRPCRouter({
                             image: true,
                         },
                     },
-                    quote: true,
+                    quote: {
+                        include: {
+                            user: {
+                                select: {
+                                    id: true,
+                                    name: true,
+                                    tag: true,
+                                    role: true,
+                                    verified: true,
+                                    image: true,
+                                },
+                            },
+                        },
+                    },
                     comments: {
                         select: {
                             id: true,
@@ -102,7 +118,11 @@ export const postRouter = createTRPCRouter({
                 where: { id: input.id },
                 include: {
                     user: userSelect,
-                    quote: true,
+                    quote: {
+                        include: {
+                            user: userSelect,
+                        },
+                    },
                     comments: {
                         select: {
                             id: true,
@@ -194,6 +214,7 @@ export const postRouter = createTRPCRouter({
             z.object({
                 content: z.string().min(1),
                 parent: z.string().optional(),
+                quote: z.string().optional(),
             }),
         )
         .mutation(async ({ ctx, input }) => {
@@ -202,6 +223,7 @@ export const postRouter = createTRPCRouter({
                     content: input.content,
                     userId: ctx.session.user.id,
                     parentId: input.parent,
+                    quoteId: input.quote,
                 },
                 include: {
                     user: {
@@ -214,7 +236,20 @@ export const postRouter = createTRPCRouter({
                             image: true,
                         },
                     },
-                    quote: true,
+                    quote: {
+                        include: {
+                            user: {
+                                select: {
+                                    id: true,
+                                    name: true,
+                                    tag: true,
+                                    role: true,
+                                    verified: true,
+                                    image: true,
+                                },
+                            },
+                        },
+                    },
                     comments: {
                         select: {
                             id: true,
