@@ -16,6 +16,7 @@ export default function PostComments({
     onPost?: (post: Post) => void;
 }) {
     const [localPosts, setLocalPosts] = useState<Post[]>([]);
+    const [deletedPosts, setDeletedPosts] = useState<string[]>([]);
 
     const { data, fetchNextPage, isLoading } =
         api.post.getCommentPage.useInfiniteQuery(
@@ -53,9 +54,11 @@ export default function PostComments({
             (acc, cur) => [...acc, ...cur.items],
             [] as Post[],
         ) ?? []),
-    ].filter((post, index, self) => {
-        return index === self.findIndex((p) => p.id === post.id);
-    });
+    ]
+        .filter((post, index, self) => {
+            return index === self.findIndex((p) => p.id === post.id);
+        })
+        .filter((post) => !deletedPosts.includes(post.id));
 
     return (
         <>
@@ -76,7 +79,12 @@ export default function PostComments({
                     key={`post-${reply.id}`}
                     className="border-b-[1px] border-gray-200 dark:border-gray-700 w-full"
                 >
-                    <PostComponent post={reply} />
+                    <PostComponent
+                        post={reply}
+                        onDeleted={() =>
+                            setDeletedPosts((p) => [...p, reply.id])
+                        }
+                    />
                 </div>
             ))}
             <div

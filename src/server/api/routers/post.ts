@@ -61,6 +61,8 @@ export const postRouter = createTRPCRouter({
                             role: true,
                             verified: true,
                             image: true,
+                            followerIds: true,
+                            followingIds: true,
                         },
                     },
                     quote: {
@@ -73,6 +75,8 @@ export const postRouter = createTRPCRouter({
                                     role: true,
                                     verified: true,
                                     image: true,
+                                    followerIds: true,
+                                    followingIds: true,
                                 },
                             },
                             comments: {
@@ -121,6 +125,8 @@ export const postRouter = createTRPCRouter({
                     role: true,
                     verified: true,
                     image: true,
+                    followerIds: true,
+                    followingIds: true,
                 },
             };
 
@@ -207,6 +213,8 @@ export const postRouter = createTRPCRouter({
                             role: true,
                             verified: true,
                             image: true,
+                            followerIds: true,
+                            followingIds: true,
                         },
                     },
                     quote: {
@@ -219,6 +227,8 @@ export const postRouter = createTRPCRouter({
                                     role: true,
                                     verified: true,
                                     image: true,
+                                    followerIds: true,
+                                    followingIds: true,
                                 },
                             },
                             comments: {
@@ -283,6 +293,8 @@ export const postRouter = createTRPCRouter({
                             role: true,
                             verified: true,
                             image: true,
+                            followerIds: true,
+                            followingIds: true,
                         },
                     },
                     quote: {
@@ -295,6 +307,8 @@ export const postRouter = createTRPCRouter({
                                     role: true,
                                     verified: true,
                                     image: true,
+                                    followerIds: true,
+                                    followingIds: true,
                                 },
                             },
                             comments: {
@@ -320,6 +334,17 @@ export const postRouter = createTRPCRouter({
                         },
                     },
                 },
+            });
+        }),
+
+    delete: protectedProcedure
+        .input(z.object({ id: z.string() }))
+        .mutation(async ({ ctx, input }) => {
+            console.log(ctx.session.user);
+            if (ctx.session.user.role !== "ADMIN")
+                return new Error("You are not an admin");
+            return await ctx.prisma.post.delete({
+                where: { id: input.id },
             });
         }),
 

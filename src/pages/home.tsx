@@ -13,6 +13,7 @@ import { api } from "~/utils/api";
 
 export default function Home() {
     const [localPosts, setLocalPosts] = useState<Post[]>([]);
+    const [deletedPosts, setDeletedPosts] = useState<string[]>([]);
 
     const { status } = useSession();
 
@@ -40,6 +41,7 @@ export default function Home() {
 
     useEffect(() => {
         setLocalPosts([]);
+        setDeletedPosts([]);
     }, [data]);
 
     const posts = [
@@ -48,9 +50,11 @@ export default function Home() {
             (acc, cur) => [...acc, ...cur.items],
             [] as Post[],
         ) ?? []),
-    ].filter((post, index, self) => {
-        return index === self.findIndex((p) => p.id === post.id);
-    });
+    ]
+        .filter((post, index, self) => {
+            return index === self.findIndex((p) => p.id === post.id);
+        })
+        .filter((post) => !deletedPosts.includes(post.id));
 
     return (
         <Layout title="Home">
@@ -65,7 +69,13 @@ export default function Home() {
                         key={`post-${post.id}`}
                         className="border-b-[1px] border-gray-200 dark:border-gray-700 w-full"
                     >
-                        <PostComponent post={post} onMutate={onPost} />
+                        <PostComponent
+                            post={post}
+                            onMutate={onPost}
+                            onDeleted={() =>
+                                setDeletedPosts((p) => [...p, post.id])
+                            }
+                        />
                     </div>
                 ))}
                 {posts.length <= 0 && (

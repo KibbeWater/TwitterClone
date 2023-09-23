@@ -1,13 +1,27 @@
+import { EllipsisHorizontalIcon, UserIcon } from "@heroicons/react/24/solid";
 import type { Post } from "@prisma/client";
-import { useRouter } from "next/router";
-import { useCallback } from "react";
-
+import { m as motion } from "framer-motion";
 import Image from "next/image";
+import { useRouter } from "next/router";
+import { useCallback, useState, useEffect } from "react";
+
+import { useModal } from "../Handlers/ModalHandler";
+import { LazyMotionWrapper } from "../LazyMotionWrapper";
+import ImageModal from "../Modals/ImageModal";
 import VerifiedCheck from "../Verified";
 import PostContent from "./PostContent";
 import PostFooter from "./PostFooter";
-import { useModal } from "../Handlers/ModalHandler";
-import ImageModal from "../Modals/ImageModal";
+import { useSession } from "next-auth/react";
+import { api } from "~/utils/api";
+import { TrashIcon } from "@heroicons/react/24/outline";
+
+function isUserFollowing(
+    user: { id: string } | undefined,
+    profile: { followerIds: string[] } | undefined,
+) {
+    if (!user || !profile) return false;
+    return profile.followerIds.find((u) => u === user.id) !== undefined;
+}
 
 function FormatDate(date: Date) {
     const now = new Date();
@@ -35,8 +49,17 @@ export default function PostComponent(p: {
     isRef?: boolean;
     mini?: boolean;
     onMutate?: (post: Post) => void;
+    onDeleted?: () => void;
 }) {
-    const { isRef, mini, onMutate } = p;
+    const [optionsActive, setOptionsActive] = useState(false);
+    const [loading, setLoading] = useState(false);
+
+    const { data: session } = useSession();
+
+    const { mutate: _setFollowing } = api.followers.setFollowing.useMutation();
+    const { mutate: _deletePost } = api.post.delete.useMutation();
+
+    const { isRef, mini, onMutate, onDeleted } = p;
     const post = p.post as Post & {
         user: {
             id: string;
@@ -44,6 +67,7 @@ export default function PostComponent(p: {
             name: string;
             image: string;
             verified: boolean;
+            followerIds: string[];
         };
         reposts: { id: string }[];
         quote: Post;
@@ -57,6 +81,9 @@ export default function PostComponent(p: {
 
     const images = post.images;
 
+    const isMe =
+        post.user.id === session?.user.id && session?.user !== undefined;
+
     const handleMutation = useCallback(
         (post: Post) => {
             if (onMutate) {
@@ -65,6 +92,32 @@ export default function PostComponent(p: {
             } else return false;
         },
         [onMutate],
+    );
+
+    const [isFollowing, setIsFollowing] = useState(
+        isUserFollowing(session?.user, post.user),
+    );
+
+    useEffect(() => {
+        setIsFollowing(isUserFollowing(user, post.user));
+    }, [user, post]);
+
+    const setFollowing = useCallback(
+        (shouldFollow: boolean) => {
+            if (!post?.user) return;
+
+            const oldFollow = isFollowing;
+            setIsFollowing(shouldFollow);
+
+            _setFollowing(
+                { id: post.user.id, shouldFollow },
+                {
+                    onSuccess: () => setIsFollowing(shouldFollow),
+                    onError: () => setIsFollowing(oldFollow),
+                },
+            );
+        },
+        [post, _setFollowing, isFollowing],
     );
 
     return (
@@ -77,11 +130,14 @@ export default function PostComponent(p: {
                 router.push(`/post/${post.id}`).catch(console.error);
             }}
         >
-            {/* !isRef ? (
+            {!isRef ? (
                 <div className="absolute w-7 h-7 right-2 top-2">
                     <div
                         className="w-7 h-7 rounded-full hover:bg-black/20 flex justify-center items-center"
-                        onClick={() => setOptionsActive((prev) => !prev)}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            setOptionsActive((prev) => !prev);
+                        }}
                     >
                         <EllipsisHorizontalIcon
                             className={"text-black dark:text-white"}
@@ -93,7 +149,8 @@ export default function PostComponent(p: {
                             className={
                                 "absolute top-7 right-0 w-max py-3 bg-gray-100 dark:bg-neutral-900 shadow-lg rounded-2xl cursor-default overflow-hidden z-20 flex flex-col"
                             }
-                            Animate using clip to slowly reveal
+                            onClick={(e) => e.stopPropagation()}
+                            /* Animate using clip to slowly reveal */
                             initial={{ opacity: 0, maxHeight: 0 }}
                             variants={{
                                 enter: { opacity: 1, maxHeight: 120 },
@@ -110,57 +167,41 @@ export default function PostComponent(p: {
                                         setLoading(true);
                                         const curFollowing = isFollowing;
                                         setIsFollowing(!isFollowing);
-                                        CreateRelationship(
-                                            user._id.toString(),
-                                            isFollowing ? "remove" : "follow",
-                                        )
-                                            .then(() => {
-                                                setLoading(false);
-                                                if (mutateMe) mutateMe();
-                                            })
-                                            .catch(() => {
-                                                setLoading(false);
-                                                setIsFollowing(curFollowing);
-                                            });
+                                        setFollowing(!curFollowing);
                                     }}
                                 >
                                     <p className="text-black dark:text-white font-semibold leading-none">
                                         <span className="mr-1">
-                                            <FontAwesomeSvgIcon
-                                                icon={faUser}
+                                            <UserIcon
                                                 className={
                                                     "text-black dark:text-white"
                                                 }
                                             />
                                         </span>{" "}
                                         {!isFollowing
-                                            ? `Follow @${user.username}`
-                                            : `Unfollow @${user.username}`}
+                                            ? `Follow @${user?.name}`
+                                            : `Unfollow @${user?.name}`}
                                     </p>
                                 </button>
                             ) : null}
-                            {isMe || isAdmin ? (
+                            {isMe || session?.user.role === "ADMIN" ? (
                                 <button
                                     disabled={loading || !optionsActive}
                                     className="w-full px-6 py-2 text-center enabled:hover:bg-black/5 enabled:cursor-pointer transition-colors grow-0"
                                     onClick={() => {
                                         setLoading(true);
-                                        DeletePost(post._id.toString())
-                                            .then(() => {
-                                                if (onMutate) onMutate(post);
-                                            })
-                                            .catch((err) => {
-                                                alert(err);
-                                                setLoading(false);
-                                            });
+                                        _deletePost(
+                                            { id: post.id },
+                                            {
+                                                onSuccess: () => onDeleted?.(),
+                                                onError: (err) => alert(err),
+                                            },
+                                        );
                                     }}
                                 >
-                                    <p className="text-red-500 font-semibold leading-none">
+                                    <p className="text-red-500 font-semibold leading-none whitespace-nowrap flex items-center">
                                         <span className="mr-1">
-                                            <FontAwesomeSvgIcon
-                                                icon={faTrash}
-                                                color={"red"}
-                                            />
+                                            <TrashIcon className="text-red-500 h-5 w-5" />
                                         </span>{" "}
                                         Delete Post
                                     </p>
@@ -169,7 +210,7 @@ export default function PostComponent(p: {
                         </motion.div>
                     </LazyMotionWrapper>
                 </div>
-            ) : null */}
+            ) : null}
             {!mini && (
                 <div
                     className="w-12 h-12 relative shrink-0"
@@ -194,7 +235,6 @@ export default function PostComponent(p: {
                     </div>
                 </div>
             )}
-
             <div
                 className={`${
                     mini ? "" : "pl-3"
@@ -281,7 +321,6 @@ export default function PostComponent(p: {
                                         alt={`Album image ${i}`}
                                         sizes={"100vw"}
                                         fill
-                                        /* loader={fullCDNImageLoader} */
                                         quality={70}
                                         priority={true}
                                         onClick={() => {

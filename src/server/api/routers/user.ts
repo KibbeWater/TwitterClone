@@ -37,6 +37,8 @@ export const userRouter = createTRPCRouter({
                                     name: true,
                                     tag: true,
                                     image: true,
+                                    followerIds: true,
+                                    followingIds: true,
                                 },
                             },
                             quote: {
@@ -49,6 +51,8 @@ export const userRouter = createTRPCRouter({
                                             role: true,
                                             verified: true,
                                             image: true,
+                                            followerIds: true,
+                                            followingIds: true,
                                         },
                                     },
                                 },
@@ -80,6 +84,8 @@ export const userRouter = createTRPCRouter({
                             tag: true,
                         },
                     },
+                    followerIds: true,
+                    followingIds: true,
                 },
             });
 

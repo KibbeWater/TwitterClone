@@ -14,7 +14,6 @@ import { useInView } from "react-intersection-observer";
 
 import { useModal } from "../Handlers/ModalHandler";
 import PostComposer from "../Post/PostComposer";
-import PostModal from "./PostModal";
 
 import { api } from "~/utils/api";
 
@@ -30,6 +29,7 @@ export default function ImageModal({
 }) {
     const [commentsOpen, setCommentsOpen] = useState(true);
     const [localPosts, setLocalPosts] = useState<Post[]>([]);
+    const [deletedPosts, setDeletedPosts] = useState<string[]>([]);
 
     const { data: session } = useSession();
     const user = session?.user;
@@ -64,9 +64,11 @@ export default function ImageModal({
             (acc, cur) => [...acc, ...cur.items],
             [] as Post[],
         ) ?? []),
-    ].filter((post, index, self) => {
-        return index === self.findIndex((p) => p.id === post.id);
-    });
+    ]
+        .filter((post, index, self) => {
+            return index === self.findIndex((p) => p.id === post.id);
+        })
+        .filter((post) => !deletedPosts.includes(post.id));
 
     if (!post) return;
 
@@ -226,7 +228,12 @@ export default function ImageModal({
                         key={reply.id}
                         className="border-b-[1px] border-gray-200 dark:border-gray-700 w-full"
                     >
-                        <PostComponent post={reply} />
+                        <PostComponent
+                            post={reply}
+                            onDeleted={() =>
+                                setDeletedPosts((p) => [...p, reply.id])
+                            }
+                        />
                     </div>
                 ))}
                 <div
