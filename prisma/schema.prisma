@@ -1,0 +1,82 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "mongodb"
+    url      = env("DATABASE_URL")
+}
+
+model Post {
+    id        String   @id @default(auto()) @map("_id") @db.ObjectId
+    user      User     @relation(name: "PostToAuthor", fields: [userId], references: [id], onDelete: Cascade)
+    userId    String   @db.ObjectId
+    content   String
+    parent    Post?    @relation(name: "PostToPost", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+    parentId  String?  @db.ObjectId
+    comments  Post[]   @relation(name: "PostToPost")
+    quote     Post?    @relation(name: "RepostToPost", fields: [quoteId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+    quoteId   String?  @db.ObjectId
+    reposts   Post[]   @relation(name: "RepostToPost")
+    likeIDs   String[] @db.ObjectId
+    likes     User[]   @relation(name: "LikeToPost", fields: [likeIDs], references: [id])
+    images    String[]
+    videos    String[]
+    createdAt DateTime @default(now())
+}
+
+model Account {
+    id                String  @id @default(auto()) @map("_id") @db.ObjectId
+    userId            String  @unique @db.ObjectId
+    type              String
+    provider          String
+    providerAccountId String
+    refresh_token     String? // @db.Text
+    access_token      String? // @db.Text
+    expires_at        Int?
+    token_type        String?
+    scope             String?
+    id_token          String? // @db.Text
+    session_state     String?
+    user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@unique([provider, providerAccountId])
+}
+
+model Session {
+    id           String   @id @default(auto()) @map("_id") @db.ObjectId
+    sessionToken String   @unique
+    userId       String   @unique @db.ObjectId
+    expires      DateTime
+    user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+    id            String    @id @default(auto()) @map("_id") @db.ObjectId
+    name          String?
+    tag           String?   @unique @default(cuid())
+    bio           String?   @default("")
+    email         String?   @unique
+    emailVerified DateTime?
+    banner        String?
+    image         String?   @default("/assets/imgs/default-avatar.png")
+    role          String?   @default("USER")
+    verified      Boolean?  @default(false)
+    posts         Post[]    @relation(name: "PostToAuthor")
+    accounts      Account[]
+    sessions      Session[]
+    likes         Post[]    @relation(name: "LikeToPost", fields: [likedPosts], references: [id])
+    likedPosts    String[]  @db.ObjectId
+    followers     User[]    @relation(name: "FollowToUser", fields: [followerIds], references: [id])
+    followerIds   String[]  @db.ObjectId
+    following     User[]    @relation(name: "FollowToUser", fields: [followingIds], references: [id])
+    followingIds  String[]  @db.ObjectId
+}
+
+model VerificationToken {
+    identifier String   @id @default(auto()) @map("_id") @db.ObjectId
+    token      String   @unique
+    expires    DateTime
+
+    @@unique([identifier, token])
+}
