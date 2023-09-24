@@ -1,7 +1,7 @@
 import { XMarkIcon } from "@heroicons/react/20/solid";
 import { CameraIcon } from "@heroicons/react/24/outline";
 import Image from "next/image";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useMemo } from "react";
 import { useDropzone } from "react-dropzone";
 
 import { api } from "~/utils/api";
@@ -9,6 +9,8 @@ import { useModal } from "../Handlers/ModalHandler";
 import LabelledInput from "../LabelledInput";
 
 import { useImageUploader } from "../Hooks/ImageUpload";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/router";
 
 export default function ProfileEditor({
     name: defName,
@@ -22,11 +24,15 @@ export default function ProfileEditor({
     banner: string | undefined | null;
 }) {
     const [name, setName] = useState(defName);
+    const [tag, setTag] = useState<string | undefined>(undefined);
     const [bio, setBio] = useState(defBio);
     const [avatar, setAvatar] = useState<string>(defAvatar);
     const [avatarFile, setAvatarFile] = useState<File | undefined>(undefined);
     const [banner, setBanner] = useState<string | undefined | null>(defBanner);
     const [bannerFile, setBannerFile] = useState<File | undefined>(undefined);
+
+    const { data: session, update: _updateSession } = useSession();
+    const router = useRouter();
 
     const { mutate: _updateProfile } = api.user.updateProfile.useMutation();
 
@@ -86,10 +92,22 @@ export default function ProfileEditor({
         [setName],
     );
 
+    const handleTagUpdate = useCallback<(t: string) => void>(
+        (t) => setTag(t.toLowerCase()),
+        [setTag],
+    );
+
     const handleBioUpdate = useCallback<(t: string) => void>(
         (t) => setBio(t),
         [setBio],
     );
+
+    useEffect(() => {
+        setTag((p) => {
+            if (!p) return session?.user?.tag;
+            return p;
+        });
+    }, [session?.user]);
 
     const handleSave = useCallback(async () => {
         const newURLs: { avatar?: string; banner?: string } = {};
@@ -103,14 +121,20 @@ export default function ProfileEditor({
                 bio: defBio === bio ? undefined : bio,
                 image: newURLs.avatar,
                 banner: newURLs.banner,
+                tag: tag === session?.user?.tag ? undefined : tag,
             },
             {
-                onSuccess: () => closeModal(),
+                onSuccess: () => {
+                    if (tag !== session?.user?.tag)
+                        router
+                            .push("/")
+                            .then(() => _updateSession())
+                            .catch(console.error);
+                    closeModal();
+                },
                 onError: (e) => {
                     console.error(e);
-                    alert(
-                        "Failed to update profile, check console for more info.",
-                    );
+                    alert(e.message);
                 },
             },
         );
@@ -119,11 +143,15 @@ export default function ProfileEditor({
         bio,
         defName,
         name,
+        tag,
+        session?.user?.tag,
         _updateProfile,
         bannerFile,
         avatarFile,
         uploadImage,
         closeModal,
+        router,
+        _updateSession,
     ]);
 
     useEffect(() => {
@@ -144,6 +172,16 @@ export default function ProfileEditor({
 
         banner.style.removeProperty("display");
     }, [banner]);
+
+    const tagRegex = useMemo(() => /^[a-zA-Z0-9_-]{0,16}$/, []);
+    const softTagRegex = useMemo(() => /^[a-zA-Z0-9_-]{3,16}$/, []);
+
+    const tagResetDate = new Date(
+        new Date(session?.user.lastTagReset ?? 0).getTime() +
+            30 * 24 * 60 * 60 * 1000,
+    );
+
+    const isTagResetPast = tagResetDate.getTime() < Date.now();
 
     return (
         <div
@@ -232,6 +270,24 @@ export default function ProfileEditor({
                         maxLength={50}
                         label="Name"
                     />
+                    <div className="relative">
+                        {!isTagResetPast && (
+                            <p className="absolute -top-[calc(1em+0.25rem)] text-xs text-gray-500 ml-2">
+                                Next tag change on{" "}
+                                {tagResetDate.toLocaleString()}
+                            </p>
+                        )}
+                        <LabelledInput
+                            onChange={handleTagUpdate}
+                            value={tag}
+                            maxLength={16}
+                            label="Tag"
+                            disabled={!session?.user || !isTagResetPast}
+                            validator={(t) => tagRegex.test(t)}
+                            softValidator={(t) => softTagRegex.test(t)}
+                            placeholder={session?.user ? undefined : "..."}
+                        />
+                    </div>
                     <LabelledInput
                         onChange={handleBioUpdate}
                         value={bio}

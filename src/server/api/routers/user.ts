@@ -135,13 +135,34 @@ export const userRouter = createTRPCRouter({
                 bio: z.string().optional(),
                 image: z.string().optional(),
                 banner: z.string().optional(),
+                tag: z.string().optional(),
             }),
         )
         .mutation(async ({ ctx, input }) => {
             const { id } = ctx.session.user;
-            return await ctx.prisma.user.update({
-                where: { id },
-                data: input,
-            });
+            if (input.tag) {
+                const tag = input.tag.toLowerCase();
+                const tagExists = await ctx.prisma.user.findUnique({
+                    where: { tag },
+                });
+
+                if (tagExists) throw new Error("Tag already exists");
+                if (/^[a-zA-Z0-9_-]{3,16}$/.test(tag) === false)
+                    throw new Error("Invalid tag");
+
+                const lastTagReset = new Date(ctx.session.user.lastTagReset);
+                const now = new Date();
+                const diff = now.getTime() - lastTagReset.getTime();
+
+                if (diff > 2592000000) {
+                    return await ctx.prisma.user.update({
+                        where: { id },
+                        data: { tag, lastTagReset: now.toISOString() },
+                    });
+                } else {
+                    throw new Error("Tag change cooldown not met");
+                }
+            }
+            return await ctx.prisma.user.update({ where: { id }, data: input });
         }),
 });

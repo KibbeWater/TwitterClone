@@ -1,27 +1,33 @@
-import Image from "next/image";
-import Link from "next/link";
-
-import { useSession } from "next-auth/react";
-
 import {
-    UserIcon as UserSolid,
-    BellIcon as BellSolid,
-    HomeIcon as HomeSolid,
-    PencilIcon,
-} from "@heroicons/react/24/solid";
-import {
-    UserIcon as UserOutline,
     BellIcon as BellOutline,
     HomeIcon as HomeOutline,
+    UserIcon as UserOutline,
 } from "@heroicons/react/24/outline";
-import { useMemo } from "react";
+import {
+    BellIcon as BellSolid,
+    EllipsisHorizontalIcon,
+    HomeIcon as HomeSolid,
+    PencilIcon,
+    UserIcon as UserSolid,
+    MoonIcon,
+    SunIcon,
+} from "@heroicons/react/24/solid";
+import { signOut, useSession } from "next-auth/react";
+import { useTheme } from "next-themes";
+import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/router";
-import PostModal from "../Modals/PostModal";
+import { useMemo, useState } from "react";
+
 import { useModal } from "../Handlers/ModalHandler";
+import PostModal from "../Modals/PostModal";
 
 export default function Navbar() {
+    const [activateUserPanel, setActivateUserPanel] = useState(false);
+
     const { data: session } = useSession();
     const { setModal } = useModal();
+    const { theme, setTheme } = useTheme();
 
     const router = useRouter();
 
@@ -47,6 +53,8 @@ export default function Navbar() {
             },
         ];
     }, [session]);
+
+    const user = session?.user;
 
     return (
         <nav
@@ -105,8 +113,8 @@ export default function Navbar() {
                         </span>
                     </button>
                 </div>
-                {/* <div className="flex items-end mb-2 sm:mr-4 mr-2 h-full">
-                    {user ? (
+                <div className="flex items-end mb-2 sm:mr-4 mr-2 h-full">
+                    {session?.user ? (
                         <div
                             className={
                                 "w-16 h-16 text-white lg:w-full relative"
@@ -117,14 +125,14 @@ export default function Navbar() {
                                     "h-full w-full rounded-full transition-all hover:bg-gray-500/10" +
                                     " cursor-pointer flex justify-between items-center mb-1 px-2"
                                 }
-                                onClick={() => setActivateUserPanel()}
+                                onClick={() => setActivateUserPanel((p) => !p)}
                             >
                                 <div className="flex items-center justify-center">
                                     <div className="w-11 h-11 relative">
                                         <div className="w-11 h-11 absolute">
                                             <Image
                                                 src={
-                                                    user?.avatar ||
+                                                    user?.image ??
                                                     "/assets/imgs/default-avatar.png"
                                                 }
                                                 alt={"Your Avatar"}
@@ -137,14 +145,13 @@ export default function Navbar() {
 
                                     <div className="ml-2 flex flex-col items-start">
                                         <p className="hidden transition-all lg:block font-bold opacity-0 lg:opacity-100 text-black dark:text-white leading-[1.1]">
-                                            {user?.username}
+                                            {user?.name}
                                         </p>
                                         <p className="hidden transition-all lg:block opacity-0 lg:opacity-100 w-min text-gray-600 leading-[1.1]">{`@${user?.tag}`}</p>
                                     </div>
                                 </div>
                                 <div className="mr-2 hidden lg:block">
-                                    <FontAwesomeSvgIcon
-                                        icon={faEllipsis}
+                                    <EllipsisHorizontalIcon
                                         className={"text-black dark:text-white"}
                                     />
                                 </div>
@@ -161,9 +168,7 @@ export default function Navbar() {
                                         className="w-full pl-4 pr-2 h-8 hover:bg-gray-500/20 transition-all flex items-center"
                                         disabled={!activateUserPanel}
                                         onClick={() => {
-                                            window.location.assign(
-                                                "/api/logout",
-                                            );
+                                            signOut().catch(console.error);
                                         }}
                                     >
                                         <p className="text-left font-semibold text-black dark:text-white leading-none">
@@ -182,28 +187,26 @@ export default function Navbar() {
                                         }}
                                     >
                                         {theme === "dark" ? (
-                                            <p className="text-left font-semibold text-black dark:text-white leading-none">
+                                            <p className="text-left font-semibold text-black dark:text-white leading-none flex items-center">
                                                 <span>
-                                                    <FontAwesomeSvgIcon
-                                                        icon={faSun}
+                                                    <SunIcon
                                                         className={
-                                                            "text-black dark:text-white mr-1"
+                                                            "text-black dark:text-white mr-1 w-5 h-5"
                                                         }
                                                     />
                                                 </span>{" "}
                                                 Light Mode
                                             </p>
                                         ) : (
-                                            <p className="text-left font-semibold text-black dark:text-white leading-none">
+                                            <p className="text-left font-semibold text-black dark:text-white leading-none flex items-center">
                                                 <span>
-                                                    <FontAwesomeSvgIcon
-                                                        icon={faMoon}
+                                                    <MoonIcon
                                                         className={
-                                                            "text-black dark:text-white mr-1"
+                                                            "text-black dark:text-white mr-1 w-5 h-5"
                                                         }
                                                     />
                                                 </span>{" "}
-                                                Dark Mode (BETA)
+                                                Dark Mode
                                             </p>
                                         )}
                                     </button>
@@ -211,7 +214,7 @@ export default function Navbar() {
                             </div>
                         </div>
                     ) : null}
-                </div> */}
+                </div>
             </div>
         </nav>
     );

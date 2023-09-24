@@ -24,12 +24,14 @@ declare module "next-auth" {
             tag: string;
             // ...other properties
             role: UserRole;
+            lastTagReset: string;
         };
     }
 
     interface User {
         tag: string;
         role: UserRole;
+        lastTagReset: string;
     }
 
     type UserRole = "USER" | "ADMIN";
@@ -63,6 +65,7 @@ export const authOptions: NextAuthOptions = {
                 ...session.user,
                 id: user.id,
                 tag: user.tag,
+                lastTagReset: user.lastTagReset,
                 role: user.role,
             },
         }),
@@ -98,7 +101,7 @@ export const authOptions: NextAuthOptions = {
                 httpOnly: true,
                 sameSite: "none",
                 path: "/",
-                secure: env.NODE_ENV === "production",
+                secure: true,
             },
         },
     },

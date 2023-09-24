@@ -5,28 +5,42 @@ export default function LabelledInput({
     className = "",
     label,
     value,
+    placeholder,
     maxLength = -1,
     minRows = -1,
     maxRows = -1,
+    disabled = false,
+    validator,
+    softValidator,
     onChange,
 }: {
     className?: string;
     label: string;
     value?: string;
+    placeholder?: string;
     maxLength?: number;
     minRows?: number;
     maxRows?: number;
+    disabled?: boolean;
+    validator?: (text: string) => boolean;
+    softValidator?: (text: string) => boolean;
     onChange?: (text: string) => void;
 }) {
     const [text, setText] = useState(value ?? "");
+
+    const handleTextChange = (newText: string) => {
+        if (newText.length > maxLength && maxLength !== -1) return;
+        if (validator && !validator(newText)) return;
+        setText(newText);
+    };
 
     useEffect(() => {
         onChange?.(text);
     }, [text, onChange]);
 
     useEffect(() => {
-        if (value !== undefined) setText(value);
-    }, [value]);
+        if (value !== undefined) setText(value.slice(0, maxLength));
+    }, [value, maxLength]);
 
     const inputRef = useRef<HTMLInputElement>(null);
     const textAreaRef = useRef<HTMLTextAreaElement>(null);
@@ -46,35 +60,41 @@ export default function LabelledInput({
                     {label}
                 </p>
                 {maxLength !== -1 && (
-                    <p className="text-gray-500 text-xs hidden group-focus-within/lbl:block">
+                    <p
+                        className={`${
+                            !softValidator || softValidator(text)
+                                ? "text-gray-500"
+                                : "text-red-500"
+                        } text-xs hidden group-focus-within/lbl:block`}
+                    >
                         {text.length}/{maxLength}
                     </p>
                 )}
             </div>
             {maxRows !== -1 || minRows !== -1 ? (
                 <TextareaAutosize
-                    className="dark:text-white dark:caret-white bg-transparent w-full resize-none group focus:outline-none"
+                    className={`dark:text-white dark:caret-white bg-transparent w-full resize-none group focus:outline-none ${
+                        disabled ? "!text-gray-500" : ""
+                    }"}`}
                     ref={textAreaRef}
                     maxRows={maxRows === -1 ? undefined : maxRows}
                     minRows={maxRows === -1 ? undefined : minRows}
                     value={text}
-                    onChange={(e) =>
-                        e.target.value.length <= maxLength || maxLength === -1
-                            ? setText(e.target.value)
-                            : null
-                    }
+                    disabled={disabled}
+                    placeholder={placeholder}
+                    onChange={(e) => handleTextChange(e.target.value)}
                 />
             ) : (
                 <input
-                    className="dark:text-white dark:caret-white bg-transparent w-full group focus:outline-none"
+                    className={`dark:text-white dark:caret-white bg-transparent w-full group focus:outline-none ${
+                        disabled ? "!text-gray-500" : ""
+                    }`}
                     type="text"
                     ref={inputRef}
                     value={text}
-                    onChange={(e) =>
-                        e.target.value.length <= maxLength || maxLength === -1
-                            ? setText(e.target.value)
-                            : null
-                    }
+                    disabled={disabled}
+                    placeholder={placeholder}
+                    onChange={(e) => handleTextChange(e.target.value)}
                 />
             )}
         </div>
