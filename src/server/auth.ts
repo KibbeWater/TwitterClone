@@ -42,6 +42,21 @@ declare module "next-auth" {
  */
 export const authOptions: NextAuthOptions = {
     callbacks: {
+        signIn: async (user) => {
+            const { name, image, id } = user.user;
+            if (!name || !image)
+                await prisma.user.update({
+                    where: { id },
+                    data: {
+                        name: !name ? "User" : undefined,
+                        image: !image
+                            ? "/assets/imgs/default-avatar.png"
+                            : undefined,
+                    },
+                });
+
+            return true;
+        },
         session: ({ session, user }) => ({
             ...session,
             user: {

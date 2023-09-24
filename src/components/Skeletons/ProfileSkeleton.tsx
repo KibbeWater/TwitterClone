@@ -34,7 +34,7 @@ export default function ProfileSkeleton() {
                     </div>
                 </div>
                 <div className="flex flex-col items-center">
-                    {[...Array<number>(10)].map((i: number) => {
+                    {[...Array<number>(10)].map((_, i) => {
                         return <PostSkeleton key={`postskeleton-${i}`} />;
                     })}
                 </div>
