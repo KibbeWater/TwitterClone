@@ -191,10 +191,16 @@ export default function Home() {
                         </p>
                         <div className="flex my-2">
                             <p className="m-0 mr-2 text-black dark:text-white">
-                                <span className="font-bold">0</span> Following
+                                <span className="font-bold">
+                                    {profile?.followingIds.length ?? 0}
+                                </span>{" "}
+                                Following
                             </p>
                             <p className="m-0 mr-2 text-black dark:text-white">
-                                <span className="font-bold">0</span> Followers
+                                <span className="font-bold">
+                                    {profile?.followerIds.length ?? 0}
+                                </span>{" "}
+                                Followers
                             </p>
                         </div>
                     </div>

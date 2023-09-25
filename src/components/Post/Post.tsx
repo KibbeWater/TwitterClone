@@ -170,11 +170,11 @@ export default function PostComponent(p: {
                                         setFollowing(!curFollowing);
                                     }}
                                 >
-                                    <p className="text-black dark:text-white font-semibold leading-none">
+                                    <p className="text-black dark:text-white font-semibold leading-none flex items-center">
                                         <span className="mr-1">
                                             <UserIcon
                                                 className={
-                                                    "text-black dark:text-white"
+                                                    "text-black dark:text-white h-5 w-5"
                                                 }
                                             />
                                         </span>{" "}

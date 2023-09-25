@@ -152,7 +152,9 @@ export default function Navbar() {
                                 </div>
                                 <div className="mr-2 hidden lg:block">
                                     <EllipsisHorizontalIcon
-                                        className={"text-black dark:text-white"}
+                                        className={
+                                            "text-black dark:text-white w-5 h-5"
+                                        }
                                     />
                                 </div>
                             </button>
