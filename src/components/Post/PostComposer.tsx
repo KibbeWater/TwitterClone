@@ -54,6 +54,7 @@ export default function PostComposer({
     const user = session?.user;
 
     const selectImageRef = useRef<HTMLInputElement>(null);
+    const textareaRef = useRef<HTMLTextAreaElement>(null);
 
     const btnPostClick = () => {
         if (isLoading) return;
@@ -115,6 +116,57 @@ export default function PostComposer({
         setTempDisabled(false);
     }, [text]);
 
+    useEffect(() => {
+        const ev = (e: ClipboardEvent) => {
+            console.log(images);
+            if (document.activeElement !== textareaRef.current) return;
+            if (images.length >= 4)
+                return alert("You can only upload 4 images!");
+
+            const items = e.clipboardData?.items;
+            if (items) {
+                for (const item of items) {
+                    if (item.kind === "file") {
+                        const file = item.getAsFile();
+                        if (file) {
+                            if (file.size > maxSizes.image)
+                                return alert(
+                                    "The max upload size is " +
+                                        maxSizes.image / 1048576,
+                                );
+
+                            if (!types.includes(file.type))
+                                return alert("Only images allowed!!");
+
+                            const reader = new FileReader();
+                            reader.onload = () => {
+                                const buf = Buffer.from(
+                                    reader.result as ArrayBuffer,
+                                );
+                                setImages((a) => [
+                                    ...a,
+                                    {
+                                        file,
+                                        uri: `data:image/png;base64,${buf.toString(
+                                            "base64",
+                                        )}`,
+                                    },
+                                ]);
+                            };
+                            reader.readAsArrayBuffer(file);
+                        }
+                    }
+                }
+            }
+        };
+
+        document.addEventListener("paste", ev);
+
+        return () => {
+            document.removeEventListener("paste", ev);
+        };
+    }, [maxSizes.image, types, images]);
+
     if (!user) return null;
 
     return (
@@ -153,6 +205,7 @@ export default function PostComposer({
                         inline={inline}
                         value={text}
                         onChange={receiveTextUpdate}
+                        ref={textareaRef}
                     />
                     {quote ? (
                         <div
@@ -200,8 +253,8 @@ export default function PostComposer({
                                     />
                                     <div
                                         className={
-                                            "absolute top-2 left-2 z-10 w-7 h-7 flex justify-center items-center rounded-full" +
-                                            " backdrop-blur-md bg-black/60 hover:bg-black/40 cursor-pointer p-1"
+                                            "absolute top-2 right-2 z-10 w-7 h-7 flex justify-center items-center rounded-full" +
+                                            " backdrop-blur-md bg-neutral-900/60 hover:bg-neutral-700/40 transition-colors cursor-pointer p-1"
                                         }
                                         onClick={() =>
                                             setImages((prev) =>
@@ -211,12 +264,20 @@ export default function PostComposer({
                                     >
                                         <XMarkIcon className="text-white" />
                                     </div>
+                                    <button
+                                        className={
+                                            "absolute bottom-2 right-2 z-10 px-4 text-sm font-bold h-7 flex justify-center items-center rounded-full" +
+                                            " backdrop-blur-md bg-neutral-900/60 hover:bg-neutral-700/40 transition-colors cursor-pointer p-1 text-white"
+                                        }
+                                    >
+                                        Edit
+                                    </button>
                                 </div>
                             ))}
                         </div>
                     )}
                     {!inline ? (
-                        <div className="h-px w-full opacity-50 bg-gray-500" />
+                        <div className="h-px w-full mt-3 opacity-50 bg-gray-500" />
                     ) : null}
                     <div className="flex justify-between items-center mt-2 h-min">
                         <div

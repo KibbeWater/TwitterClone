@@ -14,7 +14,7 @@ import PostComponent from "~/components/Post/Post";
 import PostComments from "~/components/Post/PostComments";
 import PostContent from "~/components/Post/PostContent";
 import PostFooter from "~/components/Post/PostFooter";
-import Layout from "~/components/Site/Layout";
+import Layout from "~/components/Site/Layouts/Layout";
 import VerifiedCheck from "~/components/Verified";
 
 import { api } from "~/utils/api";
@@ -221,9 +221,9 @@ export default function Page() {
                             Likes
                         </p>
                     </div>
-                    <div className="h-px grow mx-3 my-3 bg-gray-500/30" />
+                    <div className="h-px grow mx-3 my-3 bg-gray-200 dark:bg-gray-700" />
                     <PostFooter post={post} />
-                    <div className="h-px grow mx-3 my-3 bg-gray-500/30" />
+                    <div className="h-px grow mx-3 my-3 bg-gray-200 dark:bg-gray-700" />
                 </div>
                 <PostComments post={post} />
             </div>

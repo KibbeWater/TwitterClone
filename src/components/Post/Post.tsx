@@ -150,7 +150,6 @@ export default function PostComponent(p: {
                                 "absolute top-7 right-0 w-max py-3 bg-gray-100 dark:bg-neutral-900 shadow-lg rounded-2xl cursor-default overflow-hidden z-20 flex flex-col"
                             }
                             onClick={(e) => e.stopPropagation()}
-                            /* Animate using clip to slowly reveal */
                             initial={{ opacity: 0, maxHeight: 0 }}
                             variants={{
                                 enter: { opacity: 1, maxHeight: 120 },
@@ -293,11 +292,10 @@ export default function PostComponent(p: {
                 </div>
                 <PostContent post={post} />
                 <div
-                    className="w-9/12 aspect-[5/3] mb-2 grid grid-cols-2 rounded-xl overflow-hidden gap-[2px] justify-self-center"
+                    className="w-9/12 aspect-[5/3] mb-2 grid grid-cols-2 rounded-xl overflow-hidden gap-[2px] justify-self-center border-[1px] border-gray-200 dark:border-gray-700"
                     style={{
                         display: images.length !== 0 ? "grid" : "none",
                     }}
-                    /* onClick={routeAggresive} */
                 >
                     {images.map(
                         (img, i) =>
@@ -316,7 +314,7 @@ export default function PostComponent(p: {
                                     }
                                 >
                                     <Image
-                                        src={img + "?format=webp"}
+                                        src={img}
                                         className={"object-cover w-full h-full"}
                                         alt={`Album image ${i}`}
                                         sizes={"100vw"}
@@ -340,20 +338,12 @@ export default function PostComponent(p: {
                             ),
                     )}
                 </div>
-                {/* <div
-                    className="w-9/12 aspect-video relative grid grid-cols-2 rounded-xl overflow-hidden gap-[2px] justify-self-center border-[1px] border-gray-700"
-                    style={{
-                        display: videos.length !== 0 ? "block" : "none",
-                    }}
-                >
-                    {memodVideos}
-                </div> */}
                 {!post.quoteId || isRef ? (
                     <></>
                 ) : (
                     <div
                         className={
-                            "group/quote mt-1 pl-1 rounded-md border-[1px] border-gray-700 transition-colors bg-black/0 hover:bg-gray-500/10 w-full"
+                            "group/quote mt-1 pl-1 rounded-xl border-[1px] border-gray-200 dark:border-gray-700 transition-colors bg-black/0 hover:bg-gray-500/10 w-full"
                         }
                     >
                         <PostComponent

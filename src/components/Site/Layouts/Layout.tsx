@@ -1,8 +1,8 @@
 import Head from "next/head";
 
-import Navbar from "./Navbar";
-import Filters from "./Filters";
-import LoginBanner from "./LoginBanner";
+import Navbar from "../Navbar";
+import Filters from "../Filters";
+import LoginBanner from "../LoginBanner";
 import { useSession } from "next-auth/react";
 import { ArrowLeftIcon } from "@heroicons/react/24/solid";
 import { useRouter } from "next/router";

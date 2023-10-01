@@ -27,7 +27,7 @@ export default function PostModal({
     return (
         <div
             className={
-                "bg-white dark:bg-black w-[45%] rounded-xl flex flex-col"
+                "bg-white dark:bg-black lg:w-[35%] md:w-1/3 w-5/6 rounded-xl flex flex-col"
             }
         >
             <div className={"h-10 p-1 flex justify-end"}>

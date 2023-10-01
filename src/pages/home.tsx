@@ -6,7 +6,7 @@ import { useInView } from "react-intersection-observer";
 
 import PostComponent from "~/components/Post/Post";
 import PostComposer from "~/components/Post/PostComposer";
-import Layout from "~/components/Site/Layout";
+import Layout from "~/components/Site/Layouts/Layout";
 import PostSkeleton from "~/components/Skeletons/PostSkeleton";
 
 import { api } from "~/utils/api";

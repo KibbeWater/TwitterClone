@@ -7,7 +7,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useModal } from "~/components/Handlers/ModalHandler";
 import ProfileEditor from "~/components/Modals/ProfileEditor";
 import PostComponent from "~/components/Post/Post";
-import Layout from "~/components/Site/Layout";
+import Layout from "~/components/Site/Layouts/Layout";
 import ProfileSkeleton from "~/components/Skeletons/ProfileSkeleton";
 import VerifiedCheck from "~/components/Verified";
 
@@ -68,7 +68,7 @@ export default function Home() {
     return (
         <Layout title={profile?.name ?? "Loading..."}>
             <div>
-                <div className="border-b-[1px] border-gray-500">
+                <div className="border-b-[1px] border-gray-200 dark:border-gray-700">
                     <div className="w-full pb-[33.3%] bg-neutral-700 relative flex justify-center">
                         {profile?.banner && (
                             <Image
@@ -171,33 +171,37 @@ export default function Home() {
                     <div className="mx-3 pb-3">
                         <h3 className="font-bold leading-none text-lg text-black dark:text-white flex items-center">
                             {profile?.name}
-                            {profile?.verified ? <VerifiedCheck /> : null}
+                            {profile?.verified ? (
+                                <VerifiedCheck className="ml-1   w-5 h-5" />
+                            ) : null}
                         </h3>
-                        <p className="mt-1 text-base leading-none text-gray-500">{`@${profile?.tag}`}</p>
-                        <p className="my-1 mt-3 text-black dark:text-white">
-                            {bio.split("\n").map((line, i) => {
-                                return (
-                                    <>
-                                        <span
-                                            key={`bio-${i}`}
-                                            className="block"
-                                        >
-                                            {line}
-                                        </span>
-                                        {line === "" ? <br /> : null}
-                                    </>
-                                );
-                            })}
-                        </p>
-                        <div className="flex my-2">
-                            <p className="m-0 mr-2 text-black dark:text-white">
-                                <span className="font-bold">
+                        <p className="mt-[2px] text-base leading-none text-neutral-500">{`@${profile?.tag}`}</p>
+                        {bio !== "" && bio !== undefined && (
+                            <p className="my-1 mt-3 text-black dark:text-white leading-snug text-sm">
+                                {bio.split("\n").map((line, i) => {
+                                    return (
+                                        <>
+                                            <span
+                                                key={`bio-${i}`}
+                                                className="block"
+                                            >
+                                                {line}
+                                            </span>
+                                            {line === "" ? <br /> : null}
+                                        </>
+                                    );
+                                })}
+                            </p>
+                        )}
+                        <div className="flex my-2 text-sm">
+                            <p className="m-0 mr-2 text-neutral-500 hover:underline cursor-pointer">
+                                <span className="font-bold text-black dark:text-white">
                                     {profile?.followingIds.length ?? 0}
                                 </span>{" "}
                                 Following
                             </p>
-                            <p className="m-0 mr-2 text-black dark:text-white">
-                                <span className="font-bold">
+                            <p className="m-0 mr-2 text-neutral-500 hover:underline cursor-pointer">
+                                <span className="font-bold text-black dark:text-white">
                                     {profile?.followerIds.length ?? 0}
                                 </span>{" "}
                                 Followers

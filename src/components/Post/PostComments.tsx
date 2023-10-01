@@ -62,7 +62,7 @@ export default function PostComments({
 
     return (
         <>
-            <div className="mt-2 flex">
+            <div className="mt-2 pb-3 flex border-b-[1px] border-gray-200 dark:border-gray-700">
                 <PostComposer
                     inline={true}
                     padding={12}
@@ -70,9 +70,7 @@ export default function PostComments({
                     btnText={"Reply"}
                     parent={post.id}
                     onPost={handlePost}
-                >
-                    <div className="h-px grow mt-3 bg-gray-700" />
-                </PostComposer>
+                />
             </div>
             {posts.map((reply: Post) => (
                 <div

@@ -1,4 +1,4 @@
-import Layout from "../Site/Layout";
+import Layout from "../Site/Layouts/Layout";
 import PostSkeleton from "./PostSkeleton";
 
 export default function ProfileSkeleton() {

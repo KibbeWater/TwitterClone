@@ -113,7 +113,7 @@ export default function Navbar() {
                         </span>
                     </button>
                 </div>
-                <div className="flex items-end mb-2 sm:mr-4 mr-2 h-full">
+                <div className="flex items-end mb-2 sm:mr-4 mr-2 h-full ml-2">
                     {session?.user ? (
                         <div
                             className={
@@ -123,7 +123,7 @@ export default function Navbar() {
                             <button
                                 className={
                                     "h-full w-full rounded-full transition-all hover:bg-gray-500/10" +
-                                    " cursor-pointer flex justify-between items-center mb-1 px-2"
+                                    " cursor-pointer flex lg:justify-between justify-center items-center mb-1 px-2"
                                 }
                                 onClick={() => setActivateUserPanel((p) => !p)}
                             >
@@ -138,19 +138,19 @@ export default function Navbar() {
                                                 alt={"Your Avatar"}
                                                 sizes={"100vw"}
                                                 fill
-                                                className={"rounded-full h-"}
+                                                className={"rounded-full"}
                                             />
                                         </div>
                                     </div>
 
-                                    <div className="ml-2 flex flex-col items-start">
+                                    <div className="ml-2 flex-col items-start hidden lg:flex">
                                         <p className="hidden transition-all lg:block font-bold opacity-0 lg:opacity-100 text-black dark:text-white leading-[1.1]">
                                             {user?.name}
                                         </p>
                                         <p className="hidden transition-all lg:block opacity-0 lg:opacity-100 w-min text-gray-600 leading-[1.1]">{`@${user?.tag}`}</p>
                                     </div>
                                 </div>
-                                <div className="mr-2 hidden lg:block">
+                                <div className="hidden lg:block lg:mr-2">
                                     <EllipsisHorizontalIcon
                                         className={
                                             "text-black dark:text-white w-5 h-5"

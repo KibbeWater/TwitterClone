@@ -216,9 +216,14 @@ export default function ProfileEditor({
                     {...bannerRProps()}
                     className={`w-full pb-[33.3%] bg-neutral-700 relative flex justify-center${
                         isBannerActive
-                            ? " mx-[2px] !w-[calc(100% - 4px)] outline-dashed outline-[2px] outline-accent-primary-500"
+                            ? " mx-[2px] outline-dashed outline-[2px] outline-accent-primary-500"
                             : ""
                     }`}
+                    style={{
+                        width: isBannerActive
+                            ? "calc(100% - 4px)!important"
+                            : undefined,
+                    }}
                 >
                     {banner && (
                         <Image
@@ -228,7 +233,7 @@ export default function ProfileEditor({
                             fill={true}
                             ref={bannerRef}
                             className={
-                                "absolute h-full w-full p-[auto] top-0 bottom-0 right-0 left-0 object-cover"
+                                "absolute h-full w-full top-0 bottom-0 right-0 left-0 object-cover"
                             }
                         />
                     )}
