@@ -102,7 +102,7 @@ export default function Navbar() {
                     ))}
                     <button
                         className={
-                            "w-16 h-16 lg:h-14 mb-1 rounded-full transition-all flex justify-center items-center text-white cursor-pointer bg-accent-primary-500 hover:bg-accent-primary-400 lg:w-full"
+                            "w-16 h-16 lg:h-14 mb-1 rounded-full transition-all flex justify-center items-center text-white cursor-pointer bg-accent-primary-500 hover:bg-accent-primary-700 lg:w-full"
                         }
                         id="btnPost"
                         onClick={() => setModal(<PostModal />)}

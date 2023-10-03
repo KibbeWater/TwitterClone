@@ -7,7 +7,7 @@ export default {
             colors: {
                 accent: {
                     primary: {
-                        400: "rgb(219, 27, 27)",
+                        700: "rgb(219, 27, 27)",
                         500: "rgb(240, 29, 29)",
                     },
                 },

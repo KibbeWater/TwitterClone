@@ -1,16 +1,17 @@
-import { XMarkIcon } from "@heroicons/react/20/solid";
-import { CameraIcon } from "@heroicons/react/24/outline";
+import { useSession } from "next-auth/react";
 import Image from "next/image";
-import { useCallback, useEffect, useRef, useState, useMemo } from "react";
+import { useRouter } from "next/router";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDropzone } from "react-dropzone";
 
-import { api } from "~/utils/api";
-import { useModal } from "../Handlers/ModalHandler";
-import LabelledInput from "../LabelledInput";
+import { XMarkIcon } from "@heroicons/react/20/solid";
+import { CameraIcon } from "@heroicons/react/24/outline";
 
+import { api } from "~/utils/api";
+import { usernameRegex } from "~/utils/regexStandards";
+import { useModal } from "../Handlers/ModalHandler";
 import { useImageUploader } from "../Hooks/ImageUpload";
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/router";
+import LabelledInput from "../LabelledInput";
 
 export default function ProfileEditor({
     name: defName,
@@ -174,7 +175,7 @@ export default function ProfileEditor({
     }, [banner]);
 
     const tagRegex = useMemo(() => /^[a-zA-Z0-9_-]{0,16}$/, []);
-    const softTagRegex = useMemo(() => /^[a-zA-Z0-9_-]{3,16}$/, []);
+    const softTagRegex = useMemo(() => usernameRegex, []);
 
     const tagResetDate = new Date(
         new Date(session?.user.lastTagReset ?? 0).getTime() +
