@@ -1,11 +1,14 @@
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
+import { User } from "@prisma/client";
 import { type GetServerSidePropsContext } from "next";
 import {
     getServerSession,
     type DefaultSession,
     type NextAuthOptions,
+    Awaitable,
 } from "next-auth";
 import AppleProvider from "next-auth/providers/apple";
+import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvide from "next-auth/providers/google";
 
 import { env } from "~/env.mjs";
@@ -72,6 +75,36 @@ export const authOptions: NextAuthOptions = {
     },
     adapter: PrismaAdapter(prisma),
     providers: [
+        CredentialsProvider({
+            name: "Credentials",
+
+            credentials: {
+                username: { label: "Username", type: "text" },
+                password: { label: "Password", type: "password" },
+            },
+
+            // fuck you NextAuth, genuinely, fuck you
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            authorize: async (credentials, req) => {
+                try {
+                    const { username, password } = credentials as {
+                        username: string;
+                        password: string;
+                    };
+
+                    if (!username || !password) return null;
+
+                    const user = await prisma.user.findUnique({
+                        where: { tag: username },
+                    });
+
+                    return null;
+                } catch (error) {
+                    return null;
+                }
+            },
+        }),
         AppleProvider({
             clientId: env.APPLE_ID,
             clientSecret: env.APPLE_SECRET,
