@@ -8,7 +8,7 @@ export default function FollowingModal({
     user,
     followType,
 }: {
-    user?: { id: string };
+    user?: { id: string; name: string };
     followType: "followers" | "following";
 }) {
     const { closeModal } = useModal();
@@ -31,7 +31,9 @@ export default function FollowingModal({
             >
                 <div className="h-full flex items-center justify-center ml-2">
                     <h1 className="font-semibold leading-none">
-                        {followType === "followers" ? "Followers" : "Following"}
+                        {followType === "followers"
+                            ? `${user?.name}'s Followers`
+                            : `${user?.name}'s Following`}
                     </h1>
                 </div>
 
