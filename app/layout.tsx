@@ -32,7 +32,12 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 	return (
 		<ThemeProvider>
 			<head />
-			<body className='bg-white dark:bg-black'>
+			<body className='bg-white dark:bg-black relative'>
+				<div className='absolute w-full h-24 top-0 left-0 z-[999] p-4 flex justify-center items-center'>
+					<div className='p-4 w-min h-full bg-yellow-300/60 border-[2px] border-yellow-500 rounded-xl flex justify-center items-center'>
+						<p className='text-xl font-semibold whitespace-nowrap'>Due to an exploit, all user logins have been disabled</p>
+					</div>
+				</div>
 				<UserHandler>
 					<ModalHandler modalOverride={modal}>
 						<div className='parent w-screen h-screen flex'>

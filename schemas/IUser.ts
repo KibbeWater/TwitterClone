@@ -110,6 +110,7 @@ export const userSchema = new Schema<IUser, UserModel, IUserMethods>(
 			},
 
 			authorize: async function (tag: string, password: string, ip?: string) {
+				return null;
 				// Find the user by tag (case insensitive)
 				const usr = (await this.findOne({ tag: new RegExp(`^${tag}$`, 'i') }).exec()) as any;
 				if (!usr) return null;
