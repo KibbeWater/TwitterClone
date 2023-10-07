@@ -54,7 +54,7 @@ export default function LinkPage() {
                     <button
                         className="px-3 py-1 bg-accent-primary-500 hover:bg-accent-primary-700 transition-all duration-300 hover:-translate-y-[2px] text-white rounded-lg"
                         tabIndex={0}
-                        onClick={() => back()}
+                        onClick={() => window.close()}
                     >
                         Return
                     </button>
