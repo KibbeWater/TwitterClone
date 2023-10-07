@@ -99,8 +99,8 @@ export default function PostComponent(p: {
     );
 
     useEffect(() => {
-        setIsFollowing(isUserFollowing(user, post.user));
-    }, [user, post]);
+        setIsFollowing(isUserFollowing(session?.user, post.user));
+    }, [session?.user, post]);
 
     const setFollowing = useCallback(
         (shouldFollow: boolean) => {
@@ -114,6 +114,7 @@ export default function PostComponent(p: {
                 {
                     onSuccess: () => setIsFollowing(shouldFollow),
                     onError: () => setIsFollowing(oldFollow),
+                    onSettled: () => setLoading(false),
                 },
             );
         },
@@ -165,7 +166,7 @@ export default function PostComponent(p: {
                                     onClick={() => {
                                         setLoading(true);
                                         const curFollowing = isFollowing;
-                                        setIsFollowing(!isFollowing);
+                                        setIsFollowing(!curFollowing);
                                         setFollowing(!curFollowing);
                                     }}
                                 >
@@ -178,8 +179,8 @@ export default function PostComponent(p: {
                                             />
                                         </span>{" "}
                                         {!isFollowing
-                                            ? `Follow @${user?.name}`
-                                            : `Unfollow @${user?.name}`}
+                                            ? `Follow @${user?.tag}`
+                                            : `Unfollow @${user?.tag}`}
                                     </p>
                                 </button>
                             ) : null}
@@ -230,6 +231,7 @@ export default function PostComponent(p: {
                             quality={70}
                             width={48}
                             height={48}
+                            sizes="100vw"
                         />
                     </div>
                 </div>
@@ -255,6 +257,7 @@ export default function PostComponent(p: {
                             quality={20}
                             width={24}
                             height={24}
+                            sizes="100vw"
                         />
                     )}
                     <a
@@ -317,7 +320,7 @@ export default function PostComponent(p: {
                                         src={img}
                                         className={"object-cover w-full h-full"}
                                         alt={`Album image ${i}`}
-                                        sizes={"100vw"}
+                                        sizes="100vw"
                                         fill
                                         quality={70}
                                         priority={true}

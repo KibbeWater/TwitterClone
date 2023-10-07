@@ -27,7 +27,10 @@ export default function Home() {
     const { data: session } = useSession();
     const user = session?.user;
 
-    const { data: profile } = api.user.getProfile.useQuery({ tag });
+    const { data: profile } = api.user.getProfile.useQuery(
+        { tag },
+        { enabled: !!tag },
+    );
     const { mutate: _setFollowing } = api.followers.setFollowing.useMutation();
     const { setModal } = useModal();
 
@@ -76,8 +79,8 @@ export default function Home() {
                                 className={
                                     "absolute h-full w-full p-[auto] top-0 bottom-0 right-0 left-0 object-cover"
                                 }
-                                sizes={"100vw"}
                                 fill
+                                sizes={"100vw"}
                                 priority
                                 alt={`${profile.name}'s Banner`}
                             />
@@ -94,9 +97,9 @@ export default function Home() {
                                             "/assets/imgs/default-avatar.png"
                                         }
                                         alt={`${profile.name}'s Avatar`}
+                                        fill
                                         sizes={"100vw"}
                                         quality={100}
-                                        fill
                                         priority
                                     />
                                 </div>
