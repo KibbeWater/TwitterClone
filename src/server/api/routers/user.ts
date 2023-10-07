@@ -165,4 +165,39 @@ export const userRouter = createTRPCRouter({
             }
             return await ctx.prisma.user.update({ where: { id }, data: input });
         }),
+
+    getFollowing: publicProcedure
+        .input(
+            z.object({
+                id: z.string(),
+                followType: z.literal("followers").or(z.literal("following")),
+            }),
+        )
+        .query(async ({ ctx, input }) => {
+            const user = await ctx.prisma.user.findUnique({
+                where: {
+                    id: input.id,
+                },
+                select: {
+                    [input.followType]: {
+                        select: {
+                            id: true,
+                            name: true,
+                            tag: true,
+                            role: true,
+                            verified: true,
+                            image: true,
+                            followerIds: true,
+                            followingIds: true,
+                        },
+                    },
+                },
+            });
+
+            if (!user) {
+                throw new Error("User not found");
+            }
+
+            return user[input.followType];
+        }),
 });

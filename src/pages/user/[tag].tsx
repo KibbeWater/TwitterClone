@@ -5,6 +5,7 @@ import { useRouter } from "next/router";
 import { useCallback, useEffect, useState } from "react";
 
 import { useModal } from "~/components/Handlers/ModalHandler";
+import FollowingModal from "~/components/Modals/FollowingModal";
 import ProfileEditor from "~/components/Modals/ProfileEditor";
 import PostComponent from "~/components/Post/Post";
 import Layout from "~/components/Site/Layouts/Layout";
@@ -197,13 +198,33 @@ export default function Home() {
                             </p>
                         )}
                         <div className="flex my-2 text-sm">
-                            <p className="m-0 mr-2 text-neutral-500 hover:underline cursor-pointer">
+                            <p
+                                className="m-0 mr-2 text-neutral-500 hover:underline cursor-pointer"
+                                onClick={() =>
+                                    setModal(
+                                        <FollowingModal
+                                            user={profile}
+                                            followType={"following"}
+                                        />,
+                                    )
+                                }
+                            >
                                 <span className="font-bold text-black dark:text-white">
                                     {profile?.followingIds.length ?? 0}
                                 </span>{" "}
                                 Following
                             </p>
-                            <p className="m-0 mr-2 text-neutral-500 hover:underline cursor-pointer">
+                            <p
+                                className="m-0 mr-2 text-neutral-500 hover:underline cursor-pointer"
+                                onClick={() =>
+                                    setModal(
+                                        <FollowingModal
+                                            user={profile}
+                                            followType={"followers"}
+                                        />,
+                                    )
+                                }
+                            >
                                 <span className="font-bold text-black dark:text-white">
                                     {profile?.followerIds.length ?? 0}
                                 </span>{" "}
