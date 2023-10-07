@@ -200,7 +200,7 @@ export default function ImageModal({
                         </p>
                         <p className="text-sm ml-1 mr-4 text-gray-500">
                             <span className="font-semibold text-black dark:text-white">
-                                {post.likeIDs}
+                                {post.likeIDs.length}
                             </span>{" "}
                             Likes
                         </p>

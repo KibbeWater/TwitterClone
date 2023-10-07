@@ -210,7 +210,7 @@ export default function Page() {
                     <div className="mx-3 flex items-center">
                         <p className="text-sm ml-1 mr-4 text-gray-500 ">
                             <span className="font-semibold text-black dark:text-white">
-                                123
+                                {post.reposts.length}
                             </span>{" "}
                             Retwaats
                         </p>
