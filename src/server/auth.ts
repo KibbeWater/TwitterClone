@@ -1,15 +1,16 @@
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
-import { User } from "@prisma/client";
+import { compare } from "bcrypt";
 import { type GetServerSidePropsContext } from "next";
 import {
     getServerSession,
     type DefaultSession,
     type NextAuthOptions,
-    Awaitable,
 } from "next-auth";
 import AppleProvider from "next-auth/providers/apple";
 import CredentialsProvider from "next-auth/providers/credentials";
+import EmailProvider from "next-auth/providers/email";
 import GoogleProvide from "next-auth/providers/google";
+import { z } from "zod";
 
 import { env } from "~/env.mjs";
 import { prisma } from "~/server/db";
@@ -39,6 +40,12 @@ declare module "next-auth" {
 
     type UserRole = "USER" | "ADMIN";
 }
+
+const credentialsSchema = z.object({
+    newEmail: z.string().email(),
+    username: z.string(),
+    password: z.string(),
+});
 
 /**
  * Options for NextAuth.js used to configure adapters, providers, callbacks, etc.
@@ -76,9 +83,10 @@ export const authOptions: NextAuthOptions = {
     adapter: PrismaAdapter(prisma),
     providers: [
         CredentialsProvider({
-            name: "Credentials",
+            name: "Migrated Credentials",
 
             credentials: {
+                newEmail: { label: "New Email", type: "email" },
                 username: { label: "Username", type: "text" },
                 password: { label: "Password", type: "password" },
             },
@@ -86,24 +94,45 @@ export const authOptions: NextAuthOptions = {
             // fuck you NextAuth, genuinely, fuck you
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
-            authorize: async (credentials, req) => {
+            authorize: async (credentials, _) => {
                 try {
-                    const { username, password } = credentials as {
-                        username: string;
-                        password: string;
-                    };
-
-                    if (!username || !password) return null;
+                    const { newEmail, username, password } =
+                        credentialsSchema.parse(credentials);
 
                     const user = await prisma.user.findUnique({
                         where: { tag: username },
                     });
 
-                    return null;
+                    if (!user?.password) return null;
+
+                    const passwordValid = await compare(
+                        password,
+                        user.password,
+                    );
+                    if (passwordValid === false) return null;
+
+                    await prisma.user.update({
+                        where: { id: user.id },
+                        data: { email: newEmail, password: null },
+                    });
+
+                    return user;
                 } catch (error) {
+                    console.error(error);
                     return null;
                 }
             },
+
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            // eslint-disable-next-line @typescript-eslint/require-await
+            session: async (ssss) => {
+                console.log(ssss);
+            },
+        }),
+        EmailProvider({
+            server: env.EMAIL_SERVER,
+            from: env.EMAIL_FROM,
         }),
         AppleProvider({
             clientId: env.APPLE_ID,
