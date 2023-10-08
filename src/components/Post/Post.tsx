@@ -357,7 +357,9 @@ export default function PostComponent(p: {
                         />
                     </div>
                 )}
-                {isRef ?? <PostFooter post={post} onPost={handleMutation} />}
+                {!isRef && session && (
+                    <PostFooter post={post} onPost={handleMutation} />
+                )}
             </div>
         </div>
     );

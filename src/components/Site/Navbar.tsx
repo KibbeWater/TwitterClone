@@ -169,10 +169,11 @@ export default function Navbar() {
                     )}
                     <button
                         className={
-                            "w-16 h-16 lg:h-14 mb-1 rounded-full transition-all flex justify-center items-center text-white cursor-pointer bg-accent-primary-500 hover:bg-accent-primary-700 lg:w-full"
+                            "w-16 h-16 lg:h-14 mb-1 rounded-full transition-all flex justify-center items-center text-white cursor-pointer bg-accent-primary-500 hover:bg-accent-primary-700 disabled:bg-red-900 disabled:cursor-default lg:w-full"
                         }
                         id="btnPost"
                         onClick={() => setModal(<PostModal />)}
+                        disabled={!session}
                     >
                         <PencilIcon className="m-4 text-2xl text-white transition-all opacity-100 lg:opacity-0 block lg:!hidden" />
                         <span className="hidden transition-all lg:block text-lg font-bold opacity-0 lg:opacity-100 text-white">
