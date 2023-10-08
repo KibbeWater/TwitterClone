@@ -12,7 +12,7 @@ import {
     MoonIcon,
     SunIcon,
 } from "@heroicons/react/24/solid";
-import { signOut, useSession } from "next-auth/react";
+import { signIn, signOut, useSession } from "next-auth/react";
 import { useTheme } from "next-themes";
 import Image from "next/image";
 import Link from "next/link";
@@ -31,28 +31,64 @@ export default function Navbar() {
 
     const router = useRouter();
 
-    const links = useMemo(() => {
+    const links = useMemo<
+        {
+            name: string;
+            activeURLs: string[];
+            href?: string;
+            onClick?: () => void;
+            iconSolid: React.ForwardRefExoticComponent<
+                Omit<React.SVGProps<SVGSVGElement>, "ref"> & {
+                    title?: string | undefined;
+                    titleId?: string | undefined;
+                } & React.RefAttributes<SVGSVGElement>
+            >;
+            iconOutline: React.ForwardRefExoticComponent<
+                Omit<React.SVGProps<SVGSVGElement>, "ref"> & {
+                    title?: string | undefined;
+                    titleId?: string | undefined;
+                } & React.RefAttributes<SVGSVGElement>
+            >;
+        }[]
+    >(() => {
         return [
             {
                 name: "Home",
                 href: "/home",
+                activeURLs: ["/home"],
                 iconSolid: HomeSolid,
                 iconOutline: HomeOutline,
             },
             {
                 name: "Notifications",
                 href: "/notifications",
+                activeURLs: ["/notifications"],
                 iconSolid: BellSolid,
                 iconOutline: BellOutline,
             },
             {
                 name: "Profile",
                 href: session?.user.tag ? `/@${session?.user.tag}` : "/login",
+                activeURLs: [
+                    `/@${session?.user.tag}`,
+                    `/user/${session?.user.tag}`,
+                    `/profile`,
+                ],
+                onClick: () => {
+                    if (!session)
+                        signIn(undefined, { callbackUrl: "/profile" }).catch(
+                            console.error,
+                        );
+                    else
+                        router
+                            .push(`/@${session?.user.tag}`)
+                            .catch(console.error);
+                },
                 iconSolid: UserSolid,
                 iconOutline: UserOutline,
             },
         ];
-    }, [session]);
+    }, [session, router]);
 
     const user = session?.user;
 
@@ -78,28 +114,59 @@ export default function Navbar() {
                             height={35}
                         />
                     </Link>
-                    {links.map((link) => (
-                        <Link
-                            href={link.href}
-                            className={
-                                "lg:h-12 h-16 mb-2 rounded-full bg-transparent hover:bg-gray-600/25 flex items-center"
-                            }
-                            key={"link-" + link.name}
-                        >
-                            <div className="w-8 ml-4 flex items-center justify-center">
-                                {router.asPath.toLowerCase() !==
-                                link.href.toLowerCase() ? (
-                                    <link.iconOutline className="text-2xl text-black dark:text-white" />
-                                ) : (
-                                    <link.iconSolid className="text-2xl text-black dark:text-white" />
-                                )}
-                            </div>
+                    {links.map(
+                        (link) =>
+                            (link.onClick && (
+                                <button
+                                    className={
+                                        "lg:h-12 h-16 mb-2 rounded-full bg-transparent hover:bg-gray-600/25 flex items-center"
+                                    }
+                                    onClick={link.onClick}
+                                    key={"link-" + link.name}
+                                >
+                                    <div className="w-8 ml-4 flex items-center justify-center">
+                                        {!link.activeURLs
+                                            .map((u) => u.toLowerCase())
+                                            .includes(
+                                                router.asPath.toLowerCase(),
+                                            ) ? (
+                                            <link.iconOutline className="text-2xl text-black dark:text-white" />
+                                        ) : (
+                                            <link.iconSolid className="text-2xl text-black dark:text-white" />
+                                        )}
+                                    </div>
 
-                            <span className="ml-5 font-bold text-lg hidden lg:block text-black dark:text-white">
-                                {link.name}
-                            </span>
-                        </Link>
-                    ))}
+                                    <span className="ml-5 font-bold text-lg hidden lg:block text-black dark:text-white">
+                                        {link.name}
+                                    </span>
+                                </button>
+                            )) ??
+                            (link.href && (
+                                <Link
+                                    href={link.href}
+                                    className={
+                                        "lg:h-12 h-16 mb-2 rounded-full bg-transparent hover:bg-gray-600/25 flex items-center"
+                                    }
+                                    key={"link-" + link.name}
+                                >
+                                    <div className="w-8 ml-4 flex items-center justify-center">
+                                        {!link.activeURLs
+                                            .map((u) => u.toLowerCase())
+                                            .includes(
+                                                router.asPath.toLowerCase(),
+                                            ) ? (
+                                            <link.iconOutline className="text-2xl text-black dark:text-white" />
+                                        ) : (
+                                            <link.iconSolid className="text-2xl text-black dark:text-white" />
+                                        )}
+                                    </div>
+
+                                    <span className="ml-5 font-bold text-lg hidden lg:block text-black dark:text-white">
+                                        {link.name}
+                                    </span>
+                                </Link>
+                            )),
+                    )}
                     <button
                         className={
                             "w-16 h-16 lg:h-14 mb-1 rounded-full transition-all flex justify-center items-center text-white cursor-pointer bg-accent-primary-500 hover:bg-accent-primary-700 lg:w-full"
