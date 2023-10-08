@@ -91,7 +91,7 @@ model Notification {
     targets   User[]   @relation(name: "N2T", fields: [targetIds], references: [id])
     type      String
     value     String
-    read      Boolean
+    read      Boolean  @default(false)
     createdAt DateTime @default(now())
     userId    String   @db.ObjectId
     targetIds String[] @db.ObjectId

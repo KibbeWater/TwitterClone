@@ -1,7 +1,7 @@
 import type { Notification } from "@prisma/client";
 import Image from "next/image";
 import Link from "next/link";
-import { useRef, useMemo } from "react";
+import { useRef } from "react";
 
 import {
     AtSymbolIcon as AtSolid,
@@ -13,6 +13,7 @@ import {
 
 import { api } from "~/utils/api";
 import PostComponent from "./Post/Post";
+import PostSkeleton from "./Skeletons/PostSkeleton";
 
 export default function Notification({
     notif,
@@ -30,7 +31,12 @@ export default function Notification({
 
     const { data: post } = api.post.getPost.useQuery(
         { id: notif.value },
-        { enabled: notif.type == "reply" || notif.type == "mention" },
+        {
+            enabled:
+                notif.type == "reply" ||
+                notif.type == "mention" ||
+                notif.type == "like",
+        },
     );
 
     const targetsRef = useRef<HTMLDivElement>(null);
@@ -64,7 +70,7 @@ export default function Notification({
                             : ""}{" "}
                         liked your <Link href={`/post/${post?.id}`}>post</Link>
                     </p>
-                    <p className="text-gray-500 px-2 mt-2">{post?.content}</p>
+                    <p className="text-gray-500 mt-1">{post?.content}</p>
                 </>
             );
             break;
@@ -91,12 +97,8 @@ export default function Notification({
     })();
 
     if (notif.type == "reply" || notif.type == "mention") {
-        if (!post)
-            return (
-                //{/* <p className='text-black dark:text-white w-full text-center py-2 border-b-[1px] border-gray-700'>Content not available</p> */}
-                null
-            );
-        return <PostComponent post={post} />;
+        if (!post) return <PostSkeleton />;
+        else return <PostComponent post={post} />;
     }
 
     const Icon =

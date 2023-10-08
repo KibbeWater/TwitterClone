@@ -1,7 +1,7 @@
 export default function PostSkeleton() {
     return (
         <div
-            className={`p-3 mb-px w-full max-w-full relative bg-transparent border-b-[1px] flex animate-pulse`}
+            className={`p-3 mb-px w-full max-w-full relative bg-transparent flex animate-pulse`}
         >
             <div className="w-12 h-12 relative shrink-0">
                 <div className="w-12 h-12 absolute rounded-full object-cover bg-gray-500" />
