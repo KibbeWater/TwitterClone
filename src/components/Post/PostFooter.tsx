@@ -9,9 +9,10 @@ import type { Post } from "@prisma/client";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 
+import { useModal } from "~/components/Handlers/ModalHandler";
+import PostModal from "~/components/Modals/PostModal";
+
 import { api } from "~/utils/api";
-import { useModal } from "../Handlers/ModalHandler";
-import PostModal from "../Modals/PostModal";
 
 export default function PostFooter({
     post,

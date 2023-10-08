@@ -1,13 +1,14 @@
-import { Notification } from "@prisma/client";
+import { ArrowPathIcon } from "@heroicons/react/24/solid";
+import type { Notification } from "@prisma/client";
 import type { GetServerSideProps, InferGetServerSidePropsType } from "next";
 import { useCallback, useEffect, useMemo } from "react";
 import { useInView } from "react-intersection-observer";
 
+import NotificationComponent from "~/components/Notification";
 import Layout from "~/components/Site/Layouts/Layout";
+
 import { authOptions, getServerAuthSession } from "~/server/auth";
 import { api } from "~/utils/api";
-import NotificationComponent from "~/components/Notification";
-import { ArrowPathIcon } from "@heroicons/react/24/solid";
 
 export const getServerSideProps = (async (ctx) => {
     const session = await getServerAuthSession(ctx);

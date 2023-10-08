@@ -12,13 +12,12 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { useInView } from "react-intersection-observer";
 
-import { useModal } from "../Handlers/ModalHandler";
-import PostComposer from "../Post/PostComposer";
+import { useModal } from "~/components/Handlers/ModalHandler";
+import PostComponent from "~/components/Post/Post";
+import PostComposer from "~/components/Post/PostComposer";
+import PostFooter from "~/components/Post/PostFooter";
 
 import { api } from "~/utils/api";
-
-import PostFooter from "../Post/PostFooter";
-import PostComponent from "../Post/Post";
 
 export default function ImageModal({
     src,

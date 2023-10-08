@@ -1,7 +1,8 @@
+import { MagnifyingGlassIcon } from "@heroicons/react/24/solid";
 import { useState } from "react";
 
-import UserContext from "../UserContext";
-import { MagnifyingGlassIcon } from "@heroicons/react/24/solid";
+import UserContext from "~/components/UserContext";
+
 import { api } from "~/utils/api";
 
 export default function Filters() {

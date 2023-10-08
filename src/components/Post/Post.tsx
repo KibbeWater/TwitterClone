@@ -1,19 +1,20 @@
+import { TrashIcon } from "@heroicons/react/24/outline";
 import { EllipsisHorizontalIcon, UserIcon } from "@heroicons/react/24/solid";
 import type { Post } from "@prisma/client";
 import { m as motion } from "framer-motion";
+import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { useRouter } from "next/router";
-import { useCallback, useState, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 
-import { useModal } from "../Handlers/ModalHandler";
-import { LazyMotionWrapper } from "../LazyMotionWrapper";
-import ImageModal from "../Modals/ImageModal";
-import VerifiedCheck from "../Verified";
-import PostContent from "./PostContent";
-import PostFooter from "./PostFooter";
-import { useSession } from "next-auth/react";
+import { useModal } from "~/components/Handlers/ModalHandler";
+import { LazyMotionWrapper } from "~/components/LazyMotionWrapper";
+import ImageModal from "~/components/Modals/ImageModal";
+import PostContent from "~/components/Post/PostContent";
+import PostFooter from "~/components/Post/PostFooter";
+import VerifiedCheck from "~/components/Verified";
+
 import { api } from "~/utils/api";
-import { TrashIcon } from "@heroicons/react/24/outline";
 
 function isUserFollowing(
     user: { id: string } | undefined,

@@ -5,15 +5,16 @@ import { useRef } from "react";
 
 import {
     AtSymbolIcon as AtSolid,
-    UserIcon as UserSolid,
     HeartIcon as HeartSolid,
     ArrowUturnRightIcon as RepeatSolid,
+    UserIcon as UserSolid,
     XMarkIcon as XMarkSolid,
 } from "@heroicons/react/24/solid";
 
+import PostComponent from "~/components/Post/Post";
+import PostSkeleton from "~/components/Skeletons/PostSkeleton";
+
 import { api } from "~/utils/api";
-import PostComponent from "./Post/Post";
-import PostSkeleton from "./Skeletons/PostSkeleton";
 
 export default function Notification({
     notif,

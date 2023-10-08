@@ -7,11 +7,12 @@ import { useDropzone } from "react-dropzone";
 import { XMarkIcon } from "@heroicons/react/20/solid";
 import { CameraIcon } from "@heroicons/react/24/outline";
 
+import { useModal } from "~/components/Handlers/ModalHandler";
+import { useImageUploader } from "~/components/Hooks/ImageUpload";
+import LabelledInput from "~/components/LabelledInput";
+
 import { api } from "~/utils/api";
 import { usernameRegex } from "~/utils/regexStandards";
-import { useModal } from "../Handlers/ModalHandler";
-import { useImageUploader } from "../Hooks/ImageUpload";
-import LabelledInput from "../LabelledInput";
 
 export default function ProfileEditor({
     name: defName,

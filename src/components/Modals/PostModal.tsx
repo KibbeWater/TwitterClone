@@ -1,10 +1,10 @@
 import { XMarkIcon } from "@heroicons/react/20/solid";
 import type { Post } from "@prisma/client";
-
-import { useModal } from "../Handlers/ModalHandler";
-import PostComposer from "../Post/PostComposer";
 import { useRouter } from "next/router";
 import { useCallback } from "react";
+
+import { useModal } from "~/components/Handlers/ModalHandler";
+import PostComposer from "~/components/Post/PostComposer";
 
 export default function PostModal({
     quote,

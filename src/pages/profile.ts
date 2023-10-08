@@ -1,4 +1,5 @@
 import type { GetServerSideProps } from "next";
+
 import { authOptions, getServerAuthSession } from "~/server/auth";
 
 export const getServerSideProps = (async (ctx) => {

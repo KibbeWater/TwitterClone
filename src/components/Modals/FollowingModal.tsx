@@ -1,8 +1,9 @@
 import { ArrowPathIcon, XMarkIcon } from "@heroicons/react/24/solid";
 
+import { useModal } from "~/components/Handlers/ModalHandler";
+import UserContext from "~/components/UserContext";
+
 import { api } from "~/utils/api";
-import { useModal } from "../Handlers/ModalHandler";
-import UserContext from "../UserContext";
 
 export default function FollowingModal({
     user,

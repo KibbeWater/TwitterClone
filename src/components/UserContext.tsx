@@ -1,5 +1,6 @@
 import Image from "next/image";
-import VerifiedCheck from "./Verified";
+
+import VerifiedCheck from "~/components/Verified";
 
 export default function UserContext({
     user,

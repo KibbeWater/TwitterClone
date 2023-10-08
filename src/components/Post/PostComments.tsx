@@ -1,12 +1,12 @@
+import { ArrowPathIcon } from "@heroicons/react/24/solid";
 import type { Post } from "@prisma/client";
-import { useState, useEffect, useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useInView } from "react-intersection-observer";
 
-import PostComposer from "./PostComposer";
+import PostComponent from "~/components/Post/Post";
+import PostComposer from "~/components/Post/PostComposer";
 
 import { api } from "~/utils/api";
-import PostComponent from "./Post";
-import { ArrowPathIcon } from "@heroicons/react/24/solid";
 
 export default function PostComments({
     post,
