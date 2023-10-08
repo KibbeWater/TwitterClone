@@ -8,9 +8,11 @@ import { useCallback } from "react";
 
 export default function PostModal({
     quote,
+    parent,
     onPost,
 }: {
     quote?: Post;
+    parent?: Post;
     onPost?: (post: Post) => boolean;
 }) {
     const { reload } = useRouter();
@@ -41,7 +43,11 @@ export default function PostModal({
                 </div>
             </div>
             <div className={"grow flex break-words px-4 pb-[10px]"}>
-                <PostComposer quote={quote} onPost={handleOnPost} />
+                <PostComposer
+                    quote={quote}
+                    parent={parent?.id}
+                    onPost={handleOnPost}
+                />
             </div>
         </div>
     );

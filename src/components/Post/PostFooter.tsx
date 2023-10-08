@@ -7,7 +7,6 @@ import {
 import { HeartIcon as HeartSolid } from "@heroicons/react/24/solid";
 import type { Post } from "@prisma/client";
 import { useSession } from "next-auth/react";
-import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { api } from "~/utils/api";
@@ -52,14 +51,26 @@ export default function PostFooter({
     return (
         <div className={"mt-3 h-8 w-full flex justify-evenly"}>
             <div className="flex items-center mr-2">
-                <Link
-                    href={`/post/${post.id}`}
+                <button
+                    onClick={(e) => {
+                        e.stopPropagation();
+
+                        setModal(
+                            <PostModal
+                                parent={post}
+                                onPost={(p) => {
+                                    if (!onPost) return false;
+                                    return onPost(p);
+                                }}
+                            />,
+                        );
+                    }}
                     className={
                         "border-0 p-1 h-8 w-8 mr-1 rounded-full flex items-center justify-center transition-colors bg-black/0 cursor-pointer hover:bg-red-500/40 group/btnComment"
                     }
                 >
                     <ChatBubbleOvalLeftEllipsisIcon className="text-black dark:text-white group-hover/btnComment:text-red-500" />
-                </Link>
+                </button>
                 <p className="text-black dark:text-white text-sm">
                     {post.comments?.length ?? "ERR"}
                 </p>
@@ -82,7 +93,7 @@ export default function PostFooter({
                             />,
                         );
                     }}
-                    aria-label="Retweet"
+                    aria-label="Repost"
                 >
                     <ArrowUturnRightIcon className="text-black dark:text-white group-hover/btnRetweet:text-green-500" />
                 </button>
