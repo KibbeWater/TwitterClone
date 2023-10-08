@@ -276,7 +276,7 @@ export const postRouter = createTRPCRouter({
             }),
         )
         .mutation(async ({ ctx, input }) => {
-            return ctx.prisma.post.create({
+            const newPost = await ctx.prisma.post.create({
                 data: {
                     content: input.content,
                     userId: ctx.session.user.id,
@@ -335,6 +335,34 @@ export const postRouter = createTRPCRouter({
                     },
                 },
             });
+
+            try {
+                await ctx.prisma.$transaction(async (tx) => {
+                    if (input.parent) {
+                        const parent = await tx.post.findUnique({
+                            where: { id: input.parent },
+                        });
+
+                        if (parent && parent.userId !== ctx.session.user.id)
+                            await tx.notification.create({
+                                data: {
+                                    userId: parent.userId,
+                                    targets: {
+                                        connect: {
+                                            id: ctx.session.user.id,
+                                        },
+                                    },
+                                    type: "reply",
+                                    value: newPost.id,
+                                },
+                            });
+                    }
+                });
+            } catch (error) {
+                console.error("Failed to deliver notification", error);
+            }
+
+            return newPost;
         }),
 
     delete: protectedProcedure
@@ -352,22 +380,70 @@ export const postRouter = createTRPCRouter({
         .input(z.object({ postId: z.string(), shouldLike: z.boolean() }))
         .mutation(async ({ ctx, input }) => {
             const { postId: id, shouldLike } = input;
-            return await ctx.prisma.post.update({
+
+            const updatedPost = await ctx.prisma.post.update({
                 where: { id },
                 data: {
                     likes: {
-                        connect: shouldLike
-                            ? {
-                                  id: ctx.session.user.id,
-                              }
-                            : undefined,
-                        disconnect: !shouldLike
-                            ? {
-                                  id: ctx.session.user.id,
-                              }
-                            : undefined,
+                        [shouldLike ? "connect" : "disconnect"]: {
+                            id: ctx.session.user.id,
+                        },
                     },
                 },
             });
+
+            if (shouldLike && updatedPost.userId !== ctx.session.user.id)
+                try {
+                    await ctx.prisma.$transaction(async (tx) => {
+                        const existingNotif = await tx.notification.findFirst({
+                            where: {
+                                userId: updatedPost.userId,
+                                type: "like",
+                                value: id,
+                                targets: {
+                                    none: {
+                                        id: ctx.session.user.id,
+                                    },
+                                },
+                            },
+                            select: {
+                                id: true,
+                            },
+                        });
+
+                        if (existingNotif)
+                            await tx.notification.update({
+                                where: {
+                                    id: existingNotif.id,
+                                },
+                                data: {
+                                    targets: {
+                                        connect: {
+                                            id: ctx.session.user.id,
+                                        },
+                                    },
+                                    read: false,
+                                    createdAt: new Date(),
+                                },
+                            });
+                        else
+                            await tx.notification.create({
+                                data: {
+                                    userId: updatedPost.userId,
+                                    targets: {
+                                        connect: {
+                                            id: ctx.session.user.id,
+                                        },
+                                    },
+                                    type: "like",
+                                    value: id,
+                                },
+                            });
+                    });
+                } catch (error) {
+                    console.error("Failed to deliver notification", error);
+                }
+
+            return updatedPost;
         }),
 });

@@ -1,8 +1,10 @@
 import { createTRPCRouter } from "~/server/api/trpc";
-import { postRouter } from "./routers/post";
-import { userRouter } from "./routers/user";
+
 import { followersRouter } from "./routers/followers";
+import { notificationsRouter } from "./routers/notifications";
+import { postRouter } from "./routers/post";
 import { s3Router } from "./routers/s3";
+import { userRouter } from "./routers/user";
 
 /**
  * This is the primary router for your server.
@@ -13,6 +15,7 @@ export const appRouter = createTRPCRouter({
     post: postRouter,
     user: userRouter,
     followers: followersRouter,
+    notifications: notificationsRouter,
     s3: s3Router,
 });
 
