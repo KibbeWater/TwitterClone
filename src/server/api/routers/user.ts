@@ -6,6 +6,7 @@ import {
     protectedProcedure,
 } from "~/server/api/trpc";
 
+// TODO: Check over literally this entire fucking file
 export const userRouter = createTRPCRouter({
     getProfile: publicProcedure
         .input(z.object({ tag: z.string() }))
