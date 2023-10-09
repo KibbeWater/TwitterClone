@@ -110,15 +110,11 @@ export const userSchema = new Schema<IUser, UserModel, IUserMethods>(
 			},
 
 			authorize: async function (tag: string, password: string, ip?: string) {
-				return null;
 				// Find the user by tag (case insensitive)
-				const usr = (await this.findOne({ tag: new RegExp(`^${tag}$`, 'i') }).exec()) as any;
+				const usr = await this.findOne({ tag: new RegExp(`^${tag}$`, 'i') }).exec();
 				if (!usr) return null;
 
-				const saltRounds = parseInt(process.env.SALT_ROUNDS || '') || 10;
-				const hash = hashSync(password, saltRounds);
-
-				if (!compareSync(password, hash)) return null;
+				if (!compareSync(password, usr.password)) return null;
 
 				const session = await Session.createSession(usr._id, ip);
 				usr.sessions.push(session._id);
