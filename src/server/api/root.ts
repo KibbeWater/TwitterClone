@@ -1,5 +1,6 @@
 import { createTRPCRouter } from "~/server/api/trpc";
 
+import { adminRouter } from "./routers/admin";
 import { followersRouter } from "./routers/followers";
 import { notificationsRouter } from "./routers/notifications";
 import { postRouter } from "./routers/post";
@@ -12,6 +13,7 @@ import { userRouter } from "./routers/user";
  * All routers added in /api/routers should be manually added here.
  */
 export const appRouter = createTRPCRouter({
+    admin: adminRouter,
     post: postRouter,
     user: userRouter,
     followers: followersRouter,

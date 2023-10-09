@@ -5,6 +5,7 @@ import { useRouter } from "next/router";
 import { useCallback, useEffect, useState } from "react";
 
 import { useModal } from "~/components/Handlers/ModalHandler";
+import AdminModal from "~/components/Modals/AdminModal";
 import FollowingModal from "~/components/Modals/FollowingModal";
 import ProfileEditor from "~/components/Modals/ProfileEditor";
 import PostComponent from "~/components/Post/Post";
@@ -28,7 +29,7 @@ export default function Home() {
     const { data: session } = useSession();
     const user = session?.user;
 
-    const { data: profile } = api.user.getProfile.useQuery(
+    const { data: profile, refetch } = api.user.getProfile.useQuery(
         { tag },
         { enabled: !!tag },
     );
@@ -160,12 +161,19 @@ export default function Home() {
                                     className={
                                         "bg-black dark:bg-white text-white dark:text-black px-[15px] py-2 font-bold cursor-pointer rounded-full mx-3"
                                     }
-                                    /* onClick={() => {
+                                    onClick={() => {
                                         if (setModal)
                                             setModal(
-                                                <AdminModal user={profile} />,
+                                                <AdminModal
+                                                    userId={profile.id}
+                                                    onMutate={() => {
+                                                        refetch().catch(
+                                                            console.error,
+                                                        );
+                                                    }}
+                                                />,
                                             );
-                                    }} */
+                                    }}
                                 >
                                     Admin
                                 </button>
