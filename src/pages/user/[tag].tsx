@@ -203,10 +203,7 @@ export default function Home() {
                                 onClick={() =>
                                     setModal(
                                         <FollowingModal
-                                            user={{
-                                                id: profile.id,
-                                                name: profile.name ?? "",
-                                            }}
+                                            user={profile}
                                             followType={"following"}
                                         />,
                                     )
@@ -222,10 +219,7 @@ export default function Home() {
                                 onClick={() =>
                                     setModal(
                                         <FollowingModal
-                                            user={{
-                                                id: profile.id,
-                                                name: profile.name ?? "",
-                                            }}
+                                            user={profile}
                                             followType={"followers"}
                                         />,
                                     )

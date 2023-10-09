@@ -1,4 +1,5 @@
 import { MagnifyingGlassIcon } from "@heroicons/react/24/solid";
+import { useRouter } from "next/router";
 import { useState } from "react";
 
 import UserContext from "~/components/UserContext";
@@ -6,6 +7,8 @@ import UserContext from "~/components/UserContext";
 import { api } from "~/utils/api";
 
 export default function Filters() {
+    const { push } = useRouter();
+
     const [active, setActive] = useState(false);
     const [search, setSearch] = useState("");
 
@@ -44,9 +47,12 @@ export default function Filters() {
                                 <UserContext
                                     user={user}
                                     key={`search-result-${user.id}`}
-                                    onClick={() =>
-                                        window.location.assign(`/@${user.tag}`)
-                                    }
+                                    className="cursor-pointer"
+                                    onClick={() => {
+                                        push(`/@${user.tag}`).catch(
+                                            console.error,
+                                        );
+                                    }}
                                 />
                             ))
                         ) : (

@@ -4,6 +4,7 @@ import VerifiedCheck from "~/components/Verified";
 
 export default function UserContext({
     user,
+    className,
     onClick,
 }: {
     user: {
@@ -14,13 +15,15 @@ export default function UserContext({
         role: string | null;
         verified: boolean | null;
     };
+    className?: string;
     onClick?: (e: React.MouseEvent<HTMLDivElement>) => void;
 }) {
     return (
         <div
-            className={
-                "w-full h-16 flex gap-3 px-4 py-2 transition-colors hover:bg-black/20 dark:hover:bg-white/5"
-            }
+            className={[
+                "w-full h-16 flex gap-3 px-4 py-2 transition-colors hover:bg-black/20 dark:hover:bg-white/5",
+                className,
+            ].join(" ")}
             onClick={onClick}
         >
             <div className="h-full aspect-square rounded-full overflow-hidden flex-none">
