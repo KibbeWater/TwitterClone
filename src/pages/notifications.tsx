@@ -45,6 +45,7 @@ export default function NotificationsPage({}: InferGetServerSidePropsType<
         await fetchNextPage();
     }, [fetchNextPage]);
 
+    // TODO: Still some double send issue?? Fix later, fine for now
     const markRead = useCallback<(id: string) => void>(
         (id: string) => {
             if (readIds.indexOf(id) !== -1) return;
@@ -85,7 +86,11 @@ export default function NotificationsPage({}: InferGetServerSidePropsType<
                 >
                     <NotificationComponent
                         notif={notification}
-                        onInView={() => markRead(notification.id)}
+                        onInView={
+                            !notification.read
+                                ? () => markRead(notification.id)
+                                : undefined
+                        }
                     />
                 </div>
             )),
