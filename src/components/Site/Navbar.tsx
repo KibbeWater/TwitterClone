@@ -22,12 +22,16 @@ import { useMemo, useState } from "react";
 import { useModal } from "~/components/Handlers/ModalHandler";
 import PostModal from "~/components/Modals/PostModal";
 
+import { api } from "~/utils/api";
+
 export default function Navbar() {
     const [activateUserPanel, setActivateUserPanel] = useState(false);
 
     const { data: session } = useSession();
     const { setModal } = useModal();
     const { theme, setTheme } = useTheme();
+
+    const { data: notifData } = api.notifications.getUnreadCount.useQuery({});
 
     const router = useRouter();
 
@@ -37,6 +41,7 @@ export default function Navbar() {
             activeURLs: string[];
             href?: string;
             onClick?: () => void;
+            badgeCount?: number;
             iconSolid: React.ForwardRefExoticComponent<
                 Omit<React.SVGProps<SVGSVGElement>, "ref"> & {
                     title?: string | undefined;
@@ -63,6 +68,7 @@ export default function Navbar() {
                 name: "Notifications",
                 href: "/notifications",
                 activeURLs: ["/notifications"],
+                badgeCount: notifData?.count,
                 iconSolid: BellSolid,
                 iconOutline: BellOutline,
             },
@@ -88,7 +94,7 @@ export default function Navbar() {
                 iconOutline: UserOutline,
             },
         ];
-    }, [session, router]);
+    }, [session, router, notifData?.count]);
 
     const user = session?.user;
 
@@ -124,7 +130,7 @@ export default function Navbar() {
                                     onClick={link.onClick}
                                     key={"link-" + link.name}
                                 >
-                                    <div className="w-8 ml-4 flex items-center justify-center">
+                                    <div className="w-8 ml-4 flex items-center justify-center relative">
                                         {!link.activeURLs
                                             .map((u) => u.toLowerCase())
                                             .includes(
@@ -134,6 +140,16 @@ export default function Navbar() {
                                         ) : (
                                             <link.iconSolid className="text-2xl text-black dark:text-white" />
                                         )}
+                                        {(link.badgeCount ?? 0) > 0 ? (
+                                            <div className="w-5 h-5 bg-red-500 rounded-full absolute left-2/4 bottom-2/4 z-20 border-2 dark:border-black border-white box-content">
+                                                <div className="w-5 h-5 bg-red-500 rounded-full absolute top-0 bottom-0 left-0 right-0 m-auto animate-ping z-10" />
+                                                <p className="text-white leading-5 text-center align-middle text-xs">
+                                                    {(link.badgeCount ?? 0) > 99
+                                                        ? "99+"
+                                                        : link.badgeCount}
+                                                </p>
+                                            </div>
+                                        ) : null}
                                     </div>
 
                                     <span className="ml-5 font-bold text-lg hidden lg:block text-black dark:text-white">
@@ -149,7 +165,7 @@ export default function Navbar() {
                                     }
                                     key={"link-" + link.name}
                                 >
-                                    <div className="w-8 ml-4 flex items-center justify-center">
+                                    <div className="w-8 ml-4 flex items-center justify-center relative">
                                         {!link.activeURLs
                                             .map((u) => u.toLowerCase())
                                             .includes(
@@ -159,6 +175,16 @@ export default function Navbar() {
                                         ) : (
                                             <link.iconSolid className="text-2xl text-black dark:text-white" />
                                         )}
+                                        {(link.badgeCount ?? 0) > 0 ? (
+                                            <div className="w-5 h-5 bg-red-500 rounded-full absolute left-2/4 bottom-2/4 z-20 border-2 dark:border-black border-white box-content">
+                                                <div className="w-5 h-5 bg-red-500 rounded-full absolute top-0 bottom-0 left-0 right-0 m-auto animate-ping z-10" />
+                                                <p className="text-white leading-5 text-center align-middle text-xs">
+                                                    {(link.badgeCount ?? 0) > 99
+                                                        ? "99+"
+                                                        : link.badgeCount}
+                                                </p>
+                                            </div>
+                                        ) : null}
                                     </div>
 
                                     <span className="ml-5 font-bold text-lg hidden lg:block text-black dark:text-white">

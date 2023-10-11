@@ -1,7 +1,7 @@
 import { ArrowPathIcon } from "@heroicons/react/24/solid";
 import type { Notification } from "@prisma/client";
 import type { GetServerSideProps, InferGetServerSidePropsType } from "next";
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useInView } from "react-intersection-observer";
 
 import NotificationComponent from "~/components/Notification";
@@ -29,6 +29,8 @@ export const getServerSideProps = (async (ctx) => {
 export default function NotificationsPage({}: InferGetServerSidePropsType<
     typeof getServerSideProps
 >) {
+    const [readIds, setReadIds] = useState<string[]>([]);
+
     const { data, fetchNextPage, isLoading } =
         api.notifications.getNotifications.useInfiniteQuery(
             {},
@@ -36,10 +38,21 @@ export default function NotificationsPage({}: InferGetServerSidePropsType<
                 getNextPageParam: (lastPage) => lastPage.nextCursor,
             },
         );
+    const { mutate: _markRead } =
+        api.notifications.markNotificationRead.useMutation();
 
     const handleFetchNextPage = useCallback(async () => {
         await fetchNextPage();
     }, [fetchNextPage]);
+
+    const markRead = useCallback<(id: string) => void>(
+        (id: string) => {
+            if (readIds.indexOf(id) !== -1) return;
+            setReadIds((prev) => [...prev, id]);
+            _markRead({ id });
+        },
+        [_markRead, readIds],
+    );
 
     const { ref: loadingRef, inView } = useInView();
 
@@ -63,16 +76,25 @@ export default function NotificationsPage({}: InferGetServerSidePropsType<
         [data?.pages],
     );
 
-    return (
-        <Layout title="Notifications">
-            {notifications.map((notification) => (
+    const notificationList = useMemo(
+        () =>
+            notifications.map((notification) => (
                 <div
                     key={`notification-${notification.id}`}
                     className="border-b-[1px] border-gray-200 dark:border-gray-700 w-full"
                 >
-                    <NotificationComponent notif={notification} />
+                    <NotificationComponent
+                        notif={notification}
+                        onInView={() => markRead(notification.id)}
+                    />
                 </div>
-            ))}
+            )),
+        [notifications, markRead],
+    );
+
+    return (
+        <Layout title="Notifications">
+            {notificationList}
             <div
                 className={
                     "w-full mt-4 flex justify-center items-center" +

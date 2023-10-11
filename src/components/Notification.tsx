@@ -1,7 +1,7 @@
 import type { Notification } from "@prisma/client";
 import Image from "next/image";
 import Link from "next/link";
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 
 import {
     AtSymbolIcon as AtSolid,
@@ -15,9 +15,11 @@ import PostComponent from "~/components/Post/Post";
 import PostSkeleton from "~/components/Skeletons/PostSkeleton";
 
 import { api } from "~/utils/api";
+import { useInView } from "react-intersection-observer";
 
 export default function Notification({
     notif,
+    onInView,
 }: {
     notif: Notification & {
         targets: {
@@ -27,6 +29,7 @@ export default function Notification({
             image: string | null;
         }[];
     };
+    onInView?: () => void;
 }) {
     const { targets, type } = notif;
 
@@ -41,6 +44,16 @@ export default function Notification({
     );
 
     const targetsRef = useRef<HTMLDivElement>(null);
+
+    const { ref: mainDivRef, inView } = useInView({
+        threshold: 1,
+        triggerOnce: true,
+        skip: notif.read,
+    });
+
+    useEffect(() => {
+        onInView?.();
+    }, [inView, onInView]);
 
     let title = <></>;
     /* let content = <></>; */
@@ -89,7 +102,6 @@ export default function Notification({
         const offset =
             (targetsRef.current?.clientWidth ?? 0) -
             (tCount + totalWidth + spacing);
-        console.log(targetsRef.current?.clientWidth, offset);
         if (offset > 0) return totalWidth;
 
         const left = oWidth + spacing - (offset * -1) / targets.length;
@@ -114,7 +126,7 @@ export default function Notification({
             : XMarkSolid;
 
     return (
-        <div className={`w-full flex px-4 py-2`}>
+        <div className={`w-full flex px-4 py-2`} ref={mainDivRef}>
             <div className="h-full justify-end mt-1">
                 <Icon
                     className={

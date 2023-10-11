@@ -54,4 +54,32 @@ export const notificationsRouter = createTRPCRouter({
                 nextCursor,
             };
         }),
+
+    getUnreadCount: protectedProcedure
+        .input(z.object({}))
+        .query(async ({ ctx }) => {
+            const count = await ctx.prisma.notification.count({
+                where: {
+                    userId: ctx.session.user.id,
+                    read: false,
+                },
+            });
+
+            return {
+                count,
+            };
+        }),
+
+    markNotificationRead: protectedProcedure
+        .input(z.object({ id: z.string() }))
+        .mutation(async ({ ctx, input }) => {
+            return await ctx.prisma.notification.update({
+                where: {
+                    id: input.id,
+                },
+                data: {
+                    read: true,
+                },
+            });
+        }),
 });
