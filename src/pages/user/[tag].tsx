@@ -9,6 +9,7 @@ import AdminModal from "~/components/Modals/AdminModal";
 import FollowingModal from "~/components/Modals/FollowingModal";
 import ProfileEditor from "~/components/Modals/ProfileEditor";
 import PostComponent from "~/components/Post/Post";
+import PostContent from "~/components/Post/PostContent";
 import Layout from "~/components/Site/Layouts/Layout";
 import ProfileSkeleton from "~/components/Skeletons/ProfileSkeleton";
 import VerifiedCheck from "~/components/Verified";
@@ -189,7 +190,7 @@ export default function Home() {
                         </h3>
                         <p className="mt-[2px] text-base leading-none text-neutral-500">{`@${profile?.tag}`}</p>
                         {bio !== "" && bio !== undefined && (
-                            <p className="my-1 mt-3 text-black dark:text-white leading-snug text-sm">
+                            /*{ <p className="my-1 mt-3 text-black dark:text-white leading-snug text-sm">
                                 {bio.split("\n").map((line, i) => {
                                     return (
                                         <>
@@ -199,11 +200,16 @@ export default function Home() {
                                             >
                                                 {line}
                                             </span>
-                                            {line === "" ? <br /> : null}
+                                            {line === "" ? (
+                                                <br key={`bio-${i}-br`} />
+                                            ) : null}
                                         </>
                                     );
                                 })}
-                            </p>
+                            </p> }*/
+                            <div className="my-1 mt-3 text-black dark:text-white leading-snug text-sm">
+                                <PostContent post={{ content: bio }} />
+                            </div>
                         )}
                         <div className="flex my-2 text-sm">
                             <p
