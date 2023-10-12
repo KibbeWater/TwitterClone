@@ -12,7 +12,6 @@ export default function UserContext({
         id: string;
         tag: string | null;
         image: string | null;
-        permissions: bigint;
         verified: boolean | null;
     };
     className?: string;
