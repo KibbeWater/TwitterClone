@@ -14,6 +14,7 @@ import ProfileSkeleton from "~/components/Skeletons/ProfileSkeleton";
 import VerifiedCheck from "~/components/Verified";
 
 import { api } from "~/utils/api";
+import { PERMISSIONS, hasPermission } from "~/utils/permission";
 
 function isUserFollowing(
     user: { id: string } | undefined,
@@ -156,7 +157,11 @@ export default function Home() {
                                     </button>
                                 )}
                             </div>
-                            {user?.role === "ADMIN" ? (
+                            {user &&
+                            hasPermission(user, [
+                                PERMISSIONS.MANAGE_USERS,
+                                PERMISSIONS.MANAGE_USERS_EXTENDED,
+                            ]) ? (
                                 <button
                                     className={
                                         "bg-black dark:bg-white text-white dark:text-black px-[15px] py-2 font-bold cursor-pointer rounded-full mx-3"

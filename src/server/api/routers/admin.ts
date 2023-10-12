@@ -2,6 +2,7 @@ import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
+import { PERMISSIONS, hasPermission } from "~/utils/permission";
 
 export const adminRouter = createTRPCRouter({
     setUserVerification: protectedProcedure
@@ -14,12 +15,17 @@ export const adminRouter = createTRPCRouter({
         .mutation(async ({ ctx, input }) => {
             const { id: userId, shouldVerify } = input;
 
-            if (ctx.session.user.role !== "ADMIN") {
+            if (
+                hasPermission(
+                    ctx.session.user,
+                    PERMISSIONS.MANAGE_USERS_EXTENDED,
+                )
+            ) {
                 throw new TRPCError({
                     code: "UNAUTHORIZED",
                     message:
                         "You don't have sufficient permissions to perform this action.",
-                    cause: "User is not an admin.",
+                    cause: "User lacks the MANAGE_USERS_EXTENDED permission.",
                 });
             }
 
@@ -42,7 +48,7 @@ export const adminRouter = createTRPCRouter({
         .mutation(async ({ ctx, input }) => {
             const { id: userId, newDate } = input;
 
-            if (ctx.session.user.role !== "ADMIN") {
+            if (hasPermission(ctx.session.user, PERMISSIONS.MANAGE_USERS)) {
                 throw new TRPCError({
                     code: "UNAUTHORIZED",
                     message:
@@ -70,7 +76,7 @@ export const adminRouter = createTRPCRouter({
         .query(async ({ ctx, input }) => {
             const { id: userId } = input;
 
-            if (ctx.session.user.role !== "ADMIN") {
+            if (hasPermission(ctx.session.user, PERMISSIONS.MANAGE_USERS)) {
                 throw new TRPCError({
                     code: "UNAUTHORIZED",
                     message:
