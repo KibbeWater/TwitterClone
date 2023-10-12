@@ -200,23 +200,6 @@ export default function Home() {
                         </h3>
                         <p className="mt-[2px] text-base leading-none text-neutral-500">{`@${profile?.tag}`}</p>
                         {bio !== "" && bio !== undefined && (
-                            /*{ <p className="my-1 mt-3 text-black dark:text-white leading-snug text-sm">
-                                {bio.split("\n").map((line, i) => {
-                                    return (
-                                        <>
-                                            <span
-                                                key={`bio-${i}`}
-                                                className="block"
-                                            >
-                                                {line}
-                                            </span>
-                                            {line === "" ? (
-                                                <br key={`bio-${i}-br`} />
-                                            ) : null}
-                                        </>
-                                    );
-                                })}
-                            </p> }*/
                             <div className="my-1 mt-3 text-black dark:text-white leading-snug text-sm">
                                 <PostContent post={{ content: bio }} />
                             </div>

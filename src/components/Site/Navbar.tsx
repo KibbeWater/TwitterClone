@@ -23,6 +23,7 @@ import { useModal } from "~/components/Handlers/ModalHandler";
 import PostModal from "~/components/Modals/PostModal";
 
 import { api } from "~/utils/api";
+import VerifiedCheck from "../Verified";
 
 export default function Navbar() {
     const [activateUserPanel, setActivateUserPanel] = useState(false);
@@ -238,9 +239,15 @@ export default function Navbar() {
                                     </div>
 
                                     <div className="ml-2 flex-col items-start hidden lg:flex">
-                                        <p className="hidden transition-all lg:block font-bold opacity-0 lg:opacity-100 text-black dark:text-white leading-[1.1]">
-                                            {user?.name}
-                                        </p>
+                                        <div className="flex flex-nowrap items-center gap-[2px]">
+                                            <p className="hidden transition-all lg:block font-bold opacity-0 lg:opacity-100 text-black dark:text-white leading-none truncate whitespace-nowrap">
+                                                {user?.name}
+                                            </p>
+                                            {session.user.verified && (
+                                                <VerifiedCheck />
+                                            )}
+                                        </div>
+
                                         <p className="hidden transition-all lg:block opacity-0 lg:opacity-100 w-min text-gray-600 leading-[1.1]">{`@${user?.tag}`}</p>
                                     </div>
                                 </div>

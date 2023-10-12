@@ -24,6 +24,7 @@ declare module "next-auth" {
             tag: string;
             // ...other properties
             permissions: string;
+            verified: boolean;
             lastTagReset: string;
         };
     }
@@ -31,6 +32,7 @@ declare module "next-auth" {
     interface User {
         tag: string;
         permissions: string;
+        verified: boolean;
         lastTagReset: string;
     }
 }
@@ -64,6 +66,7 @@ export const authOptions: NextAuthOptions = {
                 id: user.id,
                 tag: user.tag,
                 lastTagReset: user.lastTagReset,
+                verified: user.verified,
                 permissions: user.permissions,
             },
         }),

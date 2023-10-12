@@ -171,7 +171,9 @@ export default function AdminModal({
                                         }
                                         disabled={isVerifying}
                                     >
-                                        {"Verify User"}
+                                        {!_user?.verified
+                                            ? "Verify User"
+                                            : "Unverify User"}
                                     </button>
                                 )}
                         </div>

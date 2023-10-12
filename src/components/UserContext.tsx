@@ -34,14 +34,14 @@ export default function UserContext({
                     className={"object-cover h-full w-full"}
                 />
             </div>
-            <div className="flex flex-col py-1">
+            <div className="flex flex-col pt-1">
                 <div className="flex items-center">
-                    <p className="font-bold text-black dark:text-white leading-none truncate">
+                    <p className="font-bold text-black dark:text-white leading-tight truncate">
                         {user.name}
                     </p>
                     {user.verified ? <VerifiedCheck /> : null}
                 </div>
-                <p className="text-gray-500 leading-none mt-px truncate">
+                <p className="text-gray-500 leading-tight truncate">
                     @{user.tag}
                 </p>
             </div>
