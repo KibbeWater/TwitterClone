@@ -186,12 +186,12 @@ export default function PostComponent(p: {
                                     </p>
                                 </button>
                             ) : null}
-                            {isMe &&
-                            session &&
-                            hasPermission(
-                                session.user,
-                                PERMISSIONS.MANAGE_POSTS,
-                            ) ? (
+                            {isMe ||
+                            (session &&
+                                hasPermission(
+                                    session.user,
+                                    PERMISSIONS.MANAGE_POSTS,
+                                )) ? (
                                 <button
                                     disabled={loading || !optionsActive}
                                     className="w-full px-6 py-2 text-center enabled:hover:bg-black/5 enabled:cursor-pointer transition-colors grow-0"

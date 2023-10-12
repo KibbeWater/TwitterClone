@@ -61,7 +61,7 @@ model User {
     emailVerified       DateTime?
     banner              String?
     image               String?        @default("/assets/imgs/default-avatar.png")
-    permissions         BigInt         @default(0)
+    permissions         String         @default("0")
     verified            Boolean?       @default(false)
     posts               Post[]         @relation(name: "PostToAuthor")
     accounts            Account[]

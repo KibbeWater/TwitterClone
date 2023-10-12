@@ -1,3 +1,4 @@
+import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
 import {
@@ -89,9 +90,13 @@ export const userRouter = createTRPCRouter({
                 },
             });
 
-            if (!user) {
-                throw new Error("User not found");
-            }
+            if (!user)
+                throw new TRPCError({
+                    code: "NOT_FOUND",
+                    message:
+                        "User not found. Please check the tag and try again.",
+                    cause: "User not found",
+                });
 
             return user;
         }),
@@ -146,9 +151,19 @@ export const userRouter = createTRPCRouter({
                     where: { tag },
                 });
 
-                if (tagExists) throw new Error("Tag already exists");
+                if (tagExists)
+                    throw new TRPCError({
+                        code: "BAD_REQUEST",
+                        message: "Tag already exists.",
+                        cause: "Tag already exists.",
+                    });
+
                 if (/^[a-zA-Z0-9_-]{3,16}$/.test(tag) === false)
-                    throw new Error("Invalid tag");
+                    throw new TRPCError({
+                        code: "BAD_REQUEST",
+                        message: "The tag you provided is invalid.",
+                        cause: "Invalid tag",
+                    });
 
                 const lastTagReset = new Date(ctx.session.user.lastTagReset);
                 const now = new Date();
@@ -159,9 +174,12 @@ export const userRouter = createTRPCRouter({
                         where: { id },
                         data: { tag, lastTagReset: now.toISOString() },
                     });
-                } else {
-                    throw new Error("Tag change cooldown not met");
-                }
+                } else
+                    throw new TRPCError({
+                        code: "TOO_MANY_REQUESTS",
+                        message: "You can only change your tag once a month.",
+                        cause: "Tag change cooldown",
+                    });
             }
             return await ctx.prisma.user.update({ where: { id }, data: input });
         }),
@@ -194,9 +212,12 @@ export const userRouter = createTRPCRouter({
                 },
             });
 
-            if (!user) {
-                throw new Error("User not found");
-            }
+            if (!user)
+                throw new TRPCError({
+                    code: "NOT_FOUND",
+                    message: "User not found.",
+                    cause: "User not found.",
+                });
 
             return user[input.followType];
         }),

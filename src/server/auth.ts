@@ -23,14 +23,14 @@ declare module "next-auth" {
             id: string;
             tag: string;
             // ...other properties
-            permissions: bigint;
+            permissions: string;
             lastTagReset: string;
         };
     }
 
     interface User {
         tag: string;
-        permissions: bigint;
+        permissions: string;
         lastTagReset: string;
     }
 }

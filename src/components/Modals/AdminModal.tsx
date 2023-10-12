@@ -1,10 +1,22 @@
 import { XMarkIcon } from "@heroicons/react/20/solid";
 import type { User } from "@prisma/client";
-import { useMemo, useCallback, useState } from "react";
+import { useSession } from "next-auth/react";
+import { useMemo, useCallback, useState, useEffect } from "react";
 
 import { useModal } from "~/components/Handlers/ModalHandler";
 
 import { api } from "~/utils/api";
+import {
+    PERMISSIONS,
+    getPermission,
+    getPermissionList,
+    hasPermission,
+    permissionDependants,
+    removePermission as _removePermissions,
+    getPermissions,
+    getAllPermissions,
+    addPermission as _addPermission,
+} from "~/utils/permission";
 
 export default function AdminModal({
     userId,
@@ -14,12 +26,63 @@ export default function AdminModal({
     onMutate?: (user: User) => void;
 }) {
     const { closeModal } = useModal();
+    const { data: session } = useSession();
 
     const [activeTab, setActiveTab] = useState(0);
 
     const { data: user, refetch: _refetchUser } = api.admin.getUser.useQuery({
         id: userId,
     });
+
+    const [userPermissions, setUserPermissions] = useState<string[]>([]);
+    const arePermissionsModified = useMemo(() => {
+        if (!user) return false;
+
+        const curPerms = getPermissionList({
+            permissions: user.permissions.toString(),
+        });
+
+        return curPerms.sort().join(",") !== userPermissions.sort().join(",");
+    }, [userPermissions, user]);
+
+    useEffect(() => {
+        if (user?.permissions)
+            setUserPermissions(
+                getPermissionList({ permissions: user.permissions.toString() }),
+            );
+    }, [user?.permissions]);
+
+    const removePermissions = useCallback<(perm: string) => void>(
+        (perm) =>
+            setUserPermissions(
+                getPermissionList({
+                    permissions: _removePermissions(
+                        {
+                            permissions:
+                                getPermissions(userPermissions).toString(),
+                        },
+                        getPermission(perm)!,
+                    ).toString(),
+                }),
+            ),
+        [userPermissions],
+    );
+
+    const addPermission = useCallback<(perm: string) => void>(
+        (perm) =>
+            setUserPermissions(
+                getPermissionList({
+                    permissions: _addPermission(
+                        {
+                            permissions:
+                                getPermissions(userPermissions).toString(),
+                        },
+                        getPermission(perm)!,
+                    ).toString(),
+                }),
+            ),
+        [userPermissions],
+    );
 
     const refetchUser = useCallback(() => {
         _refetchUser().catch(console.error);
@@ -41,6 +104,20 @@ export default function AdminModal({
             },
         });
 
+    const { mutate: _setPermissions, isLoading: isSettingPermissions } =
+        api.admin.updateUserPermissions.useMutation({
+            onSuccess: (data) => {
+                onMutate?.(data);
+                refetchUser();
+                setUserPermissions(
+                    getPermissionList({
+                        permissions: data.permissions.toString(),
+                    }),
+                );
+            },
+            onError: (err) => alert(`${err.message}`),
+        });
+
     const verifyUser = useCallback<(shouldVerify: boolean) => void>(() => {
         _verifyUser({ id: user!.id, shouldVerify: !user?.verified });
     }, [_verifyUser, user]);
@@ -50,6 +127,15 @@ export default function AdminModal({
             _setTagCooldown({ id: user!.id, newDate: newDate ?? new Date(0) });
         },
         [_setTagCooldown, user],
+    );
+
+    const applyPermissions = useCallback<() => void>(
+        () =>
+            _setPermissions({
+                id: user!.id,
+                permissions: getPermissions(userPermissions).toString(),
+            }),
+        [user, userPermissions, _setPermissions],
     );
 
     const menuOptions = useMemo<
@@ -73,13 +159,21 @@ export default function AdminModal({
                                     {_user.verified ? "Yes" : "No"}
                                 </span>
                             </p>
-                            <button
-                                className="py-1 px-2 bg-black dark:bg-white dark:text-black text-white rounded-lg w-min whitespace-nowrap disabled:bg-black/20 dark:disabled:bg-white/80"
-                                onClick={() => verifyUser(!_user?.verified)}
-                                disabled={isVerifying}
-                            >
-                                {"Verify User"}
-                            </button>
+                            {session &&
+                                hasPermission(
+                                    session.user,
+                                    PERMISSIONS.MANAGE_USERS_EXTENDED,
+                                ) && (
+                                    <button
+                                        className="py-1 px-2 bg-black dark:bg-white dark:text-black text-white rounded-lg w-min whitespace-nowrap disabled:bg-black/20 dark:disabled:bg-white/80"
+                                        onClick={() =>
+                                            verifyUser(!_user?.verified)
+                                        }
+                                        disabled={isVerifying}
+                                    >
+                                        {"Verify User"}
+                                    </button>
+                                )}
                         </div>
                         <div className="flex flex-col gap-2">
                             <p className="text-black dark:text-white">
@@ -102,21 +196,124 @@ export default function AdminModal({
                                     ).toLocaleString() ?? "N/A"}
                                 </span>
                             </p>
-                            <button
-                                className="py-1 px-2 bg-black dark:bg-white dark:text-black text-white rounded-lg w-min whitespace-nowrap disabled:bg-black/20 dark:disabled:bg-white/80"
-                                onClick={() => resetTagCooldown()}
-                                disabled={isResetting}
-                            >
-                                Reset Cooldown
-                            </button>
-                            <button
-                                className="py-1 px-2 bg-black dark:bg-white dark:text-black text-white rounded-lg w-min whitespace-nowrap disabled:bg-black/20 dark:disabled:bg-white/80"
-                                onClick={() => resetTagCooldown(new Date())}
-                                disabled={isResetting}
-                            >
-                                Set Cooldown
-                            </button>
+                            {session &&
+                                hasPermission(
+                                    session.user,
+                                    PERMISSIONS.MANAGE_USERS,
+                                ) && (
+                                    <>
+                                        <button
+                                            className="py-1 px-2 bg-black dark:bg-white dark:text-black text-white rounded-lg w-min whitespace-nowrap disabled:bg-black/20 dark:disabled:bg-white/80"
+                                            onClick={() => resetTagCooldown()}
+                                            disabled={isResetting}
+                                        >
+                                            Reset Cooldown
+                                        </button>
+                                        <button
+                                            className="py-1 px-2 bg-black dark:bg-white dark:text-black text-white rounded-lg w-min whitespace-nowrap disabled:bg-black/20 dark:disabled:bg-white/80"
+                                            onClick={() =>
+                                                resetTagCooldown(new Date())
+                                            }
+                                            disabled={isResetting}
+                                        >
+                                            Set Cooldown
+                                        </button>
+                                    </>
+                                )}
                         </div>
+                        {session &&
+                            hasPermission(
+                                session.user,
+                                PERMISSIONS.MANAGE_USER_ROLES,
+                            ) && (
+                                <div className="flex flex-col gap-2">
+                                    <p className="text-black dark:text-white">
+                                        User Roles:
+                                    </p>
+                                    <div className="w-4/6 flex flex-wrap items-center px-3 py-2 gap-y-1 gap-x-1">
+                                        {getAllPermissions()
+                                            .filter(
+                                                (v) =>
+                                                    !userPermissions.includes(
+                                                        v,
+                                                    ),
+                                            )
+                                            .sort(
+                                                (p1, p2) =>
+                                                    p1.length - p2.length,
+                                            )
+                                            .map((p, idx) => (
+                                                <p
+                                                    key={`${p}-${idx}`}
+                                                    className={`bg-black dark:bg-white text-white dark:text-black px-2 text-sm rounded-full relative cursor-pointer`}
+                                                    onClick={() =>
+                                                        addPermission(p)
+                                                    }
+                                                >
+                                                    {p}
+                                                </p>
+                                            ))}
+                                    </div>
+                                    <div className="w-4/6 flex flex-wrap items-center px-3 py-2 gap-y-1 gap-x-1 bg-neutral-200 dark:bg-neutral-800 rounded-xl">
+                                        {userPermissions
+                                            .sort(
+                                                (p1, p2) =>
+                                                    p1.length - p2.length,
+                                            )
+                                            .map((p, idx) => {
+                                                const dependants =
+                                                    permissionDependants(
+                                                        getPermission(p)!,
+                                                    );
+                                                const isDependant =
+                                                    dependants.length > 0 &&
+                                                    dependants.some((d) =>
+                                                        userPermissions.includes(
+                                                            d,
+                                                        ),
+                                                    );
+
+                                                return (
+                                                    <p
+                                                        key={`${p}-${idx}`}
+                                                        className={`bg-black dark:bg-white text-white dark:text-black pl-2 pr-6 text-sm rounded-full relative ${
+                                                            isDependant
+                                                                ? "!bg-red-800"
+                                                                : ""
+                                                        }`}
+                                                    >
+                                                        {p}
+                                                        <span
+                                                            className={`absolute right-1 top-0 bottom-0 w-4 my-[auto] flex cursor-pointer items-center ${
+                                                                isDependant
+                                                                    ? "!cursor-default"
+                                                                    : ""
+                                                            }`}
+                                                            onClick={() =>
+                                                                !isDependant &&
+                                                                removePermissions(
+                                                                    p,
+                                                                )
+                                                            }
+                                                        >
+                                                            <XMarkIcon className="text-white dark:text-black w-full" />
+                                                        </span>
+                                                    </p>
+                                                );
+                                            })}
+                                    </div>
+                                    <button
+                                        className="py-1 px-2 bg-black dark:bg-white dark:text-black text-white rounded-lg w-min whitespace-nowrap disabled:bg-black/20 dark:disabled:bg-white/80"
+                                        onClick={() => applyPermissions()}
+                                        disabled={
+                                            isSettingPermissions ||
+                                            !arePermissionsModified
+                                        }
+                                    >
+                                        Apply Permissions
+                                    </button>
+                                </div>
+                            )}
                     </div>
                 ),
             },
@@ -125,7 +322,19 @@ export default function AdminModal({
                 element: () => <></>,
             },
         ],
-        [isVerifying, verifyUser, isResetting, resetTagCooldown],
+        [
+            isVerifying,
+            verifyUser,
+            isResetting,
+            resetTagCooldown,
+            session,
+            userPermissions,
+            addPermission,
+            removePermissions,
+            applyPermissions,
+            arePermissionsModified,
+            isSettingPermissions,
+        ],
     );
 
     return (

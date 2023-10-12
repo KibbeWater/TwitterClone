@@ -1,5 +1,5 @@
 type UserProp = {
-    permissions: bigint;
+    permissions: string;
 };
 
 export const DEFAULT_PERMISSIONS = 0n;
@@ -7,7 +7,7 @@ export const DEFAULT_PERMISSIONS = 0n;
 const setBit = (value: bigint, bitPos: number) =>
     value | (1n << BigInt(bitPos));
 
-// A bigint has 64 bits
+// A bigint has 52 bits???
 export const PERMISSIONS = {
     MANAGE_USERS: setBit(0n, 0),
     MANAGE_USERS_EXTENDED: setBit(0n, 1) | setBit(0n, 0),
@@ -16,21 +16,72 @@ export const PERMISSIONS = {
 
     MANAGE_POSTS: setBit(0n, 3),
 
-    ADMINISTRATOR: 9007199254740991n, // All permissions, use with caution
+    ADMINISTRATOR: setBit(0n, 52), // All permissions, use with caution
 };
 
 export const hasPermission = (
     user: UserProp,
     permissions: bigint | bigint[],
     or?: boolean,
-) =>
-    typeof permissions === "bigint"
-        ? (user.permissions & permissions) === permissions
-        : or
-        ? permissions.findIndex((p) => (user.permissions & p) === p) !== -1
-        : permissions.every((p) => (user.permissions & p) === p);
+    ignoreAdministrator?: boolean,
+): boolean =>
+    ignoreAdministrator ??
+    !hasPermission(user, PERMISSIONS.ADMINISTRATOR, false, true)
+        ? typeof permissions === "bigint"
+            ? (BigInt(user.permissions) & permissions) === permissions
+            : or
+            ? permissions.findIndex(
+                  (p) => (BigInt(user.permissions) & p) === p,
+              ) !== -1
+            : permissions.every((p) => (BigInt(user.permissions) & p) === p)
+        : true; // If the user has the administrator permission, they have all permissions;
+
+export const getPermission = (permission: string): bigint | null =>
+    Object.entries(PERMISSIONS).find(([key]) => key === permission)?.[1] ??
+    null;
+
+export const getPermissions = (permissions: string[]): bigint => {
+    const res = permissions.reduce(
+        (acc, cur) => acc | (getPermission(cur) ?? 0n),
+        0n,
+    );
+    return res;
+};
 
 export const getPermissionList = (user: UserProp): string[] =>
     Object.entries(PERMISSIONS)
-        .map(([key, value]) => (hasPermission(user, value) ? key : null))
+        .map(([key, value]) =>
+            hasPermission(user, value, false, true) ? key : null,
+        )
         .filter((x) => x !== null) as string[];
+
+export const getAllPermissions = (): string[] => Object.keys(PERMISSIONS);
+
+export const permissionDependencies = (permission: bigint): string[] => {
+    const permissions = getAllPermissions().filter(
+        (p) =>
+            (getPermission(p)! & permission) === getPermission(p)! &&
+            getPermission(p)! !== permission,
+    );
+
+    return permissions;
+};
+
+export const permissionDependants = (permission: bigint): string[] => {
+    const permissions = getAllPermissions().filter(
+        (p) =>
+            (getPermission(p)! & permission) === permission &&
+            getPermission(p)! !== permission,
+    );
+
+    return permissions;
+};
+
+export const addPermission = (user: UserProp, permission: bigint): bigint =>
+    BigInt(user.permissions) | permission;
+
+export const removePermission = (user: UserProp, permission: bigint): bigint =>
+    permissionDependants(permission).reduce(
+        (acc, cur) => acc & ~getPermission(cur)!,
+        BigInt(user.permissions),
+    ) & ~permission;

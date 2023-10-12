@@ -369,9 +369,9 @@ export const postRouter = createTRPCRouter({
     delete: protectedProcedure
         .input(z.object({ id: z.string() }))
         .mutation(async ({ ctx, input }) => {
-            console.log(ctx.session.user);
-            if (hasPermission(ctx.session.user, PERMISSIONS.MANAGE_POSTS))
+            if (!hasPermission(ctx.session.user, PERMISSIONS.MANAGE_POSTS))
                 return new Error("You are not an admin");
+
             return await ctx.prisma.post.delete({
                 where: { id: input.id },
             });
