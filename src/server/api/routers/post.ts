@@ -5,6 +5,7 @@ import {
     protectedProcedure,
     publicProcedure,
 } from "~/server/api/trpc";
+import { PERMISSIONS, hasPermission } from "~/utils/permission";
 
 export const postRouter = createTRPCRouter({
     // DEPRECATED
@@ -58,7 +59,7 @@ export const postRouter = createTRPCRouter({
                             id: true,
                             name: true,
                             tag: true,
-                            role: true,
+                            permissions: true,
                             verified: true,
                             image: true,
                             followerIds: true,
@@ -72,7 +73,7 @@ export const postRouter = createTRPCRouter({
                                     id: true,
                                     name: true,
                                     tag: true,
-                                    role: true,
+                                    permissions: true,
                                     verified: true,
                                     image: true,
                                     followerIds: true,
@@ -122,7 +123,7 @@ export const postRouter = createTRPCRouter({
                     id: true,
                     name: true,
                     tag: true,
-                    role: true,
+                    permissions: true,
                     verified: true,
                     image: true,
                     followerIds: true,
@@ -210,7 +211,7 @@ export const postRouter = createTRPCRouter({
                             id: true,
                             name: true,
                             tag: true,
-                            role: true,
+                            permissions: true,
                             verified: true,
                             image: true,
                             followerIds: true,
@@ -224,7 +225,7 @@ export const postRouter = createTRPCRouter({
                                     id: true,
                                     name: true,
                                     tag: true,
-                                    role: true,
+                                    permissions: true,
                                     verified: true,
                                     image: true,
                                     followerIds: true,
@@ -290,7 +291,7 @@ export const postRouter = createTRPCRouter({
                             id: true,
                             name: true,
                             tag: true,
-                            role: true,
+                            permissions: true,
                             verified: true,
                             image: true,
                             followerIds: true,
@@ -304,7 +305,7 @@ export const postRouter = createTRPCRouter({
                                     id: true,
                                     name: true,
                                     tag: true,
-                                    role: true,
+                                    permissions: true,
                                     verified: true,
                                     image: true,
                                     followerIds: true,
@@ -368,9 +369,9 @@ export const postRouter = createTRPCRouter({
     delete: protectedProcedure
         .input(z.object({ id: z.string() }))
         .mutation(async ({ ctx, input }) => {
-            console.log(ctx.session.user);
-            if (ctx.session.user.role !== "ADMIN")
+            if (!hasPermission(ctx.session.user, PERMISSIONS.MANAGE_POSTS))
                 return new Error("You are not an admin");
+
             return await ctx.prisma.post.delete({
                 where: { id: input.id },
             });

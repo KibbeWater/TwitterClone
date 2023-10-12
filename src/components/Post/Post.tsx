@@ -15,6 +15,7 @@ import PostFooter from "~/components/Post/PostFooter";
 import VerifiedCheck from "~/components/Verified";
 
 import { api } from "~/utils/api";
+import { PERMISSIONS, hasPermission } from "~/utils/permission";
 
 function isUserFollowing(
     user: { id: string } | undefined,
@@ -185,7 +186,12 @@ export default function PostComponent(p: {
                                     </p>
                                 </button>
                             ) : null}
-                            {isMe || session?.user.role === "ADMIN" ? (
+                            {isMe ||
+                            (session &&
+                                hasPermission(
+                                    session.user,
+                                    PERMISSIONS.MANAGE_POSTS,
+                                )) ? (
                                 <button
                                     disabled={loading || !optionsActive}
                                     className="w-full px-6 py-2 text-center enabled:hover:bg-black/5 enabled:cursor-pointer transition-colors grow-0"

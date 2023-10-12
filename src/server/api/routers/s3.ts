@@ -1,5 +1,6 @@
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
 import { env } from "~/env.mjs";
@@ -49,17 +50,23 @@ export const s3Router = createTRPCRouter({
             const maxSize = maxSizes[type];
 
             if (filesize > maxSize) {
-                throw new Error(
-                    `File too large. Max size is ${maxSize / 1024 / 1024} MB`,
-                );
+                throw new TRPCError({
+                    code: "BAD_REQUEST",
+                    message: `File too large. Max size is ${
+                        maxSize / 1024 / 1024
+                    } MB`,
+                    cause: "File too large",
+                });
             }
 
             if (!permittedImageTypes.includes(filetype)) {
-                throw new Error(
-                    `Invalid file type. Must be one of ${permittedImageTypes.join(
+                throw new TRPCError({
+                    code: "BAD_REQUEST",
+                    message: `Invalid file type. Must be one of ${permittedImageTypes.join(
                         ", ",
                     )}`,
-                );
+                    cause: "Invalid filetype",
+                });
             }
 
             const key = `${user.id}/${type}/${filename}`;
