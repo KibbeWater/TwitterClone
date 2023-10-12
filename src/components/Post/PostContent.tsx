@@ -3,7 +3,7 @@ import Link from "next/link";
 
 import { usernameRegex } from "~/utils/regexStandards";
 
-export default function PostContent({ post }: { post: Post }) {
+export default function PostContent({ post }: { post: { content: string } }) {
     return (
         <div className="w-full max-w-full">
             <p className="text-black dark:text-white">
