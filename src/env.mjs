@@ -27,6 +27,12 @@ export const env = createEnv({
         GOOGLE_ID: z.string().min(1),
         GOOGLE_SECRET: z.string().min(1),
 
+        STRIPE_SK: z.string().min(1),
+        STRIPE_PK: z.string().min(1),
+        STRIPE_WEBHOOK_SECRET: z.string().min(1),
+
+        STRIPE_PREMIUM_PRICE_ID: z.string().min(1),
+
         AWS_S3_REGION: z.string().min(1),
         AWS_S3_BUCKET: z.string().min(1),
         AWS_ACCESS_KEY_ID: z.string().min(1),
@@ -60,6 +66,11 @@ export const env = createEnv({
 
         GOOGLE_ID: process.env.GOOGLE_ID,
         GOOGLE_SECRET: process.env.GOOGLE_SECRET,
+
+        STRIPE_SK: process.env.STRIPE_SK,
+        STRIPE_PK: process.env.STRIPE_PK,
+        STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
+        STRIPE_PREMIUM_PRICE_ID: process.env.STRIPE_PREMIUM_PRICE_ID,
 
         AWS_S3_REGION: process.env.AWS_S3_REGION,
         AWS_S3_BUCKET: process.env.AWS_S3_BUCKET,
