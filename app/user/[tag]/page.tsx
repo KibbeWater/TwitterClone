@@ -112,7 +112,7 @@ export default function Page({ params }: Props) {
 									<button
 										className='bg-black/0 px-[15px] py-2 font-semibold border-[1px] border-gray-400 text-black dark:text-white min-w-[36px] transition-all cursor-pointer rounded-full hover:bg-gray-700/10'
 										onClick={() => {
-											// if (setModal) setModal(<EditProfileModal mutate={mutate} />);
+											if (setModal) setModal(<EditProfileModal mutate={mutate} />);
 										}}
 									>
 										Edit profile
