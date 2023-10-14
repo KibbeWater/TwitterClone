@@ -1,5 +1,5 @@
-import Layout from "../Site/Layouts/Layout";
-import PostSkeleton from "./PostSkeleton";
+import Layout from "~/components/Site/Layouts/Layout";
+import PostSkeleton from "~/components/Skeletons/PostSkeleton";
 
 export default function ProfileSkeleton() {
     return (

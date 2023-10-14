@@ -12,15 +12,18 @@ import {
     MoonIcon,
     SunIcon,
 } from "@heroicons/react/24/solid";
-import { signOut, useSession } from "next-auth/react";
+import { signIn, signOut, useSession } from "next-auth/react";
 import { useTheme } from "next-themes";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useMemo, useState } from "react";
 
-import { useModal } from "../Handlers/ModalHandler";
-import PostModal from "../Modals/PostModal";
+import { useModal } from "~/components/Handlers/ModalHandler";
+import PostModal from "~/components/Modals/PostModal";
+
+import { api } from "~/utils/api";
+import VerifiedCheck from "../Verified";
 
 export default function Navbar() {
     const [activateUserPanel, setActivateUserPanel] = useState(false);
@@ -29,30 +32,70 @@ export default function Navbar() {
     const { setModal } = useModal();
     const { theme, setTheme } = useTheme();
 
+    const { data: notifData } = api.notifications.getUnreadCount.useQuery({});
+
     const router = useRouter();
 
-    const links = useMemo(() => {
+    const links = useMemo<
+        {
+            name: string;
+            activeURLs: string[];
+            href?: string;
+            onClick?: () => void;
+            badgeCount?: number;
+            iconSolid: React.ForwardRefExoticComponent<
+                Omit<React.SVGProps<SVGSVGElement>, "ref"> & {
+                    title?: string | undefined;
+                    titleId?: string | undefined;
+                } & React.RefAttributes<SVGSVGElement>
+            >;
+            iconOutline: React.ForwardRefExoticComponent<
+                Omit<React.SVGProps<SVGSVGElement>, "ref"> & {
+                    title?: string | undefined;
+                    titleId?: string | undefined;
+                } & React.RefAttributes<SVGSVGElement>
+            >;
+        }[]
+    >(() => {
         return [
             {
                 name: "Home",
                 href: "/home",
+                activeURLs: ["/home"],
                 iconSolid: HomeSolid,
                 iconOutline: HomeOutline,
             },
             {
                 name: "Notifications",
                 href: "/notifications",
+                activeURLs: ["/notifications"],
+                badgeCount: notifData?.count,
                 iconSolid: BellSolid,
                 iconOutline: BellOutline,
             },
             {
                 name: "Profile",
                 href: session?.user.tag ? `/@${session?.user.tag}` : "/login",
+                activeURLs: [
+                    `/@${session?.user.tag}`,
+                    `/user/${session?.user.tag}`,
+                    `/profile`,
+                ],
+                onClick: () => {
+                    if (!session)
+                        signIn(undefined, { callbackUrl: "/profile" }).catch(
+                            console.error,
+                        );
+                    else
+                        router
+                            .push(`/@${session?.user.tag}`)
+                            .catch(console.error);
+                },
                 iconSolid: UserSolid,
                 iconOutline: UserOutline,
             },
         ];
-    }, [session]);
+    }, [session, router, notifData?.count]);
 
     const user = session?.user;
 
@@ -78,34 +121,86 @@ export default function Navbar() {
                             height={35}
                         />
                     </Link>
-                    {links.map((link) => (
-                        <Link
-                            href={link.href}
-                            className={
-                                "lg:h-12 h-16 mb-2 rounded-full bg-transparent hover:bg-gray-600/25 flex items-center"
-                            }
-                            key={"link-" + link.name}
-                        >
-                            <div className="w-8 ml-4 flex items-center justify-center">
-                                {router.asPath.toLowerCase() !==
-                                link.href.toLowerCase() ? (
-                                    <link.iconOutline className="text-2xl text-black dark:text-white" />
-                                ) : (
-                                    <link.iconSolid className="text-2xl text-black dark:text-white" />
-                                )}
-                            </div>
+                    {links.map(
+                        (link) =>
+                            (link.onClick && (
+                                <button
+                                    className={
+                                        "lg:h-12 h-16 mb-2 rounded-full bg-transparent hover:bg-gray-600/25 flex items-center"
+                                    }
+                                    onClick={link.onClick}
+                                    key={"link-" + link.name}
+                                >
+                                    <div className="w-8 ml-4 flex items-center justify-center relative">
+                                        {!link.activeURLs
+                                            .map((u) => u.toLowerCase())
+                                            .includes(
+                                                router.asPath.toLowerCase(),
+                                            ) ? (
+                                            <link.iconOutline className="text-2xl text-black dark:text-white" />
+                                        ) : (
+                                            <link.iconSolid className="text-2xl text-black dark:text-white" />
+                                        )}
+                                        {(link.badgeCount ?? 0) > 0 ? (
+                                            <div className="w-5 h-5 bg-red-500 rounded-full absolute left-2/4 bottom-2/4 z-20 border-2 dark:border-black border-white box-content">
+                                                <div className="w-5 h-5 bg-red-500 rounded-full absolute top-0 bottom-0 left-0 right-0 m-auto animate-ping z-10" />
+                                                <p className="text-white leading-5 text-center align-middle text-xs">
+                                                    {(link.badgeCount ?? 0) > 99
+                                                        ? "99+"
+                                                        : link.badgeCount}
+                                                </p>
+                                            </div>
+                                        ) : null}
+                                    </div>
 
-                            <span className="ml-5 font-bold text-lg hidden lg:block text-black dark:text-white">
-                                {link.name}
-                            </span>
-                        </Link>
-                    ))}
+                                    <span className="ml-5 font-bold text-lg hidden lg:block text-black dark:text-white">
+                                        {link.name}
+                                    </span>
+                                </button>
+                            )) ??
+                            (link.href && (
+                                <Link
+                                    href={link.href}
+                                    className={
+                                        "lg:h-12 h-16 mb-2 rounded-full bg-transparent hover:bg-gray-600/25 flex items-center"
+                                    }
+                                    key={"link-" + link.name}
+                                >
+                                    <div className="w-8 ml-4 flex items-center justify-center relative">
+                                        {!link.activeURLs
+                                            .map((u) => u.toLowerCase())
+                                            .includes(
+                                                router.asPath.toLowerCase(),
+                                            ) ? (
+                                            <link.iconOutline className="text-2xl text-black dark:text-white" />
+                                        ) : (
+                                            <link.iconSolid className="text-2xl text-black dark:text-white" />
+                                        )}
+                                        {(link.badgeCount ?? 0) > 0 ? (
+                                            <div className="w-5 h-5 bg-red-500 rounded-full absolute left-2/4 bottom-2/4 z-20 border-2 dark:border-black border-white box-content">
+                                                <div className="w-5 h-5 bg-red-500 rounded-full absolute top-0 bottom-0 left-0 right-0 m-auto animate-ping z-10" />
+                                                <p className="text-white leading-5 text-center align-middle text-xs">
+                                                    {(link.badgeCount ?? 0) > 99
+                                                        ? "99+"
+                                                        : link.badgeCount}
+                                                </p>
+                                            </div>
+                                        ) : null}
+                                    </div>
+
+                                    <span className="ml-5 font-bold text-lg hidden lg:block text-black dark:text-white">
+                                        {link.name}
+                                    </span>
+                                </Link>
+                            )),
+                    )}
                     <button
                         className={
-                            "w-16 h-16 lg:h-14 mb-1 rounded-full transition-all flex justify-center items-center text-white cursor-pointer bg-accent-primary-500 hover:bg-accent-primary-700 lg:w-full"
+                            "w-16 h-16 lg:h-14 mb-1 rounded-full transition-all flex justify-center items-center text-white cursor-pointer bg-accent-primary-500 hover:bg-accent-primary-700 disabled:bg-red-900 disabled:cursor-default lg:w-full"
                         }
                         id="btnPost"
                         onClick={() => setModal(<PostModal />)}
+                        disabled={!session}
                     >
                         <PencilIcon className="m-4 text-2xl text-white transition-all opacity-100 lg:opacity-0 block lg:!hidden" />
                         <span className="hidden transition-all lg:block text-lg font-bold opacity-0 lg:opacity-100 text-white">
@@ -144,9 +239,15 @@ export default function Navbar() {
                                     </div>
 
                                     <div className="ml-2 flex-col items-start hidden lg:flex">
-                                        <p className="hidden transition-all lg:block font-bold opacity-0 lg:opacity-100 text-black dark:text-white leading-[1.1]">
-                                            {user?.name}
-                                        </p>
+                                        <div className="flex flex-nowrap items-center gap-[2px]">
+                                            <p className="hidden transition-all lg:block font-bold opacity-0 lg:opacity-100 text-black dark:text-white leading-none truncate whitespace-nowrap">
+                                                {user?.name}
+                                            </p>
+                                            {session.user.verified && (
+                                                <VerifiedCheck />
+                                            )}
+                                        </div>
+
                                         <p className="hidden transition-all lg:block opacity-0 lg:opacity-100 w-min text-gray-600 leading-[1.1]">{`@${user?.tag}`}</p>
                                     </div>
                                 </div>

@@ -3,6 +3,7 @@ import {
     EllipsisHorizontalIcon,
 } from "@heroicons/react/24/solid";
 import type { Post } from "@prisma/client";
+import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -39,6 +40,7 @@ export default function Page() {
     const { data: post } = api.post.getPost.useQuery({ id: postId });
 
     const { setModal } = useModal();
+    const { data: session } = useSession();
 
     const user = post?.user;
     const quote = post?.quote;
@@ -133,7 +135,7 @@ export default function Page() {
                     <PostContent post={post} />
                     {images.length > 0 && (
                         <div
-                            className="w-full aspect-[5/3] mt-2 cursor-pointer grid grid-cols-2 rounded-xl overflow-hidden gap-[2px] justify-self-center border-[1px] border-gray-700"
+                            className="w-full aspect-[5/3] mt-2 cursor-pointer grid grid-cols-2 rounded-xl overflow-hidden gap-[2px] justify-self-center border-[1px] border-gray-200 dark:border-gray-700"
                             style={{
                                 display: images.length !== 0 ? "grid" : "none",
                             }}
@@ -206,7 +208,7 @@ export default function Page() {
                             })}
                         </p>
                     </div>
-                    <div className="h-px grow mx-3 my-3 bg-gray-500/30" />
+                    <div className="h-px grow mx-3 my-3 bg-gray-200 dark:bg-gray-700" />
                     <div className="mx-3 flex items-center">
                         <p className="text-sm ml-1 mr-4 text-gray-500 ">
                             <span className="font-semibold text-black dark:text-white">
@@ -221,9 +223,13 @@ export default function Page() {
                             Likes
                         </p>
                     </div>
-                    <div className="h-px grow mx-3 my-3 bg-gray-200 dark:bg-gray-700" />
-                    <PostFooter post={post} />
-                    <div className="h-px grow mx-3 my-3 bg-gray-200 dark:bg-gray-700" />
+                    {session && (
+                        <>
+                            <div className="h-px grow mx-3 my-3 bg-gray-200 dark:bg-gray-700" />
+                            <PostFooter post={post} />
+                            <div className="h-px grow mx-3 my-3 bg-gray-200 dark:bg-gray-700" />
+                        </>
+                    )}
                 </div>
                 <PostComments post={post} />
             </div>

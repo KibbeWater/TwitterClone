@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState, forwardRef, useCallback } from "react";
 import TextareaAutosize from "react-textarea-autosize";
-import UserContext from "../UserContext";
+
+import UserContext from "~/components/UserContext";
+
 import { api } from "~/utils/api";
 
 type TweetAreaProps = {

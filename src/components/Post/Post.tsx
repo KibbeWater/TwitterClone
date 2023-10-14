@@ -1,19 +1,21 @@
+import { TrashIcon } from "@heroicons/react/24/outline";
 import { EllipsisHorizontalIcon, UserIcon } from "@heroicons/react/24/solid";
 import type { Post } from "@prisma/client";
 import { m as motion } from "framer-motion";
+import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { useRouter } from "next/router";
-import { useCallback, useState, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 
-import { useModal } from "../Handlers/ModalHandler";
-import { LazyMotionWrapper } from "../LazyMotionWrapper";
-import ImageModal from "../Modals/ImageModal";
-import VerifiedCheck from "../Verified";
-import PostContent from "./PostContent";
-import PostFooter from "./PostFooter";
-import { useSession } from "next-auth/react";
+import { useModal } from "~/components/Handlers/ModalHandler";
+import { LazyMotionWrapper } from "~/components/LazyMotionWrapper";
+import ImageModal from "~/components/Modals/ImageModal";
+import PostContent from "~/components/Post/PostContent";
+import PostFooter from "~/components/Post/PostFooter";
+import VerifiedCheck from "~/components/Verified";
+
 import { api } from "~/utils/api";
-import { TrashIcon } from "@heroicons/react/24/outline";
+import { PERMISSIONS, hasPermission } from "~/utils/permission";
 
 function isUserFollowing(
     user: { id: string } | undefined,
@@ -99,8 +101,8 @@ export default function PostComponent(p: {
     );
 
     useEffect(() => {
-        setIsFollowing(isUserFollowing(user, post.user));
-    }, [user, post]);
+        setIsFollowing(isUserFollowing(session?.user, post.user));
+    }, [session?.user, post]);
 
     const setFollowing = useCallback(
         (shouldFollow: boolean) => {
@@ -114,6 +116,7 @@ export default function PostComponent(p: {
                 {
                     onSuccess: () => setIsFollowing(shouldFollow),
                     onError: () => setIsFollowing(oldFollow),
+                    onSettled: () => setLoading(false),
                 },
             );
         },
@@ -165,7 +168,7 @@ export default function PostComponent(p: {
                                     onClick={() => {
                                         setLoading(true);
                                         const curFollowing = isFollowing;
-                                        setIsFollowing(!isFollowing);
+                                        setIsFollowing(!curFollowing);
                                         setFollowing(!curFollowing);
                                     }}
                                 >
@@ -178,12 +181,17 @@ export default function PostComponent(p: {
                                             />
                                         </span>{" "}
                                         {!isFollowing
-                                            ? `Follow @${user?.name}`
-                                            : `Unfollow @${user?.name}`}
+                                            ? `Follow @${user?.tag}`
+                                            : `Unfollow @${user?.tag}`}
                                     </p>
                                 </button>
                             ) : null}
-                            {isMe || session?.user.role === "ADMIN" ? (
+                            {isMe ||
+                            (session &&
+                                hasPermission(
+                                    session.user,
+                                    PERMISSIONS.MANAGE_POSTS,
+                                )) ? (
                                 <button
                                     disabled={loading || !optionsActive}
                                     className="w-full px-6 py-2 text-center enabled:hover:bg-black/5 enabled:cursor-pointer transition-colors grow-0"
@@ -230,6 +238,7 @@ export default function PostComponent(p: {
                             quality={70}
                             width={48}
                             height={48}
+                            sizes="100vw"
                         />
                     </div>
                 </div>
@@ -255,6 +264,7 @@ export default function PostComponent(p: {
                             quality={20}
                             width={24}
                             height={24}
+                            sizes="100vw"
                         />
                     )}
                     <a
@@ -317,7 +327,7 @@ export default function PostComponent(p: {
                                         src={img}
                                         className={"object-cover w-full h-full"}
                                         alt={`Album image ${i}`}
-                                        sizes={"100vw"}
+                                        sizes="100vw"
                                         fill
                                         quality={70}
                                         priority={true}
@@ -353,7 +363,9 @@ export default function PostComponent(p: {
                         />
                     </div>
                 )}
-                {isRef ?? <PostFooter post={post} onPost={handleMutation} />}
+                {!isRef && session && (
+                    <PostFooter post={post} onPost={handleMutation} />
+                )}
             </div>
         </div>
     );

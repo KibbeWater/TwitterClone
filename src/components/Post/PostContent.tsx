@@ -1,15 +1,15 @@
-import type { Post } from "@prisma/client";
 import Link from "next/link";
+
 import { usernameRegex } from "~/utils/regexStandards";
 
-export default function PostContent({ post }: { post: Post }) {
+export default function PostContent({ post }: { post: { content: string } }) {
     return (
         <div className="w-full max-w-full">
             <p className="text-black dark:text-white">
                 {post.content.split("\n").map((line, idx, arr) => {
                     return (
-                        <>
-                            <span key={idx}>
+                        <span key={idx}>
+                            <>
                                 {line.split(" ").map((word, idx, arr) => {
                                     // If we do @(username), make it a link
                                     if (
@@ -56,15 +56,15 @@ export default function PostContent({ post }: { post: Post }) {
                                     }
 
                                     return (
-                                        <>
+                                        <span key={idx}>
                                             {word}
                                             {idx !== arr.length - 1 && " "}
-                                        </>
+                                        </span>
                                     );
                                 })}
-                            </span>
+                            </>
                             {idx !== arr.length - 1 && <br />}
-                        </>
+                        </span>
                     );
                 })}
             </p>

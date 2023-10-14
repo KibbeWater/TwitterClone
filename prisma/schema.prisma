@@ -52,27 +52,30 @@ model Session {
 }
 
 model User {
-    id            String    @id @default(auto()) @map("_id") @db.ObjectId
-    name          String?
-    tag           String?   @unique @default(cuid())
-    lastTagReset  DateTime  @default(now())
-    bio           String?   @default("")
-    email         String?   @unique
-    emailVerified DateTime?
-    password      String?
-    banner        String?
-    image         String?   @default("/assets/imgs/default-avatar.png")
-    role          String?   @default("USER")
-    verified      Boolean?  @default(false)
-    posts         Post[]    @relation(name: "PostToAuthor")
-    accounts      Account[]
-    sessions      Session[]
-    likes         Post[]    @relation(name: "LikeToPost", fields: [likedPosts], references: [id])
-    likedPosts    String[]  @db.ObjectId
-    followers     User[]    @relation(name: "FollowToUser", fields: [followerIds], references: [id])
-    followerIds   String[]  @db.ObjectId
-    following     User[]    @relation(name: "FollowToUser", fields: [followingIds], references: [id])
-    followingIds  String[]  @db.ObjectId
+    id                  String         @id @default(auto()) @map("_id") @db.ObjectId
+    name                String?
+    tag                 String?        @unique @default(cuid())
+    lastTagReset        DateTime       @default(now())
+    bio                 String?        @default("")
+    email               String?        @unique
+    emailVerified       DateTime?
+    password            String?
+    banner              String?
+    image               String?        @default("/assets/imgs/default-avatar.png")
+    permissions         String         @default("0")
+    verified            Boolean?       @default(false)
+    posts               Post[]         @relation(name: "PostToAuthor")
+    accounts            Account[]
+    sessions            Session[]
+    notifications       Notification[] @relation(name: "N2U")
+    sentNotifications   Notification[] @relation(name: "N2T", fields: [sentNotificationIds], references: [id])
+    sentNotificationIds String[]       @db.ObjectId
+    likes               Post[]         @relation(name: "LikeToPost", fields: [likedPosts], references: [id])
+    likedPosts          String[]       @db.ObjectId
+    followers           User[]         @relation(name: "FollowToUser", fields: [followerIds], references: [id])
+    followerIds         String[]       @db.ObjectId
+    following           User[]         @relation(name: "FollowToUser", fields: [followingIds], references: [id])
+    followingIds        String[]       @db.ObjectId
 }
 
 model VerificationToken {
@@ -82,4 +85,16 @@ model VerificationToken {
     expires    DateTime
 
     @@unique([identifier, token])
+}
+
+model Notification {
+    id        String   @id @default(auto()) @map("_id") @db.ObjectId
+    user      User     @relation(name: "N2U", fields: [userId], references: [id])
+    targets   User[]   @relation(name: "N2T", fields: [targetIds], references: [id])
+    type      String
+    value     String
+    read      Boolean  @default(false)
+    createdAt DateTime @default(now())
+    userId    String   @db.ObjectId
+    targetIds String[] @db.ObjectId
 }

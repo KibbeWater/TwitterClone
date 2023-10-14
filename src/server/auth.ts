@@ -27,18 +27,18 @@ declare module "next-auth" {
             id: string;
             tag: string;
             // ...other properties
-            role: UserRole;
+            permissions: string;
+            verified: boolean;
             lastTagReset: string;
         };
     }
 
     interface User {
         tag: string;
-        role: UserRole;
+        permissions: string;
+        verified: boolean;
         lastTagReset: string;
     }
-
-    type UserRole = "USER" | "ADMIN";
 }
 
 const credentialsSchema = z.object({
@@ -76,7 +76,8 @@ export const authOptions: NextAuthOptions = {
                 id: user.id,
                 tag: user.tag,
                 lastTagReset: user.lastTagReset,
-                role: user.role,
+                verified: user.verified,
+                permissions: user.permissions,
             },
         }),
     },

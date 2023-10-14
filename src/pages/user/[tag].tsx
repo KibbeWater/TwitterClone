@@ -5,13 +5,17 @@ import { useRouter } from "next/router";
 import { useCallback, useEffect, useState } from "react";
 
 import { useModal } from "~/components/Handlers/ModalHandler";
+import AdminModal from "~/components/Modals/AdminModal";
+import FollowingModal from "~/components/Modals/FollowingModal";
 import ProfileEditor from "~/components/Modals/ProfileEditor";
 import PostComponent from "~/components/Post/Post";
+import PostContent from "~/components/Post/PostContent";
 import Layout from "~/components/Site/Layouts/Layout";
 import ProfileSkeleton from "~/components/Skeletons/ProfileSkeleton";
 import VerifiedCheck from "~/components/Verified";
 
 import { api } from "~/utils/api";
+import { PERMISSIONS, hasPermission } from "~/utils/permission";
 
 function isUserFollowing(
     user: { id: string } | undefined,
@@ -27,7 +31,10 @@ export default function Home() {
     const { data: session } = useSession();
     const user = session?.user;
 
-    const { data: profile } = api.user.getProfile.useQuery({ tag });
+    const { data: profile, refetch } = api.user.getProfile.useQuery(
+        { tag },
+        { enabled: !!tag },
+    );
     const { mutate: _setFollowing } = api.followers.setFollowing.useMutation();
     const { setModal } = useModal();
 
@@ -76,8 +83,8 @@ export default function Home() {
                                 className={
                                     "absolute h-full w-full p-[auto] top-0 bottom-0 right-0 left-0 object-cover"
                                 }
-                                sizes={"100vw"}
                                 fill
+                                sizes={"100vw"}
                                 priority
                                 alt={`${profile.name}'s Banner`}
                             />
@@ -94,9 +101,9 @@ export default function Home() {
                                             "/assets/imgs/default-avatar.png"
                                         }
                                         alt={`${profile.name}'s Avatar`}
+                                        fill
                                         sizes={"100vw"}
                                         quality={100}
-                                        fill
                                         priority
                                     />
                                 </div>
@@ -151,17 +158,33 @@ export default function Home() {
                                     </button>
                                 )}
                             </div>
-                            {user?.role === "ADMIN" ? (
+                            {user &&
+                            hasPermission(
+                                user,
+                                [
+                                    PERMISSIONS.MANAGE_USERS,
+                                    PERMISSIONS.MANAGE_USERS_EXTENDED,
+                                    PERMISSIONS.MANAGE_USER_ROLES,
+                                ],
+                                true,
+                            ) ? (
                                 <button
                                     className={
                                         "bg-black dark:bg-white text-white dark:text-black px-[15px] py-2 font-bold cursor-pointer rounded-full mx-3"
                                     }
-                                    /* onClick={() => {
+                                    onClick={() => {
                                         if (setModal)
                                             setModal(
-                                                <AdminModal user={profile} />,
+                                                <AdminModal
+                                                    userId={profile.id}
+                                                    onMutate={() => {
+                                                        refetch().catch(
+                                                            console.error,
+                                                        );
+                                                    }}
+                                                />,
                                             );
-                                    }} */
+                                    }}
                                 >
                                     Admin
                                 </button>
@@ -177,30 +200,38 @@ export default function Home() {
                         </h3>
                         <p className="mt-[2px] text-base leading-none text-neutral-500">{`@${profile?.tag}`}</p>
                         {bio !== "" && bio !== undefined && (
-                            <p className="my-1 mt-3 text-black dark:text-white leading-snug text-sm">
-                                {bio.split("\n").map((line, i) => {
-                                    return (
-                                        <>
-                                            <span
-                                                key={`bio-${i}`}
-                                                className="block"
-                                            >
-                                                {line}
-                                            </span>
-                                            {line === "" ? <br /> : null}
-                                        </>
-                                    );
-                                })}
-                            </p>
+                            <div className="my-1 mt-3 text-black dark:text-white leading-snug text-sm">
+                                <PostContent post={{ content: bio }} />
+                            </div>
                         )}
                         <div className="flex my-2 text-sm">
-                            <p className="m-0 mr-2 text-neutral-500 hover:underline cursor-pointer">
+                            <p
+                                className="m-0 mr-2 text-neutral-500 hover:underline cursor-pointer"
+                                onClick={() =>
+                                    setModal(
+                                        <FollowingModal
+                                            user={profile}
+                                            followType={"following"}
+                                        />,
+                                    )
+                                }
+                            >
                                 <span className="font-bold text-black dark:text-white">
                                     {profile?.followingIds.length ?? 0}
                                 </span>{" "}
                                 Following
                             </p>
-                            <p className="m-0 mr-2 text-neutral-500 hover:underline cursor-pointer">
+                            <p
+                                className="m-0 mr-2 text-neutral-500 hover:underline cursor-pointer"
+                                onClick={() =>
+                                    setModal(
+                                        <FollowingModal
+                                            user={profile}
+                                            followType={"followers"}
+                                        />,
+                                    )
+                                }
+                            >
                                 <span className="font-bold text-black dark:text-white">
                                     {profile?.followerIds.length ?? 0}
                                 </span>{" "}

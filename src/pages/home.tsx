@@ -1,7 +1,7 @@
 import { ArrowPathIcon } from "@heroicons/react/24/solid";
 import type { Post } from "@prisma/client";
 import { useSession } from "next-auth/react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useMemo } from "react";
 import { useInView } from "react-intersection-observer";
 
 import PostComponent from "~/components/Post/Post";
@@ -44,17 +44,21 @@ export default function Home() {
         setDeletedPosts([]);
     }, [data]);
 
-    const posts = [
-        ...localPosts,
-        ...(data?.pages.reduce(
-            (acc, cur) => [...acc, ...cur.items],
-            [] as Post[],
-        ) ?? []),
-    ]
-        .filter((post, index, self) => {
-            return index === self.findIndex((p) => p.id === post.id);
-        })
-        .filter((post) => !deletedPosts.includes(post.id));
+    const posts = useMemo(
+        () =>
+            [
+                ...localPosts,
+                ...(data?.pages.reduce(
+                    (acc, cur) => [...acc, ...cur.items],
+                    [] as Post[],
+                ) ?? []),
+            ]
+                .filter((post, index, self) => {
+                    return index === self.findIndex((p) => p.id === post.id);
+                })
+                .filter((post) => !deletedPosts.includes(post.id)),
+        [data?.pages, deletedPosts, localPosts],
+    );
 
     return (
         <Layout title="Home">

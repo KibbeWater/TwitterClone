@@ -1,15 +1,15 @@
-import Image from "next/image";
-import { useState, useEffect, useCallback, useRef } from "react";
+import { PhotoIcon } from "@heroicons/react/20/solid";
+import { XMarkIcon } from "@heroicons/react/24/solid";
 import type { Post } from "@prisma/client";
-
-import PostComponent from "./Post";
 import { useSession } from "next-auth/react";
+import Image from "next/image";
+import { useCallback, useEffect, useRef, useState } from "react";
+
+import { useImageUploader } from "~/components/Hooks/ImageUpload";
+import PostTextarea from "~/components/Post/PostTextarea";
+import PostComponent from "./Post";
 
 import { api } from "~/utils/api";
-import { PhotoIcon } from "@heroicons/react/20/solid";
-import PostTextarea from "./PostTextarea";
-import { useImageUploader } from "../Hooks/ImageUpload";
-import { XMarkIcon } from "@heroicons/react/24/solid";
 
 type Props = {
     placeholder?: string;

@@ -12,13 +12,12 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { useInView } from "react-intersection-observer";
 
-import { useModal } from "../Handlers/ModalHandler";
-import PostComposer from "../Post/PostComposer";
+import { useModal } from "~/components/Handlers/ModalHandler";
+import PostComponent from "~/components/Post/Post";
+import PostComposer from "~/components/Post/PostComposer";
+import PostFooter from "~/components/Post/PostFooter";
 
 import { api } from "~/utils/api";
-
-import PostFooter from "../Post/PostFooter";
-import PostComponent from "../Post/Post";
 
 export default function ImageModal({
     src,
@@ -205,11 +204,11 @@ export default function ImageModal({
                             Likes
                         </p>
                     </div>
-                    <div className="h-px grow mx-3 my-3 bg-gray-500/20" />
+                    <div className="h-px mx-3 my-3 bg-gray-200 dark:bg-gray-700" />
                     <div className="flex justify-evenly mx-3 mt-3">
                         <PostFooter post={post} />
                     </div>
-                    <div className="h-px grow mx-3 my-3 bg-gray-500/20" />
+                    <div className="h-px mx-3 my-3 bg-gray-200 dark:bg-gray-700" />
                 </div>
                 <div className="mt-2 flex">
                     <PostComposer
@@ -220,7 +219,7 @@ export default function ImageModal({
                         btnText={"Reply"}
                         onPost={handlePost}
                     >
-                        <div className="h-px grow mt-3 bg-gray-700" />
+                        <div className="h-px grow mt-3 bg-gray-200 dark:bg-gray-700" />
                     </PostComposer>
                 </div>
                 {posts.map((reply: Post) => (
