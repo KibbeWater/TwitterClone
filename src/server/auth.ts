@@ -100,8 +100,18 @@ export const authOptions: NextAuthOptions = {
                     const { newEmail, username, password } =
                         credentialsSchema.parse(credentials);
 
+                    // Since cred logins will only be for migration, we can apply the migration function to do the same transformation done on migration
+                    const fixTags = (tag: string) => {
+                        tag = tag.replace(/ /g, "-");
+                        if (tag.length < 4) tag = tag.padEnd(4, "0");
+                        tag = tag.slice(0, 16);
+                        tag = tag.toLowerCase();
+
+                        return tag;
+                    };
+
                     const user = await prisma.user.findUnique({
-                        where: { tag: username },
+                        where: { tag: fixTags(username) },
                     });
 
                     if (!user?.password) return null;
