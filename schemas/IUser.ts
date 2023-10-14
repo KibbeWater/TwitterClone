@@ -362,8 +362,8 @@ sendReplyNotification: (replyer: IUser, post: IPost) => Promise<void>;
 sendMentionNotification: (mentioner: IUser, post: IPost) => Promise<void>; */
 
 function populateUser(user: mongoose.Query<any, any, {}, any>) {
-	user.populate<{ posts: IPost[] }>('posts').populate<{
-		posts: (IPost & { user: IUser; quote: IPost & { user: IUser }; likes: ILike[] })[];
+	user.populate<{ posts: IPost[] }>(['posts', 'relationships']).populate<{
+		posts: (IPost & { user: IUser; quote: IPost & { user: IUser }; likes: ILike[]; relationships: IRelationship[] })[];
 	}>([
 		{ path: 'posts', populate: { path: 'user' } },
 		{ path: 'posts', populate: { path: 'quote' } },

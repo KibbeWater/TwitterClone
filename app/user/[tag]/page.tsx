@@ -182,7 +182,7 @@ export default function Page({ params }: Props) {
 						</p>
 						<div className='flex my-2'>
 							<p className='m-0 mr-2 text-black dark:text-white'>
-								<span className='font-bold'>0</span> Following
+								<span className='font-bold'>{profile.followerCount}</span> Following
 							</p>
 							<p className='m-0 mr-2 text-black dark:text-white'>
 								<span className='font-bold'>0</span> Followers

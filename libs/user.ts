@@ -28,9 +28,12 @@ export type SafeUser = {
 	avatar?: string;
 	banner?: string;
 	bio: string;
+
+	followerCount: number;
 };
 
 export function TransformSafe(user: any): SafeUser | undefined {
+	console.log(user.relationships);
 	if (!user) return undefined;
 	return {
 		_id: user._id.toString(),
@@ -44,5 +47,7 @@ export function TransformSafe(user: any): SafeUser | undefined {
 		avatar: user.avatar?.toString(),
 		banner: user.banner?.toString(),
 		bio: user.bio,
+
+		followerCount: user.relationships.filter((r: IRelationship) => r.type === 'follow').length ?? 0,
 	};
 }
