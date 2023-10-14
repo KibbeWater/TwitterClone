@@ -2,6 +2,7 @@ import {
     BellIcon as BellOutline,
     HomeIcon as HomeOutline,
     UserIcon as UserOutline,
+    CheckBadgeIcon,
 } from "@heroicons/react/24/outline";
 import {
     BellIcon as BellSolid,
@@ -24,6 +25,7 @@ import PostModal from "~/components/Modals/PostModal";
 
 import { api } from "~/utils/api";
 import VerifiedCheck from "../Verified";
+import PremiumModal from "../Modals/PremiumModal";
 
 export default function Navbar() {
     const [activateUserPanel, setActivateUserPanel] = useState(false);
@@ -94,8 +96,17 @@ export default function Navbar() {
                 iconSolid: UserSolid,
                 iconOutline: UserOutline,
             },
+            {
+                name: "Premium",
+                activeURLs: [],
+                onClick: () => {
+                    setModal(<PremiumModal />);
+                },
+                iconSolid: CheckBadgeIcon,
+                iconOutline: CheckBadgeIcon,
+            },
         ];
-    }, [session, router, notifData?.count]);
+    }, [session, router, notifData?.count, setModal]);
 
     const user = session?.user;
 
