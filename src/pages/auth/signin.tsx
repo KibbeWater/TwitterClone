@@ -24,7 +24,7 @@ type ProviderOptions = Record<
     }
 >;
 
-const errors = {
+/* const errors = {
     Signin: "Try signing in with a different account.",
     OAuthSignin: "Try signing in with a different account.",
     OAuthCallback: "Try signing in with a different account.",
@@ -38,7 +38,7 @@ const errors = {
         "Sign in failed. Check the details you provided are correct.",
     SessionRequired: "Please sign in to access this page.",
     default: "Unable to sign in.",
-};
+}; */
 
 const logos = "/assets/imgs/providers/";
 

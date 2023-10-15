@@ -1,5 +1,4 @@
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
-import { compare } from "bcrypt";
 import { type GetServerSidePropsContext } from "next";
 import {
     getServerSession,
@@ -7,10 +6,9 @@ import {
     type NextAuthOptions,
 } from "next-auth";
 import AppleProvider from "next-auth/providers/apple";
-import CredentialsProvider from "next-auth/providers/credentials";
+// import CredentialsProvider from "next-auth/providers/credentials";
 import EmailProvider from "next-auth/providers/email";
 import GoogleProvide from "next-auth/providers/google";
-import { z } from "zod";
 
 import { env } from "~/env.mjs";
 import { prisma } from "~/server/db";
@@ -40,12 +38,6 @@ declare module "next-auth" {
         lastTagReset: string;
     }
 }
-
-const credentialsSchema = z.object({
-    newEmail: z.string().email(),
-    username: z.string(),
-    password: z.string(),
-});
 
 /**
  * Options for NextAuth.js used to configure adapters, providers, callbacks, etc.

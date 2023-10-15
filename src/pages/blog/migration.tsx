@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 /* eslint-disable react/no-unescaped-entities */
 export default function Migration() {
     return (
@@ -23,12 +25,12 @@ export default function Migration() {
                 <p className="text-neutral-300">
                     To begin migrating your account, you will have to begin by
                     navigating to the{" "}
-                    <a
+                    <Link
                         className="text-accent-primary-500 hover:text-accent-primary-700 transition-colors font-semibold"
                         href="/auth/migrate"
                     >
                         Login Page
-                    </a>
+                    </Link>
                     . Once you are there, you will have to sign in with your
                     original username (tag) and password. Then fill in an email
                     address and press the Migrate Account button! You will be
