@@ -83,7 +83,7 @@ export const authOptions: NextAuthOptions = {
     },
     adapter: PrismaAdapter(prisma),
     providers: [
-        CredentialsProvider({
+        /* CredentialsProvider({
             id: "migration_login",
             name: "Migrated Credentials",
 
@@ -141,7 +141,7 @@ export const authOptions: NextAuthOptions = {
             session: async (ssss) => {
                 console.log(ssss);
             },
-        }),
+        }), */
         EmailProvider({
             server: env.EMAIL_SERVER,
             from: env.EMAIL_FROM,
