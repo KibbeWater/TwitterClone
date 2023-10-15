@@ -84,6 +84,7 @@ export const authOptions: NextAuthOptions = {
     adapter: PrismaAdapter(prisma),
     providers: [
         CredentialsProvider({
+            id: "migration_login",
             name: "Migrated Credentials",
 
             credentials: {
@@ -178,6 +179,9 @@ export const authOptions: NextAuthOptions = {
             },
         },
     },
+    /* pages: {
+        signIn: "/auth/signin",
+    }, */
 };
 
 /**

@@ -6,6 +6,7 @@ import { notificationsRouter } from "./routers/notifications";
 import { postRouter } from "./routers/post";
 import { s3Router } from "./routers/s3";
 import { userRouter } from "./routers/user";
+import { migrateRouter } from "./routers/migrate";
 
 /**
  * This is the primary router for your server.
@@ -19,6 +20,7 @@ export const appRouter = createTRPCRouter({
     followers: followersRouter,
     notifications: notificationsRouter,
     s3: s3Router,
+    migrate: migrateRouter,
 });
 
 // export type definition of API
