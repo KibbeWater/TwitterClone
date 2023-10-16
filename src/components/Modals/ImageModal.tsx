@@ -6,7 +6,6 @@ import {
     XMarkIcon,
 } from "@heroicons/react/24/solid";
 import type { Post } from "@prisma/client";
-import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
@@ -29,9 +28,6 @@ export default function ImageModal({
     const [commentsOpen, setCommentsOpen] = useState(true);
     const [localPosts, setLocalPosts] = useState<Post[]>([]);
     const [deletedPosts, setDeletedPosts] = useState<string[]>([]);
-
-    const { data: session } = useSession();
-    const user = session?.user;
 
     const { closeModal } = useModal();
 
