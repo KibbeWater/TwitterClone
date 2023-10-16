@@ -3,13 +3,13 @@ import Link from "next/link";
 /* eslint-disable react/no-unescaped-entities */
 export default function Migration() {
     return (
-        <div className="pl-8 py-12 flex flex-col gap-4 w-3/6 overflow-hidden">
+        <div className="pl-8 py-12 flex flex-col gap-4 w-3/6 overflow-hidden dark:text-white text-black">
             <h1 className="text-5xl font-bold mb-8">Migration</h1>
             <div>
                 <h2 className="text-2xl mb-1 font-semibold">
                     What happened to my Account?
                 </h2>
-                <p className="text-neutral-300">
+                <p className="dark:text-neutral-300 text-neutral-700">
                     As we are switching our backend infrastructure to provide
                     more performance and safety to our platform, we've been
                     forced to migrate to a new Database. Don't worry though! All
@@ -22,7 +22,7 @@ export default function Migration() {
                 <h2 className="text-2xl mb-1 font-semibold">
                     Migrating your account
                 </h2>
-                <p className="text-neutral-300">
+                <p className="dark:text-neutral-300 text-neutral-700">
                     To begin migrating your account, you will have to begin by
                     navigating to the{" "}
                     <Link

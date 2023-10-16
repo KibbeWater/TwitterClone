@@ -303,6 +303,7 @@ export default function PostComponent(p: {
                 <PostContent post={post} />
                 <div
                     className="w-9/12 aspect-[5/3] mb-2 grid grid-cols-2 rounded-xl overflow-hidden gap-[2px] justify-self-center border-[1px] border-gray-200 dark:border-gray-700"
+                    onClick={(e) => e.stopPropagation()}
                     style={{
                         display: images.length !== 0 ? "grid" : "none",
                     }}
