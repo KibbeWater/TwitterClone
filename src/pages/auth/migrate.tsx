@@ -34,8 +34,8 @@ export default function Migrate() {
     }, [username, password, email, _migrateAccount]);
 
     return (
-        <div className="w-screen h-screen overflow-hidden flex justify-center items-center">
-            <div className="flex flex-col px-6 py-4 bg-neutral-800 shadow-xl rounded-lg gap-3">
+        <div className="w-screen h-screen overflow-hidden flex justify-center items-center bg-neutral-200 dark:bg-neutral-900">
+            <div className="flex flex-col px-6 py-4 dark:bg-neutral-800 bg-neutral-100 shadow-xl rounded-lg gap-3 text-black dark:text-white">
                 <h1 className="text-xl font-semibold w-full text-center">
                     Migrate Account
                 </h1>
@@ -74,7 +74,7 @@ export default function Migrate() {
                     </p>
                 )}
                 <button
-                    className="w-full py-1 bg-blue-600 hover:bg-blue-700 transition-colors disabled:bg-blue-900 rounded-md"
+                    className="w-full py-1 bg-blue-600 hover:bg-blue-700 transition-colors disabled:bg-blue-900 text-white rounded-md"
                     disabled={
                         isMigrating ||
                         !z.string().email().safeParse(email).success ||
