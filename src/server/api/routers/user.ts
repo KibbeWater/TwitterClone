@@ -10,11 +10,23 @@ import {
 // TODO: Check over literally this entire fucking file
 export const userRouter = createTRPCRouter({
     getProfile: publicProcedure
-        .input(z.object({ tag: z.string() }))
+        .input(
+            z.object({ tag: z.string().optional(), id: z.string().optional() }),
+        )
         .query(async ({ ctx, input }) => {
+            const { tag, id } = input;
+
+            if (!tag && !id)
+                throw new TRPCError({
+                    code: "PARSE_ERROR",
+                    message: "Please select at least a tag or id",
+                    cause: "Missing id or tag",
+                });
+
             const user = await ctx.prisma.user.findUnique({
                 where: {
-                    tag: input.tag,
+                    tag,
+                    id,
                 },
                 select: {
                     id: true,
