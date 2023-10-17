@@ -2,7 +2,11 @@ import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
-import { PERMISSIONS, hasPermission } from "~/utils/permission";
+import {
+    PERMISSIONS,
+    administrativePermissions,
+    hasPermission,
+} from "~/utils/permission";
 
 export const adminRouter = createTRPCRouter({
     setUserVerification: protectedProcedure
@@ -163,5 +167,42 @@ export const adminRouter = createTRPCRouter({
                     permissions: permissions.toString(),
                 },
             });
+        }),
+
+    getAdministrators: protectedProcedure
+        .input(z.object({}))
+        .query(async ({ ctx }) => {
+            if (
+                !hasPermission(ctx.session.user, PERMISSIONS.MANAGE_USER_ROLES)
+            ) {
+                throw new TRPCError({
+                    code: "UNAUTHORIZED",
+                    message:
+                        "You don't have sufficient permissions to perform this action.",
+                    cause: "User lacks the MANAGE_USER_ROLES permission.",
+                });
+            }
+
+            const users = await ctx.prisma.user.findMany({
+                select: {
+                    id: true,
+                    tag: true,
+                    name: true,
+                    image: true,
+                    verified: true,
+                    permissions: true,
+                },
+                where: {
+                    NOT: {
+                        permissions: "0",
+                    },
+                },
+            });
+
+            const administrativeUsers = users.filter((u) =>
+                hasPermission(u, administrativePermissions, true),
+            );
+
+            return administrativeUsers;
         }),
 });

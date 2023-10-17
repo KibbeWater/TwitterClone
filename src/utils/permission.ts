@@ -19,6 +19,14 @@ export const PERMISSIONS = {
     ADMINISTRATOR: setBit(0n, 52), // All permissions, use with caution
 };
 
+export const administrativePermissions = [
+    PERMISSIONS.MANAGE_USERS,
+    PERMISSIONS.MANAGE_USERS_EXTENDED,
+    PERMISSIONS.VIEW_PROTECTED_USERS,
+    PERMISSIONS.MANAGE_USER_ROLES,
+    PERMISSIONS.MANAGE_POSTS,
+];
+
 export const hasPermission = (
     user: UserProp,
     permissions: bigint | bigint[],
