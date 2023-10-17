@@ -1,6 +1,5 @@
-import type { InferGetServerSidePropsType, GetServerSideProps } from "next";
+import type { GetServerSideProps, InferGetServerSidePropsType } from "next";
 import Link from "next/link";
-import { useRouter } from "next/router";
 
 import Layout from "~/components/Site/Layouts/Layout";
 import UserContext from "~/components/UserContext";
@@ -62,8 +61,6 @@ export const getServerSideProps = (async (ctx) => {
 export default function Admin({
     user,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
-    const router = useRouter();
-
     const { data: administrators } = api.admin.getAdministrators.useQuery(
         {},
         { enabled: hasPermission(user, PERMISSIONS.MANAGE_USER_ROLES) },
