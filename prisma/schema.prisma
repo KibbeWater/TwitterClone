@@ -63,6 +63,8 @@ model User {
     banner              String?
     image               String?        @default("/assets/imgs/default-avatar.png")
     permissions         String         @default("0")
+    roles               Role[]         @relation(name: "R2U", fields: [roleIds], references: [id])
+    roleIds             String[]       @db.ObjectId
     verified            Boolean?       @default(false)
     posts               Post[]         @relation(name: "PostToAuthor")
     accounts            Account[]
@@ -97,4 +99,13 @@ model Notification {
     createdAt DateTime @default(now())
     userId    String   @db.ObjectId
     targetIds String[] @db.ObjectId
+}
+
+model Role {
+    id          String   @id @default(auto()) @map("_id") @db.ObjectId
+    permissions String
+    users       User[]   @relation(name: "R2U", fields: [userIds], references: [id])
+    userIds     String[] @db.ObjectId
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @default(now())
 }

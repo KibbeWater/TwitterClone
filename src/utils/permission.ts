@@ -13,6 +13,7 @@ export const PERMISSIONS = {
     MANAGE_USERS_EXTENDED: setBit(0n, 1) | setBit(0n, 0),
     VIEW_PROTECTED_USERS: setBit(0n, 2),
     MANAGE_USER_ROLES: setBit(0n, 4),
+    MANAGE_ROLES: setBit(0n, 5),
 
     MANAGE_POSTS: setBit(0n, 3),
 
@@ -25,6 +26,7 @@ export const administrativePermissions = [
     PERMISSIONS.VIEW_PROTECTED_USERS,
     PERMISSIONS.MANAGE_USER_ROLES,
     PERMISSIONS.MANAGE_POSTS,
+    PERMISSIONS.MANAGE_ROLES,
 ];
 
 export const hasPermission = (

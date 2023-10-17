@@ -1,6 +1,5 @@
-import type { InferGetServerSidePropsType, GetServerSideProps } from "next";
+import type { GetServerSideProps, InferGetServerSidePropsType } from "next";
 import Link from "next/link";
-import { useRouter } from "next/router";
 
 import Layout from "~/components/Site/Layouts/Layout";
 import UserContext from "~/components/UserContext";
@@ -62,8 +61,6 @@ export const getServerSideProps = (async (ctx) => {
 export default function Admin({
     user,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
-    const router = useRouter();
-
     const { data: administrators } = api.admin.getAdministrators.useQuery(
         {},
         { enabled: hasPermission(user, PERMISSIONS.MANAGE_USER_ROLES) },
@@ -71,7 +68,7 @@ export default function Admin({
 
     return (
         <Layout title="Admin">
-            <div className="flex flex-col mt-4 px-4">
+            <div className="flex flex-col mt-4 px-4 gap-4">
                 {hasPermission(user, PERMISSIONS.MANAGE_USER_ROLES) && (
                     <div className="flex flex-col w-4/6">
                         <p className="text-lg font-semibold">Administrators:</p>
@@ -89,6 +86,7 @@ export default function Admin({
                         </div>
                     </div>
                 )}
+                {hasPermission(user, PERMISSIONS.MANAGE_ROLES) && <div></div>}
             </div>
         </Layout>
     );
