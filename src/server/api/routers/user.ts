@@ -11,7 +11,7 @@ import {
 export const userRouter = createTRPCRouter({
     getProfile: publicProcedure
         .input(
-            z.object({ tag: z.string().optional(), id: z.string().optional() }),
+            z.object({ tag: z.string().optional(), id: z.number().optional() }),
         )
         .query(async ({ ctx, input }) => {
             const { tag, id } = input;
@@ -51,8 +51,8 @@ export const userRouter = createTRPCRouter({
                                     name: true,
                                     tag: true,
                                     image: true,
-                                    followerIds: true,
-                                    followingIds: true,
+                                    followers: true,
+                                    following: true,
                                 },
                             },
                             quote: {
@@ -65,8 +65,8 @@ export const userRouter = createTRPCRouter({
                                             permissions: true,
                                             verified: true,
                                             image: true,
-                                            followerIds: true,
-                                            followingIds: true,
+                                            followers: true,
+                                            following: true,
                                         },
                                     },
                                 },
@@ -98,8 +98,6 @@ export const userRouter = createTRPCRouter({
                             tag: true,
                         },
                     },
-                    followerIds: true,
-                    followingIds: true,
                 },
             });
 
@@ -123,13 +121,11 @@ export const userRouter = createTRPCRouter({
                         {
                             name: {
                                 contains: input.query,
-                                mode: "insensitive",
                             },
                         },
                         {
                             tag: {
                                 contains: input.query,
-                                mode: "insensitive",
                             },
                         },
                     ],
@@ -200,7 +196,7 @@ export const userRouter = createTRPCRouter({
     getFollowing: publicProcedure
         .input(
             z.object({
-                id: z.string(),
+                id: z.number(),
                 followType: z.literal("followers").or(z.literal("following")),
             }),
         )

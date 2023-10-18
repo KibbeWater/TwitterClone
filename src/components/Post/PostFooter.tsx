@@ -19,8 +19,8 @@ export default function PostFooter({
     onPost,
 }: {
     post: Post & {
-        comments?: { id: string }[];
-        reposts?: { id: string }[];
+        comments?: { id: number }[];
+        reposts?: { id: number }[];
     };
     onPost?: (post: Post) => boolean;
 }) {
@@ -29,17 +29,17 @@ export default function PostFooter({
 
     const [localLike, setLocalLike] = useState(false);
     const [hasLiked, setHasLiked] = useState(
-        user !== undefined ? post.likeIDs.includes(user.id) : false,
+        /* user !== undefined ? post.likeIDs.includes(user.id) : */ false,
     );
 
     const { mutate: _setLike } = api.post.setLike.useMutation();
 
-    useEffect(() => {
+    /* useEffect(() => {
         setLocalLike(false);
-    }, [post.likeIDs]);
+    }, [post.likeIDs]); */
 
-    const likeCount =
-        post.likeIDs.length + (localLike ? (hasLiked ? 1 : -1) : 0);
+    /* const likeCount =
+        post.likeIDs.length + (localLike ? (hasLiked ? 1 : -1) :  */ 0 /* ) */;
 
     const setLike = (shouldLike: boolean) => {
         _setLike({ postId: post.id, shouldLike });
@@ -122,7 +122,7 @@ export default function PostFooter({
                     />
                 </button>
                 <p className="text-black dark:text-white text-sm">
-                    {likeCount}
+                    {/* likeCount */ 0}
                 </p>
             </div>
             <div className="flex items-center mr-2">

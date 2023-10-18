@@ -13,7 +13,7 @@ import { api } from "~/utils/api";
 
 export default function Home() {
     const [localPosts, setLocalPosts] = useState<Post[]>([]);
-    const [deletedPosts, setDeletedPosts] = useState<string[]>([]);
+    const [deletedPosts, setDeletedPosts] = useState<number[]>([]);
 
     const { status } = useSession();
 

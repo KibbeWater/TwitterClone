@@ -22,7 +22,7 @@ import { prisma } from "~/server/db";
 declare module "next-auth" {
     interface Session extends DefaultSession {
         user: DefaultSession["user"] & {
-            id: string;
+            id: number;
             tag: string;
             // ...other properties
             permissions: string;
@@ -50,7 +50,7 @@ export const authOptions: NextAuthOptions = {
             const { name, image, id } = user.user;
             if (!name || !image)
                 await prisma.user.update({
-                    where: { id },
+                    where: { id: id as unknown as number },
                     data: {
                         name: !name ? "User" : undefined,
                         image: !image

@@ -3,40 +3,42 @@ generator client {
 }
 
 datasource db {
-    provider = "mongodb"
-    url      = env("DATABASE_URL")
+    provider     = "mysql"
+    url          = env("DATABASE_URL")
+    relationMode = "prisma"
 }
 
 model Post {
-    id        String   @id @default(auto()) @map("_id") @db.ObjectId
-    user      User     @relation(name: "PostToAuthor", fields: [userId], references: [id], onDelete: Cascade)
-    userId    String   @db.ObjectId
+    id        Int      @id @default(autoincrement())
+    user      User     @relation(name: "User2Post", fields: [userId], references: [id])
+    userId    Int
     content   String
     parent    Post?    @relation(name: "PostToPost", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-    parentId  String?  @db.ObjectId
+    parentId  Int?
     comments  Post[]   @relation(name: "PostToPost")
-    quote     Post?    @relation(name: "RepostToPost", fields: [quoteId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-    quoteId   String?  @db.ObjectId
-    reposts   Post[]   @relation(name: "RepostToPost")
-    likeIDs   String[] @db.ObjectId
-    likes     User[]   @relation(name: "LikeToPost", fields: [likeIDs], references: [id])
-    images    String[]
-    videos    String[]
+    quote     Post?    @relation(name: "RepostToRepost", fields: [quoteId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+    quoteId   Int?
+    reposts   Post[]   @relation(name: "RepostToRepost")
+    likes     User[]
     createdAt DateTime @default(now())
+
+    @@index([parentId])
+    @@index([quoteId])
+    @@index([userId])
 }
 
 model Account {
-    id                String  @id @default(auto()) @map("_id") @db.ObjectId
-    userId            String  @unique @db.ObjectId
+    id                Int     @id @default(autoincrement())
+    userId            Int     @unique
     type              String
     provider          String
     providerAccountId String
-    refresh_token     String? // @db.Text
-    access_token      String? // @db.Text
+    refresh_token     String? @db.Text
+    access_token      String? @db.Text
     expires_at        Int?
     token_type        String?
     scope             String?
-    id_token          String? // @db.Text
+    id_token          String? @db.Text
     session_state     String?
     user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -44,42 +46,40 @@ model Account {
 }
 
 model Session {
-    id           String   @id @default(auto()) @map("_id") @db.ObjectId
+    id           Int      @id @default(autoincrement())
     sessionToken String   @unique
-    userId       String   @db.ObjectId
     expires      DateTime
-    user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    user         User     @relation(fields: [userId], references: [id])
+    userId       Int
+
+    @@index([userId])
 }
 
 model User {
-    id                  String         @id @default(auto()) @map("_id") @db.ObjectId
-    name                String?
-    tag                 String?        @unique @default(cuid())
-    lastTagReset        DateTime       @default(now())
-    bio                 String?        @default("")
-    email               String?        @unique
-    emailVerified       DateTime?
-    password            String?
-    banner              String?
-    image               String?        @default("/assets/imgs/default-avatar.png")
-    permissions         String         @default("0")
-    verified            Boolean?       @default(false)
-    posts               Post[]         @relation(name: "PostToAuthor")
-    accounts            Account[]
-    sessions            Session[]
-    notifications       Notification[] @relation(name: "N2U")
-    sentNotifications   Notification[] @relation(name: "N2T", fields: [sentNotificationIds], references: [id])
-    sentNotificationIds String[]       @db.ObjectId
-    likes               Post[]         @relation(name: "LikeToPost", fields: [likedPosts], references: [id])
-    likedPosts          String[]       @db.ObjectId
-    followers           User[]         @relation(name: "FollowToUser", fields: [followerIds], references: [id])
-    followerIds         String[]       @db.ObjectId
-    following           User[]         @relation(name: "FollowToUser", fields: [followingIds], references: [id])
-    followingIds        String[]       @db.ObjectId
+    id                Int            @id @default(autoincrement())
+    name              String?
+    tag               String?        @unique @default(cuid())
+    lastTagReset      DateTime       @default(now())
+    bio               String?        @default("")
+    email             String?        @unique
+    emailVerified     DateTime?
+    password          String?
+    banner            String?
+    image             String?        @default("/assets/imgs/default-avatar.png")
+    permissions       String         @default("0")
+    verified          Boolean?       @default(false)
+    posts             Post[]         @relation(name: "User2Post")
+    accounts          Account[]
+    sessions          Session[]
+    notifications     Notification[] @relation(name: "N2U")
+    sentNotifications Notification[]
+    likes             Post[]
+    followers         User[]         @relation(name: "FollowToUser")
+    following         User[]         @relation(name: "FollowToUser")
 }
 
 model VerificationToken {
-    id         String   @id @default(auto()) @map("_id") @db.ObjectId
+    id         Int      @id @default(autoincrement())
     identifier String
     token      String   @unique
     expires    DateTime
@@ -88,13 +88,14 @@ model VerificationToken {
 }
 
 model Notification {
-    id        String   @id @default(auto()) @map("_id") @db.ObjectId
+    id        Int      @id @default(autoincrement())
     user      User     @relation(name: "N2U", fields: [userId], references: [id])
-    targets   User[]   @relation(name: "N2T", fields: [targetIds], references: [id])
+    targets   User[]
     type      String
     value     String
     read      Boolean  @default(false)
     createdAt DateTime @default(now())
-    userId    String   @db.ObjectId
-    targetIds String[] @db.ObjectId
+    userId    Int
+
+    @@index([userId])
 }

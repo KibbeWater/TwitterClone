@@ -8,7 +8,7 @@ export const adminRouter = createTRPCRouter({
     setUserVerification: protectedProcedure
         .input(
             z.object({
-                id: z.string(),
+                id: z.number(),
                 shouldVerify: z.boolean(),
             }),
         )
@@ -41,7 +41,7 @@ export const adminRouter = createTRPCRouter({
     setUserTagCooldown: protectedProcedure
         .input(
             z.object({
-                id: z.string(),
+                id: z.number(),
                 newDate: z.date(),
             }),
         )
@@ -70,7 +70,7 @@ export const adminRouter = createTRPCRouter({
     getUser: protectedProcedure
         .input(
             z.object({
-                id: z.string(),
+                id: z.number(),
             }),
         )
         .query(async ({ ctx, input }) => {
@@ -95,7 +95,7 @@ export const adminRouter = createTRPCRouter({
     updateUserPermissions: protectedProcedure
         .input(
             z.object({
-                id: z.string(),
+                id: z.number(),
                 permissions: z.string(),
             }),
         )

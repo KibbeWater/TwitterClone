@@ -18,8 +18,8 @@ import { api } from "~/utils/api";
 import { PERMISSIONS, hasPermission } from "~/utils/permission";
 
 function isUserFollowing(
-    user: { id: string } | undefined,
-    profile: { followers: { id: string }[] } | undefined,
+    user: { id: number } | undefined,
+    profile: { followers: { id: number }[] } | undefined,
 ) {
     if (!user || !profile) return false;
     return profile.followers.find((u) => u.id === user.id) !== undefined;
@@ -217,7 +217,7 @@ export default function Home() {
                                 }
                             >
                                 <span className="font-bold text-black dark:text-white">
-                                    {profile?.followingIds.length ?? 0}
+                                    {profile?.followers.length ?? 0}
                                 </span>{" "}
                                 Following
                             </p>
@@ -233,7 +233,7 @@ export default function Home() {
                                 }
                             >
                                 <span className="font-bold text-black dark:text-white">
-                                    {profile?.followerIds.length ?? 0}
+                                    {profile?.following.length ?? 0}
                                 </span>{" "}
                                 Followers
                             </p>

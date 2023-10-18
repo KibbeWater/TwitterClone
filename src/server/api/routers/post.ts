@@ -37,7 +37,7 @@ export const postRouter = createTRPCRouter({
         .input(
             z.object({
                 limit: z.number().optional(),
-                cursor: z.string().nullish(),
+                cursor: z.number().nullish(),
                 skip: z.number().optional(),
             }),
         )
@@ -62,8 +62,8 @@ export const postRouter = createTRPCRouter({
                             permissions: true,
                             verified: true,
                             image: true,
-                            followerIds: true,
-                            followingIds: true,
+                            followers: true,
+                            following: true,
                         },
                     },
                     quote: {
@@ -76,8 +76,8 @@ export const postRouter = createTRPCRouter({
                                     permissions: true,
                                     verified: true,
                                     image: true,
-                                    followerIds: true,
-                                    followingIds: true,
+                                    followers: true,
+                                    following: true,
                                 },
                             },
                             comments: {
@@ -116,7 +116,7 @@ export const postRouter = createTRPCRouter({
         }),
 
     getPost: publicProcedure
-        .input(z.object({ id: z.string() }))
+        .input(z.object({ id: z.number() }))
         .query(async ({ ctx, input }) => {
             const userSelect = {
                 select: {
@@ -187,9 +187,9 @@ export const postRouter = createTRPCRouter({
     getCommentPage: publicProcedure
         .input(
             z.object({
-                id: z.string(),
+                id: z.number(),
                 limit: z.number().optional(),
-                cursor: z.string().nullish(),
+                cursor: z.number().nullish(),
                 skip: z.number().optional(),
             }),
         )
@@ -214,8 +214,8 @@ export const postRouter = createTRPCRouter({
                             permissions: true,
                             verified: true,
                             image: true,
-                            followerIds: true,
-                            followingIds: true,
+                            followers: true,
+                            following: true,
                         },
                     },
                     quote: {
@@ -228,8 +228,8 @@ export const postRouter = createTRPCRouter({
                                     permissions: true,
                                     verified: true,
                                     image: true,
-                                    followerIds: true,
-                                    followingIds: true,
+                                    followers: true,
+                                    following: true,
                                 },
                             },
                             comments: {
@@ -271,8 +271,8 @@ export const postRouter = createTRPCRouter({
         .input(
             z.object({
                 content: z.string().min(1),
-                parent: z.string().optional(),
-                quote: z.string().optional(),
+                parent: z.number().optional(),
+                quote: z.number().optional(),
                 images: z.array(z.string()).optional(),
             }),
         )
@@ -283,7 +283,7 @@ export const postRouter = createTRPCRouter({
                     userId: ctx.session.user.id,
                     parentId: input.parent,
                     quoteId: input.quote,
-                    images: input.images,
+                    /* images: input.images, */
                 },
                 include: {
                     user: {
@@ -294,8 +294,8 @@ export const postRouter = createTRPCRouter({
                             permissions: true,
                             verified: true,
                             image: true,
-                            followerIds: true,
-                            followingIds: true,
+                            followers: true,
+                            following: true,
                         },
                     },
                     quote: {
@@ -308,8 +308,8 @@ export const postRouter = createTRPCRouter({
                                     permissions: true,
                                     verified: true,
                                     image: true,
-                                    followerIds: true,
-                                    followingIds: true,
+                                    followers: true,
+                                    following: true,
                                 },
                             },
                             comments: {
@@ -354,7 +354,7 @@ export const postRouter = createTRPCRouter({
                                         },
                                     },
                                     type: "reply",
-                                    value: newPost.id,
+                                    value: newPost.id.toString(),
                                 },
                             });
                     }
@@ -367,7 +367,7 @@ export const postRouter = createTRPCRouter({
         }),
 
     delete: protectedProcedure
-        .input(z.object({ id: z.string() }))
+        .input(z.object({ id: z.number() }))
         .mutation(async ({ ctx, input }) => {
             if (!hasPermission(ctx.session.user, PERMISSIONS.MANAGE_POSTS))
                 return new Error("You are not an admin");
@@ -378,7 +378,7 @@ export const postRouter = createTRPCRouter({
         }),
 
     setLike: protectedProcedure
-        .input(z.object({ postId: z.string(), shouldLike: z.boolean() }))
+        .input(z.object({ postId: z.number(), shouldLike: z.boolean() }))
         .mutation(async ({ ctx, input }) => {
             const { postId: id, shouldLike } = input;
 
@@ -400,7 +400,7 @@ export const postRouter = createTRPCRouter({
                             where: {
                                 userId: updatedPost.userId,
                                 type: "like",
-                                value: id,
+                                value: id.toString(),
                                 targets: {
                                     none: {
                                         id: ctx.session.user.id,
@@ -437,7 +437,7 @@ export const postRouter = createTRPCRouter({
                                         },
                                     },
                                     type: "like",
-                                    value: id,
+                                    value: id.toString(),
                                 },
                             });
                     });

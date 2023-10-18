@@ -22,7 +22,7 @@ export default function AdminModal({
     userId,
     onMutate,
 }: {
-    userId: string;
+    userId: number;
     onMutate?: (user: User) => void;
 }) {
     const { closeModal } = useModal();

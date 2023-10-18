@@ -10,7 +10,7 @@ export default function FollowingModal({
     user,
     followType,
 }: {
-    user?: { id: string; name: string | null; tag?: string | null };
+    user?: { id: number; name: string | null; tag?: string | null };
     followType: "followers" | "following";
 }) {
     const { closeModal } = useModal();

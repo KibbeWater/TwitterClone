@@ -35,7 +35,7 @@ function PostThreadSeparator({ isSmall }: { isSmall?: boolean }) {
 }
 
 export default function Page() {
-    const postId = useRouter().query.id as string;
+    const postId = parseInt((useRouter().query.id as string) ?? "-1") ?? -1;
 
     const { data: post } = api.post.getPost.useQuery({ id: postId });
 
@@ -44,7 +44,7 @@ export default function Page() {
 
     const user = post?.user;
     const quote = post?.quote;
-    const images = post?.images ?? [];
+    const images: string[] = /* post?.images ?? */ [];
 
     const parents = useMemo(() => {
         const parents = [];
@@ -218,7 +218,7 @@ export default function Page() {
                         </p>
                         <p className="text-sm ml-1 mr-4 text-gray-500">
                             <span className="font-semibold text-black dark:text-white">
-                                {post.likeIDs.length}
+                                {/* post.likeIDs.length */ 0}
                             </span>{" "}
                             Likes
                         </p>

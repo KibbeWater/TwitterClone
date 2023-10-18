@@ -23,7 +23,7 @@ export default function Notification({
 }: {
     notif: Notification & {
         targets: {
-            id: string;
+            id: number;
             name: string | null;
             tag: string | null;
             image: string | null;
@@ -34,7 +34,7 @@ export default function Notification({
     const { targets, type } = notif;
 
     const { data: post } = api.post.getPost.useQuery(
-        { id: notif.value },
+        { id: parseInt(notif.value) },
         {
             enabled:
                 notif.type == "reply" ||

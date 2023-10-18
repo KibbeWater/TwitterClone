@@ -9,7 +9,7 @@ export default function UserContext({
 }: {
     user: {
         name: string | null;
-        id: string;
+        id: number;
         tag: string | null;
         image: string | null;
         verified: boolean | null;

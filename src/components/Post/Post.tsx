@@ -18,11 +18,11 @@ import { api } from "~/utils/api";
 import { PERMISSIONS, hasPermission } from "~/utils/permission";
 
 function isUserFollowing(
-    user: { id: string } | undefined,
-    profile: { followerIds: string[] } | undefined,
+    user: { id: number } | undefined,
+    profile: { followers: { id: number }[] } | undefined,
 ) {
     if (!user || !profile) return false;
-    return profile.followerIds.find((u) => u === user.id) !== undefined;
+    return profile.followers.find((u) => u.id === user.id) !== undefined;
 }
 
 function FormatDate(date: Date) {
@@ -64,24 +64,24 @@ export default function PostComponent(p: {
     const { isRef, mini, onMutate, onDeleted } = p;
     const post = p.post as Post & {
         user: {
-            id: string;
+            id: number;
             tag: string;
             name: string;
             image: string;
             verified: boolean;
-            followerIds: string[];
+            followers: { id: number }[];
         };
-        reposts: { id: string }[];
+        reposts: { id: number }[];
         quote: Post;
     };
 
     const router = useRouter();
-    const { setModal } = useModal();
+    /* const { setModal } = useModal(); */
 
     const user = post.user;
     const avatar = user.image || "/assets/imgs/default-avatar.png";
 
-    const images = post.images;
+    /* const images = post.images; */
 
     const isMe =
         post.user.id === session?.user.id && session?.user !== undefined;
@@ -305,10 +305,11 @@ export default function PostComponent(p: {
                     className="w-9/12 aspect-[5/3] mb-2 grid grid-cols-2 rounded-xl overflow-hidden gap-[2px] justify-self-center border-[1px] border-gray-200 dark:border-gray-700"
                     onClick={(e) => e.stopPropagation()}
                     style={{
-                        display: images.length !== 0 ? "grid" : "none",
+                        /* display: images.length !== 0 ? "grid" : "none", */
+                        display: "none",
                     }}
                 >
-                    {images.map(
+                    {/* images.map(
                         (img, i) =>
                             img && (
                                 <div
@@ -347,7 +348,7 @@ export default function PostComponent(p: {
                                     />
                                 </div>
                             ),
-                    )}
+                    ) */}
                 </div>
                 {!post.quoteId || isRef ? (
                     <></>

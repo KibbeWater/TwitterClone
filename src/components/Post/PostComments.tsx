@@ -16,7 +16,7 @@ export default function PostComments({
     onPost?: (post: Post) => void;
 }) {
     const [localPosts, setLocalPosts] = useState<Post[]>([]);
-    const [deletedPosts, setDeletedPosts] = useState<string[]>([]);
+    const [deletedPosts, setDeletedPosts] = useState<number[]>([]);
 
     const { data, fetchNextPage, isLoading } =
         api.post.getCommentPage.useInfiniteQuery(

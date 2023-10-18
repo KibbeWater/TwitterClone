@@ -7,7 +7,7 @@ export const notificationsRouter = createTRPCRouter({
         .input(
             z.object({
                 limit: z.number().optional(),
-                cursor: z.string().nullish(),
+                cursor: z.number().nullish(),
                 skip: z.number().optional(),
                 filers: z
                     .object({
@@ -71,7 +71,7 @@ export const notificationsRouter = createTRPCRouter({
         }),
 
     markNotificationRead: protectedProcedure
-        .input(z.object({ id: z.string() }))
+        .input(z.object({ id: z.number() }))
         .mutation(async ({ ctx, input }) => {
             return await ctx.prisma.notification.update({
                 where: {

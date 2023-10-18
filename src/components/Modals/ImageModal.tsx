@@ -23,11 +23,11 @@ export default function ImageModal({
     post,
 }: {
     src: string;
-    post: Post & { reposts: { id: string }[] };
+    post: Post & { reposts: { id: number }[] };
 }) {
     const [commentsOpen, setCommentsOpen] = useState(true);
     const [localPosts, setLocalPosts] = useState<Post[]>([]);
-    const [deletedPosts, setDeletedPosts] = useState<string[]>([]);
+    const [deletedPosts, setDeletedPosts] = useState<number[]>([]);
 
     const { closeModal } = useModal();
 
@@ -196,7 +196,7 @@ export default function ImageModal({
                         </p>
                         <p className="text-sm ml-1 mr-4 text-gray-500">
                             <span className="font-semibold text-black dark:text-white">
-                                {post.likeIDs.length}
+                                0
                             </span>{" "}
                             Likes
                         </p>

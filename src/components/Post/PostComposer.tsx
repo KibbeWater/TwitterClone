@@ -20,7 +20,7 @@ type Props = {
     avatarSize?: number;
     padding?: number;
     quote?: Post;
-    parent?: string;
+    parent?: number;
 };
 
 export default function PostComposer({

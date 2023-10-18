@@ -4,7 +4,7 @@ import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 
 export const followersRouter = createTRPCRouter({
     setFollowing: protectedProcedure
-        .input(z.object({ id: z.string(), shouldFollow: z.boolean() }))
+        .input(z.object({ id: z.number(), shouldFollow: z.boolean() }))
         .mutation(async ({ ctx, input }) => {
             const { id: targetId, shouldFollow } = input;
             const id = ctx.session.user.id;

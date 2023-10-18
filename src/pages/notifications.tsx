@@ -29,7 +29,7 @@ export const getServerSideProps = (async (ctx) => {
 export default function NotificationsPage({}: InferGetServerSidePropsType<
     typeof getServerSideProps
 >) {
-    const [readIds, setReadIds] = useState<string[]>([]);
+    const [readIds, setReadIds] = useState<number[]>([]);
 
     const { data, fetchNextPage, isLoading } =
         api.notifications.getNotifications.useInfiniteQuery(
@@ -46,8 +46,8 @@ export default function NotificationsPage({}: InferGetServerSidePropsType<
     }, [fetchNextPage]);
 
     // TODO: Still some double send issue?? Fix later, fine for now
-    const markRead = useCallback<(id: string) => void>(
-        (id: string) => {
+    const markRead = useCallback<(id: number) => void>(
+        (id: number) => {
             if (readIds.indexOf(id) !== -1) return;
             setReadIds((prev) => [...prev, id]);
             _markRead({ id });
@@ -67,7 +67,7 @@ export default function NotificationsPage({}: InferGetServerSidePropsType<
                 (acc, cur) => [...acc, ...cur.items],
                 [] as (Notification & {
                     targets: {
-                        id: string;
+                        id: number;
                         name: string | null;
                         tag: string | null;
                         image: string | null;
