@@ -38,32 +38,19 @@ export const roleRouter = createTRPCRouter({
                     cause: "User lacks the MANAGE_ROLES permission.",
                 });
 
-            const role = await ctx.prisma.role.findUnique({
-                where: {
-                    name: input.name,
-                },
-            });
-
-            if (!role)
-                throw new TRPCError({
-                    code: "NOT_FOUND",
-                    message: "Role not found.",
-                    cause: "Role not found.",
-                });
-
             const permissions = BigInt(input.permissions);
 
             if (
                 hasPermission(
                     { permissions: permissions.toString(), roles: [] },
                     PERMISSIONS.ADMINISTRATOR,
-                ) !==
-                hasPermission({ ...role, roles: [] }, PERMISSIONS.ADMINISTRATOR)
+                )
             )
                 throw new TRPCError({
                     code: "FORBIDDEN",
-                    message: "You cannot update the ADMINISTRATOR permission.",
-                    cause: "You cannot update the ADMINISTRATOR permission.",
+                    message:
+                        "You cannot create a role with the ADMINISTRATOR permission.",
+                    cause: "You cannot create a role with the ADMINISTRATOR permission.",
                 });
 
             return await ctx.prisma.role.create({
