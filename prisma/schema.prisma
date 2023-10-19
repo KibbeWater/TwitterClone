@@ -103,6 +103,7 @@ model Notification {
 
 model Role {
     id          String   @id @default(auto()) @map("_id") @db.ObjectId
+    name        String   @unique
     permissions String
     users       User[]   @relation(name: "R2U", fields: [userIds], references: [id])
     userIds     String[] @db.ObjectId
