@@ -15,11 +15,7 @@ import ProfileSkeleton from "~/components/Skeletons/ProfileSkeleton";
 import VerifiedCheck from "~/components/Verified";
 
 import { api } from "~/utils/api";
-import {
-    PERMISSIONS,
-    getPermissionList,
-    hasPermission,
-} from "~/utils/permission";
+import { PERMISSIONS, hasPermission } from "~/utils/permission";
 
 function isUserFollowing(
     user: { id: string } | undefined,

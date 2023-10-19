@@ -16,7 +16,6 @@ import {
     getPermissions,
     getAllPermissions,
     addPermission as _addPermission,
-    evaluateRolePermissions,
 } from "~/utils/permission";
 
 export default function AdminModal({
@@ -500,6 +499,7 @@ export default function AdminModal({
             applyRoles,
             isUpdatingRoles,
             areRolesModified,
+            userPermissionsWithRoles,
         ],
     );
 
