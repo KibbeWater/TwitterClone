@@ -119,6 +119,7 @@ export default function Admin({
         {},
         { enabled: hasPermission(user, PERMISSIONS.MANAGE_ROLES) },
     );
+    
     const { data: administrators } = api.admin.getAdministrators.useQuery(
         {},
         { enabled: hasPermission(user, PERMISSIONS.MANAGE_USER_ROLES) },
