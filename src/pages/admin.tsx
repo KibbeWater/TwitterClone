@@ -1,7 +1,7 @@
 import { XMarkIcon } from "@heroicons/react/20/solid";
 import type { GetServerSideProps, InferGetServerSidePropsType } from "next";
 import Link from "next/link";
-import { useCallback, useState, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 
 import Layout from "~/components/Site/Layouts/Layout";
 import UserContext from "~/components/UserContext";
@@ -10,14 +10,14 @@ import { authOptions, getServerAuthSession } from "~/server/auth";
 import { api } from "~/utils/api";
 import {
     PERMISSIONS,
+    addPermission as _addPermission,
+    removePermission as _removePermissions,
+    getAllPermissions,
     getPermission,
     getPermissionList,
+    getPermissions,
     hasPermission,
     permissionDependants,
-    removePermission as _removePermissions,
-    getPermissions,
-    getAllPermissions,
-    addPermission as _addPermission,
 } from "~/utils/permission";
 
 type UserProp = {
@@ -119,7 +119,7 @@ export default function Admin({
         {},
         { enabled: hasPermission(user, PERMISSIONS.MANAGE_ROLES) },
     );
-    
+
     const { data: administrators } = api.admin.getAdministrators.useQuery(
         {},
         { enabled: hasPermission(user, PERMISSIONS.MANAGE_USER_ROLES) },
