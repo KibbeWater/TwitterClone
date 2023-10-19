@@ -144,7 +144,10 @@ export default function Navbar() {
                         (link) =>
                             ((!link.permission ||
                                 hasPermission(
-                                    session?.user ?? { permissions: "" },
+                                    session?.user ?? {
+                                        permissions: "0",
+                                        roles: [],
+                                    },
                                     link.permission.requiredPerms,
                                     link.permission.or,
                                 )) &&

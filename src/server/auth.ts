@@ -25,10 +25,17 @@ declare module "next-auth" {
             id: string;
             tag: string;
             // ...other properties
+            roles: Role[];
             permissions: string;
             verified: boolean;
             lastTagReset: string;
         };
+    }
+
+    interface Role {
+        id: string;
+        name: string;
+        permissions: string;
     }
 
     interface User {
@@ -36,6 +43,7 @@ declare module "next-auth" {
         permissions: string;
         verified: boolean;
         lastTagReset: string;
+        roles: Role[];
     }
 }
 
@@ -61,17 +69,26 @@ export const authOptions: NextAuthOptions = {
 
             return true;
         },
-        session: ({ session, user }) => ({
-            ...session,
-            user: {
-                ...session.user,
-                id: user.id,
-                tag: user.tag,
-                lastTagReset: user.lastTagReset,
-                verified: user.verified,
-                permissions: user.permissions,
-            },
-        }),
+        session: async ({ session, user }) => {
+            // TODO: We probably should not do this, investigate later
+            const usr = await prisma.user.findUnique({
+                where: { id: user.id },
+                select: { roles: true },
+            });
+
+            return {
+                ...session,
+                user: {
+                    ...session.user,
+                    id: user.id,
+                    tag: user.tag,
+                    lastTagReset: user.lastTagReset,
+                    roles: usr?.roles ?? [],
+                    verified: user.verified,
+                    permissions: user.permissions,
+                },
+            };
+        },
     },
     adapter: PrismaAdapter(prisma),
     providers: [

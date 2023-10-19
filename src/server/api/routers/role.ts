@@ -55,9 +55,10 @@ export const roleRouter = createTRPCRouter({
 
             if (
                 hasPermission(
-                    { permissions: permissions.toString() },
+                    { permissions: permissions.toString(), roles: [] },
                     PERMISSIONS.ADMINISTRATOR,
-                ) !== hasPermission(role, PERMISSIONS.ADMINISTRATOR)
+                ) !==
+                hasPermission({ ...role, roles: [] }, PERMISSIONS.ADMINISTRATOR)
             )
                 throw new TRPCError({
                     code: "FORBIDDEN",
@@ -101,9 +102,10 @@ export const roleRouter = createTRPCRouter({
 
             if (
                 hasPermission(
-                    { permissions: permissions.toString() },
+                    { permissions: permissions.toString(), roles: [] },
                     PERMISSIONS.ADMINISTRATOR,
-                ) !== hasPermission(role, PERMISSIONS.ADMINISTRATOR)
+                ) !==
+                hasPermission({ ...role, roles: [] }, PERMISSIONS.ADMINISTRATOR)
             )
                 throw new TRPCError({
                     code: "FORBIDDEN",
@@ -145,7 +147,9 @@ export const roleRouter = createTRPCRouter({
                     cause: "Role not found.",
                 });
 
-            if (hasPermission(role, PERMISSIONS.ADMINISTRATOR))
+            if (
+                hasPermission({ ...role, roles: [] }, PERMISSIONS.ADMINISTRATOR)
+            )
                 throw new TRPCError({
                     code: "FORBIDDEN",
                     message: "You cannot update the ADMINISTRATOR permission.",

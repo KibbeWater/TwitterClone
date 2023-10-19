@@ -1,7 +1,7 @@
 import { XMarkIcon } from "@heroicons/react/20/solid";
 import type { GetServerSideProps, InferGetServerSidePropsType } from "next";
 import Link from "next/link";
-import { useCallback, useState } from "react";
+import { useCallback, useState, useMemo } from "react";
 
 import Layout from "~/components/Site/Layouts/Layout";
 import UserContext from "~/components/UserContext";
@@ -24,6 +24,7 @@ type UserProp = {
     id: string;
     name?: string | null;
     permissions: string;
+    roles: { permissions: string }[];
 };
 
 export const getServerSideProps = (async (ctx) => {
@@ -35,6 +36,10 @@ export const getServerSideProps = (async (ctx) => {
         user = tempUser && {
             id: tempUser.id,
             name: tempUser.name,
+            roles:
+                tempUser.roles?.map((r) => ({
+                    permissions: r.permissions,
+                })) ?? [],
             permissions: tempUser.permissions,
         };
     } catch (error) {
@@ -83,9 +88,11 @@ export default function Admin({
                     permissions: _removePermissions(
                         {
                             permissions: getPermissions(permissions).toString(),
+                            roles: [],
                         },
                         getPermission(perm)!,
                     ).toString(),
+                    roles: [],
                 }),
             ),
         [permissions],
@@ -98,18 +105,15 @@ export default function Admin({
                     permissions: _addPermission(
                         {
                             permissions: getPermissions(permissions).toString(),
+                            roles: [],
                         },
                         getPermission(perm)!,
                     ).toString(),
+                    roles: [],
                 }),
             ),
         [permissions],
     );
-
-    const clearFields = useCallback(() => {
-        setName("");
-        setPermissions([]);
-    }, []);
 
     const { data: roles, refetch: _reloadRoles } = api.role.getRoles.useQuery(
         {},
@@ -127,18 +131,27 @@ export default function Admin({
 
             setName(role.name);
             setPermissions(
-                getPermissionList({ permissions: role.permissions }),
+                getPermissionList({ permissions: role.permissions, roles: [] }),
             );
         },
         [roles],
     );
 
+    const arePermissionsModified = useMemo(() => {
+        if (!roles) return false;
+        const selectedRole = roles.find((r) => r.name === name);
+
+        const curPerms = getPermissionList({
+            permissions: selectedRole?.permissions ?? "",
+            roles: [],
+        });
+
+        return curPerms.sort().join(",") !== permissions.sort().join(",");
+    }, [permissions, roles, name]);
+
     const { mutate: _createRole, isLoading: _isMutatingRoleCreate } =
         api.role.createRole.useMutation({
-            onSuccess: () => {
-                _reloadRoles().catch(console.error);
-                clearFields();
-            },
+            onSuccess: () => _reloadRoles().catch(console.error),
             onError: (error) => {
                 alert(error.message);
                 const role = roles?.find((r) => r.name === name)?.id;
@@ -147,10 +160,7 @@ export default function Admin({
         });
     const { mutate: _updateRole, isLoading: _isMutatingRoleUpdate } =
         api.role.updateRole.useMutation({
-            onSuccess: () => {
-                _reloadRoles().catch(console.error);
-                clearFields();
-            },
+            onSuccess: () => _reloadRoles().catch(console.error),
             onError: (error) => {
                 alert(error.message);
                 const role = roles?.find((r) => r.name === name)?.id;
@@ -337,7 +347,9 @@ export default function Admin({
                                         disabled={
                                             roles?.findIndex(
                                                 (r) => name === r.name,
-                                            ) === -1 || isMutatingRole
+                                            ) === -1 ||
+                                            isMutatingRole ||
+                                            !arePermissionsModified
                                         }
                                         className={[
                                             "grow bg-black dark:bg-white hover:bg-neutral-800 dark:hover:bg-neutral-200 duration-300 py-1 rounded-md",
