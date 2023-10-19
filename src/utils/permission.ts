@@ -1,5 +1,10 @@
 type UserProp = {
     permissions: string;
+    roles: RoleProp[];
+};
+
+type RoleProp = {
+    permissions: string;
 };
 
 export const DEFAULT_PERMISSIONS = 0n;
@@ -13,6 +18,7 @@ export const PERMISSIONS = {
     MANAGE_USERS_EXTENDED: setBit(0n, 1) | setBit(0n, 0),
     VIEW_PROTECTED_USERS: setBit(0n, 2),
     MANAGE_USER_ROLES: setBit(0n, 4),
+    MANAGE_ROLES: setBit(0n, 5),
 
     MANAGE_POSTS: setBit(0n, 3),
 
@@ -25,6 +31,7 @@ export const administrativePermissions = [
     PERMISSIONS.VIEW_PROTECTED_USERS,
     PERMISSIONS.MANAGE_USER_ROLES,
     PERMISSIONS.MANAGE_POSTS,
+    PERMISSIONS.MANAGE_ROLES,
 ];
 
 export const hasPermission = (
@@ -32,17 +39,29 @@ export const hasPermission = (
     permissions: bigint | bigint[],
     or?: boolean,
     ignoreAdministrator?: boolean,
-): boolean =>
-    ignoreAdministrator ??
-    !hasPermission(user, PERMISSIONS.ADMINISTRATOR, false, true)
-        ? typeof permissions === "bigint"
-            ? (BigInt(user.permissions) & permissions) === permissions
-            : or
-            ? permissions.findIndex(
-                  (p) => (BigInt(user.permissions) & p) === p,
-              ) !== -1
-            : permissions.every((p) => (BigInt(user.permissions) & p) === p)
-        : true; // If the user has the administrator permission, they have all permissions;
+): boolean => {
+    if (ignoreAdministrator && hasPermission(user, PERMISSIONS.ADMINISTRATOR))
+        return true;
+
+    const combinedPermissionsToCheck = Array.isArray(permissions)
+        ? permissions.reduce((acc, cur) => acc | cur, 0n)
+        : permissions;
+
+    // Get the users actual permissions
+    const userPermission =
+        BigInt(user.permissions) |
+        (user.roles ? evaluateRolePermissions(user.roles) : 0n);
+
+    if (!or)
+        return (
+            (userPermission & combinedPermissionsToCheck) ===
+            combinedPermissionsToCheck
+        );
+    else
+        return Array.isArray(permissions)
+            ? permissions.some((p) => (p & userPermission) === p)
+            : (userPermission & permissions) === permissions;
+};
 
 export const getPermission = (permission: string): bigint | null =>
     Object.entries(PERMISSIONS).find(([key]) => key === permission)?.[1] ??
@@ -93,3 +112,8 @@ export const removePermission = (user: UserProp, permission: bigint): bigint =>
         (acc, cur) => acc & ~getPermission(cur)!,
         BigInt(user.permissions),
     ) & ~permission;
+
+export const evaluateRolePermissions = (role: RoleProp | RoleProp[]): bigint =>
+    Array.isArray(role)
+        ? role.reduce((acc, cur) => acc | BigInt(cur.permissions), 0n)
+        : BigInt(role.permissions);
