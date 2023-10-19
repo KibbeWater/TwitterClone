@@ -1,8 +1,7 @@
 import { XMarkIcon } from "@heroicons/react/20/solid";
 import type { GetServerSideProps, InferGetServerSidePropsType } from "next";
 import Link from "next/link";
-import { useCallback, useState, useMemo } from "react";
-import LabelledInput from "~/components/LabelledInput";
+import { useCallback, useState } from "react";
 
 import Layout from "~/components/Site/Layouts/Layout";
 import UserContext from "~/components/UserContext";
