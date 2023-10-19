@@ -247,7 +247,7 @@ export default function AdminModal({
                                             .map((p, idx) => (
                                                 <p
                                                     key={`${p}-${idx}`}
-                                                    className={`bg-black dark:bg-white text-white dark:text-black px-2 text-sm rounded-full relative cursor-pointer`}
+                                                    className={`bg-black dark:bg-white text-white dark:text-black px-2 select-none text-sm rounded-full relative cursor-pointer`}
                                                     onClick={() =>
                                                         addPermission(p)
                                                     }
@@ -278,7 +278,7 @@ export default function AdminModal({
                                                 return (
                                                     <p
                                                         key={`${p}-${idx}`}
-                                                        className={`bg-black dark:bg-white text-white dark:text-black pl-2 pr-6 text-sm rounded-full relative ${
+                                                        className={`bg-black dark:bg-white text-white select-none dark:text-black pl-2 pr-6 text-sm rounded-full relative ${
                                                             isDependant
                                                                 ? "!bg-red-800"
                                                                 : ""

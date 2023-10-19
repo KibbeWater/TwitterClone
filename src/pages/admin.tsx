@@ -258,7 +258,7 @@ export default function Admin({
                                                     .map((p, idx) => (
                                                         <p
                                                             key={`${p}-${idx}`}
-                                                            className={`bg-black dark:bg-white text-white dark:text-black px-2 text-sm rounded-full relative cursor-pointer`}
+                                                            className={`bg-black dark:bg-white text-white dark:text-black px-2 text-sm rounded-full select-none relative cursor-pointer`}
                                                             onClick={() =>
                                                                 addPermission(p)
                                                             }
@@ -289,7 +289,7 @@ export default function Admin({
                                                 return (
                                                     <p
                                                         key={`${p}-${idx}`}
-                                                        className={`bg-black dark:bg-white text-white dark:text-black pl-2 pr-6 text-sm rounded-full relative ${
+                                                        className={`bg-black dark:bg-white text-white dark:text-black pl-2 pr-6 text-sm rounded-full select-none relative ${
                                                             isDependant
                                                                 ? "!bg-red-800"
                                                                 : ""
