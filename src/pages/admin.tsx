@@ -140,12 +140,22 @@ export default function Admin({
                 _reloadRoles().catch(console.error);
                 clearFields();
             },
+            onError: (error) => {
+                alert(error.message);
+                const role = roles?.find((r) => r.name === name)?.id;
+                if (role) selectRole(role);
+            },
         });
     const { mutate: _updateRole, isLoading: _isMutatingRoleUpdate } =
         api.role.updateRole.useMutation({
             onSuccess: () => {
                 _reloadRoles().catch(console.error);
                 clearFields();
+            },
+            onError: (error) => {
+                alert(error.message);
+                const role = roles?.find((r) => r.name === name)?.id;
+                if (role) selectRole(role);
             },
         });
 
@@ -314,7 +324,13 @@ export default function Admin({
                                             "disabled:bg-neutral-500 dark:disabled:bg-neutral-500 text-white dark:text-black transition-colors",
                                         ].join(" ")}
                                         onClick={createRole}
-                                        disabled={isMutatingRole}
+                                        disabled={
+                                            roles?.findIndex(
+                                                (r) => name === r.name,
+                                            ) !== -1 ||
+                                            isMutatingRole ||
+                                            !name
+                                        }
                                     >
                                         Create
                                     </button>
