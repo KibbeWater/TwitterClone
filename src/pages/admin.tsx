@@ -168,6 +168,19 @@ export default function Admin({
                 if (role) selectRole(role);
             },
         });
+    const { mutate: _deleteRole, isLoading: _isMutatingRoleDelete } =
+        api.role.deleteRole.useMutation({
+            onSuccess: () => {
+                _reloadRoles().catch(console.error);
+                setName("");
+                setPermissions([]);
+            },
+            onError: (error) => {
+                alert(error.message);
+                const role = roles?.find((r) => r.name === name)?.id;
+                if (role) selectRole(role);
+            },
+        });
 
     const createRole = useCallback(() => {
         if (!name || !permissions) return;
@@ -188,7 +201,17 @@ export default function Admin({
         });
     }, [_updateRole, name, permissions, roles]);
 
-    const isMutatingRole = _isMutatingRoleCreate || _isMutatingRoleUpdate;
+    const deleteRole = useCallback(() => {
+        if (!name) return;
+        if (roles?.findIndex((r) => name === r.name) === -1) return;
+
+        _deleteRole({
+            name,
+        });
+    }, [_deleteRole, name, roles]);
+
+    const isMutatingRole =
+        _isMutatingRoleCreate || _isMutatingRoleUpdate || _isMutatingRoleDelete;
 
     return (
         <Layout title="Admin">
@@ -327,38 +350,56 @@ export default function Admin({
                                             })}
                                     </div>
                                 </div>
-                                <div className="flex justify-between gap-4">
+                                <div className="flex flex-col gap-2">
+                                    <div className="flex justify-between gap-4">
+                                        <button
+                                            className={[
+                                                "grow bg-black dark:bg-white hover:bg-neutral-800 dark:hover:bg-neutral-200 duration-300 py-1 rounded-md",
+                                                "disabled:bg-neutral-500 dark:disabled:bg-neutral-500 text-white dark:text-black transition-colors",
+                                            ].join(" ")}
+                                            onClick={createRole}
+                                            disabled={
+                                                roles?.findIndex(
+                                                    (r) => name === r.name,
+                                                ) !== -1 ||
+                                                isMutatingRole ||
+                                                !name
+                                            }
+                                        >
+                                            Create
+                                        </button>
+                                        <button
+                                            disabled={
+                                                roles?.findIndex(
+                                                    (r) => name === r.name,
+                                                ) === -1 ||
+                                                isMutatingRole ||
+                                                !arePermissionsModified
+                                            }
+                                            className={[
+                                                "grow bg-black dark:bg-white hover:bg-neutral-800 dark:hover:bg-neutral-200 duration-300 py-1 rounded-md",
+                                                "disabled:bg-neutral-500 dark:disabled:bg-neutral-500 text-white dark:text-black transition-colors",
+                                            ].join(" ")}
+                                            onClick={updateRole}
+                                        >
+                                            Update
+                                        </button>
+                                    </div>
                                     <button
                                         className={[
                                             "grow bg-black dark:bg-white hover:bg-neutral-800 dark:hover:bg-neutral-200 duration-300 py-1 rounded-md",
                                             "disabled:bg-neutral-500 dark:disabled:bg-neutral-500 text-white dark:text-black transition-colors",
                                         ].join(" ")}
-                                        onClick={createRole}
-                                        disabled={
-                                            roles?.findIndex(
-                                                (r) => name === r.name,
-                                            ) !== -1 ||
-                                            isMutatingRole ||
-                                            !name
-                                        }
-                                    >
-                                        Create
-                                    </button>
-                                    <button
+                                        onClick={deleteRole}
                                         disabled={
                                             roles?.findIndex(
                                                 (r) => name === r.name,
                                             ) === -1 ||
                                             isMutatingRole ||
-                                            !arePermissionsModified
+                                            !name
                                         }
-                                        className={[
-                                            "grow bg-black dark:bg-white hover:bg-neutral-800 dark:hover:bg-neutral-200 duration-300 py-1 rounded-md",
-                                            "disabled:bg-neutral-500 dark:disabled:bg-neutral-500 text-white dark:text-black transition-colors",
-                                        ].join(" ")}
-                                        onClick={updateRole}
                                     >
-                                        Update
+                                        Delete
                                     </button>
                                 </div>
                             </div>
