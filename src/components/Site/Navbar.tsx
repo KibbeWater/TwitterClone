@@ -3,6 +3,7 @@ import {
     HomeIcon as HomeOutline,
     UserIcon as UserOutline,
     UsersIcon as UsersOutline,
+    Cog6ToothIcon as CogOutline,
 } from "@heroicons/react/24/outline";
 import {
     BellIcon as BellSolid,
@@ -11,6 +12,7 @@ import {
     PencilIcon,
     UserIcon as UserSolid,
     UsersIcon as UsersSolid,
+    Cog6ToothIcon as CogSolid,
     MoonIcon,
     SunIcon,
 } from "@heroicons/react/24/solid";
@@ -113,6 +115,19 @@ export default function Navbar() {
                 iconSolid: UserSolid,
                 iconOutline: UserOutline,
             },
+            {
+                name: "Settings",
+                activeURLs: [`/settings`],
+                onClick: () => {
+                    if (!session)
+                        signIn(undefined, { callbackUrl: "/settings" }).catch(
+                            console.error,
+                        );
+                    else router.push(`/settings`).catch(console.error);
+                },
+                iconSolid: CogSolid,
+                iconOutline: CogOutline,
+            },
         ];
     }, [session, router, notifData?.count]);
 
@@ -121,7 +136,7 @@ export default function Navbar() {
     return (
         <nav
             className={
-                "min-w-[10%] sm:max-w-[25%] max-w-min pt-2 w-full h-screen flex justify-end bg-white dark:bg-black border-r-[1px] border-gray-200 dark:border-gray-700"
+                "min-w-[10%] sm:max-w-[30%] max-w-min pt-2 w-full h-screen flex justify-end bg-white dark:bg-black border-r-[1px] border-gray-200 dark:border-gray-700"
             }
         >
             <div className="flex flex-col h-full">
