@@ -1,3 +1,5 @@
+import { UserIcon } from "@heroicons/react/24/outline";
+import SettingLink from "~/components/Settings/SettingLink";
 import SettingsLayout from "~/components/Site/Layouts/SettingsLayout";
 
 export default function Settings() {
@@ -6,6 +8,13 @@ export default function Settings() {
             title="Your Account"
             description="See information about your account, download an archive of your data, or learn about your account deactivation options"
             canBack={false}
-        ></SettingsLayout>
+        >
+            <SettingLink
+                title="Account information"
+                description="See your account information like your phone number and email address."
+                href="/settings/account/info"
+                icon={UserIcon}
+            />
+        </SettingsLayout>
     );
 }

@@ -86,18 +86,17 @@ export default function SettingsLayout({
                 </div>
                 <div className="flex flex-col gap-5 grow pt-2">
                     <div className="ml-3 flex items-center gap-4">
-                        {(canBack || !navVisible) &&
-                            router.pathname !== "/home" && (
-                                <div
-                                    onClick={() => router.back()}
-                                    className="h-full aspect-square rounded-full p-2 hover:bg-gray-600/25 transition-colors bg-transparent cursor-pointer"
-                                >
-                                    <ArrowLeftIcon className="h-5 w-5 text-black dark:text-white" />
-                                </div>
-                            )}
-                        <h1 className="text-black dark:text-white font-semibold text-xl my-2">
+                        {(canBack || !navVisible) && (
+                            <div
+                                onClick={() => router.back()}
+                                className="h-full flex justify-center items-center aspect-square rounded-full p-2 hover:bg-gray-600/25 transition-colors bg-transparent cursor-pointer"
+                            >
+                                <ArrowLeftIcon className="h-5 w-5 text-black dark:text-white" />
+                            </div>
+                        )}
+                        <h2 className="text-black dark:text-white font-semibold text-xl my-2">
                             {title}
-                        </h1>
+                        </h2>
                     </div>
 
                     {description && (
@@ -110,7 +109,6 @@ export default function SettingsLayout({
                 </div>
                 <div className="w-1/6 grow-0 border-l-[1px] border-gray-200 dark:border-gray-700"></div>
             </div>
-            {children}
         </>
     );
 }
