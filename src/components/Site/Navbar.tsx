@@ -35,7 +35,10 @@ export default function Navbar() {
     const { setModal } = useModal();
     const { theme, setTheme } = useTheme();
 
-    const { data: notifData } = api.notifications.getUnreadCount.useQuery({});
+    const { data: notifData } = api.notifications.getUnreadCount.useQuery(
+        {},
+        { enabled: !!session },
+    );
 
     const router = useRouter();
 
