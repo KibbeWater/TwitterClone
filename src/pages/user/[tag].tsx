@@ -72,9 +72,6 @@ export default function Home() {
 
     if (!profile) return <ProfileSkeleton />;
 
-    /* if (user) console.log(getPermissionList(user)); */
-    console.log(session);
-
     return (
         <Layout title={profile?.name ?? "Loading..."}>
             <div>

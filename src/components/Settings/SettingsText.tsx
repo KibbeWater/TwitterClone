@@ -1,20 +1,15 @@
-import { ChevronRightIcon } from "@heroicons/react/24/solid";
-import Link from "next/link";
-
 import type { SettingComponentProps } from "~/types/settings";
 
-export default function SettingsLink({
+export default function SettingsText({
     newSeparator,
     icon: Icon,
     title,
     description,
-    href,
-}: SettingComponentProps & { href: string }) {
+}: SettingComponentProps) {
     return (
-        <Link
-            href={href}
+        <div
             className={[
-                "flex items-center justify-between py-3 px-3 dark:hover:bg-gray-400/10 hover:bg-gray-600/10 transition-colors",
+                "flex items-center py-3 px-3",
                 newSeparator &&
                     "border-t-[1px] border-gray-200 dark:border-gray-700",
             ].join(" ")}
@@ -34,9 +29,6 @@ export default function SettingsLink({
                     )}
                 </div>
             </div>
-            <div className="flex w-5 h-5">
-                <ChevronRightIcon className="text-neutral-500" />
-            </div>
-        </Link>
+        </div>
     );
 }

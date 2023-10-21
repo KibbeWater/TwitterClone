@@ -234,4 +234,27 @@ export const userRouter = createTRPCRouter({
 
             return user[input.followType];
         }),
+
+    updateEmail: protectedProcedure
+        .input(z.object({ email: z.string() }))
+        .mutation(async ({ ctx, input }) => {
+            const { id } = ctx.session.user;
+            const emailExists = await ctx.prisma.user.findUnique({
+                where: { email: input.email },
+            });
+
+            if (emailExists)
+                throw new TRPCError({
+                    code: "BAD_REQUEST",
+                    message: "Email already exists.",
+                    cause: "Email already exists.",
+                });
+
+            // TODO: Alert the old email holder that their email was changed
+
+            return await ctx.prisma.user.update({
+                where: { id },
+                data: { email: input.email },
+            });
+        }),
 });
