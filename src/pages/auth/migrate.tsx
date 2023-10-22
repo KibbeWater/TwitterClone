@@ -1,6 +1,6 @@
 import { signIn } from "next-auth/react";
 import { useState, useCallback } from "react";
-import { z } from "zod";
+import * as z from "zod";
 
 import { api } from "~/utils/api";
 

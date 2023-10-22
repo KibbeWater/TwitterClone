@@ -1,6 +1,6 @@
 import { useSession } from "next-auth/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { z } from "zod";
+import * as z from "zod";
 import LabelledInput from "~/components/LabelledInput";
 import SettingsLayout from "~/components/Site/Layouts/SettingsLayout";
 import { api } from "~/utils/api";
