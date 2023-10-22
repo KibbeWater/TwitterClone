@@ -1,0 +1,114 @@
+import { ChevronRightIcon } from "@heroicons/react/20/solid";
+import { ArrowLeftIcon } from "@heroicons/react/24/solid";
+import Head from "next/head";
+import Link from "next/link";
+import { useRouter } from "next/router";
+import { useEffect, useMemo, useRef, useState } from "react";
+
+import Navbar from "../Navbar";
+
+type Props = {
+    canBack?: boolean;
+    title?: string;
+    description?: string;
+    children?: React.ReactNode;
+};
+
+export default function SettingsLayout({
+    title,
+    description,
+    children,
+    canBack = true,
+}: Props) {
+    const [navVisible, setNavVisible] = useState(false);
+
+    const router = useRouter();
+
+    const tabs = useMemo<{ name: string; slug: string }[]>(
+        () => [
+            { name: "Your account", slug: "account" },
+            { name: "Security and account access", slug: "security" },
+            /* { name: "Privacy and safety", slug: "privacy" }, */
+        ],
+        [],
+    );
+
+    const navRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const handleResize = () => {
+            // is invisible?
+            if (navRef.current?.offsetWidth === 0) {
+                setNavVisible(false);
+                return;
+            } else {
+                if (navVisible) return;
+                setNavVisible(true);
+            }
+        };
+
+        window.addEventListener("resize", handleResize);
+
+        return () => window.removeEventListener("resize", handleResize);
+    }, [navVisible]);
+
+    return (
+        <>
+            <Head>
+                <title>Twatter - Settings</title>
+            </Head>
+            <div className="parent w-screen h-screen flex relative bg-white dark:bg-black">
+                <Navbar />
+
+                <div
+                    ref={navRef}
+                    className="w-1/4 lg:block hidden border-r-[1px] border-gray-200 dark:border-gray-700 grow-0"
+                >
+                    <div className="pb-6">
+                        <h1 className="text-black dark:text-white font-semibold text-xl my-2 ml-4">
+                            Settings
+                        </h1>
+                    </div>
+                    <nav className="flex flex-col">
+                        {tabs.map((tab, idx) => (
+                            <Link
+                                key={`${tab.name}-${idx}`}
+                                href={`/settings/${tab.slug}`}
+                                className="flex justify-between items-center pl-4 pr-3 py-2 transition-colors bg-transparent duration-300 dark:hover:bg-neutral-700 hover:bg-neutral-200"
+                            >
+                                <p>{tab.name}</p>
+                                <div className="h-6 w-6">
+                                    <ChevronRightIcon className="text-neutral-500" />
+                                </div>
+                            </Link>
+                        ))}
+                    </nav>
+                </div>
+                <div className="flex flex-col gap-5 grow pt-2">
+                    <div className="ml-3 flex items-center gap-4">
+                        {(canBack || !navVisible) && (
+                            <div
+                                onClick={() => router.back()}
+                                className="h-full flex justify-center items-center aspect-square rounded-full p-2 hover:bg-gray-600/25 transition-colors bg-transparent cursor-pointer"
+                            >
+                                <ArrowLeftIcon className="h-5 w-5 text-black dark:text-white" />
+                            </div>
+                        )}
+                        <h2 className="text-black dark:text-white font-semibold text-xl my-2">
+                            {title}
+                        </h2>
+                    </div>
+
+                    {description && (
+                        <p className="px-3 text-sm text-neutral-500">
+                            {description}
+                        </p>
+                    )}
+
+                    <main>{children}</main>
+                </div>
+                <div className="w-1/6 grow-0 border-l-[1px] border-gray-200 dark:border-gray-700"></div>
+            </div>
+        </>
+    );
+}
