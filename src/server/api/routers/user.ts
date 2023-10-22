@@ -34,6 +34,7 @@ export const userRouter = createTRPCRouter({
                     bio: true,
                     tag: true,
                     permissions: true,
+                    protected: true,
                     verified: true,
                     image: true,
                     banner: true,
@@ -158,6 +159,7 @@ export const userRouter = createTRPCRouter({
         )
         .mutation(async ({ ctx, input }) => {
             const { id } = ctx.session.user;
+            console.log(ctx.session);
             if (input.tag) {
                 const tag = input.tag.toLowerCase();
                 const tagExists = await ctx.prisma.user.findUnique({
@@ -303,6 +305,8 @@ export const userRouter = createTRPCRouter({
         .query(async ({ ctx }) => {
             const { id } = ctx.session.user;
 
+            console.log(ctx.session);
+
             const sessions = await ctx.prisma.session.findMany({
                 select: {
                     id: true,
@@ -362,5 +366,16 @@ export const userRouter = createTRPCRouter({
                 });
 
             return session;
+        }),
+
+    setProtected: protectedProcedure
+        .input(z.object({ protected: z.boolean() }))
+        .mutation(async ({ ctx, input }) => {
+            const { id } = ctx.session.user;
+
+            return await ctx.prisma.user.update({
+                where: { id },
+                data: { protected: input.protected },
+            });
         }),
 });

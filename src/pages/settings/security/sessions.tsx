@@ -79,7 +79,6 @@ export default function SecuritySessions() {
 
     const getLastAccessed = (lastAccess: Date) => {
         const diff = Date.now() - lastAccess.getTime();
-        console.log(diff);
         const minutes = Math.floor(diff / 1000 / 60);
         const hours = Math.floor(minutes / 60);
         const days = Math.floor(hours / 24);
@@ -92,8 +91,6 @@ export default function SecuritySessions() {
         if (minutes > 0) return `${minutes} minutes ago`;
         return true;
     };
-
-    console.log(sessions);
 
     return (
         <SettingsLayout

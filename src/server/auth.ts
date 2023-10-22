@@ -21,6 +21,7 @@ import { prisma } from "~/server/db";
  */
 declare module "next-auth" {
     interface Session extends DefaultSession {
+        userAgent: string | null;
         user: {
             id: string;
             tag: string;
@@ -28,6 +29,7 @@ declare module "next-auth" {
             permissions: string;
             verified: boolean;
             lastTagReset: string;
+            protected: boolean;
         } & DefaultSession["user"];
     }
 
@@ -43,6 +45,7 @@ declare module "next-auth" {
         permissions: string;
         verified: boolean;
         lastTagReset: string;
+        protected: boolean;
     }
 }
 
@@ -68,11 +71,15 @@ export const authOptions: NextAuthOptions = {
 
             return true;
         },
-        /* session: async ({ session, user }) => {
+        session: async ({ session, user }) => {
             // TODO: We probably should not do this, investigate later
             const usr = await prisma.user.findUnique({
                 where: { id: user.id },
                 select: { roles: true },
+            });
+            await prisma.session.updateMany({
+                where: { expires: session.expires },
+                data: { lastAccessed: new Date() },
             });
 
             return {
@@ -87,7 +94,7 @@ export const authOptions: NextAuthOptions = {
                     permissions: user.permissions,
                 },
             };
-        }, */
+        },
     },
     adapter: PrismaAdapter(prisma),
     providers: [

@@ -12,22 +12,13 @@ export default async function auth(req: NextApiRequest, res: NextApiResponse) {
         ...authOptions,
         callbacks: {
             session: async (params) => {
-                const { session, user } = params;
+                const res = await authOptions.callbacks?.session?.(params);
+                const { session } = params;
 
                 // TODO: We probably should not do this, investigate later
-                const [usr, sessions] = await prisma.$transaction([
-                    prisma.user.findUnique({
-                        where: { id: user.id },
-                        select: { roles: true },
-                    }),
-                    prisma.session.findMany({
-                        where: { expires: session.expires },
-                    }),
-                    prisma.session.updateMany({
-                        where: { expires: session.expires },
-                        data: { lastAccessed: new Date() },
-                    }),
-                ]);
+                const sessions = await prisma.session.findMany({
+                    where: { expires: session.expires },
+                });
 
                 let updatedSession: { userAgent: string | null } | undefined;
                 if (
@@ -43,17 +34,8 @@ export default async function auth(req: NextApiRequest, res: NextApiResponse) {
                     });
 
                 return {
-                    ...session,
+                    ...res!,
                     userAgent: updatedSession?.userAgent ?? userAgent,
-                    user: {
-                        ...session.user,
-                        id: user.id,
-                        tag: user.tag,
-                        lastTagReset: user.lastTagReset,
-                        roles: usr?.roles ?? [],
-                        verified: user.verified,
-                        permissions: user.permissions,
-                    },
                 };
             },
         },

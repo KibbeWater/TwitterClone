@@ -51,7 +51,6 @@ export default function SessionInfo() {
 
     const getLastAccessed = (lastAccess: Date) => {
         const diff = Date.now() - lastAccess.getTime();
-        console.log(diff);
         const minutes = Math.floor(diff / 1000 / 60);
         const hours = Math.floor(minutes / 60);
         const days = Math.floor(hours / 24);

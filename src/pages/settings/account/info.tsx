@@ -26,7 +26,8 @@ export default function AccountInfo() {
                 description={user?.verified ? "Yes." : "No."}
             />
             <SettingsLink
-                title="Protected Account"
+                title="Protected account"
+                description={user?.protected ? "Yes." : "No."}
                 href="/settings/account/info/protected"
                 newSeparator={true}
             />

@@ -62,6 +62,7 @@ model User {
     email               String?        @unique
     emailVerified       DateTime?
     password            String?
+    protected           Boolean        @default(false)
     banner              String?
     image               String?        @default("/assets/imgs/default-avatar.png")
     permissions         String         @default("0")
