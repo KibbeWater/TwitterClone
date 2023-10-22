@@ -297,4 +297,22 @@ export const userRouter = createTRPCRouter({
                 },
             });
         }),
+
+    getActiveSessions: protectedProcedure
+        .input(z.object({}))
+        .query(async ({ ctx }) => {
+            const { id } = ctx.session.user;
+
+            const sessions = await ctx.prisma.session.findMany({
+                select: {
+                    id: true,
+                    expires: true,
+                },
+                where: {
+                    userId: id,
+                },
+            });
+
+            return sessions;
+        }),
 });

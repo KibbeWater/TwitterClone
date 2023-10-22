@@ -11,7 +11,7 @@ export default function Settings() {
         >
             <SettingLink
                 title="Account information"
-                description="See your account information like your phone number and email address."
+                description="See your account information like your username and email address."
                 href="/settings/account/info"
                 icon={UserIcon}
             />
