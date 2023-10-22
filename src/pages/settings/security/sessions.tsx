@@ -9,6 +9,7 @@ import { api } from "~/utils/api";
 import Link from "next/link";
 import { useCallback, useMemo } from "react";
 import { useSession } from "next-auth/react";
+import { UAParser } from "ua-parser-js";
 
 function DeviceItem({
     sessionId,
@@ -40,7 +41,7 @@ function DeviceItem({
                 <div className="flex flex-col">
                     <p>{name}</p>
                     {active === true ? (
-                        <div className="bg-accent-primary-500 px-1 pb-1 pt-[2px] rounded-md">
+                        <div className="bg-accent-primary-500 px-1 pb-1 pt-[2px] rounded-md w-min whitespace-nowrap">
                             <p className="leading-none text-xs p-0">
                                 Active now
                             </p>
@@ -70,24 +71,45 @@ export default function SecuritySessions() {
             onSuccess: () => _reloadSessions(),
         });
 
-    const currentSession = useMemo(
-        () =>
-            sessions?.find(
-                (s) =>
-                    s.expires.getDate() ===
-                    new Date(session?.expires ?? 0).getDate(),
-            ),
-        [sessions, session],
+    const sessionUAMapper = useCallback<
+        (mapArr: {
+            id: string;
+            userAgent: string | null;
+            expires: Date;
+            lastAccessed: Date;
+        }) => {
+            id: string;
+            userAgent: UAParser.UAParserInstance;
+            expires: Date;
+            lastAccessed: Date;
+        }
+    >(
+        (obj) => ({
+            ...obj,
+            userAgent: new UAParser(obj.userAgent ?? undefined),
+        }),
+        [],
     );
+
+    const currentSession = useMemo(() => {
+        const sess = sessions?.find(
+            (s) =>
+                s.expires.getTime() ===
+                new Date(session?.expires ?? 0).getTime(),
+        );
+        return sess ? sessionUAMapper(sess) : null;
+    }, [session?.expires, sessions, sessionUAMapper]);
 
     const otherSessions = useMemo(
         () =>
-            sessions?.filter(
-                (s) =>
-                    s.expires.getDate() !==
-                    new Date(session?.expires ?? 0).getDate(),
-            ),
-        [sessions, session],
+            sessions
+                ?.filter(
+                    (s) =>
+                        s.expires.getTime() !==
+                        new Date(session?.expires ?? 0).getTime(),
+                )
+                .map(sessionUAMapper),
+        [sessions, session?.expires, sessionUAMapper],
     );
 
     const logOutOtherSessions = useCallback(() => {
@@ -96,6 +118,33 @@ export default function SecuritySessions() {
             sessions: otherSessions.map((s) => s.id),
         });
     }, [otherSessions, _deleteSessions]);
+
+    const getPlatform = (agent: UAParser.UAParserInstance) => {
+        if (agent.getDevice().type) return "mobile";
+        const isCommonDesktopArch = ["ia32", "ia64", "amd64"].includes(
+            agent.getCPU().architecture ?? "undef",
+        );
+        if (isCommonDesktopArch) return "desktop";
+        return "unknown";
+    };
+
+    const getLastAccessed = (lastAccess: Date) => {
+        const diff = Date.now() - lastAccess.getTime();
+        console.log(diff);
+        const minutes = Math.floor(diff / 1000 / 60);
+        const hours = Math.floor(minutes / 60);
+        const days = Math.floor(hours / 24);
+        const months = Math.floor(days / 30);
+        const years = Math.floor(months / 12);
+        if (years > 0) return `${years} years ago`;
+        if (months > 0) return `${months} months ago`;
+        if (days > 0) return `${days} days ago`;
+        if (hours > 0) return `${hours} hours ago`;
+        if (minutes > 0) return `${minutes} minutes ago`;
+        return "Just now";
+    };
+
+    console.log(sessions);
 
     return (
         <SettingsLayout
@@ -115,8 +164,11 @@ export default function SecuritySessions() {
                         currentSession ? (
                             <DeviceItem
                                 sessionId={currentSession.id ?? "unknown"}
-                                name="Unknown"
-                                device="unknown"
+                                name={
+                                    currentSession?.userAgent.getBrowser()
+                                        .name ?? "Unknown"
+                                }
+                                device={getPlatform(currentSession?.userAgent)}
                                 active={true}
                             />
                         ) : (
@@ -170,9 +222,16 @@ export default function SecuritySessions() {
                             <DeviceItem
                                 key={s.id}
                                 sessionId={s.id}
-                                name={"Unknown"}
-                                device={"unknown"}
-                                active={s.expires.toLocaleString()}
+                                name={
+                                    currentSession?.userAgent.getBrowser()
+                                        .name ?? "Unknown"
+                                }
+                                device={
+                                    currentSession
+                                        ? getPlatform(currentSession.userAgent)
+                                        : "unknown"
+                                }
+                                active={getLastAccessed(s.lastAccessed)}
                             />
                         ))}
                     </div>

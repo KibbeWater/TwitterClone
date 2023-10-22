@@ -306,7 +306,9 @@ export const userRouter = createTRPCRouter({
             const sessions = await ctx.prisma.session.findMany({
                 select: {
                     id: true,
+                    userAgent: true,
                     expires: true,
+                    lastAccessed: true,
                 },
                 where: {
                     userId: id,

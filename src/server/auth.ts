@@ -21,15 +21,14 @@ import { prisma } from "~/server/db";
  */
 declare module "next-auth" {
     interface Session extends DefaultSession {
-        user: DefaultSession["user"] & {
+        user: {
             id: string;
             tag: string;
-            // ...other properties
             roles: Role[];
             permissions: string;
             verified: boolean;
             lastTagReset: string;
-        };
+        } & DefaultSession["user"];
     }
 
     interface Role {
@@ -40,10 +39,10 @@ declare module "next-auth" {
 
     interface User {
         tag: string;
+        roles: Role[];
         permissions: string;
         verified: boolean;
         lastTagReset: string;
-        roles: Role[];
     }
 }
 
@@ -69,7 +68,7 @@ export const authOptions: NextAuthOptions = {
 
             return true;
         },
-        session: async ({ session, user }) => {
+        /* session: async ({ session, user }) => {
             // TODO: We probably should not do this, investigate later
             const usr = await prisma.user.findUnique({
                 where: { id: user.id },
@@ -88,7 +87,7 @@ export const authOptions: NextAuthOptions = {
                     permissions: user.permissions,
                 },
             };
-        },
+        }, */
     },
     adapter: PrismaAdapter(prisma),
     providers: [
