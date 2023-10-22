@@ -1,62 +1,11 @@
-import { ArrowPathIcon, ChevronRightIcon } from "@heroicons/react/24/solid";
-import {
-    ComputerDesktopIcon,
-    DevicePhoneMobileIcon,
-    GlobeAmericasIcon,
-} from "@heroicons/react/24/outline";
-import SettingsLayout from "~/components/Site/Layouts/SettingsLayout";
-import { api } from "~/utils/api";
-import Link from "next/link";
-import { useCallback, useMemo } from "react";
+import { ArrowPathIcon } from "@heroicons/react/24/solid";
 import { useSession } from "next-auth/react";
+import { useCallback, useMemo } from "react";
 import { UAParser } from "ua-parser-js";
 
-function DeviceItem({
-    sessionId,
-    name,
-    device,
-    active,
-}: {
-    sessionId: string;
-    name: string;
-    device: "desktop" | "mobile" | "unknown";
-    active: true | string;
-}) {
-    const Icon =
-        device === "desktop"
-            ? ComputerDesktopIcon
-            : device === "mobile"
-            ? DevicePhoneMobileIcon
-            : GlobeAmericasIcon;
-
-    return (
-        <Link
-            href={`/settings/security/sessions/${sessionId}`}
-            className="flex items-center justify-between px-3 py-3 dark:hover:bg-gray-400/10 hover:bg-gray-600/10 transition-colors"
-        >
-            <div className="flex gap-4">
-                <div className="flex w-12 h-12 items-center justify-center rounded-full border-[1px] border-neutral-500">
-                    <Icon className="text-black dark:text-white w-7 h-7" />
-                </div>
-                <div className="flex flex-col">
-                    <p>{name}</p>
-                    {active === true ? (
-                        <div className="bg-accent-primary-500 px-1 pb-1 pt-[2px] rounded-md w-min whitespace-nowrap">
-                            <p className="leading-none text-xs p-0">
-                                Active now
-                            </p>
-                        </div>
-                    ) : (
-                        <p className="text-neutral-500 text-xs">{active}</p>
-                    )}
-                </div>
-            </div>
-            <div className="w-5 h-5">
-                <ChevronRightIcon className="text-neutral-500" />
-            </div>
-        </Link>
-    );
-}
+import DeviceInfo from "~/components/Settings/DeviceInfo";
+import SettingsLayout from "~/components/Site/Layouts/SettingsLayout";
+import { api } from "~/utils/api";
 
 export default function SecuritySessions() {
     const { data: session } = useSession();
@@ -141,7 +90,7 @@ export default function SecuritySessions() {
         if (days > 0) return `${days} days ago`;
         if (hours > 0) return `${hours} hours ago`;
         if (minutes > 0) return `${minutes} minutes ago`;
-        return "Just now";
+        return true;
     };
 
     console.log(sessions);
@@ -162,7 +111,7 @@ export default function SecuritySessions() {
                 <div className="flex flex-col border-b-[1px] border-gray-200 dark:border-gray-700">
                     {!isLoading ? (
                         currentSession ? (
-                            <DeviceItem
+                            <DeviceInfo
                                 sessionId={currentSession.id ?? "unknown"}
                                 name={
                                     currentSession?.userAgent.getBrowser()
@@ -172,7 +121,7 @@ export default function SecuritySessions() {
                                 active={true}
                             />
                         ) : (
-                            <DeviceItem
+                            <DeviceInfo
                                 sessionId={"unknown"}
                                 name="Unable to find active session"
                                 device="unknown"
@@ -180,7 +129,7 @@ export default function SecuritySessions() {
                             />
                         )
                     ) : (
-                        <DeviceItem
+                        <DeviceInfo
                             sessionId={"unknown"}
                             name="Loading..."
                             device="unknown"
@@ -219,7 +168,7 @@ export default function SecuritySessions() {
                     </button>
                     <div className="h-64 overflow-y-auto">
                         {otherSessions?.map((s) => (
-                            <DeviceItem
+                            <DeviceInfo
                                 key={s.id}
                                 sessionId={s.id}
                                 name={

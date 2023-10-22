@@ -335,4 +335,32 @@ export const userRouter = createTRPCRouter({
 
             return true;
         }),
+
+    getSession: protectedProcedure
+        .input(z.object({ id: z.string() }))
+        .query(async ({ ctx, input }) => {
+            const { id } = ctx.session.user;
+
+            const session = await ctx.prisma.session.findFirst({
+                where: {
+                    userId: id,
+                    id: input.id,
+                },
+                select: {
+                    id: true,
+                    userAgent: true,
+                    expires: true,
+                    lastAccessed: true,
+                },
+            });
+
+            if (!session)
+                throw new TRPCError({
+                    code: "NOT_FOUND",
+                    message: "Session not found.",
+                    cause: "Session not found.",
+                });
+
+            return session;
+        }),
 });
