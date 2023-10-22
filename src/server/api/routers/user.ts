@@ -257,4 +257,44 @@ export const userRouter = createTRPCRouter({
                 data: { email: input.email },
             });
         }),
+
+    getLinkedAccounts: protectedProcedure
+        .input(z.object({}))
+        .query(async ({ ctx }) => {
+            const { id } = ctx.session.user;
+
+            const accounts = await ctx.prisma.account.findMany({
+                where: {
+                    userId: id,
+                },
+            });
+
+            return accounts.map((a) => a.provider);
+        }),
+
+    unlinkAccount: protectedProcedure
+        .input(z.object({ provider: z.string() }))
+        .mutation(async ({ ctx, input }) => {
+            const { id } = ctx.session.user;
+
+            const account = await ctx.prisma.account.findFirst({
+                where: {
+                    userId: id,
+                    provider: input.provider,
+                },
+            });
+
+            if (!account)
+                throw new TRPCError({
+                    code: "NOT_FOUND",
+                    message: "Account not found.",
+                    cause: "Account not found.",
+                });
+
+            return await ctx.prisma.account.delete({
+                where: {
+                    id: account.id,
+                },
+            });
+        }),
 });

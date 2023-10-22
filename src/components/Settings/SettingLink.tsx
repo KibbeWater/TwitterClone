@@ -9,16 +9,10 @@ export default function SettingsLink({
     title,
     description,
     href,
-}: SettingComponentProps & { href: string }) {
-    return (
-        <Link
-            href={href}
-            className={[
-                "flex items-center justify-between py-3 px-3 dark:hover:bg-gray-400/10 hover:bg-gray-600/10 transition-colors",
-                newSeparator &&
-                    "border-t-[1px] border-gray-200 dark:border-gray-700",
-            ].join(" ")}
-        >
+    onClick,
+}: SettingComponentProps & { href?: string; onClick?: () => void }) {
+    const content = (
+        <>
             <div className="flex items-center">
                 {Icon && (
                     <div className="w-5 h-5 ml-4 mr-7">
@@ -37,6 +31,32 @@ export default function SettingsLink({
             <div className="flex w-5 h-5">
                 <ChevronRightIcon className="text-neutral-500" />
             </div>
+        </>
+    );
+
+    return href ? (
+        <Link
+            href={href}
+            className={[
+                "flex items-center justify-between py-3 px-3 dark:hover:bg-gray-400/10 hover:bg-gray-600/10 transition-colors",
+                newSeparator &&
+                    "border-t-[1px] border-gray-200 dark:border-gray-700",
+            ].join(" ")}
+        >
+            {content}
         </Link>
+    ) : (
+        onClick && (
+            <button
+                onClick={onClick}
+                className={[
+                    "flex items-center justify-between py-3 px-3 dark:hover:bg-gray-400/10 hover:bg-gray-600/10 transition-colors",
+                    newSeparator &&
+                        "border-t-[1px] border-gray-200 dark:border-gray-700",
+                ].join(" ")}
+            >
+                {content}
+            </button>
+        )
     );
 }
