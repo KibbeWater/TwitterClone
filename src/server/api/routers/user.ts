@@ -315,4 +315,22 @@ export const userRouter = createTRPCRouter({
 
             return sessions;
         }),
+
+    logOutSessions: protectedProcedure
+        .input(z.object({ sessions: z.array(z.string()) }))
+        .mutation(async ({ ctx, input }) => {
+            const { id } = ctx.session.user;
+            const { sessions } = input;
+
+            await ctx.prisma.session.deleteMany({
+                where: {
+                    userId: id,
+                    id: {
+                        in: sessions,
+                    },
+                },
+            });
+
+            return true;
+        }),
 });

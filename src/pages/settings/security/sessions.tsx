@@ -1,4 +1,4 @@
-import { ChevronRightIcon } from "@heroicons/react/24/solid";
+import { ArrowPathIcon, ChevronRightIcon } from "@heroicons/react/24/solid";
 import {
     ComputerDesktopIcon,
     DevicePhoneMobileIcon,
@@ -7,7 +7,7 @@ import {
 import SettingsLayout from "~/components/Site/Layouts/SettingsLayout";
 import { api } from "~/utils/api";
 import Link from "next/link";
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { useSession } from "next-auth/react";
 
 function DeviceItem({
@@ -59,9 +59,16 @@ function DeviceItem({
 
 export default function SecuritySessions() {
     const { data: session } = useSession();
-    const { data: sessions, isLoading } = api.user.getActiveSessions.useQuery(
-        {},
-    );
+
+    const {
+        data: sessions,
+        isLoading,
+        refetch: _reloadSessions,
+    } = api.user.getActiveSessions.useQuery({});
+    const { mutate: _deleteSessions, isLoading: isDeletingSessions } =
+        api.user.logOutSessions.useMutation({
+            onSuccess: () => _reloadSessions(),
+        });
 
     const currentSession = useMemo(
         () =>
@@ -72,6 +79,23 @@ export default function SecuritySessions() {
             ),
         [sessions, session],
     );
+
+    const otherSessions = useMemo(
+        () =>
+            sessions?.filter(
+                (s) =>
+                    s.expires.getDate() !==
+                    new Date(session?.expires ?? 0).getDate(),
+            ),
+        [sessions, session],
+    );
+
+    const logOutOtherSessions = useCallback(() => {
+        if (!otherSessions) return;
+        _deleteSessions({
+            sessions: otherSessions.map((s) => s.id),
+        });
+    }, [otherSessions, _deleteSessions]);
 
     return (
         <SettingsLayout
@@ -87,19 +111,28 @@ export default function SecuritySessions() {
                     are currently using it.
                 </p>
                 <div className="flex flex-col border-b-[1px] border-gray-200 dark:border-gray-700">
-                    {currentSession ? (
-                        <DeviceItem
-                            sessionId={currentSession.id ?? "unknown"}
-                            name="Unknown"
-                            device="unknown"
-                            active={true}
-                        />
+                    {!isLoading ? (
+                        currentSession ? (
+                            <DeviceItem
+                                sessionId={currentSession.id ?? "unknown"}
+                                name="Unknown"
+                                device="unknown"
+                                active={true}
+                            />
+                        ) : (
+                            <DeviceItem
+                                sessionId={"unknown"}
+                                name="Unable to find active session"
+                                device="unknown"
+                                active={"Unknown"}
+                            />
+                        )
                     ) : (
                         <DeviceItem
                             sessionId={"unknown"}
-                            name="Unable to find active session"
+                            name="Loading..."
                             device="unknown"
-                            active={"Unknown"}
+                            active={"Loading..."}
                         />
                     )}
                 </div>
@@ -113,15 +146,27 @@ export default function SecuritySessions() {
                     aren’t currently using them.
                 </p>
                 <p className="text-sm text-neutral-500 px-3">
-                    Logging out will end 4 of your other active sessions. It
-                    won’t affect your current active session.
+                    Logging out will end {otherSessions?.length ?? "..."} of
+                    your other active sessions. It won’t affect your current
+                    active session.
                 </p>
                 <div className="flex flex-col flex-0 overflow-hidden">
-                    <button className="bg-transparent hover:bg-red-800/10 px-3 py-2 text-red-600 text-left">
+                    <button
+                        onClick={logOutOtherSessions}
+                        disabled={isDeletingSessions}
+                        className="flex items-center bg-transparent hover:bg-red-800/10 px-3 py-2 text-red-600 disabled:text-red-800 transition-colors text-left"
+                    >
+                        <div
+                            className={`mr-2 h-[1em] ${
+                                isDeletingSessions ? "block" : "hidden"
+                            }`}
+                        >
+                            <ArrowPathIcon className="h-full animate-spin" />
+                        </div>
                         Log out of all other sessions
                     </button>
-                    <div className="h-64 overflow-y-scroll">
-                        {sessions?.map((s) => (
+                    <div className="h-64 overflow-y-auto">
+                        {otherSessions?.map((s) => (
                             <DeviceItem
                                 key={s.id}
                                 sessionId={s.id}
