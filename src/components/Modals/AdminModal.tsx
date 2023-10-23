@@ -25,6 +25,10 @@ export default function AdminModal({
     userId: string;
     onMutate?: (user: User) => void;
 }) {
+    const [userTag, setUserTag] = useState<string | null>(null);
+    const [userEmail, setUserEmail] = useState<string | null>(null);
+    const [userName, setUserName] = useState<string | null>(null);
+
     const { closeModal } = useModal();
     const { data: session } = useSession();
 
@@ -41,6 +45,26 @@ export default function AdminModal({
                 PERMISSIONS.MANAGE_USER_ROLES,
             ),
         },
+    );
+
+    const { mutate: _updateProfile, isLoading: isUpdatingProfile } =
+        api.admin.updateProfile.useMutation();
+
+    const updateProfile = useCallback<
+        (params: { name?: string; tag?: string; email?: string }) => void
+    >(
+        (params) => {
+            if (!user) return;
+            _updateProfile(
+                { ...params, id: user.id },
+                {
+                    onSuccess: () => {
+                        _refetchUser().catch(console.error);
+                    },
+                },
+            );
+        },
+        [_updateProfile, _refetchUser, user],
     );
 
     const [userRoles, setUserRoles] = useState<string[]>([]);
@@ -478,7 +502,94 @@ export default function AdminModal({
             },
             {
                 name: "Info",
-                element: () => <></>,
+                element: (_user) => (
+                    <div className="w-full h-full flex flex-1 flex-wrap gap-4 p-4">
+                        <div className="p-4 dark:bg-neutral-800 bg-neutral-200 h-min rounded-md flex flex-col gap-2">
+                            <label className="flex flex-col">
+                                Tag
+                                <input
+                                    className={
+                                        "px-2 py-1 rounded-md text-neutral-500 bg-neutral-100 dark:bg-neutral-900"
+                                    }
+                                    value={userTag ?? _user.tag ?? ""}
+                                    onChange={(e) => setUserTag(e.target.value)}
+                                />
+                            </label>
+                            <button
+                                disabled={
+                                    userTag === _user.tag || isUpdatingProfile
+                                }
+                                onClick={() =>
+                                    updateProfile({
+                                        tag: userTag ?? undefined,
+                                    })
+                                }
+                                className="px-3 py-1 bg-black dark:bg-white text-white dark:text-black hover:bg-neutral-700 dark:hover:bg-neutral-300 disabled:!bg-neutral-500 transition-colors rounded-md"
+                            >
+                                Save
+                            </button>
+                        </div>
+                        <div className="p-4 dark:bg-neutral-800 bg-neutral-200 h-min rounded-md flex flex-col gap-2">
+                            <label className="flex flex-col">
+                                Name
+                                <input
+                                    className={
+                                        "px-2 py-1 rounded-md text-neutral-500 bg-neutral-100 dark:bg-neutral-900"
+                                    }
+                                    value={userName ?? _user.name ?? ""}
+                                    onChange={(e) =>
+                                        setUserName(e.target.value)
+                                    }
+                                />
+                            </label>
+                            <button
+                                disabled={
+                                    userName === _user.name || isUpdatingProfile
+                                }
+                                onClick={() =>
+                                    updateProfile({
+                                        name: userName ?? undefined,
+                                    })
+                                }
+                                className="px-3 py-1 bg-black dark:bg-white text-white dark:text-black hover:bg-neutral-700 dark:hover:bg-neutral-300 disabled:!bg-neutral-500 transition-colors rounded-md"
+                            >
+                                Save
+                            </button>
+                        </div>
+                        <div className="p-4 dark:bg-neutral-800 bg-neutral-200 h-min rounded-md flex flex-col gap-2">
+                            <label className="flex flex-col">
+                                Email
+                                <p className="text-xs mb-1 text-neutral-500">
+                                    Verified:{" "}
+                                    {_user.emailVerified ? "Yes" : "No"}
+                                </p>
+                                <input
+                                    className={
+                                        "px-2 py-1 rounded-md text-neutral-500 bg-neutral-100 dark:bg-neutral-900"
+                                    }
+                                    value={userEmail ?? _user.email ?? ""}
+                                    onChange={(e) =>
+                                        setUserEmail(e.target.value)
+                                    }
+                                />
+                            </label>
+                            <button
+                                disabled={
+                                    userEmail === _user.email ||
+                                    isUpdatingProfile
+                                }
+                                onClick={() =>
+                                    updateProfile({
+                                        email: userTag ?? undefined,
+                                    })
+                                }
+                                className="px-3 py-1 bg-black dark:bg-white text-white dark:text-black hover:bg-neutral-700 dark:hover:bg-neutral-300 disabled:!bg-neutral-500 transition-colors rounded-md"
+                            >
+                                Save
+                            </button>
+                        </div>
+                    </div>
+                ),
             },
         ],
         [
@@ -500,6 +611,11 @@ export default function AdminModal({
             isUpdatingRoles,
             areRolesModified,
             userPermissionsWithRoles,
+            userTag,
+            userEmail,
+            userName,
+            updateProfile,
+            isUpdatingProfile,
         ],
     );
 
