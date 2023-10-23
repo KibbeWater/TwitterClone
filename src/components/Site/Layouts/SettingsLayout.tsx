@@ -12,6 +12,7 @@ type Props = {
     title?: string;
     description?: string;
     children?: React.ReactNode;
+    preventFolding?: boolean;
 };
 
 export default function SettingsLayout({
@@ -19,6 +20,7 @@ export default function SettingsLayout({
     description,
     children,
     canBack = true,
+    preventFolding,
 }: Props) {
     const [navVisible, setNavVisible] = useState(false);
 
@@ -62,7 +64,9 @@ export default function SettingsLayout({
 
                 <div
                     ref={navRef}
-                    className="w-1/4 lg:block hidden border-r-[1px] border-gray-200 dark:border-gray-700 grow-0"
+                    className={`lg:w-1/4 lg:block ${
+                        !preventFolding ? "hidden w-1/4" : "block w-full"
+                    } border-r-[1px] border-gray-200 dark:border-gray-700 grow-0`}
                 >
                     <div className="pb-6">
                         <h1 className="text-black dark:text-white font-semibold text-xl my-2 ml-4">
@@ -84,7 +88,11 @@ export default function SettingsLayout({
                         ))}
                     </nav>
                 </div>
-                <div className="flex flex-col gap-5 grow pt-2">
+                <div
+                    className={`lg:flex ${
+                        preventFolding ? "hidden" : "flex"
+                    } flex-col gap-5 grow pt-2`}
+                >
                     <div className="ml-3 flex items-center gap-4">
                         {(canBack || !navVisible) && (
                             <div
@@ -107,7 +115,7 @@ export default function SettingsLayout({
 
                     <main>{children}</main>
                 </div>
-                <div className="w-1/6 grow-0 border-l-[1px] border-gray-200 dark:border-gray-700"></div>
+                <div className="w-1/6 grow-0 border-l-[1px] lg:block hidden border-gray-200 dark:border-gray-700"></div>
             </div>
         </>
     );
