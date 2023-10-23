@@ -40,7 +40,7 @@ export default function SettingsLink({
             className={[
                 "flex items-center justify-between py-3 px-3 dark:hover:bg-gray-400/10 hover:bg-gray-600/10 transition-colors",
                 newSeparator &&
-                    "border-t-[1px] border-gray-200 dark:border-gray-700",
+                    "border-t-[1px] border-highlight-light dark:border-highlight-dark",
             ].join(" ")}
         >
             {content}
@@ -52,7 +52,7 @@ export default function SettingsLink({
                 className={[
                     "flex items-center justify-between py-3 px-3 dark:hover:bg-gray-400/10 hover:bg-gray-600/10 transition-colors",
                     newSeparator &&
-                        "border-t-[1px] border-gray-200 dark:border-gray-700",
+                        "border-t-[1px] border-highlight-light dark:border-highlight-dark",
                 ].join(" ")}
             >
                 {content}

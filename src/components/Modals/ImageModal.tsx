@@ -222,7 +222,7 @@ export default function ImageModal({
                 {posts.map((reply: Post) => (
                     <div
                         key={reply.id}
-                        className="border-b-[1px] border-gray-200 dark:border-gray-700 w-full"
+                        className="border-b-[1px] border-highlight-light dark:border-highlight-dark w-full"
                     >
                         <PostComponent
                             post={reply}

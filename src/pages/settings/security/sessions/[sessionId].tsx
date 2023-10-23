@@ -73,7 +73,7 @@ export default function SessionInfo() {
                 active={session ? getLastAccessed(session.lastAccessed) : "N/A"}
                 noNav
             />
-            <div className="p-3 border-t-[1px] border-gray-200 dark:border-gray-700 flex flex-col gap-4">
+            <div className="p-3 border-t-[1px] border-highlight-light dark:border-highlight-dark flex flex-col gap-4">
                 <h3 className="font-bold text-xl">Date and time</h3>
                 <p className="text-neutral-500 text-xs">
                     {/* Ex: Oct 22, 2023, 6:55 AM */}
@@ -93,7 +93,7 @@ export default function SessionInfo() {
                     <button
                         onClick={logOutSession}
                         disabled={isDeletingSessions}
-                        className="flex items-center justify-center bg-transparent hover:bg-red-800/10 px-3 py-3 text-red-600 disabled:text-red-800 transition-colors w-full text-sm border-t-[1px] border-gray-200 dark:border-gray-700 "
+                        className="flex items-center justify-center bg-transparent hover:bg-red-800/10 px-3 py-3 text-red-600 disabled:text-red-800 transition-colors w-full text-sm border-t-[1px] border-highlight-light dark:border-highlight-dark "
                     >
                         <div
                             className={`mr-2 h-[1em] ${

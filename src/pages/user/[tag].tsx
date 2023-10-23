@@ -75,7 +75,7 @@ export default function Home() {
     return (
         <Layout title={profile?.name ?? "Loading..."}>
             <div>
-                <div className="border-b-[1px] border-gray-200 dark:border-gray-700">
+                <div className="border-b-[1px] border-highlight-light dark:border-highlight-dark">
                     <div className="w-full pb-[33.3%] bg-neutral-700 relative flex justify-center">
                         {profile?.banner && (
                             <Image
@@ -247,7 +247,7 @@ export default function Home() {
                               return (
                                   <div
                                       key={post.id}
-                                      className="border-b-[1px] border-gray-200 dark:border-gray-700 w-full"
+                                      className="border-b-[1px] border-highlight-light dark:border-highlight-dark w-full"
                                   >
                                       <PostComponent post={post as Post} />
                                   </div>

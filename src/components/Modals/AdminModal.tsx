@@ -513,7 +513,7 @@ export default function AdminModal({
             >
                 <XMarkIcon className={"text-black dark:text-white"} />
             </div>
-            <div className="flex grow-0 w-min h-full py-4 border-gray-200 dark:border-gray-700 border-r-[1px] overflow-x-hidden overflow-y-auto">
+            <div className="flex grow-0 w-min h-full py-4 border-highlight-light dark:border-highlight-dark border-r-[1px] overflow-x-hidden overflow-y-auto">
                 <div className="h-full w-full min-w-[8rem] flex flex-col gap-1 whitespace-nowrap">
                     {menuOptions.map((option, idx) => (
                         <a

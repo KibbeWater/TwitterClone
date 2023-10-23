@@ -105,7 +105,7 @@ export default function SecuritySessions() {
                     You’re logged into this Twatter account on this device and
                     are currently using it.
                 </p>
-                <div className="flex flex-col border-b-[1px] border-gray-200 dark:border-gray-700">
+                <div className="flex flex-col border-b-[1px] border-highlight-light dark:border-highlight-dark">
                     {!isLoading ? (
                         currentSession ? (
                             <DeviceInfo

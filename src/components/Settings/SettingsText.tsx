@@ -11,7 +11,7 @@ export default function SettingsText({
             className={[
                 "flex items-center py-3 px-3",
                 newSeparator &&
-                    "border-t-[1px] border-gray-200 dark:border-gray-700",
+                    "border-t-[1px] border-highlight-light dark:border-highlight-dark",
             ].join(" ")}
         >
             <div className="flex items-center">

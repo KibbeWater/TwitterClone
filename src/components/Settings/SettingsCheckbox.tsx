@@ -34,7 +34,7 @@ export default function SettingsCheckbox({
             className={[
                 "flex items-center py-3 px-3",
                 newSeparator &&
-                    "border-t-[1px] border-gray-200 dark:border-gray-700",
+                    "border-t-[1px] border-highlight-light dark:border-highlight-dark",
             ].join(" ")}
         >
             <div className="flex items-center justify-between w-full">
@@ -44,7 +44,7 @@ export default function SettingsCheckbox({
                         <div
                             onClick={() => handleChange(!value)}
                             className={[
-                                "h-5 w-5 border-[2px] border-gray-200 dark:border-gray-700 bg-transparent transition-colors rounded-[.2rem]",
+                                "h-5 w-5 border-[2px] border-highlight-light dark:border-highlight-dark bg-transparent transition-colors rounded-[.2rem]",
                                 value &&
                                     "!bg-accent-primary-500 !border-transparent",
                             ].join(" ")}
