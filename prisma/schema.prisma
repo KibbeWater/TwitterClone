@@ -81,6 +81,8 @@ model User {
     followerIds         String[]       @db.ObjectId
     following           User[]         @relation(name: "FollowToUser", fields: [followingIds], references: [id])
     followingIds        String[]       @db.ObjectId
+    Chats               Chat[]         @relation(name: "Chat2User", fields: [chatIds], references: [id])
+    chatIds             String[]       @db.ObjectId
 }
 
 model VerificationToken {
@@ -112,4 +114,10 @@ model Role {
     userIds     String[] @db.ObjectId
     createdAt   DateTime @default(now())
     updatedAt   DateTime @default(now())
+}
+
+model Chat {
+    id             String   @id @default(auto()) @map("_id") @db.ObjectId
+    participantIds String[] @db.ObjectId
+    participants   User[]   @relation(name: "Chat2User", fields: [participantIds], references: [id])
 }

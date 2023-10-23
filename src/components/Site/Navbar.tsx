@@ -4,6 +4,7 @@ import {
     UserIcon as UserOutline,
     UsersIcon as UsersOutline,
     Cog6ToothIcon as CogOutline,
+    EnvelopeIcon as EnvelopeOutline,
 } from "@heroicons/react/24/outline";
 import {
     BellIcon as BellSolid,
@@ -15,6 +16,7 @@ import {
     Cog6ToothIcon as CogSolid,
     MoonIcon,
     SunIcon,
+    EnvelopeIcon as EnvelopeSolid,
 } from "@heroicons/react/24/solid";
 import { signIn, signOut, useSession } from "next-auth/react";
 import { useTheme } from "next-themes";
@@ -73,6 +75,13 @@ export default function Navbar() {
                 activeURLs: ["/home"],
                 iconSolid: HomeSolid,
                 iconOutline: HomeOutline,
+            },
+            {
+                name: "Messages",
+                href: "/messages",
+                activeURLs: ["/messages"],
+                iconSolid: EnvelopeSolid,
+                iconOutline: EnvelopeOutline,
             },
             {
                 name: "Notifications",
