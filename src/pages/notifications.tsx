@@ -82,7 +82,7 @@ export default function NotificationsPage({}: InferGetServerSidePropsType<
             notifications.map((notification) => (
                 <div
                     key={`notification-${notification.id}`}
-                    className="border-b-[1px] border-gray-200 dark:border-gray-700 w-full"
+                    className="border-b-[1px] border-highlight-light dark:border-highlight-dark w-full"
                 >
                     <NotificationComponent
                         notif={notification}

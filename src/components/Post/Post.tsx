@@ -302,7 +302,8 @@ export default function PostComponent(p: {
                 </div>
                 <PostContent post={post} />
                 <div
-                    className="w-9/12 aspect-[5/3] mb-2 grid grid-cols-2 rounded-xl overflow-hidden gap-[2px] justify-self-center border-[1px] border-gray-200 dark:border-gray-700"
+                    className="w-9/12 aspect-[5/3] mb-2 grid grid-cols-2 rounded-xl overflow-hidden gap-[2px] justify-self-center border-[1px] border-highlight-light dark:border-highlight-dark"
+                    onClick={(e) => e.stopPropagation()}
                     style={{
                         display: images.length !== 0 ? "grid" : "none",
                     }}
@@ -353,7 +354,7 @@ export default function PostComponent(p: {
                 ) : (
                     <div
                         className={
-                            "group/quote mt-1 pl-1 rounded-xl border-[1px] border-gray-200 dark:border-gray-700 transition-colors bg-black/0 hover:bg-gray-500/10 w-full"
+                            "group/quote mt-1 pl-1 rounded-xl border-[1px] border-highlight-light dark:border-highlight-dark transition-colors bg-black/0 hover:bg-gray-500/10 w-full"
                         }
                     >
                         <PostComponent

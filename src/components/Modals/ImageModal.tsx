@@ -6,7 +6,6 @@ import {
     XMarkIcon,
 } from "@heroicons/react/24/solid";
 import type { Post } from "@prisma/client";
-import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
@@ -30,9 +29,6 @@ export default function ImageModal({
     const [localPosts, setLocalPosts] = useState<Post[]>([]);
     const [deletedPosts, setDeletedPosts] = useState<string[]>([]);
 
-    const { data: session } = useSession();
-    const user = session?.user;
-
     const { closeModal } = useModal();
 
     const { data, fetchNextPage, isLoading } =
@@ -42,6 +38,7 @@ export default function ImageModal({
                 getNextPageParam: (lastPage) => lastPage.nextCursor,
             },
         );
+    const { data: author } = api.user.getProfile.useQuery({ id: post.userId });
 
     const handleFetchNextPage = useCallback(async () => {
         await fetchNextPage();
@@ -125,12 +122,12 @@ export default function ImageModal({
                     <div className="flex">
                         <div className="relative h-12 w-12">
                             <Link
-                                href={"/@" + user?.tag}
+                                href={"/@" + author?.tag}
                                 className="absolute h-12 w-12"
                             >
                                 <Image
                                     src={
-                                        user?.image ??
+                                        author?.image ??
                                         "/assets/imgs/default-avatar.png"
                                     }
                                     alt={"Author's Avatar"}
@@ -143,16 +140,16 @@ export default function ImageModal({
                         <div>
                             <div className="flex flex-col ml-3">
                                 <Link
-                                    href={`/@${user?.tag}`}
+                                    href={`/@${author?.tag}`}
                                     className="text-sm font-semibold m-0 text-black dark:text-white"
                                 >
-                                    {user?.name}
+                                    {author?.name}
                                 </Link>
                                 <Link
-                                    href={`/@${user?.tag}`}
+                                    href={`/@${author?.tag}`}
                                     className="text-gray-500 text-sm m-0"
                                 >
-                                    @{user?.tag}
+                                    @{author?.tag}
                                 </Link>
                             </div>
                         </div>
@@ -189,7 +186,7 @@ export default function ImageModal({
                             })}
                         </p>
                     </div>
-                    <div className="h-px grow mx-3 my-3 bg-gray-500/20" />
+                    <div className="h-px grow mx-3 my-3 bg-gray-200 dark:bg-gray-700" />
                     <div className="mx-3 flex items-center">
                         <p className="text-sm ml-1 mr-4 text-gray-500">
                             <span className="font-semibold text-black dark:text-white">
@@ -225,7 +222,7 @@ export default function ImageModal({
                 {posts.map((reply: Post) => (
                     <div
                         key={reply.id}
-                        className="border-b-[1px] border-gray-200 dark:border-gray-700 w-full"
+                        className="border-b-[1px] border-highlight-light dark:border-highlight-dark w-full"
                     >
                         <PostComponent
                             post={reply}

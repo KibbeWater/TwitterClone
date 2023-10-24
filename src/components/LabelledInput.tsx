@@ -6,6 +6,7 @@ export default function LabelledInput({
     label,
     value,
     placeholder,
+    small,
     maxLength = -1,
     minRows = -1,
     maxRows = -1,
@@ -18,6 +19,7 @@ export default function LabelledInput({
     label: string;
     value?: string;
     placeholder?: string;
+    small?: boolean;
     maxLength?: number;
     minRows?: number;
     maxRows?: number;
@@ -39,7 +41,10 @@ export default function LabelledInput({
     }, [text, onChange]);
 
     useEffect(() => {
-        if (value !== undefined) setText(value.slice(0, maxLength));
+        if (value !== undefined)
+            maxLength === -1
+                ? setText(value)
+                : setText(value.slice(0, maxLength));
     }, [value, maxLength]);
 
     const inputRef = useRef<HTMLInputElement>(null);
@@ -47,7 +52,9 @@ export default function LabelledInput({
 
     return (
         <div
-            className={`p-2 flex flex-col gap-1 focus-within:border-[2px] transition-colors border-[1px] border-gray-500 focus-within:border-accent-primary-500 rounded-md cursor-text box-content group/lbl${
+            className={`p-2 flex flex-col ${
+                small && "gap-1"
+            } focus-within:border-[2px] transition-colors border-[1px] border-gray-500 focus-within:border-accent-primary-500 rounded-md cursor-text box-content group/lbl${
                 className ? ` ${className}` : ""
             }`}
             onClick={() => {
@@ -56,7 +63,12 @@ export default function LabelledInput({
             }}
         >
             <div className="flex justify-between">
-                <p className="text-sm text-gray-500 group-focus-within/lbl:text-accent-primary-500 transition-colors">
+                <p
+                    className={[
+                        "text-sm text-gray-500 group-focus-within/lbl:text-accent-primary-500 transition-colors",
+                        small && "!text-xs leading-snug",
+                    ].join(" ")}
+                >
                     {label}
                 </p>
                 {maxLength !== -1 && (
@@ -75,7 +87,7 @@ export default function LabelledInput({
                 <TextareaAutosize
                     className={`dark:text-white dark:caret-white bg-transparent w-full resize-none group focus:outline-none ${
                         disabled ? "!text-gray-500" : ""
-                    }"}`}
+                    } ${small ? "text-sm" : "text-base"}`}
                     ref={textAreaRef}
                     maxRows={maxRows === -1 ? undefined : maxRows}
                     minRows={maxRows === -1 ? undefined : minRows}
@@ -88,7 +100,7 @@ export default function LabelledInput({
                 <input
                     className={`dark:text-white dark:caret-white bg-transparent w-full group focus:outline-none ${
                         disabled ? "!text-gray-500" : ""
-                    }`}
+                    } ${small ? "text-sm" : "text-base"}`}
                     type="text"
                     ref={inputRef}
                     value={text}

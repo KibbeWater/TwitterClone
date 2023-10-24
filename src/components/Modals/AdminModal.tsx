@@ -25,6 +25,10 @@ export default function AdminModal({
     userId: string;
     onMutate?: (user: User) => void;
 }) {
+    const [userTag, setUserTag] = useState<string | null>(null);
+    const [userEmail, setUserEmail] = useState<string | null>(null);
+    const [userName, setUserName] = useState<string | null>(null);
+
     const { closeModal } = useModal();
     const { data: session } = useSession();
 
@@ -33,24 +37,61 @@ export default function AdminModal({
     const { data: user, refetch: _refetchUser } = api.admin.getUser.useQuery({
         id: userId,
     });
+    const { data: rolesList } = api.role.getRoles.useQuery(
+        {},
+        {
+            enabled: hasPermission(
+                session?.user ?? { permissions: "0", roles: [] },
+                PERMISSIONS.MANAGE_USER_ROLES,
+            ),
+        },
+    );
+
+    const { mutate: _updateProfile, isLoading: isUpdatingProfile } =
+        api.admin.updateProfile.useMutation();
+
+    const updateProfile = useCallback<
+        (params: { name?: string; tag?: string; email?: string }) => void
+    >(
+        (params) => {
+            if (!user) return;
+            _updateProfile(
+                { ...params, id: user.id },
+                {
+                    onSuccess: () => {
+                        _refetchUser().catch(console.error);
+                    },
+                },
+            );
+        },
+        [_updateProfile, _refetchUser, user],
+    );
+
+    const [userRoles, setUserRoles] = useState<string[]>([]);
+    const areRolesModified = useMemo(() => {
+        if (!user) return false;
+
+        const curRoles = user.roles.map((r) => r.id);
+
+        return curRoles.sort().join(",") !== userRoles.sort().join(",");
+    }, [userRoles, user]);
 
     const [userPermissions, setUserPermissions] = useState<string[]>([]);
     const arePermissionsModified = useMemo(() => {
         if (!user) return false;
 
-        const curPerms = getPermissionList({
-            permissions: user.permissions.toString(),
-        });
+        const curPerms = getPermissionList(user);
 
         return curPerms.sort().join(",") !== userPermissions.sort().join(",");
     }, [userPermissions, user]);
 
     useEffect(() => {
-        if (user?.permissions)
-            setUserPermissions(
-                getPermissionList({ permissions: user.permissions.toString() }),
-            );
-    }, [user?.permissions]);
+        if (user?.permissions) setUserPermissions(getPermissionList(user));
+    }, [user]);
+
+    useEffect(() => {
+        if (user?.roles) setUserRoles(user.roles.map((r) => r.id));
+    }, [user?.roles]);
 
     const removePermissions = useCallback<(perm: string) => void>(
         (perm) =>
@@ -60,9 +101,11 @@ export default function AdminModal({
                         {
                             permissions:
                                 getPermissions(userPermissions).toString(),
+                            roles: [],
                         },
                         getPermission(perm)!,
                     ).toString(),
+                    roles: [],
                 }),
             ),
         [userPermissions],
@@ -76,9 +119,11 @@ export default function AdminModal({
                         {
                             permissions:
                                 getPermissions(userPermissions).toString(),
+                            roles: [],
                         },
                         getPermission(perm)!,
                     ).toString(),
+                    roles: [],
                 }),
             ),
         [userPermissions],
@@ -109,11 +154,17 @@ export default function AdminModal({
             onSuccess: (data) => {
                 onMutate?.(data);
                 refetchUser();
-                setUserPermissions(
-                    getPermissionList({
-                        permissions: data.permissions.toString(),
-                    }),
-                );
+                setUserPermissions(getPermissionList(data));
+            },
+            onError: (err) => alert(`${err.message}`),
+        });
+
+    const { mutate: _updateUserRoles, isLoading: isUpdatingRoles } =
+        api.admin.updateUserRoles.useMutation({
+            onSuccess: (data) => {
+                onMutate?.(data);
+                refetchUser();
+                setUserRoles(data.roles.map((r) => r.id));
             },
             onError: (err) => alert(`${err.message}`),
         });
@@ -136,6 +187,41 @@ export default function AdminModal({
                 permissions: getPermissions(userPermissions).toString(),
             }),
         [user, userPermissions, _setPermissions],
+    );
+
+    const applyRoles = useCallback<() => void>(
+        () =>
+            _updateUserRoles({
+                id: user!.id,
+                roles: userRoles,
+            }),
+        [user, userRoles, _updateUserRoles],
+    );
+
+    const userRolesList = useMemo<
+        {
+            name: string;
+            id: string;
+            permissions: string;
+            createdAt: Date;
+            updatedAt: Date;
+        }[]
+    >(
+        () => rolesList?.filter((r) => userRoles.includes(r.id)) ?? [],
+        [rolesList, userRoles],
+    );
+
+    const userPermissionsWithRoles = useMemo<string[]>(
+        () => [
+            ...new Set([
+                ...userPermissions,
+                ...getPermissionList({
+                    permissions: "0",
+                    roles: userRolesList,
+                }),
+            ]),
+        ],
+        [userPermissions, userRolesList],
     );
 
     const menuOptions = useMemo<
@@ -228,100 +314,282 @@ export default function AdminModal({
                                 session.user,
                                 PERMISSIONS.MANAGE_USER_ROLES,
                             ) && (
-                                <div className="flex flex-col gap-2">
-                                    <p className="text-black dark:text-white">
-                                        User Roles:
-                                    </p>
-                                    <div className="w-4/6 flex flex-wrap items-center px-3 py-2 gap-y-1 gap-x-1">
-                                        {getAllPermissions()
-                                            .filter(
-                                                (v) =>
-                                                    !userPermissions.includes(
-                                                        v,
-                                                    ),
-                                            )
-                                            .sort(
-                                                (p1, p2) =>
-                                                    p1.length - p2.length,
-                                            )
-                                            .map((p, idx) => (
-                                                <p
-                                                    key={`${p}-${idx}`}
-                                                    className={`bg-black dark:bg-white text-white dark:text-black px-2 text-sm rounded-full relative cursor-pointer`}
-                                                    onClick={() =>
-                                                        addPermission(p)
-                                                    }
-                                                >
-                                                    {p}
-                                                </p>
-                                            ))}
-                                    </div>
-                                    <div className="w-4/6 flex flex-wrap items-center px-3 py-2 gap-y-1 gap-x-1 bg-neutral-200 dark:bg-neutral-800 rounded-xl">
-                                        {userPermissions
-                                            .sort(
-                                                (p1, p2) =>
-                                                    p1.length - p2.length,
-                                            )
-                                            .map((p, idx) => {
-                                                const dependants =
-                                                    permissionDependants(
-                                                        getPermission(p)!,
-                                                    );
-                                                const isDependant =
-                                                    dependants.length > 0 &&
-                                                    dependants.some((d) =>
-                                                        userPermissions.includes(
-                                                            d,
+                                <>
+                                    <div className="flex flex-col gap-2">
+                                        <p className="text-black dark:text-white">
+                                            User Permissions:
+                                        </p>
+                                        <div className="w-4/6 flex flex-wrap items-center px-3 py-2 gap-y-1 gap-x-1">
+                                            {getAllPermissions()
+                                                .filter(
+                                                    (v) =>
+                                                        !userPermissionsWithRoles.includes(
+                                                            v,
                                                         ),
-                                                    );
-
-                                                return (
+                                                )
+                                                .sort(
+                                                    (p1, p2) =>
+                                                        p1.length - p2.length,
+                                                )
+                                                .map((p, idx) => (
                                                     <p
                                                         key={`${p}-${idx}`}
-                                                        className={`bg-black dark:bg-white text-white dark:text-black pl-2 pr-6 text-sm rounded-full relative ${
-                                                            isDependant
-                                                                ? "!bg-red-800"
-                                                                : ""
-                                                        }`}
+                                                        className={`bg-black dark:bg-white text-white dark:text-black px-2 select-none text-sm rounded-full relative cursor-pointer`}
+                                                        onClick={() =>
+                                                            addPermission(p)
+                                                        }
                                                     >
                                                         {p}
-                                                        <span
-                                                            className={`absolute right-1 top-0 bottom-0 w-4 my-[auto] flex cursor-pointer items-center ${
+                                                    </p>
+                                                ))}
+                                        </div>
+                                        <div className="w-4/6 flex flex-wrap items-center px-3 py-2 gap-y-1 gap-x-1 bg-neutral-200 dark:bg-neutral-800 rounded-xl">
+                                            {userPermissionsWithRoles
+                                                .sort(
+                                                    (p1, p2) =>
+                                                        p1.length - p2.length,
+                                                )
+                                                .map((p, idx) => {
+                                                    const dependants =
+                                                        permissionDependants(
+                                                            getPermission(p)!,
+                                                        );
+                                                    const isDependant =
+                                                        dependants.length > 0 &&
+                                                        dependants.some((d) =>
+                                                            userPermissions.includes(
+                                                                d,
+                                                            ),
+                                                        );
+
+                                                    const isInherited =
+                                                        hasPermission(
+                                                            {
+                                                                permissions:
+                                                                    "0",
+                                                                roles: userRolesList,
+                                                            },
+                                                            getPermission(p)!,
+                                                        );
+
+                                                    return (
+                                                        <p
+                                                            key={`${p}-${idx}`}
+                                                            className={`bg-black dark:bg-white text-white select-none dark:text-black pl-2 pr-6 text-sm rounded-full relative ${
                                                                 isDependant
-                                                                    ? "!cursor-default"
+                                                                    ? "!bg-red-800"
+                                                                    : ""
+                                                            } ${
+                                                                isInherited
+                                                                    ? "!bg-green-800"
                                                                     : ""
                                                             }`}
+                                                        >
+                                                            {p}
+                                                            <span
+                                                                className={`absolute right-1 top-0 bottom-0 w-4 my-[auto] flex cursor-pointer items-center ${
+                                                                    isDependant ||
+                                                                    isInherited
+                                                                        ? "!cursor-default"
+                                                                        : ""
+                                                                }`}
+                                                                onClick={() =>
+                                                                    !isDependant &&
+                                                                    removePermissions(
+                                                                        p,
+                                                                    )
+                                                                }
+                                                            >
+                                                                <XMarkIcon className="text-white dark:text-black w-full" />
+                                                            </span>
+                                                        </p>
+                                                    );
+                                                })}
+                                        </div>
+                                        <button
+                                            className="py-1 px-2 bg-black dark:bg-white dark:text-black text-white rounded-lg w-min whitespace-nowrap disabled:bg-black/20 dark:disabled:bg-white/80"
+                                            onClick={() => applyPermissions()}
+                                            disabled={
+                                                isSettingPermissions ||
+                                                !arePermissionsModified
+                                            }
+                                        >
+                                            Apply Permissions
+                                        </button>
+                                    </div>
+                                    <div className="flex flex-col gap-2">
+                                        <p className="text-black dark:text-white">
+                                            User Roles:
+                                        </p>
+                                        <div className="w-4/6 flex flex-wrap items-center px-3 py-2 gap-y-1 gap-x-1">
+                                            {rolesList
+                                                ?.filter(
+                                                    (r) =>
+                                                        userRoles.findIndex(
+                                                            (u) => u === r.id,
+                                                        ) === -1,
+                                                )
+                                                .sort(
+                                                    (p1, p2) =>
+                                                        p1.name.length -
+                                                        p2.name.length,
+                                                )
+                                                .map((r) => (
+                                                    <p
+                                                        key={r.id}
+                                                        className={`bg-black dark:bg-white text-white dark:text-black px-2 select-none text-sm rounded-full relative cursor-pointer`}
+                                                        onClick={() =>
+                                                            setUserRoles(
+                                                                (roles) => [
+                                                                    ...roles,
+                                                                    r.id,
+                                                                ],
+                                                            )
+                                                        }
+                                                    >
+                                                        {r.name}
+                                                    </p>
+                                                ))}
+                                        </div>
+                                        <div className="w-4/6 flex flex-wrap items-center px-3 py-2 gap-y-1 gap-x-1 bg-neutral-200 dark:bg-neutral-800 rounded-xl">
+                                            {userRolesList
+                                                .sort(
+                                                    (p1, p2) =>
+                                                        p1.name.length -
+                                                        p2.name.length,
+                                                )
+                                                .map((r) => (
+                                                    <p
+                                                        key={r.id}
+                                                        className={`bg-black dark:bg-white text-white select-none dark:text-black pl-2 pr-6 text-sm rounded-full relative`}
+                                                    >
+                                                        {r.name}
+                                                        <span
+                                                            className={`absolute right-1 top-0 bottom-0 w-4 my-[auto] flex cursor-pointer items-center`}
                                                             onClick={() =>
-                                                                !isDependant &&
-                                                                removePermissions(
-                                                                    p,
+                                                                setUserRoles(
+                                                                    (roles) =>
+                                                                        roles.filter(
+                                                                            (
+                                                                                role,
+                                                                            ) =>
+                                                                                role !==
+                                                                                r.id,
+                                                                        ),
                                                                 )
                                                             }
                                                         >
                                                             <XMarkIcon className="text-white dark:text-black w-full" />
                                                         </span>
                                                     </p>
-                                                );
-                                            })}
+                                                ))}
+                                        </div>
+                                        <button
+                                            onClick={() => applyRoles()}
+                                            disabled={
+                                                isUpdatingRoles ||
+                                                !areRolesModified
+                                            }
+                                            className="py-1 px-2 bg-black dark:bg-white dark:text-black text-white rounded-lg w-min whitespace-nowrap disabled:bg-black/20 dark:disabled:bg-white/80"
+                                        >
+                                            Apply Roles
+                                        </button>
                                     </div>
-                                    <button
-                                        className="py-1 px-2 bg-black dark:bg-white dark:text-black text-white rounded-lg w-min whitespace-nowrap disabled:bg-black/20 dark:disabled:bg-white/80"
-                                        onClick={() => applyPermissions()}
-                                        disabled={
-                                            isSettingPermissions ||
-                                            !arePermissionsModified
-                                        }
-                                    >
-                                        Apply Permissions
-                                    </button>
-                                </div>
+                                </>
                             )}
                     </div>
                 ),
             },
             {
                 name: "Info",
-                element: () => <></>,
+                element: (_user) => (
+                    <div className="w-full h-full flex flex-1 flex-wrap gap-4 p-4">
+                        <div className="p-4 dark:bg-neutral-800 bg-neutral-200 h-min rounded-md flex flex-col gap-2">
+                            <label className="flex flex-col">
+                                Tag
+                                <input
+                                    className={
+                                        "px-2 py-1 rounded-md text-neutral-500 bg-neutral-100 dark:bg-neutral-900"
+                                    }
+                                    value={userTag ?? _user.tag ?? ""}
+                                    onChange={(e) => setUserTag(e.target.value)}
+                                />
+                            </label>
+                            <button
+                                disabled={
+                                    userTag === _user.tag || isUpdatingProfile
+                                }
+                                onClick={() =>
+                                    updateProfile({
+                                        tag: userTag ?? undefined,
+                                    })
+                                }
+                                className="px-3 py-1 bg-black dark:bg-white text-white dark:text-black hover:bg-neutral-700 dark:hover:bg-neutral-300 disabled:!bg-neutral-500 transition-colors rounded-md"
+                            >
+                                Save
+                            </button>
+                        </div>
+                        <div className="p-4 dark:bg-neutral-800 bg-neutral-200 h-min rounded-md flex flex-col gap-2">
+                            <label className="flex flex-col">
+                                Name
+                                <input
+                                    className={
+                                        "px-2 py-1 rounded-md text-neutral-500 bg-neutral-100 dark:bg-neutral-900"
+                                    }
+                                    value={userName ?? _user.name ?? ""}
+                                    onChange={(e) =>
+                                        setUserName(e.target.value)
+                                    }
+                                />
+                            </label>
+                            <button
+                                disabled={
+                                    userName === _user.name || isUpdatingProfile
+                                }
+                                onClick={() =>
+                                    updateProfile({
+                                        name: userName ?? undefined,
+                                    })
+                                }
+                                className="px-3 py-1 bg-black dark:bg-white text-white dark:text-black hover:bg-neutral-700 dark:hover:bg-neutral-300 disabled:!bg-neutral-500 transition-colors rounded-md"
+                            >
+                                Save
+                            </button>
+                        </div>
+                        <div className="p-4 dark:bg-neutral-800 bg-neutral-200 h-min rounded-md flex flex-col gap-2">
+                            <label className="flex flex-col">
+                                Email
+                                <p className="text-xs mb-1 text-neutral-500">
+                                    Verified:{" "}
+                                    {_user.emailVerified ? "Yes" : "No"}
+                                </p>
+                                <input
+                                    className={
+                                        "px-2 py-1 rounded-md text-neutral-500 bg-neutral-100 dark:bg-neutral-900"
+                                    }
+                                    value={userEmail ?? _user.email ?? ""}
+                                    onChange={(e) =>
+                                        setUserEmail(e.target.value)
+                                    }
+                                />
+                            </label>
+                            <button
+                                disabled={
+                                    userEmail === _user.email ||
+                                    isUpdatingProfile
+                                }
+                                onClick={() =>
+                                    updateProfile({
+                                        email: userTag ?? undefined,
+                                    })
+                                }
+                                className="px-3 py-1 bg-black dark:bg-white text-white dark:text-black hover:bg-neutral-700 dark:hover:bg-neutral-300 disabled:!bg-neutral-500 transition-colors rounded-md"
+                            >
+                                Save
+                            </button>
+                        </div>
+                    </div>
+                ),
             },
         ],
         [
@@ -336,6 +604,18 @@ export default function AdminModal({
             applyPermissions,
             arePermissionsModified,
             isSettingPermissions,
+            rolesList,
+            userRoles,
+            userRolesList,
+            applyRoles,
+            isUpdatingRoles,
+            areRolesModified,
+            userPermissionsWithRoles,
+            userTag,
+            userEmail,
+            userName,
+            updateProfile,
+            isUpdatingProfile,
         ],
     );
 
@@ -349,7 +629,7 @@ export default function AdminModal({
             >
                 <XMarkIcon className={"text-black dark:text-white"} />
             </div>
-            <div className="flex grow-0 w-min h-full py-4 border-gray-200 dark:border-gray-700 border-r-[1px] overflow-x-hidden overflow-y-auto">
+            <div className="flex grow-0 w-min h-full py-4 border-highlight-light dark:border-highlight-dark border-r-[1px] overflow-x-hidden overflow-y-auto">
                 <div className="h-full w-full min-w-[8rem] flex flex-col gap-1 whitespace-nowrap">
                     {menuOptions.map((option, idx) => (
                         <a

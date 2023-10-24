@@ -6,6 +6,8 @@ import {
     type NextAuthOptions,
 } from "next-auth";
 import AppleProvider from "next-auth/providers/apple";
+// import CredentialsProvider from "next-auth/providers/credentials";
+import EmailProvider from "next-auth/providers/email";
 import GoogleProvide from "next-auth/providers/google";
 
 import { env } from "~/env.mjs";
@@ -19,21 +21,31 @@ import { prisma } from "~/server/db";
  */
 declare module "next-auth" {
     interface Session extends DefaultSession {
-        user: DefaultSession["user"] & {
+        userAgent: string | null;
+        user: {
             id: string;
             tag: string;
-            // ...other properties
+            roles: Role[];
             permissions: string;
             verified: boolean;
             lastTagReset: string;
-        };
+            protected: boolean;
+        } & DefaultSession["user"];
+    }
+
+    interface Role {
+        id: string;
+        name: string;
+        permissions: string;
     }
 
     interface User {
         tag: string;
+        roles: Role[];
         permissions: string;
         verified: boolean;
         lastTagReset: string;
+        protected: boolean;
     }
 }
 
@@ -59,20 +71,96 @@ export const authOptions: NextAuthOptions = {
 
             return true;
         },
-        session: ({ session, user }) => ({
-            ...session,
-            user: {
-                ...session.user,
-                id: user.id,
-                tag: user.tag,
-                lastTagReset: user.lastTagReset,
-                verified: user.verified,
-                permissions: user.permissions,
-            },
-        }),
+        session: async ({ session, user }) => {
+            // TODO: We probably should not do this, investigate later
+            const usr = await prisma.user.findUnique({
+                where: { id: user.id },
+                select: { roles: true },
+            });
+            await prisma.session.updateMany({
+                where: { expires: session.expires },
+                data: { lastAccessed: new Date() },
+            });
+
+            return {
+                ...session,
+                user: {
+                    ...session.user,
+                    id: user.id,
+                    tag: user.tag,
+                    lastTagReset: user.lastTagReset,
+                    roles: usr?.roles ?? [],
+                    verified: user.verified,
+                    permissions: user.permissions,
+                },
+            };
+        },
     },
     adapter: PrismaAdapter(prisma),
     providers: [
+        /* CredentialsProvider({
+            id: "migration_login",
+            name: "Migrated Credentials",
+
+            credentials: {
+                newEmail: { label: "New Email", type: "email" },
+                username: { label: "Username", type: "text" },
+                password: { label: "Password", type: "password" },
+            },
+
+            // fuck you NextAuth, genuinely, fuck you
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            authorize: async (credentials, _) => {
+                try {
+                    const { newEmail, username, password } =
+                        credentialsSchema.parse(credentials);
+
+                    // Since cred logins will only be for migration, we can apply the migration function to do the same transformation done on migration
+                    const fixTags = (tag: string) => {
+                        tag = tag.replace(/ /g, "-");
+                        if (tag.length < 4) tag = tag.padEnd(4, "0");
+                        tag = tag.slice(0, 16);
+                        tag = tag.toLowerCase();
+
+                        return tag;
+                    };
+
+                    const user = await prisma.user.findUnique({
+                        where: { tag: fixTags(username) },
+                    });
+
+                    if (!user?.password) return null;
+
+                    const passwordValid = await compare(
+                        password,
+                        user.password,
+                    );
+                    if (passwordValid === false) return null;
+
+                    await prisma.user.update({
+                        where: { id: user.id },
+                        data: { email: newEmail, password: null },
+                    });
+
+                    return user;
+                } catch (error) {
+                    console.error(error);
+                    return null;
+                }
+            },
+
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            // eslint-disable-next-line @typescript-eslint/require-await
+            session: async (ssss) => {
+                console.log(ssss);
+            },
+        }), */
+        EmailProvider({
+            server: env.EMAIL_SERVER,
+            from: env.EMAIL_FROM,
+        }),
         AppleProvider({
             clientId: env.APPLE_ID,
             clientSecret: env.APPLE_SECRET,
@@ -106,6 +194,9 @@ export const authOptions: NextAuthOptions = {
             },
         },
     },
+    /* pages: {
+        signIn: "/auth/signin",
+    }, */
 };
 
 /**

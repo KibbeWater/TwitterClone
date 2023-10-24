@@ -20,6 +20,11 @@ export const env = createEnv({
             // VERCEL_URL doesn't include `https` so it cant be validated as a URL
             process.env.VERCEL ? z.string().min(1) : z.string().url(),
         ),
+
+        EMAIL_SERVER: z.string().min(1),
+        EMAIL_FROM: z.string().email().min(1),
+
+        SALT_ROUNDS: z.string().default("10"),
         // Add `.min(1) on ID and SECRET if you want to make sure they're not empty
         APPLE_ID: z.string().min(1),
         APPLE_SECRET: z.string().min(1),
@@ -60,6 +65,11 @@ export const env = createEnv({
 
         NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
         NEXTAUTH_URL: process.env.NEXTAUTH_URL,
+
+        EMAIL_SERVER: process.env.EMAIL_SERVER,
+        EMAIL_FROM: process.env.EMAIL_FROM,
+
+        SALT_ROUNDS: process.env.SALT_ROUNDS,
 
         APPLE_ID: process.env.APPLE_ID,
         APPLE_SECRET: process.env.APPLE_SECRET,

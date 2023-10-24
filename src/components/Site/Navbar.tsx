@@ -2,6 +2,8 @@ import {
     BellIcon as BellOutline,
     HomeIcon as HomeOutline,
     UserIcon as UserOutline,
+    UsersIcon as UsersOutline,
+    Cog6ToothIcon as CogOutline,
     CheckBadgeIcon,
 } from "@heroicons/react/24/outline";
 import {
@@ -10,6 +12,8 @@ import {
     HomeIcon as HomeSolid,
     PencilIcon,
     UserIcon as UserSolid,
+    UsersIcon as UsersSolid,
+    Cog6ToothIcon as CogSolid,
     MoonIcon,
     SunIcon,
 } from "@heroicons/react/24/solid";
@@ -25,6 +29,7 @@ import PostModal from "~/components/Modals/PostModal";
 
 import { api } from "~/utils/api";
 import VerifiedCheck from "../Verified";
+import { PERMISSIONS, hasPermission } from "~/utils/permission";
 import PremiumModal from "../Modals/PremiumModal";
 
 export default function Navbar() {
@@ -34,7 +39,10 @@ export default function Navbar() {
     const { setModal } = useModal();
     const { theme, setTheme } = useTheme();
 
-    const { data: notifData } = api.notifications.getUnreadCount.useQuery({});
+    const { data: notifData } = api.notifications.getUnreadCount.useQuery(
+        {},
+        { enabled: !!session },
+    );
 
     const router = useRouter();
 
@@ -45,6 +53,7 @@ export default function Navbar() {
             href?: string;
             onClick?: () => void;
             badgeCount?: number;
+            permission?: { requiredPerms: bigint | bigint[]; or?: boolean };
             iconSolid: React.ForwardRefExoticComponent<
                 Omit<React.SVGProps<SVGSVGElement>, "ref"> & {
                     title?: string | undefined;
@@ -76,6 +85,21 @@ export default function Navbar() {
                 iconOutline: BellOutline,
             },
             {
+                name: "Admin",
+                href: "/admin",
+                activeURLs: ["/admin"],
+                permission: {
+                    requiredPerms: [
+                        PERMISSIONS.MANAGE_USERS,
+                        PERMISSIONS.MANAGE_USER_ROLES,
+                        PERMISSIONS.MANAGE_POSTS,
+                    ],
+                    or: true,
+                },
+                iconSolid: UsersSolid,
+                iconOutline: UsersOutline,
+            },
+            {
                 name: "Profile",
                 href: session?.user.tag ? `/@${session?.user.tag}` : "/login",
                 activeURLs: [
@@ -105,6 +129,19 @@ export default function Navbar() {
                 iconSolid: CheckBadgeIcon,
                 iconOutline: CheckBadgeIcon,
             },
+            {
+                name: "Settings",
+                activeURLs: [`/settings`],
+                onClick: () => {
+                    if (!session)
+                        signIn(undefined, { callbackUrl: "/settings" }).catch(
+                            console.error,
+                        );
+                    else router.push(`/settings`).catch(console.error);
+                },
+                iconSolid: CogSolid,
+                iconOutline: CogOutline,
+            },
         ];
     }, [session, router, notifData?.count, setModal]);
 
@@ -113,7 +150,7 @@ export default function Navbar() {
     return (
         <nav
             className={
-                "min-w-[10%] sm:max-w-[25%] max-w-min pt-2 w-full h-screen flex justify-end bg-white dark:bg-black border-r-[1px] border-gray-200 dark:border-gray-700"
+                "min-w-[10%] sm:max-w-[30%] max-w-min pt-2 w-full h-screen flex justify-end bg-white dark:bg-black border-r-[1px] border-highlight-light dark:border-highlight-dark"
             }
         >
             <div className="flex flex-col h-full">
@@ -134,41 +171,51 @@ export default function Navbar() {
                     </Link>
                     {links.map(
                         (link) =>
-                            (link.onClick && (
-                                <button
-                                    className={
-                                        "lg:h-12 h-16 mb-2 rounded-full bg-transparent hover:bg-gray-600/25 flex items-center"
-                                    }
-                                    onClick={link.onClick}
-                                    key={"link-" + link.name}
-                                >
-                                    <div className="w-8 ml-4 flex items-center justify-center relative">
-                                        {!link.activeURLs
-                                            .map((u) => u.toLowerCase())
-                                            .includes(
-                                                router.asPath.toLowerCase(),
-                                            ) ? (
-                                            <link.iconOutline className="text-2xl text-black dark:text-white" />
-                                        ) : (
-                                            <link.iconSolid className="text-2xl text-black dark:text-white" />
-                                        )}
-                                        {(link.badgeCount ?? 0) > 0 ? (
-                                            <div className="w-5 h-5 bg-red-500 rounded-full absolute left-2/4 bottom-2/4 z-20 border-2 dark:border-black border-white box-content">
-                                                <div className="w-5 h-5 bg-red-500 rounded-full absolute top-0 bottom-0 left-0 right-0 m-auto animate-ping z-10" />
-                                                <p className="text-white leading-5 text-center align-middle text-xs">
-                                                    {(link.badgeCount ?? 0) > 99
-                                                        ? "99+"
-                                                        : link.badgeCount}
-                                                </p>
-                                            </div>
-                                        ) : null}
-                                    </div>
+                            ((!link.permission ||
+                                hasPermission(
+                                    session?.user ?? {
+                                        permissions: "0",
+                                        roles: [],
+                                    },
+                                    link.permission.requiredPerms,
+                                    link.permission.or,
+                                )) &&
+                                link.onClick && (
+                                    <button
+                                        className={
+                                            "lg:h-12 h-16 mb-2 rounded-full bg-transparent hover:bg-gray-600/25 flex items-center"
+                                        }
+                                        onClick={link.onClick}
+                                        key={"link-" + link.name}
+                                    >
+                                        <div className="w-8 ml-4 flex items-center justify-center relative">
+                                            {!link.activeURLs
+                                                .map((u) => u.toLowerCase())
+                                                .includes(
+                                                    router.asPath.toLowerCase(),
+                                                ) ? (
+                                                <link.iconOutline className="text-2xl text-black dark:text-white" />
+                                            ) : (
+                                                <link.iconSolid className="text-2xl text-black dark:text-white" />
+                                            )}
+                                            {(link.badgeCount ?? 0) > 0 ? (
+                                                <div className="w-5 h-5 bg-red-500 rounded-full absolute left-2/4 bottom-2/4 z-20 border-2 dark:border-black border-white box-content">
+                                                    <div className="w-5 h-5 bg-red-500 rounded-full absolute top-0 bottom-0 left-0 right-0 m-auto animate-ping z-10" />
+                                                    <p className="text-white leading-5 text-center align-middle text-xs">
+                                                        {(link.badgeCount ??
+                                                            0) > 99
+                                                            ? "99+"
+                                                            : link.badgeCount}
+                                                    </p>
+                                                </div>
+                                            ) : null}
+                                        </div>
 
-                                    <span className="ml-5 font-bold text-lg hidden lg:block text-black dark:text-white">
-                                        {link.name}
-                                    </span>
-                                </button>
-                            )) ??
+                                        <span className="ml-5 font-bold text-lg hidden lg:block text-black dark:text-white">
+                                            {link.name}
+                                        </span>
+                                    </button>
+                                )) ??
                             (link.href && (
                                 <Link
                                     href={link.href}

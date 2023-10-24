@@ -45,9 +45,11 @@ model Account {
 
 model Session {
     id           String   @id @default(auto()) @map("_id") @db.ObjectId
+    userAgent    String?
     sessionToken String   @unique
     userId       String   @db.ObjectId
     expires      DateTime
+    lastAccessed DateTime @default(now())
     user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
@@ -59,9 +61,13 @@ model User {
     bio                 String?        @default("")
     email               String?        @unique
     emailVerified       DateTime?
+    password            String?
+    protected           Boolean        @default(false)
     banner              String?
     image               String?        @default("/assets/imgs/default-avatar.png")
     permissions         String         @default("0")
+    roles               Role[]         @relation(name: "R2U", fields: [roleIds], references: [id])
+    roleIds             String[]       @db.ObjectId
     verified            Boolean?       @default(false)
     posts               Post[]         @relation(name: "PostToAuthor")
     accounts            Account[]
@@ -78,7 +84,8 @@ model User {
 }
 
 model VerificationToken {
-    identifier String   @id @default(auto()) @map("_id") @db.ObjectId
+    id         String   @id @default(auto()) @map("_id") @db.ObjectId
+    identifier String
     token      String   @unique
     expires    DateTime
 
@@ -95,6 +102,16 @@ model Notification {
     createdAt DateTime @default(now())
     userId    String   @db.ObjectId
     targetIds String[] @db.ObjectId
+}
+
+model Role {
+    id          String   @id @default(auto()) @map("_id") @db.ObjectId
+    name        String   @unique
+    permissions String
+    users       User[]   @relation(name: "R2U", fields: [userIds], references: [id])
+    userIds     String[] @db.ObjectId
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @default(now())
 }
 
 model StripeEvent {

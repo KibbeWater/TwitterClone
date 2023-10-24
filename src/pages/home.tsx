@@ -63,7 +63,7 @@ export default function Home() {
     return (
         <Layout title="Home">
             {status === "authenticated" && (
-                <div className="py-4 px-6 border-b-[1px] border-gray-200 dark:border-gray-700">
+                <div className="py-4 px-6 border-b-[1px] border-highlight-light dark:border-highlight-dark">
                     <PostComposer onPost={onPost} />
                 </div>
             )}
@@ -71,7 +71,7 @@ export default function Home() {
                 {posts.map((post) => (
                     <div
                         key={`post-${post.id}`}
-                        className="border-b-[1px] border-gray-200 dark:border-gray-700 w-full"
+                        className="border-b-[1px] border-highlight-light dark:border-highlight-dark w-full"
                     >
                         <PostComponent
                             post={post}

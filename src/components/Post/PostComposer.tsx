@@ -61,9 +61,7 @@ export default function PostComposer({
         (async () => {
             let urls: string[] = [];
             for (const img of images) {
-                console.log(`Uploading image nr smth`);
                 const url = await uploadImage(img.file, "image");
-                console.log(`Finished Uploading image nr smth`);
                 urls = [...urls, url];
             }
             return urls;
@@ -118,7 +116,6 @@ export default function PostComposer({
 
     useEffect(() => {
         const ev = (e: ClipboardEvent) => {
-            console.log(images);
             if (document.activeElement !== textareaRef.current) return;
             if (images.length >= 4)
                 return alert("You can only upload 4 images!");

@@ -73,7 +73,7 @@ export default function ModalHandler({
                                 ? bgOverride ?? defaultBgColor
                                 : "rgba(50, 50, 50, 0)",
                         }}
-                        onClick={(e) => {
+                        onMouseDown={(e) => {
                             if (e.target === e.currentTarget) closeModal();
                             e.stopPropagation();
                         }}
