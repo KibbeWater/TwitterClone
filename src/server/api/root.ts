@@ -1,6 +1,7 @@
 import { createTRPCRouter } from "~/server/api/trpc";
 
 import { adminRouter } from "./routers/admin";
+import { aiRouter } from "./routers/ai";
 import { followersRouter } from "./routers/followers";
 import { migrateRouter } from "./routers/migrate";
 import { notificationsRouter } from "./routers/notifications";
@@ -23,6 +24,7 @@ export const appRouter = createTRPCRouter({
     s3: s3Router,
     migrate: migrateRouter,
     role: roleRouter,
+    ai: aiRouter,
 });
 
 // export type definition of API
