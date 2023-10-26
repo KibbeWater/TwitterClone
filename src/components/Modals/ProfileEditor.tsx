@@ -4,7 +4,13 @@ import { useRouter } from "next/router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDropzone } from "react-dropzone";
 
-import { XMarkIcon } from "@heroicons/react/20/solid";
+import {
+    XMarkIcon,
+    SparklesIcon,
+    ChevronLeftIcon,
+    CheckIcon,
+    ChevronRightIcon,
+} from "@heroicons/react/20/solid";
 import { CameraIcon } from "@heroicons/react/24/outline";
 
 import { useModal } from "~/components/Handlers/ModalHandler";
@@ -32,11 +38,17 @@ export default function ProfileEditor({
     const [avatarFile, setAvatarFile] = useState<File | undefined>(undefined);
     const [banner, setBanner] = useState<string | undefined | null>(defBanner);
     const [bannerFile, setBannerFile] = useState<File | undefined>(undefined);
+    const [aiBio, setAIBio] = useState<string[]>([]);
+    const [aiBioIndex, setAIBioIndex] = useState<number>(0);
 
     const { data: session, update: _updateSession } = useSession();
     const router = useRouter();
 
     const { mutate: _updateProfile } = api.user.updateProfile.useMutation();
+    const { mutate: _generateBio, isLoading: isGeneratingAiBio } =
+        api.ai.generateBio.useMutation({
+            onSuccess: (data) => setAIBio(data),
+        });
 
     const { uploadImage, rules } = useImageUploader();
     const { sizes: maxSizes } = rules;
@@ -100,9 +112,31 @@ export default function ProfileEditor({
     );
 
     const handleBioUpdate = useCallback<(t: string) => void>(
-        (t) => setBio(t),
-        [setBio],
+        (t) => {
+            if (aiBio[aiBioIndex]) return;
+            setBio(t);
+        },
+        [setBio, aiBio, aiBioIndex],
     );
+
+    const generateBio = useCallback(() => {
+        _generateBio({ draftBio: bio });
+    }, [_generateBio, bio]);
+
+    const clearAiBio = () => {
+        setAIBio([]);
+        setAIBioIndex(0);
+    };
+
+    const nextAiBio = () => {
+        if (aiBioIndex + 1 >= aiBio.length) return;
+        setAIBioIndex((p) => p + 1);
+    };
+
+    const prevAiBio = () => {
+        if (aiBioIndex - 1 < 0) return;
+        setAIBioIndex((p) => p - 1);
+    };
 
     useEffect(() => {
         setTag((p) => {
@@ -296,14 +330,91 @@ export default function ProfileEditor({
                             placeholder={session?.user ? undefined : "..."}
                         />
                     </div>
-                    <LabelledInput
-                        onChange={handleBioUpdate}
-                        value={bio}
-                        maxLength={160}
-                        maxRows={3}
-                        minRows={3}
-                        label="Bio"
-                    />
+                    <div className="relative">
+                        <div className="absolute bottom-1 right-1">
+                            {aiBio.length === 0 ? (
+                                <button
+                                    onClick={generateBio}
+                                    disabled={isGeneratingAiBio || bio === ""}
+                                    className={[
+                                        "h-7 w-7 p-[2px] rounded-md",
+                                        "hover:opacity-80 opacity-100 transition-opacity duration-500",
+                                        "bg-gradient-to-br from-green-400 to-pink-500 hover:from-green-600 hover:to-pink-700",
+                                        bio === "" && "!opacity-0",
+                                    ].join(" ")}
+                                >
+                                    <div className="w-full h-full dark:bg-black/60 bg-black/10 backdrop-blur-md flex items-center justify-center p-[1px] rounded-[calc(0.375rem-2px)] overflow-hidden">
+                                        <SparklesIcon
+                                            className={
+                                                isGeneratingAiBio
+                                                    ? "animate-pulse dark:text-neutral-300 text-neutral-700"
+                                                    : "text-yellow-200 dark:text-white"
+                                            }
+                                        />
+                                    </div>
+                                </button>
+                            ) : (
+                                <div className="flex items-center h-5 gap-2">
+                                    <div className="flex items-center h-full">
+                                        <button
+                                            onClick={() => prevAiBio()}
+                                            className="h-full"
+                                        >
+                                            <ChevronLeftIcon className="h-full" />
+                                        </button>
+                                        {/* <button className="h-full py-[2px">
+                                            <CheckIcon className="h-full" />
+                                        </button> */}
+                                        <p className="leading-none text-xs">
+                                            {aiBioIndex + 1} / {aiBio.length}
+                                        </p>
+                                        <button
+                                            onClick={() => nextAiBio()}
+                                            className="h-full"
+                                        >
+                                            <ChevronRightIcon className="h-full" />
+                                        </button>
+                                    </div>
+                                    <div className="flex items-center h-full">
+                                        <button
+                                            onClick={() => {
+                                                setBio(
+                                                    (p) =>
+                                                        aiBio[aiBioIndex] ?? p,
+                                                );
+                                                clearAiBio();
+                                            }}
+                                            className="h-full py-[2px"
+                                        >
+                                            <CheckIcon className="h-full" />
+                                        </button>
+                                        <p className="mx-1 font-semibold leading-none select-none">
+                                            ·
+                                        </p>
+                                        <button
+                                            onClick={() => clearAiBio()}
+                                            className="h-full"
+                                        >
+                                            <XMarkIcon className="text-black dark:text-white h-full" />
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                        <LabelledInput
+                            onChange={handleBioUpdate}
+                            value={aiBio[aiBioIndex] ?? bio}
+                            className={
+                                aiBio[aiBioIndex] &&
+                                "text-neutral-500 cursor-default"
+                            }
+                            disabled={!!aiBio[aiBioIndex]}
+                            maxLength={160}
+                            maxRows={3}
+                            minRows={3}
+                            label="Bio"
+                        />
+                    </div>
                 </div>
             </div>
         </div>
