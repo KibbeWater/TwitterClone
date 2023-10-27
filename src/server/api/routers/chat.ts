@@ -1,3 +1,4 @@
+import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
@@ -26,6 +27,10 @@ export const chatRouter = createTRPCRouter({
                 },
             });
         }),
+
+    streamChats: protectedProcedure
+    .input(z.object({}))
+    .subscription()
 
     fetchChat: protectedProcedure
         .input(z.object({ chatId: z.string() }))
@@ -103,6 +108,49 @@ export const chatRouter = createTRPCRouter({
                     name: filteredGroupName,
                     participants: {
                         connect: participantUsers.map((u) => ({ id: u.id })),
+                    },
+                },
+            });
+        }),
+
+    sendChatMessage: protectedProcedure
+        .input(
+            z.object({
+                chatId: z.string(),
+                message: z.string(),
+            }),
+        )
+        .mutation(async ({ ctx, input }) => {
+            const { chatId, message } = input;
+
+            const chat = await ctx.prisma.chat.findUnique({
+                where: {
+                    id: chatId,
+                    participantIds: {
+                        has: ctx.session.user.id,
+                    },
+                },
+            });
+
+            if (!chat)
+                throw new TRPCError({
+                    code: "NOT_FOUND",
+                    message: "You are not a member of any chats by that ID.",
+                    cause: "The chat ID is invalid or you are not a member of the chat.",
+                });
+
+            return await ctx.prisma.message.create({
+                data: {
+                    message,
+                    sender: {
+                        connect: {
+                            id: ctx.session.user.id,
+                        },
+                    },
+                    chat: {
+                        connect: {
+                            id: chatId,
+                        },
                     },
                 },
             });

@@ -136,7 +136,7 @@ export default function MessagesLayout({
                         </p>
                     )}
 
-                    <main>{children}</main>
+                    <main className="h-full">{children}</main>
                 </div>
                 <div className="w-1/6 grow-0 border-l-[1px] lg:block hidden border-highlight-light dark:border-highlight-dark"></div>
             </div>
