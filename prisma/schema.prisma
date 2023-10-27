@@ -83,6 +83,7 @@ model User {
     followingIds        String[]       @db.ObjectId
     Chats               Chat[]         @relation(name: "Chat2User", fields: [chatIds], references: [id])
     chatIds             String[]       @db.ObjectId
+    Messages            Message[]
 }
 
 model VerificationToken {
@@ -117,7 +118,17 @@ model Role {
 }
 
 model Chat {
-    id             String   @id @default(auto()) @map("_id") @db.ObjectId
-    participantIds String[] @db.ObjectId
-    participants   User[]   @relation(name: "Chat2User", fields: [participantIds], references: [id])
+    id             String    @id @default(auto()) @map("_id") @db.ObjectId
+    participantIds String[]  @db.ObjectId
+    participants   User[]    @relation(name: "Chat2User", fields: [participantIds], references: [id])
+    Messages       Message[]
+}
+
+model Message {
+    id      String @id @default(auto()) @map("_id") @db.ObjectId
+    chat    Chat   @relation(fields: [chatId], references: [id])
+    user    User   @relation(fields: [userId], references: [id])
+    message String
+    chatId  String @db.ObjectId
+    userId  String @db.ObjectId
 }
