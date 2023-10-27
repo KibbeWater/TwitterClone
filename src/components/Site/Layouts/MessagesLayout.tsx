@@ -10,6 +10,7 @@ import { api } from "~/utils/api";
 import { useSession } from "next-auth/react";
 import { useModal } from "~/components/Handlers/ModalHandler";
 import MessageModal from "~/components/Modals/MessageModal";
+import Image from "next/image";
 
 type Props = {
     canBack?: boolean;
@@ -37,7 +38,7 @@ export default function MessagesLayout({
     const { data: chats } = api.chat.fetchChats.useQuery({});
 
     const getChatImage = (chat: {
-        participants: { id: string; image: string }[];
+        participants: { id: string; image: string | null }[];
     }) => {
         const user = chat.participants.find(
             (participant) =>
@@ -90,7 +91,19 @@ export default function MessagesLayout({
                                 href={`/message/${chat.id}`}
                                 className="flex justify-between items-center pl-4 pr-3 py-2 transition-colors bg-transparent duration-300 dark:hover:bg-neutral-700 hover:bg-neutral-200"
                             >
-                                <p>{chat.name}</p>
+                                <div className="flex items-center gap-2">
+                                    <Image
+                                        src={
+                                            getChatImage(chat) ??
+                                            "/assets/imgs/default-avatar.png"
+                                        }
+                                        alt="Profile picture"
+                                        className="rounded-full"
+                                        width={32}
+                                        height={32}
+                                    />
+                                    <p className="truncate">{chat.name}</p>
+                                </div>
                                 <div className="h-6 w-6">
                                     <ChevronRightIcon className="text-neutral-500" />
                                 </div>
