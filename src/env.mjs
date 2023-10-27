@@ -38,6 +38,8 @@ export const env = createEnv({
         AWS_SECRET_ACCESS_KEY: z.string().min(1),
 
         CLOUDFRONT_DDN: z.string().min(1),
+
+        OPENAI_API_KEY: z.string().min(1),
     },
 
     /**
@@ -77,6 +79,8 @@ export const env = createEnv({
         AWS_SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY,
 
         CLOUDFRONT_DDN: process.env.CLOUDFRONT_DDN,
+
+        OPENAI_API_KEY: process.env.OPENAI_API_KEY,
     },
     /**
      * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation.

@@ -29,7 +29,7 @@ export default function Layout({ title, children }: LayoutProps) {
                         "flex-1 overflow-y-auto scrollbar-hide dark:bg-black bg-white"
                     }
                 >
-                    <div className="py-2 flex flex-col gap-8 border-b-[1px] border-gray-200 dark:border-gray-700">
+                    <div className="py-2 flex flex-col gap-8 border-b-[1px] border-highlight-light dark:border-highlight-dark">
                         <div className="ml-4 flex items-center gap-4">
                             {router.pathname !== "/home" && (
                                 <div

@@ -29,7 +29,7 @@ export default function FollowingModal({
         >
             <div
                 className={
-                    "h-10 p-1 flex justify-between border-b-[1px] border-gray-200 dark:border-gray-700"
+                    "h-10 p-1 flex justify-between border-b-[1px] border-highlight-light dark:border-highlight-dark"
                 }
             >
                 <div className="h-full flex items-center justify-center ml-2">

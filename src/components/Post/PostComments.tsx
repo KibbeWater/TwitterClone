@@ -62,7 +62,7 @@ export default function PostComments({
 
     return (
         <>
-            <div className="mt-2 pb-3 flex border-b-[1px] border-gray-200 dark:border-gray-700">
+            <div className="mt-2 pb-3 flex border-b-[1px] border-highlight-light dark:border-highlight-dark">
                 <PostComposer
                     inline={true}
                     padding={12}
@@ -75,7 +75,7 @@ export default function PostComments({
             {posts.map((reply: Post) => (
                 <div
                     key={`post-${reply.id}`}
-                    className="border-b-[1px] border-gray-200 dark:border-gray-700 w-full"
+                    className="border-b-[1px] border-highlight-light dark:border-highlight-dark w-full"
                 >
                     <PostComponent
                         post={reply}

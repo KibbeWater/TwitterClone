@@ -135,7 +135,7 @@ export default function Page() {
                     <PostContent post={post} />
                     {images.length > 0 && (
                         <div
-                            className="w-full aspect-[5/3] mt-2 cursor-pointer grid grid-cols-2 rounded-xl overflow-hidden gap-[2px] justify-self-center border-[1px] border-gray-200 dark:border-gray-700"
+                            className="w-full aspect-[5/3] mt-2 cursor-pointer grid grid-cols-2 rounded-xl overflow-hidden gap-[2px] justify-self-center border-[1px] border-highlight-light dark:border-highlight-dark"
                             style={{
                                 display: images.length !== 0 ? "grid" : "none",
                             }}

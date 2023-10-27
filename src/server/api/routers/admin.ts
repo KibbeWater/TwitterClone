@@ -143,13 +143,12 @@ export const adminRouter = createTRPCRouter({
             if (
                 hasPermission(user, PERMISSIONS.ADMINISTRATOR) &&
                 user.id !== ctx.session.user.id
-            ) {
+            )
                 throw new TRPCError({
                     code: "FORBIDDEN",
                     message: "You cannot change the permissions of this user.",
                     cause: "User has the ADMINISTRATOR permission.",
                 });
-            }
 
             // Make sure we aren't changing the administrator permission
             if (
@@ -157,13 +156,12 @@ export const adminRouter = createTRPCRouter({
                     { permissions: permissions.toString(), roles: [] },
                     PERMISSIONS.ADMINISTRATOR,
                 ) !== hasPermission(user, PERMISSIONS.ADMINISTRATOR)
-            ) {
+            )
                 throw new TRPCError({
                     code: "FORBIDDEN",
                     message: "You cannot change the ADMINISTRATOR permission.",
                     cause: "You cannot change the ADMINISTRATOR permission.",
                 });
-            }
 
             return await ctx.prisma.user.update({
                 include: {
@@ -312,6 +310,43 @@ export const adminRouter = createTRPCRouter({
                             .filter((r) => !newRolesIds.includes(r.id))
                             .map((r) => ({ id: r.id })),
                     },
+                },
+            });
+        }),
+
+    updateProfile: protectedProcedure
+        .input(
+            z.object({
+                id: z.string(),
+                name: z.string().optional(),
+                tag: z.string().optional(),
+                email: z.string().optional(),
+            }),
+        )
+        .mutation(async ({ ctx, input }) => {
+            const { id: userId, name, tag, email } = input;
+
+            if (
+                !hasPermission(
+                    ctx.session.user,
+                    PERMISSIONS.MANAGE_USERS_EXTENDED,
+                )
+            )
+                throw new TRPCError({
+                    code: "UNAUTHORIZED",
+                    message:
+                        "You don't have sufficient permissions to perform this action.",
+                    cause: "User lacks the MANAGE_USERS_EXTENDED permission.",
+                });
+
+            return await ctx.prisma.user.update({
+                where: {
+                    id: userId,
+                },
+                data: {
+                    name,
+                    tag,
+                    email,
                 },
             });
         }),

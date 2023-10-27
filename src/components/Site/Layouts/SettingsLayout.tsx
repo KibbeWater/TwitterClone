@@ -66,7 +66,7 @@ export default function SettingsLayout({
                     ref={navRef}
                     className={`lg:w-1/4 lg:block ${
                         !preventFolding ? "hidden w-1/4" : "block w-full"
-                    } border-r-[1px] border-gray-200 dark:border-gray-700 grow-0`}
+                    } border-r-[1px] border-highlight-light dark:border-highlight-dark grow-0`}
                 >
                     <div className="pb-6">
                         <h1 className="text-black dark:text-white font-semibold text-xl my-2 ml-4">
@@ -115,7 +115,7 @@ export default function SettingsLayout({
 
                     <main>{children}</main>
                 </div>
-                <div className="w-1/6 grow-0 border-l-[1px] lg:block hidden border-gray-200 dark:border-gray-700"></div>
+                <div className="w-1/6 grow-0 border-l-[1px] lg:block hidden border-highlight-light dark:border-highlight-dark"></div>
             </div>
         </>
     );
