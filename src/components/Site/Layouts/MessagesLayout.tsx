@@ -1,11 +1,15 @@
-import { ChevronRightIcon } from "@heroicons/react/20/solid";
+import { ChevronRightIcon, PlusIcon } from "@heroicons/react/20/solid";
 import { ArrowLeftIcon } from "@heroicons/react/24/solid";
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import Navbar from "../Navbar";
+import { api } from "~/utils/api";
+import { useSession } from "next-auth/react";
+import { useModal } from "~/components/Handlers/ModalHandler";
+import MessageModal from "~/components/Modals/MessageModal";
 
 type Props = {
     canBack?: boolean;
@@ -15,7 +19,7 @@ type Props = {
     preventFolding?: boolean;
 };
 
-export default function SettingsLayout({
+export default function MessagesLayout({
     title,
     description,
     children,
@@ -25,19 +29,28 @@ export default function SettingsLayout({
     const [navVisible, setNavVisible] = useState(false);
 
     const router = useRouter();
+    const { setModal } = useModal();
+    const { data: session } = useSession();
 
     const navRef = useRef<HTMLDivElement>(null);
 
+    const { data: chats } = api.chat.fetchChats.useQuery({});
+
+    const getChatImage = (chat: {
+        participants: { id: string; image: string }[];
+    }) => {
+        const user = chat.participants.find(
+            (participant) =>
+                participant.id !== session?.user.id &&
+                session?.user.id !== undefined,
+        );
+        return user?.image ?? session?.user.image;
+    };
+
     useEffect(() => {
         const handleResize = () => {
-            // is invisible?
-            if (navRef.current?.offsetWidth === 0) {
-                setNavVisible(false);
-                return;
-            } else {
-                if (navVisible) return;
-                setNavVisible(true);
-            }
+            if (navRef.current?.offsetWidth === 0) return setNavVisible(false);
+            else if (!navVisible) setNavVisible(true);
         };
 
         window.addEventListener("resize", handleResize);
@@ -57,21 +70,27 @@ export default function SettingsLayout({
                     ref={navRef}
                     className={`lg:w-1/4 lg:block ${
                         !preventFolding ? "hidden w-1/4" : "block w-full"
-                    } border-r-[1px] border-gray-200 dark:border-gray-700 grow-0`}
+                    } border-r-[1px] border-highlight-light dark:border-highlight-dark grow-0`}
                 >
-                    <div className="pb-6">
-                        <h1 className="text-black dark:text-white font-semibold text-xl my-2 ml-4">
-                            Settings
+                    <div className="pb-6 px-4 flex justify-between items-center">
+                        <h1 className="text-black dark:text-white font-semibold text-xl my-2">
+                            Messages
                         </h1>
+                        <button
+                            onClick={() => setModal(<MessageModal />)}
+                            className="h-8 w-8 p-1 hover:bg-neutral-500/50 rounded-full transition-colors"
+                        >
+                            <PlusIcon />
+                        </button>
                     </div>
                     <nav className="flex flex-col">
-                        {tabs.map((tab, idx) => (
+                        {chats?.map((chat) => (
                             <Link
-                                key={`${tab.name}-${idx}`}
-                                href={`/settings/${tab.slug}`}
+                                key={chat.id}
+                                href={`/message/${chat.id}`}
                                 className="flex justify-between items-center pl-4 pr-3 py-2 transition-colors bg-transparent duration-300 dark:hover:bg-neutral-700 hover:bg-neutral-200"
                             >
-                                <p>{tab.name}</p>
+                                <p>{chat.name}</p>
                                 <div className="h-6 w-6">
                                     <ChevronRightIcon className="text-neutral-500" />
                                 </div>
@@ -106,7 +125,7 @@ export default function SettingsLayout({
 
                     <main>{children}</main>
                 </div>
-                <div className="w-1/6 grow-0 border-l-[1px] lg:block hidden border-gray-200 dark:border-gray-700"></div>
+                <div className="w-1/6 grow-0 border-l-[1px] lg:block hidden border-highlight-light dark:border-highlight-dark"></div>
             </div>
         </>
     );

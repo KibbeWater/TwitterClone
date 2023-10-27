@@ -119,16 +119,18 @@ model Role {
 
 model Chat {
     id             String    @id @default(auto()) @map("_id") @db.ObjectId
+    name           String
     participantIds String[]  @db.ObjectId
     participants   User[]    @relation(name: "Chat2User", fields: [participantIds], references: [id])
     Messages       Message[]
 }
 
 model Message {
-    id      String @id @default(auto()) @map("_id") @db.ObjectId
-    chat    Chat   @relation(fields: [chatId], references: [id])
-    user    User   @relation(fields: [userId], references: [id])
-    message String
-    chatId  String @db.ObjectId
-    userId  String @db.ObjectId
+    id        String   @id @default(auto()) @map("_id") @db.ObjectId
+    chat      Chat     @relation(fields: [chatId], references: [id])
+    sender    User     @relation(fields: [userId], references: [id])
+    message   String
+    chatId    String   @db.ObjectId
+    userId    String   @db.ObjectId
+    createdAt DateTime @default(now())
 }

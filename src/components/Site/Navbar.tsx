@@ -78,8 +78,15 @@ export default function Navbar() {
             },
             {
                 name: "Messages",
-                href: "/messages",
-                activeURLs: ["/messages"],
+                href: "/message",
+                activeURLs: ["/message"],
+                onClick: () => {
+                    if (!session)
+                        signIn(undefined, { callbackUrl: "/profile" }).catch(
+                            console.error,
+                        );
+                    else router.push(`/message`).catch(console.error);
+                },
                 iconSolid: EnvelopeSolid,
                 iconOutline: EnvelopeOutline,
             },
