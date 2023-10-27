@@ -1,4 +1,4 @@
-import { XMarkIcon } from "@heroicons/react/20/solid";
+import { ArrowPathIcon, XMarkIcon } from "@heroicons/react/20/solid";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/solid";
 import { useState } from "react";
 
@@ -12,12 +12,13 @@ export default function MessageModal() {
     const { closeModal } = useModal();
 
     const { data: following } = api.followers.getFollowing.useQuery({});
-    const { data: search } = api.user.findUsers.useQuery({ query });
+    const { data: search, isLoading: isLoadingSearch } =
+        api.user.findUsers.useQuery({ query }, { keepPreviousData: true });
 
-    const users = search ?? following ?? [];
+    const users = isLoadingSearch ? [] : search ?? following ?? [];
 
     return (
-        <div className="flex-col bg-black rounded-lg lg:w-[35%] md:w-1/3 w-5/6 max-h-[90vh] h-[650px]">
+        <div className="flex-col bg-black rounded-lg lg:w-[35%] md:w-1/3 w-5/6 max-h-[90vh] h-[650px] overflow-hidden">
             <div className="flex justify-between items-center px-4 py-2 grow-0">
                 <div className="flex items-center">
                     <button onClick={() => closeModal()}>
@@ -33,17 +34,19 @@ export default function MessageModal() {
                     </button>
                 </div>
             </div>
-            <div className="py-2 px-2">
-                <label className="flex gap-1 items-center hover:outline-none">
-                    <MagnifyingGlassIcon className="h-5 w-5 text-black dark:text-white mr-4 peer-hover/search:text-accent-primary-500" />
-                    <input
-                        type="text"
-                        placeholder="Search people"
-                        className="grow dark:bg-black bg-white h-full outline-none peer/search"
-                        value={query}
-                        onChange={(e) => setQuery(e.target.value)}
-                    />
-                </label>
+            <div>
+                <div className="py-2 px-4 border-b-[1px] border-highlight-light dark:border-highlight-dark">
+                    <label className="flex flex-row-reverse gap-1 items-center hover:outline-none">
+                        <input
+                            type="text"
+                            placeholder="Search people"
+                            className="grow dark:bg-black bg-white h-full outline-none peer"
+                            value={query}
+                            onChange={(e) => setQuery(e.target.value)}
+                        />
+                        <MagnifyingGlassIcon className="h-5 w-8 text-black dark:text-white mr-4 peer-focus:text-accent-primary-500" />
+                    </label>
+                </div>
             </div>
             <div className="flex flex-col grow">
                 {users.map((user) => (
@@ -53,8 +56,16 @@ export default function MessageModal() {
                         user={user}
                     />
                 ))}
-                di
             </div>
+            {isLoadingSearch && (
+                <div className="grow-0 w-full flex justify-center py-2">
+                    <ArrowPathIcon
+                        className={
+                            "animate-spin h-[1.5em] text-black dark:text-white"
+                        }
+                    />
+                </div>
+            )}
         </div>
     );
 }

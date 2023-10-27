@@ -22,7 +22,7 @@ export const followersRouter = createTRPCRouter({
 
     getFollowing: protectedProcedure
         .input(z.object({}))
-        .query(async ({ ctx, input }) => {
+        .query(async ({ ctx }) => {
             return (
                 await ctx.prisma.user.findUnique({
                     where: { id: ctx.session.user.id },
