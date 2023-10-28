@@ -6,7 +6,7 @@ import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react";
 
 import Navbar from "../Navbar";
-import { api } from "~/utils/api";
+import { api, pusher } from "~/utils/api";
 import { useSession } from "next-auth/react";
 import { useModal } from "~/components/Handlers/ModalHandler";
 import MessageModal from "~/components/Modals/MessageModal";
@@ -35,7 +35,9 @@ export default function MessagesLayout({
 
     const navRef = useRef<HTMLDivElement>(null);
 
-    const { data: chats } = api.chat.fetchChats.useQuery({});
+    const { data: chats, refetch: refetchChats } = api.chat.fetchChats.useQuery(
+        {},
+    );
 
     const getChatImage = (chat: {
         participants: { id: string; image: string | null }[];
@@ -58,6 +60,20 @@ export default function MessagesLayout({
 
         return () => window.removeEventListener("resize", handleResize);
     }, [navVisible]);
+
+    useEffect(() => {
+        if (!session?.user.id) return;
+        const channelName = session.user.id;
+        const channel = pusher.subscribe(channelName);
+
+        channel.bind("new-chat", () => refetchChats());
+
+        return () => {
+            channel.unbind("new-chat");
+
+            pusher.unsubscribe(channelName);
+        };
+    }, [refetchChats, session?.user.id]);
 
     return (
         <>

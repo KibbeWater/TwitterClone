@@ -59,6 +59,7 @@ export const chatRouter = createTRPCRouter({
                     id: true,
                     message: true,
                     createdAt: true,
+                    userId: true,
                     sender: {
                         select: {
                             id: true,
@@ -100,7 +101,7 @@ export const chatRouter = createTRPCRouter({
                     ? groupName.slice(0, 17) + "..."
                     :  */ groupName;
 
-            return await ctx.prisma.chat.create({
+            const newChat = await ctx.prisma.chat.create({
                 data: {
                     name: filteredGroupName,
                     participants: {
@@ -108,6 +109,18 @@ export const chatRouter = createTRPCRouter({
                     },
                 },
             });
+
+            try {
+                await pusherServer.trigger(
+                    participantUsers.map((u) => u.id),
+                    "new-chat",
+                    null,
+                );
+            } catch (err) {
+                console.error(err);
+            }
+
+            return newChat;
         }),
 
     sendChatMessage: protectedProcedure
@@ -147,6 +160,21 @@ export const chatRouter = createTRPCRouter({
                     chat: {
                         connect: {
                             id: chatId,
+                        },
+                    },
+                },
+                select: {
+                    id: true,
+                    message: true,
+                    createdAt: true,
+                    userId: true,
+                    chatId: true,
+                    sender: {
+                        select: {
+                            id: true,
+                            name: true,
+                            tag: true,
+                            image: true,
                         },
                     },
                 },
