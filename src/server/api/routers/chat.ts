@@ -2,6 +2,7 @@ import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
+import { pusherServer } from "~/server/pusher";
 
 export const chatRouter = createTRPCRouter({
     fetchChats: protectedProcedure
@@ -27,10 +28,6 @@ export const chatRouter = createTRPCRouter({
                 },
             });
         }),
-
-    streamChats: protectedProcedure
-    .input(z.object({}))
-    .subscription()
 
     fetchChat: protectedProcedure
         .input(z.object({ chatId: z.string() }))
@@ -139,7 +136,7 @@ export const chatRouter = createTRPCRouter({
                     cause: "The chat ID is invalid or you are not a member of the chat.",
                 });
 
-            return await ctx.prisma.message.create({
+            const newMessage = await ctx.prisma.message.create({
                 data: {
                     message,
                     sender: {
@@ -154,5 +151,17 @@ export const chatRouter = createTRPCRouter({
                     },
                 },
             });
+
+            try {
+                await pusherServer.trigger(
+                    `chat-${newMessage.chatId}`,
+                    "new-message",
+                    null,
+                );
+            } catch (err) {
+                console.error(err);
+            }
+
+            return newMessage;
         }),
 });
