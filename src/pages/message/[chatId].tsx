@@ -63,16 +63,15 @@ export default function Message() {
         };
     }, [chatId, refetchMessages]);
 
-    const msgs = [
-        ...new Set([
-            ...(messages ?? []),
-            ...streamedMessages,
-            ...localMessages,
-        ]),
-    ].sort(
-        (a, b) =>
-            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
-    );
+    const msgs = [...(messages ?? []), ...streamedMessages, ...localMessages]
+        .sort(
+            (a, b) =>
+                new Date(a.createdAt).getTime() -
+                new Date(b.createdAt).getTime(),
+        )
+        .filter((msg, index, self) => {
+            return index === self.findIndex((p) => p.id === msg.id);
+        });
 
     const batchedMsgs = useMemo(() => {
         const batches: DM[][] = [];
@@ -122,6 +121,8 @@ export default function Message() {
         const date = new Date();
 
         // is today?
+        const isWithing24Hours: boolean =
+            (timestamp.getTime() - date.getTime()) / 1000 / 60 / 60 < 24;
         if (
             date.getFullYear() === timestamp.getFullYear() &&
             date.getMonth() === timestamp.getMonth() &&
@@ -133,6 +134,12 @@ export default function Message() {
                 minute: "numeric",
             });
         } else {
+            if (isWithing24Hours)
+                return `Yesterday, ${timestamp.toLocaleTimeString([], {
+                    hour: "numeric",
+                    minute: "numeric",
+                })}`;
+
             return timestamp.toLocaleDateString([], {
                 month: "short",
                 day: "numeric",
@@ -143,8 +150,26 @@ export default function Message() {
         }
     }, []);
 
+    const getChatName = (chat: {
+        participants: { id: string; name: string | null; tag: string | null }[];
+        name: string;
+    }): string => {
+        if (chat.participants.length > 2) return chat.name;
+
+        const user = chat.participants.find(
+            (participant) =>
+                participant.id !== session?.user.id &&
+                session?.user.id !== undefined,
+        );
+
+        return user?.name ?? session?.user.name ?? "Loading...";
+    };
+
     return (
-        <MessagesLayout title={chat?.name ?? "Loading..."}>
+        <MessagesLayout
+            canBack={false}
+            title={chat ? getChatName(chat) : "Loading..."}
+        >
             <div className="w-full h-full flex flex-col">
                 <div className="grow h-full flex flex-col justify-end gap-4">
                     {batchedMsgs.map((batch, idx) => (
@@ -165,7 +190,7 @@ export default function Message() {
                             >
                                 {batch.map((msg, idx, arr) => (
                                     <div
-                                        key={`msg-${msg.id}`}
+                                        key={msg.id}
                                         className={[
                                             "flex",
                                             batch[0] &&
@@ -175,15 +200,15 @@ export default function Message() {
                                     >
                                         <p
                                             className={[
-                                                "px-4 py-2 rounded-t-full text-white",
+                                                "px-4 py-2 rounded-t-3xl overflow-hidden text-white text-right",
                                                 isSender(msg)
                                                     ? "bg-accent-primary-500"
                                                     : "bg-neutral-800",
                                                 idx === arr.length - 1
                                                     ? !isSender(msg)
-                                                        ? "rounded-bl-xl rounded-br-full"
-                                                        : "rounded-br-xl rounded-bl-full"
-                                                    : "rounded-b-full",
+                                                        ? "rounded-bl-[4px] rounded-br-3xl"
+                                                        : "rounded-br-[4px] rounded-bl-3xl"
+                                                    : "rounded-b-3xl",
                                             ].join(" ")}
                                         >
                                             {msg.message}

@@ -8,7 +8,7 @@ export const chatRouter = createTRPCRouter({
     fetchChats: protectedProcedure
         .input(z.object({}))
         .query(async ({ ctx }) => {
-            return await ctx.prisma.chat.findMany({
+            const _chats = await ctx.prisma.chat.findMany({
                 select: {
                     id: true,
                     name: true,
@@ -27,6 +27,37 @@ export const chatRouter = createTRPCRouter({
                     },
                 },
             });
+
+            const chatLatestMessages = await ctx.prisma.message.findMany({
+                select: {
+                    id: true,
+                    message: true,
+                    createdAt: true,
+                    userId: true,
+                    chatId: true,
+                    sender: {
+                        select: {
+                            id: true,
+                            name: true,
+                            tag: true,
+                            image: true,
+                        },
+                    },
+                },
+                where: {
+                    OR: _chats.map((c) => ({ chatId: c.id })),
+                },
+                orderBy: {
+                    createdAt: "desc",
+                },
+            });
+
+            return _chats.map((c) => ({
+                ...c,
+                latestMessage: chatLatestMessages.find(
+                    (m) => m.chatId === c.id,
+                ),
+            }));
         }),
 
     fetchChat: protectedProcedure

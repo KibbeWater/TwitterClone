@@ -50,6 +50,58 @@ export default function MessagesLayout({
         return user?.image ?? session?.user.image;
     };
 
+    const getChatName = (chat: {
+        participants: { id: string; name: string | null; tag: string | null }[];
+        name: string;
+    }) => {
+        if (chat.participants.length > 2)
+            return <p className="truncate leading-none">{chat.name}</p>;
+
+        const user = chat.participants.find(
+            (participant) =>
+                participant.id !== session?.user.id &&
+                session?.user.id !== undefined,
+        );
+
+        return (
+            <p className="truncate leading-snug">
+                {user?.name ?? session?.user.name}{" "}
+                <span className="text-neutral-500">
+                    @{user?.tag ?? session?.user.tag}
+                </span>
+            </p>
+        );
+    };
+
+    const getChatTimestamp = (chat: {
+        latestMessage?: { createdAt: Date };
+    }) => {
+        const date = new Date(chat.latestMessage?.createdAt ?? Date.now());
+
+        const isThisYear =
+            date.getFullYear() === new Date(Date.now()).getFullYear();
+        const isToday =
+            date.getDate() === new Date(Date.now()).getDate() &&
+            date.getMonth() === new Date(Date.now()).getMonth();
+
+        if (!isThisYear)
+            return date.toLocaleDateString([], {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+            });
+        else if (!isToday)
+            return date.toLocaleDateString([], {
+                month: "short",
+                day: "numeric",
+            });
+        else
+            return date.toLocaleTimeString([], {
+                hour: "numeric",
+                minute: "numeric",
+            });
+    };
+
     useEffect(() => {
         const handleResize = () => {
             if (navRef.current?.offsetWidth === 0) return setNavVisible(false);
@@ -85,7 +137,7 @@ export default function MessagesLayout({
 
                 <div
                     ref={navRef}
-                    className={`lg:w-1/4 lg:block ${
+                    className={`lg:w-1/4 lg:block overflow-hidden ${
                         !preventFolding ? "hidden w-1/4" : "block w-full"
                     } border-r-[1px] border-highlight-light dark:border-highlight-dark grow-0`}
                 >
@@ -100,14 +152,14 @@ export default function MessagesLayout({
                             <PlusIcon />
                         </button>
                     </div>
-                    <nav className="flex flex-col">
+                    <nav className="flex flex-col overflow-hidden">
                         {chats?.map((chat) => (
                             <Link
                                 key={chat.id}
                                 href={`/message/${chat.id}`}
-                                className="flex justify-between items-center pl-4 pr-3 py-2 transition-colors bg-transparent duration-300 dark:hover:bg-neutral-700 hover:bg-neutral-200"
+                                className="flex justify-between items-center pl-4 pr-3 py-2 transition-colors bg-transparent duration-300 dark:hover:bg-neutral-700 hover:bg-neutral-200 w-full"
                             >
-                                <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-2 grow overflow-hidden mr-2">
                                     <Image
                                         src={
                                             getChatImage(chat) ??
@@ -118,9 +170,27 @@ export default function MessagesLayout({
                                         width={32}
                                         height={32}
                                     />
-                                    <p className="truncate">{chat.name}</p>
+                                    <div className="flex flex-col justify-between overflow-hidden">
+                                        <div className="flex flex-nowrap gap-1 items-center">
+                                            {getChatName(chat)}
+                                            <div className="flex-none grow-0 flex gap-1 items-center">
+                                                <span className="flex-none text-neutral-500">
+                                                    ·
+                                                </span>
+                                                <p className="flex-none text-neutral-500">
+                                                    {getChatTimestamp(chat)}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div className="h-[1.1em]">
+                                            <p className="truncate leading-[1.1] text-neutral-500">
+                                                {chat.latestMessage?.message ??
+                                                    " "}
+                                            </p>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="h-6 w-6">
+                                <div className="h-6 w-6 flex-none">
                                     <ChevronRightIcon className="text-neutral-500" />
                                 </div>
                             </Link>
@@ -128,7 +198,7 @@ export default function MessagesLayout({
                     </nav>
                 </div>
                 <div
-                    className={`lg:flex ${
+                    className={`lg:flex overflow-hidden ${
                         preventFolding ? "hidden" : "flex"
                     } flex-col gap-5 grow pt-2`}
                 >
@@ -141,7 +211,7 @@ export default function MessagesLayout({
                                 <ArrowLeftIcon className="h-5 w-5 text-black dark:text-white" />
                             </div>
                         )}
-                        <h2 className="text-black dark:text-white font-semibold text-xl my-2">
+                        <h2 className="text-black dark:text-white font-semibold text-xl my-2 whitespace-nowrap truncate">
                             {title}
                         </h2>
                     </div>
