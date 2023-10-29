@@ -130,7 +130,7 @@ export default function MessagesLayout({
     return (
         <>
             <Head>
-                <title>Twatter - Settings</title>
+                <title>Twatter - Messages</title>
             </Head>
             <div className="parent w-screen h-screen flex relative bg-white dark:bg-black">
                 <Navbar />
