@@ -53,7 +53,8 @@ export default function ChatInfoModal({
 
     const handleSave = useCallback(async () => {
         const newURLs: { image?: string } = {};
-        if (imageFile) newURLs.image = await uploadImage(imageFile, "banner");
+        if (imageFile)
+            newURLs.image = await uploadImage(imageFile, "chat-image");
         _updateChat(
             { chatId, ...newURLs, name },
             {
