@@ -170,8 +170,36 @@ export default function Message() {
             canBack={false}
             title={chat ? getChatName(chat) : "Loading..."}
         >
-            <div className="w-full h-full flex flex-col">
-                <div className="grow h-full flex flex-col justify-end gap-4">
+            <div className="w-full h-full flex flex-col-reverse overflow-hidden">
+                <div className="h-12 basis-12 flex-none pt-3 mb-3 flex px-2 gap-2 items-center">
+                    <form className={"w-full"}>
+                        <input
+                            type="text"
+                            disabled={isSendingChat}
+                            value={text}
+                            onChange={(e) => setText(e.target.value)}
+                            placeholder="Start a new message"
+                            className="w-full rounded-md outline-none pl-3 py-1"
+                        />
+                        <input
+                            type="submit"
+                            className="hidden"
+                            value="Send"
+                            onClick={(e) => {
+                                e.preventDefault();
+                                sendChat(text);
+                            }}
+                        />
+                    </form>
+                    <button
+                        disabled={isSendingChat}
+                        onClick={() => sendChat(text)}
+                        className="h-8 w-8 p-1 bg-transparent hover:bg-neutral-500/50 disabled:hover:bg-transparent disabled:text-neutral-500 rounded-full transition-colors"
+                    >
+                        <PaperAirplaneIcon />
+                    </button>
+                </div>
+                <div className="h-full flex flex-col-reverse gap-4 overflow-auto">
                     {batchedMsgs.map((batch, idx) => (
                         <div
                             className={[
@@ -223,23 +251,6 @@ export default function Message() {
                             )}
                         </div>
                     ))}
-                </div>
-                <div className="grow-0 h-12 pt-3 mb-3 flex px-2 gap-2 items-center">
-                    <input
-                        type="text"
-                        disabled={isSendingChat}
-                        value={text}
-                        onChange={(e) => setText(e.target.value)}
-                        placeholder="Start a new message"
-                        className="w-full rounded-md outline-none pl-3 py-1"
-                    />
-                    <button
-                        disabled={isSendingChat}
-                        onClick={() => sendChat(text)}
-                        className="h-8 w-8 p-1 bg-transparent hover:bg-neutral-500/50 disabled:hover:bg-transparent disabled:text-neutral-500 rounded-full transition-colors"
-                    >
-                        <PaperAirplaneIcon />
-                    </button>
                 </div>
             </div>
         </MessagesLayout>

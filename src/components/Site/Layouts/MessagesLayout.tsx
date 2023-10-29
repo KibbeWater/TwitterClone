@@ -137,7 +137,7 @@ export default function MessagesLayout({
 
                 <div
                     ref={navRef}
-                    className={`lg:w-1/4 lg:block overflow-hidden ${
+                    className={`lg:w-1/4 lg:block overflow-hidden lg:shrink-0 ${
                         !preventFolding ? "hidden w-1/4" : "block w-full"
                     } border-r-[1px] border-highlight-light dark:border-highlight-dark grow-0`}
                 >
@@ -222,9 +222,9 @@ export default function MessagesLayout({
                         </p>
                     )}
 
-                    <main className="h-full">{children}</main>
+                    <main className="grow overflow-hidden">{children}</main>
                 </div>
-                <div className="w-1/6 grow-0 border-l-[1px] lg:block hidden border-highlight-light dark:border-highlight-dark"></div>
+                <div className="w-1/6 grow-0 shrink-0 border-l-[1px] lg:block hidden border-highlight-light dark:border-highlight-dark"></div>
             </div>
         </>
     );
