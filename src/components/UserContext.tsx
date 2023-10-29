@@ -20,7 +20,7 @@ export default function UserContext({
     return (
         <div
             className={[
-                "w-full h-16 flex gap-3 px-4 py-2 transition-colors hover:bg-black/20 dark:hover:bg-white/5",
+                "w-full flex gap-3 px-4 py-2 transition-colors hover:bg-black/20 dark:hover:bg-white/5",
                 className,
             ].join(" ")}
             onClick={onClick}

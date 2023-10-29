@@ -40,6 +40,11 @@ export const env = createEnv({
         CLOUDFRONT_DDN: z.string().min(1),
 
         OPENAI_API_KEY: z.string().min(1),
+
+        PUSHER_APP_ID: z.string().min(1),
+        PUSHER_APP_KEY: z.string().min(1),
+        PUSHER_APP_SECRET: z.string().min(1),
+        PUSHER_APP_CLUSTER: z.string().min(1),
     },
 
     /**
@@ -48,7 +53,8 @@ export const env = createEnv({
      * `NEXT_PUBLIC_`.
      */
     client: {
-        // NEXT_PUBLIC_CLIENTVAR: z.string().min(1),
+        NEXT_PUBLIC_PUSHER_KEY: z.string().min(1),
+        NEXT_PUBLIC_PUSHER_CLUSTER: z.string().min(1),
     },
 
     /**
@@ -81,6 +87,14 @@ export const env = createEnv({
         CLOUDFRONT_DDN: process.env.CLOUDFRONT_DDN,
 
         OPENAI_API_KEY: process.env.OPENAI_API_KEY,
+
+        PUSHER_APP_ID: process.env.PUSHER_APP_ID,
+        PUSHER_APP_KEY: process.env.PUSHER_APP_KEY,
+        PUSHER_APP_SECRET: process.env.PUSHER_APP_SECRET,
+        PUSHER_APP_CLUSTER: process.env.PUSHER_APP_CLUSTER,
+
+        NEXT_PUBLIC_PUSHER_KEY: process.env.NEXT_PUBLIC_PUSHER_KEY,
+        NEXT_PUBLIC_PUSHER_CLUSTER: process.env.NEXT_PUBLIC_PUSHER_CLUSTER,
     },
     /**
      * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation.

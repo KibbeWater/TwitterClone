@@ -71,7 +71,7 @@ export default function ModalHandler({
                         style={{
                             backgroundColor: modal
                                 ? bgOverride ?? defaultBgColor
-                                : "rgba(50, 50, 50, 0)",
+                                : "rgba(100, 100, 100, 0)",
                         }}
                         onMouseDown={(e) => {
                             if (e.target === e.currentTarget) closeModal();
