@@ -38,10 +38,11 @@ export default function MessagesLayout({
     const { data: chats, refetch: refetchChats } = api.chat.fetchChats.useQuery(
         {},
     );
-    const { data: _hasUnreadChats } = api.chat.hasUnreadMessages.useQuery(
-        { chatId: chats?.map((chat) => chat.id) ?? [] },
-        /* { refetchInterval: 1000 }, */
-    );
+    const { data: _hasUnreadChats, refetch: refetchUnreads } =
+        api.chat.hasUnreadMessages.useQuery(
+            { chatId: chats?.map((chat) => chat.id) ?? [] },
+            { refetchInterval: 30000 },
+        );
     const unreadChats =
         typeof _hasUnreadChats === "object" ? _hasUnreadChats : null;
 
@@ -120,18 +121,33 @@ export default function MessagesLayout({
     }, [navVisible]);
 
     useEffect(() => {
+        setTimeout(() => {
+            refetchUnreads().catch(console.error);
+        }, 2000);
+    }, [router.asPath, refetchUnreads]);
+
+    useEffect(() => {
         if (!session?.user.id) return;
         const channelName = session.user.id;
         const channel = pusher.subscribe(channelName);
 
-        channel.bind("new-chat", () => refetchChats());
+        channel.bind("new-chat", () => {
+            refetchChats().catch(console.error);
+            refetchUnreads().catch(console.error);
+        });
+
+        channel.bind("new-message", () => {
+            refetchChats().catch(console.error);
+            refetchUnreads().catch(console.error);
+        });
 
         return () => {
             channel.unbind("new-chat");
+            channel.unbind("new-message");
 
             pusher.unsubscribe(channelName);
         };
-    }, [refetchChats, session?.user.id]);
+    }, [refetchChats, refetchUnreads, session?.user.id]);
 
     return (
         <>

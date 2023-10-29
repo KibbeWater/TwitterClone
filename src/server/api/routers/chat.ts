@@ -271,6 +271,9 @@ export const chatRouter = createTRPCRouter({
                     data: {
                         Read: {
                             set: [],
+                            connect: {
+                                id: ctx.session.user.id,
+                            },
                         },
                     },
                 }),
@@ -278,7 +281,7 @@ export const chatRouter = createTRPCRouter({
 
             try {
                 await pusherServer.trigger(
-                    `chat-${newMessage.chatId}`,
+                    [`chat-${newMessage.chatId}`, ...chat.participantIds],
                     "new-message",
                     null,
                 );
