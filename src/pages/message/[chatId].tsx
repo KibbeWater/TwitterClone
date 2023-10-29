@@ -237,7 +237,7 @@ export default function Message() {
                     </button>
                 </div>
                 <div className="h-full flex flex-col-reverse gap-4 overflow-auto">
-                    {batchedMsgs.map((batch, batchIdx, batchArr) => (
+                    {batchedMsgs.reverse().map((batch, batchIdx, batchArr) => (
                         <div
                             className={[
                                 "w-full flex flex-col px-4",
