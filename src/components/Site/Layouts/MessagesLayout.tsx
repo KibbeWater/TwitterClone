@@ -276,7 +276,14 @@ export default function MessagesLayout({
                         )}
                     </div>
 
-                    <main className="grow overflow-hidden">{children}</main>
+                    <main
+                        className={[
+                            "grow overflow-hidden",
+                            !solidHeader && "pt-14",
+                        ].join(" ")}
+                    >
+                        {children}
+                    </main>
                 </div>
                 <div className="w-1/6 grow-0 shrink-0 border-l-[1px] lg:block hidden border-highlight-light dark:border-highlight-dark"></div>
             </div>
