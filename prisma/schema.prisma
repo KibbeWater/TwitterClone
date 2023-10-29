@@ -122,6 +122,7 @@ model Role {
 model Chat {
     id             String    @id @default(auto()) @map("_id") @db.ObjectId
     name           String
+    image          String?
     participantIds String[]  @db.ObjectId
     participants   User[]    @relation(name: "Chat2User", fields: [participantIds], references: [id])
     Messages       Message[]

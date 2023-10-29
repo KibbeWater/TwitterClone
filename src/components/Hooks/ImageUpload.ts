@@ -39,7 +39,10 @@ export function useImageUploader() {
     const rules = ruleData ?? defaultRules;
 
     const uploadImage = useCallback<
-        (file: File, type: "image" | "banner" | "avatar") => Promise<string>
+        (
+            file: File,
+            type: "image" | "banner" | "avatar" | "chat-image",
+        ) => Promise<string>
     >(
         (file, type) => {
             return new Promise((resolve, reject) => {

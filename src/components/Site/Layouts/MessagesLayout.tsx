@@ -1,5 +1,6 @@
 import { ChevronRightIcon, PlusIcon } from "@heroicons/react/20/solid";
 import { ArrowLeftIcon } from "@heroicons/react/24/solid";
+import { InformationCircleIcon } from "@heroicons/react/24/outline";
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -18,14 +19,19 @@ type Props = {
     description?: string;
     children?: React.ReactNode;
     preventFolding?: boolean;
+    solidHeader?: boolean;
+    enableInfo?: boolean;
+    handleInfoClick?: () => void;
 };
 
 export default function MessagesLayout({
     title,
-    description,
     children,
     canBack = true,
     preventFolding,
+    solidHeader,
+    enableInfo,
+    handleInfoClick,
 }: Props) {
     const [navVisible, setNavVisible] = useState(false);
 
@@ -47,8 +53,10 @@ export default function MessagesLayout({
         typeof _hasUnreadChats === "object" ? _hasUnreadChats : null;
 
     const getChatImage = (chat: {
+        image?: string | null;
         participants: { id: string; image: string | null }[];
     }) => {
+        if (chat.image) return chat.image;
         const user = chat.participants.find(
             (participant) =>
                 participant.id !== session?.user.id &&
@@ -188,16 +196,18 @@ export default function MessagesLayout({
                                 ].join(" ")}
                             >
                                 <div className="flex items-center gap-2 grow overflow-hidden mr-2">
-                                    <Image
-                                        src={
-                                            getChatImage(chat) ??
-                                            "/assets/imgs/default-avatar.png"
-                                        }
-                                        alt="Profile picture"
-                                        className="rounded-full"
-                                        width={32}
-                                        height={32}
-                                    />
+                                    <div className="shrink-0">
+                                        <Image
+                                            src={
+                                                getChatImage(chat) ??
+                                                "/assets/imgs/default-avatar.png"
+                                            }
+                                            alt="Profile picture"
+                                            className="rounded-full object-cover h-8 w-8"
+                                            width={32}
+                                            height={32}
+                                        />
+                                    </div>
                                     <div className="flex flex-col w-full justify-between overflow-hidden">
                                         <div className="w-full flex items-center justify-between gap-2">
                                             <div className="flex flex-nowrap gap-1 items-center">
@@ -233,29 +243,38 @@ export default function MessagesLayout({
                     </nav>
                 </div>
                 <div
-                    className={`lg:flex overflow-hidden ${
+                    className={`lg:flex overflow-hidden relative ${
                         preventFolding ? "hidden" : "flex"
-                    } flex-col gap-5 grow pt-2`}
+                    } flex-col grow`}
                 >
-                    <div className="ml-3 flex items-center gap-4">
-                        {(canBack || !navVisible) && (
-                            <div
-                                onClick={() => router.back()}
-                                className="h-full flex justify-center items-center aspect-square rounded-full p-2 hover:bg-gray-600/25 transition-colors bg-transparent cursor-pointer"
+                    <div
+                        className={[
+                            "flex w-full justify-between items-center pr-2 py-1 backdrop-blur-md dark:bg-black/30 bg-white/30",
+                            !solidHeader ? "absolute top-0 left-0" : undefined,
+                        ].join(" ")}
+                    >
+                        <div className="ml-3 flex items-center gap-4 overflow-hidden">
+                            {(canBack || !navVisible) && (
+                                <div
+                                    onClick={() => router.back()}
+                                    className="h-full flex justify-center items-center aspect-square rounded-full p-2 hover:bg-gray-600/25 transition-colors bg-transparent cursor-pointer"
+                                >
+                                    <ArrowLeftIcon className="h-5 w-5 text-black dark:text-white" />
+                                </div>
+                            )}
+                            <h2 className="text-black dark:text-white font-semibold text-xl my-2 whitespace-nowrap truncate">
+                                {title}
+                            </h2>
+                        </div>
+                        {enableInfo && (
+                            <button
+                                onClick={() => handleInfoClick?.()}
+                                className="w-9 h-9 p-[6px] flex-none hover:bg-neutral-500/30 transition-colors rounded-full"
                             >
-                                <ArrowLeftIcon className="h-5 w-5 text-black dark:text-white" />
-                            </div>
+                                <InformationCircleIcon className="w-full h-full" />
+                            </button>
                         )}
-                        <h2 className="text-black dark:text-white font-semibold text-xl my-2 whitespace-nowrap truncate">
-                            {title}
-                        </h2>
                     </div>
-
-                    {description && (
-                        <p className="px-3 text-sm text-neutral-500">
-                            {description}
-                        </p>
-                    )}
 
                     <main className="grow overflow-hidden">{children}</main>
                 </div>

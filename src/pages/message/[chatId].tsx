@@ -206,6 +206,10 @@ export default function Message() {
         <MessagesLayout
             canBack={false}
             title={chat ? getChatName(chat) : "Loading..."}
+            enableInfo
+            handleInfoClick={() => {
+                router.push(`/message/${chatId}/info`).catch(console.error);
+            }}
         >
             <div className="w-full h-full flex flex-col-reverse overflow-hidden">
                 <div className="h-12 basis-12 flex-none pt-3 mb-3 flex px-2 gap-2 items-center">

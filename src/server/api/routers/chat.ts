@@ -12,6 +12,7 @@ export const chatRouter = createTRPCRouter({
                 select: {
                     id: true,
                     name: true,
+                    image: true,
                     participants: {
                         select: {
                             id: true,
@@ -67,12 +68,15 @@ export const chatRouter = createTRPCRouter({
                 select: {
                     id: true,
                     name: true,
+                    image: true,
                     participants: {
                         select: {
                             id: true,
                             name: true,
                             tag: true,
                             image: true,
+                            verified: true,
+                            followerIds: true,
                         },
                     },
                 },
@@ -349,5 +353,126 @@ export const chatRouter = createTRPCRouter({
                     },
                 })) > 0
             );
+        }),
+
+    leaveChat: protectedProcedure
+        .input(z.object({ chatId: z.string() }))
+        .mutation(async ({ ctx, input }) => {
+            const { chatId } = input;
+
+            const chat = await ctx.prisma.chat.findUnique({
+                where: {
+                    id: chatId,
+                    participantIds: {
+                        has: ctx.session.user.id,
+                    },
+                },
+            });
+
+            if (!chat)
+                throw new TRPCError({
+                    code: "NOT_FOUND",
+                    message: "You are not a member of any chats by that ID.",
+                    cause: "The chat ID is invalid or you are not a member of the chat.",
+                });
+
+            const updatedChat = await ctx.prisma.chat.update({
+                where: {
+                    id: chatId,
+                },
+                data: {
+                    participants: {
+                        disconnect: {
+                            id: ctx.session.user.id,
+                        },
+                    },
+                },
+                select: {
+                    id: true,
+                    name: true,
+                    participants: {
+                        select: {
+                            id: true,
+                            name: true,
+                            tag: true,
+                            image: true,
+                        },
+                    },
+                },
+            });
+
+            try {
+                await pusherServer.trigger(
+                    updatedChat.participants.map((u) => u.id),
+                    "new-chat",
+                    null,
+                );
+            } catch (err) {
+                console.error(err);
+            }
+
+            return updatedChat;
+        }),
+
+    updateChat: protectedProcedure
+        .input(
+            z.object({
+                chatId: z.string(),
+                name: z.string().optional(),
+                image: z.string().optional(),
+            }),
+        )
+        .mutation(async ({ ctx, input }) => {
+            const { chatId, name, image } = input;
+
+            const chat = await ctx.prisma.chat.findUnique({
+                where: {
+                    id: chatId,
+                    participantIds: {
+                        has: ctx.session.user.id,
+                    },
+                },
+            });
+
+            if (!chat)
+                throw new TRPCError({
+                    code: "NOT_FOUND",
+                    message: "You are not a member of any chats by that ID.",
+                    cause: "The chat ID is invalid or you are not a member of the chat.",
+                });
+
+            const newChat = await ctx.prisma.chat.update({
+                where: {
+                    id: chatId,
+                },
+                data: {
+                    name,
+                    image,
+                },
+                select: {
+                    id: true,
+                    name: true,
+                    participants: {
+                        select: {
+                            id: true,
+                            name: true,
+                            tag: true,
+                            image: true,
+                        },
+                    },
+                },
+            });
+
+            try {
+                await pusherServer.trigger(
+                    newChat.participants.map((u) => u.id),
+                    "new-chat",
+                    null,
+                );
+            } catch (err) {
+                console.error(err);
+            }
+
+            return newChat;
         }),
 });

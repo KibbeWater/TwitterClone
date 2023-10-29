@@ -22,6 +22,7 @@ const maxSizes = {
     image: 20 * 1024 * 1024, // 20 MB
     banner: 10 * 1024 * 1024, // 10 MB
     avatar: 6 * 1024 * 1024, // 6 MB
+    "chat-image": 6 * 1024 * 1024, // 6 MB
 };
 
 const permittedImageTypes = ["image/jpeg", "image/png", "image/webp"];
@@ -34,6 +35,7 @@ export const s3Router = createTRPCRouter({
                     z.literal("image"),
                     z.literal("banner"),
                     z.literal("avatar"),
+                    z.literal("chat-image"),
                 ]),
                 filename: z.string(),
                 filetype: z.string(),
