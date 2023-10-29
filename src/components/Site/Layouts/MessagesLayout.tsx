@@ -195,7 +195,11 @@ export default function MessagesLayout({
                                                     </p>
                                                 </div>
                                             </div>
-                                            <div className="w-2 h-2 rounded-full bg-accent-primary-500 flex justify-self-end" />
+                                            {unreadChats?.findIndex(
+                                                (c) => c.id == chat.id,
+                                            ) !== -1 && (
+                                                <div className="w-2 h-2 rounded-full bg-accent-primary-500 flex justify-self-end" />
+                                            )}
                                         </div>
                                         <div className="h-[1.1em]">
                                             <p className="truncate leading-[1.1] text-neutral-500">
