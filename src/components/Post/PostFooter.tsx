@@ -66,6 +66,7 @@ export default function PostFooter({
                             />,
                         );
                     }}
+                    aria-label="Comment"
                     className={
                         "border-0 p-1 h-8 w-8 mr-1 rounded-full flex items-center justify-center transition-colors bg-black/0 cursor-pointer hover:bg-red-500/40 group/btnComment"
                     }
