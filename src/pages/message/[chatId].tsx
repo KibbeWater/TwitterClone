@@ -42,7 +42,6 @@ export default function Message() {
         data,
         refetch: refetchMessages,
         fetchNextPage,
-        isLoading,
     } = api.chat.fetchMessages.useInfiniteQuery(
         {
             chatId,
