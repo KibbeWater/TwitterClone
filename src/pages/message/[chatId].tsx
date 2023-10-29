@@ -2,6 +2,7 @@ import { PaperAirplaneIcon } from "@heroicons/react/24/solid";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useInView } from "react-intersection-observer";
 
 import MessagesLayout from "~/components/Site/Layouts/MessagesLayout";
 import { api, pusher } from "~/utils/api";
@@ -37,18 +38,55 @@ export default function Message() {
         { chatId },
         { enabled: !!chatId },
     );
-    const { data: messages, refetch: refetchMessages } =
-        api.chat.fetchMessages.useQuery(
-            {
-                chatId,
-            },
-            { enabled: !!chatId },
-        );
+    const {
+        data,
+        refetch: refetchMessages,
+        fetchNextPage,
+        isLoading,
+    } = api.chat.fetchMessages.useInfiniteQuery(
+        {
+            chatId,
+        },
+        {
+            enabled: !!chatId,
+            getNextPageParam: (lastPage) => lastPage.nextCursor,
+        },
+    );
+
+    const { ref: loadingRef, inView } = useInView();
+
+    const handleFetchNextPage = useCallback(async () => {
+        await fetchNextPage();
+    }, [fetchNextPage]);
+
+    const messages = useMemo(
+        () =>
+            data?.pages.reduce(
+                (acc, cur) => [...acc, ...cur.items],
+                [] as {
+                    message: string;
+                    id: string;
+                    createdAt: Date;
+                    userId: string;
+                    sender: {
+                        name: string | null;
+                        id: string;
+                        tag: string | null;
+                        image: string | null;
+                    };
+                }[],
+            ) ?? [],
+        [data?.pages],
+    );
 
     useEffect(() => {
         setStreamedMessages([]);
         setLocalMessages([]);
     }, [messages]);
+
+    useEffect(() => {
+        if (inView) handleFetchNextPage().catch(console.error);
+    }, [inView, handleFetchNextPage]);
 
     useEffect(() => {
         const channelName = `chat-${chatId}`;
@@ -200,13 +238,13 @@ export default function Message() {
                     </button>
                 </div>
                 <div className="h-full flex flex-col-reverse gap-4 overflow-auto">
-                    {batchedMsgs.map((batch, idx) => (
+                    {batchedMsgs.map((batch, batchIdx, batchArr) => (
                         <div
                             className={[
                                 "w-full flex flex-col px-4",
                                 batch[0] && isSender(batch[0]) && "items-end",
                             ].join(" ")}
-                            key={`batch-${idx}`}
+                            key={`batch-${batchIdx}`}
                         >
                             <div
                                 className={[
@@ -225,6 +263,12 @@ export default function Message() {
                                                 isSender(batch[0]) &&
                                                 "justify-end",
                                         ].join(" ")}
+                                        ref={
+                                            idx === 0 &&
+                                            batchIdx === batchArr.length - 1
+                                                ? loadingRef
+                                                : undefined
+                                        }
                                     >
                                         <p
                                             className={[

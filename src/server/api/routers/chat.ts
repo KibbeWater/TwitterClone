@@ -83,9 +83,27 @@ export const chatRouter = createTRPCRouter({
         }),
 
     fetchMessages: protectedProcedure
-        .input(z.object({ chatId: z.string() }))
+        .input(
+            z.object({
+                chatId: z.string(),
+                limit: z.number().optional(),
+                cursor: z.string().nullish(),
+                skip: z.number().optional(),
+            }),
+        )
         .query(async ({ ctx, input }) => {
-            return await ctx.prisma.message.findMany({
+            const { limit, cursor, skip, chatId } = input;
+
+            const items = await ctx.prisma.message.findMany({
+                take: (limit ?? 15) + 1,
+                skip: skip,
+                cursor: cursor ? { id: cursor } : undefined,
+                orderBy: {
+                    createdAt: "desc",
+                },
+                where: {
+                    chatId,
+                },
                 select: {
                     id: true,
                     message: true,
@@ -100,13 +118,17 @@ export const chatRouter = createTRPCRouter({
                         },
                     },
                 },
-                where: {
-                    chatId: input.chatId,
-                },
-                orderBy: {
-                    createdAt: "asc",
-                },
             });
+
+            let nextCursor: typeof cursor | undefined = undefined;
+            if (items.length > (limit ?? 15)) {
+                const nextItem = items.pop();
+                nextCursor = nextItem?.id;
+            }
+            return {
+                items,
+                nextCursor,
+            };
         }),
 
     createChat: protectedProcedure
