@@ -94,31 +94,62 @@ export const chatRouter = createTRPCRouter({
         .query(async ({ ctx, input }) => {
             const { limit, cursor, skip, chatId } = input;
 
-            const items = await ctx.prisma.message.findMany({
-                take: (limit ?? 15) + 1,
-                skip: skip,
-                cursor: cursor ? { id: cursor } : undefined,
-                orderBy: {
-                    createdAt: "desc",
-                },
-                where: {
-                    chatId,
-                },
-                select: {
-                    id: true,
-                    message: true,
-                    createdAt: true,
-                    userId: true,
-                    sender: {
-                        select: {
-                            id: true,
-                            name: true,
-                            tag: true,
-                            image: true,
+            const [chat, items] = await ctx.prisma.$transaction([
+                ctx.prisma.chat.findUnique({
+                    where: {
+                        id: chatId,
+                        participantIds: {
+                            has: ctx.session.user.id,
                         },
                     },
-                },
-            });
+                }),
+                ctx.prisma.message.findMany({
+                    take: (limit ?? 15) + 1,
+                    skip: skip,
+                    cursor: cursor ? { id: cursor } : undefined,
+                    orderBy: {
+                        createdAt: "desc",
+                    },
+                    where: {
+                        chatId,
+                    },
+                    select: {
+                        id: true,
+                        message: true,
+                        createdAt: true,
+                        userId: true,
+                        sender: {
+                            select: {
+                                id: true,
+                                name: true,
+                                tag: true,
+                                image: true,
+                            },
+                        },
+                    },
+                }),
+            ]);
+
+            if (!chat)
+                throw new TRPCError({
+                    code: "NOT_FOUND",
+                    message: "You are not a member of any chats by that ID.",
+                    cause: "The chat ID is invalid or you are not a member of the chat.",
+                });
+
+            if (!skip)
+                await ctx.prisma.chat.update({
+                    where: {
+                        id: chatId,
+                    },
+                    data: {
+                        Read: {
+                            connect: {
+                                id: ctx.session.user.id,
+                            },
+                        },
+                    },
+                });
 
             let nextCursor: typeof cursor | undefined = undefined;
             if (items.length > (limit ?? 15)) {
@@ -202,36 +233,48 @@ export const chatRouter = createTRPCRouter({
                     cause: "The chat ID is invalid or you are not a member of the chat.",
                 });
 
-            const newMessage = await ctx.prisma.message.create({
-                data: {
-                    message,
-                    sender: {
-                        connect: {
-                            id: ctx.session.user.id,
+            const [newMessage] = await ctx.prisma.$transaction([
+                ctx.prisma.message.create({
+                    data: {
+                        message,
+                        sender: {
+                            connect: {
+                                id: ctx.session.user.id,
+                            },
+                        },
+                        chat: {
+                            connect: {
+                                id: chatId,
+                            },
                         },
                     },
-                    chat: {
-                        connect: {
-                            id: chatId,
+                    select: {
+                        id: true,
+                        message: true,
+                        createdAt: true,
+                        userId: true,
+                        chatId: true,
+                        sender: {
+                            select: {
+                                id: true,
+                                name: true,
+                                tag: true,
+                                image: true,
+                            },
                         },
                     },
-                },
-                select: {
-                    id: true,
-                    message: true,
-                    createdAt: true,
-                    userId: true,
-                    chatId: true,
-                    sender: {
-                        select: {
-                            id: true,
-                            name: true,
-                            tag: true,
-                            image: true,
+                }),
+                ctx.prisma.chat.update({
+                    where: {
+                        id: chatId,
+                    },
+                    data: {
+                        Read: {
+                            set: [],
                         },
                     },
-                },
-            });
+                }),
+            ]);
 
             try {
                 await pusherServer.trigger(
@@ -244,5 +287,64 @@ export const chatRouter = createTRPCRouter({
             }
 
             return newMessage;
+        }),
+
+    hasUnreadMessages: protectedProcedure
+        .input(
+            z.object({
+                chatId: z.union([z.string(), z.array(z.string())]).optional(),
+            }),
+        )
+        .output(
+            z.union([
+                z.boolean(),
+                z.array(
+                    z.object({
+                        id: z.string(),
+                        hasUnreadMessages: z.boolean(),
+                    }),
+                ),
+            ]),
+        )
+        .query(async ({ ctx, input }) => {
+            const { chatId } = input;
+
+            if (typeof chatId === "object" && chatId !== undefined)
+                return (
+                    await ctx.prisma.chat.findMany({
+                        where: {
+                            participantIds: {
+                                has: ctx.session.user.id,
+                            },
+                            Read: {
+                                none: {
+                                    id: ctx.session.user.id,
+                                },
+                            },
+                            id: {
+                                in: chatId,
+                            },
+                        },
+                    })
+                ).map((c) => ({
+                    id: c.id,
+                    hasUnreadMessages: true,
+                }));
+
+            return (
+                (await ctx.prisma.chat.count({
+                    where: {
+                        participantIds: {
+                            has: ctx.session.user.id,
+                        },
+                        Read: {
+                            none: {
+                                id: ctx.session.user.id,
+                            },
+                        },
+                        id: chatId,
+                    },
+                })) > 0
+            );
         }),
 });

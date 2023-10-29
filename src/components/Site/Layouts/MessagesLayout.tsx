@@ -38,6 +38,12 @@ export default function MessagesLayout({
     const { data: chats, refetch: refetchChats } = api.chat.fetchChats.useQuery(
         {},
     );
+    const { data: _hasUnreadChats } = api.chat.hasUnreadMessages.useQuery(
+        { chatId: chats?.map((chat) => chat.id) ?? [] },
+        /* { refetchInterval: 1000 }, */
+    );
+    const unreadChats =
+        typeof _hasUnreadChats === "object" ? _hasUnreadChats : null;
 
     const getChatImage = (chat: {
         participants: { id: string; image: string | null }[];
@@ -157,7 +163,13 @@ export default function MessagesLayout({
                             <Link
                                 key={chat.id}
                                 href={`/message/${chat.id}`}
-                                className="flex justify-between items-center pl-4 pr-3 py-2 transition-colors bg-transparent duration-300 dark:hover:bg-neutral-700 hover:bg-neutral-200 w-full"
+                                className={[
+                                    unreadChats?.findIndex(
+                                        (c) => c.id == chat.id,
+                                    ) !== -1 &&
+                                        "dark:bg-gray-300/20 bg-gray-700/25",
+                                    "flex justify-between items-center pl-4 pr-3 py-2 transition-colors bg-transparent duration-300 dark:hover:bg-neutral-700 hover:bg-neutral-200 w-full",
+                                ].join(" ")}
                             >
                                 <div className="flex items-center gap-2 grow overflow-hidden mr-2">
                                     <Image
@@ -170,17 +182,20 @@ export default function MessagesLayout({
                                         width={32}
                                         height={32}
                                     />
-                                    <div className="flex flex-col justify-between overflow-hidden">
-                                        <div className="flex flex-nowrap gap-1 items-center">
-                                            {getChatName(chat)}
-                                            <div className="flex-none grow-0 flex gap-1 items-center">
-                                                <span className="flex-none text-neutral-500">
-                                                    ·
-                                                </span>
-                                                <p className="flex-none text-neutral-500">
-                                                    {getChatTimestamp(chat)}
-                                                </p>
+                                    <div className="flex flex-col w-full justify-between overflow-hidden">
+                                        <div className="w-full flex items-center justify-between gap-2">
+                                            <div className="flex flex-nowrap gap-1 items-center">
+                                                {getChatName(chat)}
+                                                <div className="flex-none grow-0 flex gap-1 items-center">
+                                                    <span className="flex-none text-neutral-500">
+                                                        ·
+                                                    </span>
+                                                    <p className="flex-none text-neutral-500">
+                                                        {getChatTimestamp(chat)}
+                                                    </p>
+                                                </div>
                                             </div>
+                                            <div className="w-2 h-2 rounded-full bg-accent-primary-500 flex justify-self-end" />
                                         </div>
                                         <div className="h-[1.1em]">
                                             <p className="truncate leading-[1.1] text-neutral-500">
