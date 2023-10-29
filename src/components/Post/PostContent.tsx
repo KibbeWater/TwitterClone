@@ -21,7 +21,7 @@ export default function PostContent({ post }: { post: { content: string } }) {
                                             <Link
                                                 key={idx}
                                                 href={`/user/${username}`}
-                                                className="text-blue-500 dark:text-blue-400 cursor-pointer"
+                                                className="text-blue-500 dark:text-blue-400 cursor-pointer hover:underline"
                                                 prefetch={false}
                                                 onClick={(e) =>
                                                     e.stopPropagation()
@@ -43,7 +43,7 @@ export default function PostContent({ post }: { post: { content: string } }) {
                                                 href={`/link?l=${encodeURIComponent(
                                                     word,
                                                 )}`}
-                                                className="text-blue-500 dark:text-blue-400 cursor-pointer"
+                                                className="text-blue-500 dark:text-blue-400 cursor-pointer hover:underline"
                                                 target="_blank"
                                                 onClick={(e) =>
                                                     e.stopPropagation()
