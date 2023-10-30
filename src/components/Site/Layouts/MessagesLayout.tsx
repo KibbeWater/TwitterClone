@@ -232,8 +232,21 @@ export default function MessagesLayout({
                                         </div>
                                         <div className="h-[1.1em]">
                                             <p className="truncate leading-[1.1] text-neutral-500">
-                                                {chat.latestMessage?.message ??
-                                                    " "}
+                                                {!chat.latestMessage
+                                                    ?.message ? (
+                                                    chat.latestMessage
+                                                        ?.image ? (
+                                                        <span className="text-neutral-500">
+                                                            Photo
+                                                        </span>
+                                                    ) : (
+                                                        <span className="text-neutral-500">
+                                                            No messages
+                                                        </span>
+                                                    )
+                                                ) : (
+                                                    chat.latestMessage?.message
+                                                )}
                                             </p>
                                         </div>
                                     </div>

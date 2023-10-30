@@ -461,30 +461,35 @@ export default function Message() {
                                                     </div>
                                                 </div>
                                             )}
-                                            <div
-                                                className={[
-                                                    "flex",
-                                                    batch[0] &&
-                                                        isSender(batch[0]) &&
-                                                        "justify-end",
-                                                ].join(" ")}
-                                            >
-                                                <p
+                                            {msg.message && (
+                                                <div
                                                     className={[
-                                                        "px-4 py-2 rounded-t-3xl overflow-hidden text-white text-right",
-                                                        isSender(msg)
-                                                            ? "bg-accent-primary-500"
-                                                            : "bg-neutral-800",
-                                                        idx === arr.length - 1
-                                                            ? !isSender(msg)
-                                                                ? "rounded-bl-[4px] rounded-br-3xl"
-                                                                : "rounded-br-[4px] rounded-bl-3xl"
-                                                            : "rounded-b-3xl",
+                                                        "flex",
+                                                        batch[0] &&
+                                                            isSender(
+                                                                batch[0],
+                                                            ) &&
+                                                            "justify-end",
                                                     ].join(" ")}
                                                 >
-                                                    {msg.message}
-                                                </p>
-                                            </div>
+                                                    <p
+                                                        className={[
+                                                            "px-4 py-2 rounded-t-3xl overflow-hidden text-white text-right",
+                                                            isSender(msg)
+                                                                ? "bg-accent-primary-500"
+                                                                : "bg-neutral-800",
+                                                            idx ===
+                                                            arr.length - 1
+                                                                ? !isSender(msg)
+                                                                    ? "rounded-bl-[4px] rounded-br-3xl"
+                                                                    : "rounded-br-[4px] rounded-bl-3xl"
+                                                                : "rounded-b-3xl",
+                                                        ].join(" ")}
+                                                    >
+                                                        {msg.message}
+                                                    </p>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 ))}
