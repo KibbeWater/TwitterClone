@@ -192,7 +192,10 @@ export default function MessagesLayout({
                                         (c) => c.id == chat.id,
                                     ) !== -1 &&
                                         "dark:bg-gray-300/20 bg-gray-700/25",
-                                    "flex justify-between items-center pl-4 pr-3 py-2 transition-colors bg-transparent duration-300 dark:hover:bg-neutral-700 hover:bg-neutral-200 w-full",
+                                    "flex justify-between items-center pl-4 pr-3 py-2 transition-colors bg-transparent duration-300 dark:hover:bg-neutral-700 hover:bg-neutral-200 w-full border-r-[1px]",
+                                    router.asPath.endsWith(chat.id)
+                                        ? "border-accent-primary-500 dark:bg-neutral-700/30 bg-neutral-200/40"
+                                        : "border-transparent",
                                 ].join(" ")}
                             >
                                 <div className="flex items-center gap-2 grow overflow-hidden mr-2">
