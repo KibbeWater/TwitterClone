@@ -209,9 +209,9 @@ export default function Navbar() {
                                                 .includes(
                                                     router.asPath.toLowerCase(),
                                                 ) ? (
-                                                <link.iconOutline className="text-2xl text-black dark:text-white" />
+                                                <link.iconOutline className="text-2xl text-black dark:text-white w-8 h-8" />
                                             ) : (
-                                                <link.iconSolid className="text-2xl text-black dark:text-white" />
+                                                <link.iconSolid className="text-2xl text-black dark:text-white w-8 h-8" />
                                             )}
                                             {link.badge !== undefined ? (
                                                 <div
@@ -256,9 +256,9 @@ export default function Navbar() {
                                             .includes(
                                                 router.asPath.toLowerCase(),
                                             ) ? (
-                                            <link.iconOutline className="text-2xl text-black dark:text-white" />
+                                            <link.iconOutline className="text-2xl text-black dark:text-white w-8 h-8" />
                                         ) : (
-                                            <link.iconSolid className="text-2xl text-black dark:text-white" />
+                                            <link.iconSolid className="text-2xl text-black dark:text-white w-8 h-8" />
                                         )}
                                         {link.badge !== undefined ? (
                                             <div
@@ -297,7 +297,7 @@ export default function Navbar() {
                         onClick={() => setModal(<PostModal />)}
                         disabled={!session}
                     >
-                        <PencilIcon className="m-4 text-2xl text-white transition-all opacity-100 lg:opacity-0 block lg:!hidden" />
+                        <PencilIcon className="m-4 text-2xl text-white transition-all opacity-100 lg:opacity-0 block lg:!hidden w-8 h-8" />
                         <span className="hidden transition-all lg:block text-lg font-bold opacity-0 lg:opacity-100 text-white">
                             Twaat
                         </span>
