@@ -47,7 +47,7 @@ export default function PostComposer({
         onError: () => setTempDisabled(true),
     });
 
-    const { uploadImage, rules } = useImageUploader();
+    const { uploadImage, rules, isUploading } = useImageUploader();
     const { sizes: maxSizes, types } = rules;
 
     const { data: session } = useSession();
@@ -298,7 +298,12 @@ export default function PostComposer({
                                     "disabled:bg-red-800 disabled:text-gray-200 disabled:cursor-default transition-all duration-300"
                                 }
                                 onClick={btnPostClick}
-                                disabled={!text || isLoading || tempDisabled}
+                                disabled={
+                                    !text ||
+                                    isLoading ||
+                                    tempDisabled ||
+                                    isUploading
+                                }
                             >
                                 {btnText ?? "Twaat"}
                             </button>
