@@ -1,7 +1,9 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
+import { env } from "~/env.mjs";
 
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
+import { s3Client } from "~/server/s3";
 import {
     PERMISSIONS,
     administrativePermissions,
@@ -42,6 +44,7 @@ export const adminRouter = createTRPCRouter({
                 },
             });
         }),
+
     setUserTagCooldown: protectedProcedure
         .input(
             z.object({
@@ -349,5 +352,115 @@ export const adminRouter = createTRPCRouter({
                     email,
                 },
             });
+        }),
+
+    listUserContent: protectedProcedure
+        .input(
+            z.object({
+                id: z.string(),
+            }),
+        )
+        .query(async ({ ctx, input }) => {
+            const { id: userId } = input;
+
+            if (
+                !hasPermission(
+                    ctx.session.user,
+                    PERMISSIONS.MANAGE_USERS_EXTENDED,
+                )
+            )
+                throw new TRPCError({
+                    code: "UNAUTHORIZED",
+                    message:
+                        "You don't have sufficient permissions to perform this action.",
+                    cause: "User lacks the MANAGE_USERS_EXTENDED permission.",
+                });
+
+            const user = await ctx.prisma.user.findUnique({
+                where: {
+                    id: userId,
+                },
+                include: {
+                    roles: true,
+                },
+            });
+
+            if (!user)
+                throw new TRPCError({
+                    code: "NOT_FOUND",
+                    message: "User not found.",
+                    cause: "User with the specified ID does not exist.",
+                });
+
+            if (
+                hasPermission(user, PERMISSIONS.ADMINISTRATOR) &&
+                user.id !== ctx.session.user.id
+            )
+                throw new TRPCError({
+                    code: "FORBIDDEN",
+                    message: "You cannot manage this user's content.",
+                    cause: "User has the ADMINISTRATOR permission.",
+                });
+
+            const [image, banner, avatar, chatImg, chat] = await Promise.all([
+                s3Client.listObjectsV2({
+                    Bucket: env.AWS_S3_BUCKET,
+                    Prefix: `${input.id}/image/`,
+                }),
+                s3Client.listObjectsV2({
+                    Bucket: env.AWS_S3_BUCKET,
+                    Prefix: `${input.id}/banner/`,
+                }),
+                s3Client.listObjectsV2({
+                    Bucket: env.AWS_S3_BUCKET,
+                    Prefix: `${input.id}/avatar/`,
+                }),
+                s3Client.listObjectsV2({
+                    Bucket: env.AWS_S3_BUCKET,
+                    Prefix: `${input.id}/chat-image/`,
+                }),
+                s3Client.listObjectsV2({
+                    Bucket: env.AWS_S3_BUCKET,
+                    Prefix: `${input.id}/chat/`,
+                }),
+            ]);
+
+            return {
+                image:
+                    (image.Contents?.map((c) =>
+                        c.Key
+                            ? `https://${env.CLOUDFRONT_DDN}.cloudfront.net/${c.Key}`
+                            : undefined,
+                    ).filter((c) => c !== undefined) as string[]) ??
+                    ([] as string[]),
+                banner:
+                    (banner.Contents?.map((c) =>
+                        c.Key
+                            ? `https://${env.CLOUDFRONT_DDN}.cloudfront.net/${c.Key}`
+                            : undefined,
+                    ).filter((c) => c !== undefined) as string[]) ??
+                    ([] as string[]),
+                avatar:
+                    (avatar.Contents?.map((c) =>
+                        c.Key
+                            ? `https://${env.CLOUDFRONT_DDN}.cloudfront.net/${c.Key}`
+                            : undefined,
+                    ).filter((c) => c !== undefined) as string[]) ??
+                    ([] as string[]),
+                "chat image":
+                    (chatImg.Contents?.map((c) =>
+                        c.Key
+                            ? `https://${env.CLOUDFRONT_DDN}.cloudfront.net/${c.Key}`
+                            : undefined,
+                    ).filter((c) => c !== undefined) as string[]) ??
+                    ([] as string[]),
+                chat:
+                    (chat.Contents?.map((c) =>
+                        c.Key
+                            ? `https://${env.CLOUDFRONT_DDN}.cloudfront.net/${c.Key}`
+                            : undefined,
+                    ).filter((c) => c !== undefined) as string[]) ??
+                    ([] as string[]),
+            };
         }),
 });
