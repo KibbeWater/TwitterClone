@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 
 import { api } from "~/utils/api";
 
@@ -7,6 +7,8 @@ export type UploadRules = {
         banner: number;
         image: number;
         avatar: number;
+        "chat-image": number;
+        chat: number;
     };
     types: string[];
 };
@@ -28,11 +30,15 @@ const defaultRules: UploadRules = {
         image: 20 * 1024 * 1024, // 20 MB
         banner: 10 * 1024 * 1024, // 10 MB
         avatar: 6 * 1024 * 1024, // 6 MB
+        "chat-image": 6 * 1024 * 1024, // 6 MB
+        chat: 20 * 1024 * 1024, // 20 MB
     },
     types: ["image/jpeg", "image/png", "image/webp"],
 };
 
 export function useImageUploader() {
+    const [isUploading, setUploading] = useState(false);
+
     const { data: ruleData } = api.s3.getUploadRules.useQuery();
     const { mutate: _uploadImage } = api.s3.startUploadImage.useMutation();
 
@@ -41,7 +47,7 @@ export function useImageUploader() {
     const uploadImage = useCallback<
         (
             file: File,
-            type: "image" | "banner" | "avatar" | "chat-image",
+            type: "image" | "banner" | "avatar" | "chat-image" | "chat",
         ) => Promise<string>
     >(
         (file, type) => {
@@ -51,6 +57,7 @@ export function useImageUploader() {
                     .pop()}`;
                 const filetype = file.type;
 
+                setUploading(true);
                 _uploadImage(
                     {
                         type,
@@ -68,13 +75,18 @@ export function useImageUploader() {
                                 },
                             })
                                 .then((res) => {
+                                    setUploading(false);
                                     res.ok
                                         ? resolve(uploadInfo.cdnURL)
                                         : reject();
                                 })
-                                .catch(reject);
+                                .catch((err) => {
+                                    setUploading(false);
+                                    reject(err);
+                                });
                         },
                         onError: (e) => {
+                            setUploading(false);
                             console.error(e);
                             alert(
                                 "Failed to upload image, check console for more info.",
@@ -88,5 +100,5 @@ export function useImageUploader() {
         [_uploadImage],
     );
 
-    return { rules, uploadImage };
+    return { rules, uploadImage, isUploading };
 }

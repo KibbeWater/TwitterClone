@@ -33,6 +33,7 @@ export const chatRouter = createTRPCRouter({
                 select: {
                     id: true,
                     message: true,
+                    image: true,
                     createdAt: true,
                     userId: true,
                     chatId: true,
@@ -120,6 +121,7 @@ export const chatRouter = createTRPCRouter({
                     select: {
                         id: true,
                         message: true,
+                        image: true,
                         createdAt: true,
                         userId: true,
                         sender: {
@@ -216,10 +218,11 @@ export const chatRouter = createTRPCRouter({
             z.object({
                 chatId: z.string(),
                 message: z.string(),
+                image: z.string().optional(),
             }),
         )
         .mutation(async ({ ctx, input }) => {
-            const { chatId, message } = input;
+            const { chatId, message, image } = input;
 
             const chat = await ctx.prisma.chat.findUnique({
                 where: {
@@ -241,6 +244,7 @@ export const chatRouter = createTRPCRouter({
                 ctx.prisma.message.create({
                     data: {
                         message,
+                        image,
                         sender: {
                             connect: {
                                 id: ctx.session.user.id,
@@ -255,6 +259,7 @@ export const chatRouter = createTRPCRouter({
                     select: {
                         id: true,
                         message: true,
+                        image: true,
                         createdAt: true,
                         userId: true,
                         chatId: true,

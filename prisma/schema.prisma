@@ -135,6 +135,7 @@ model Message {
     chat      Chat     @relation(fields: [chatId], references: [id])
     sender    User     @relation(name: "Sender2User", fields: [userId], references: [id])
     message   String
+    image     String?
     chatId    String   @db.ObjectId
     userId    String   @db.ObjectId
     createdAt DateTime @default(now())
