@@ -463,4 +463,143 @@ export const adminRouter = createTRPCRouter({
                     ([] as string[]),
             };
         }),
+
+    getUserChats: protectedProcedure
+        .input(z.object({ id: z.string() }))
+        .query(async ({ ctx, input }) => {
+            const { id: userId } = input;
+
+            if (
+                !hasPermission(
+                    ctx.session.user,
+                    PERMISSIONS.MANAGE_USERS_EXTENDED,
+                )
+            )
+                throw new TRPCError({
+                    code: "UNAUTHORIZED",
+                    message:
+                        "You don't have sufficient permissions to perform this action.",
+                    cause: "User lacks the MANAGE_USERS_EXTENDED permission.",
+                });
+
+            const chats = await ctx.prisma.chat.findMany({
+                where: {
+                    participantIds: {
+                        has: userId,
+                    },
+                },
+                include: {
+                    participants: {
+                        select: {
+                            id: true,
+                            tag: true,
+                            name: true,
+                            permissions: true,
+                            roles: true,
+                        },
+                    },
+                },
+            });
+
+            const permittedChats = chats.filter(
+                (c) =>
+                    !c.participants.some(
+                        (p) =>
+                            hasPermission(p, PERMISSIONS.ADMINISTRATOR) &&
+                            p.id !== ctx.session.user.id,
+                    ),
+            );
+
+            return permittedChats;
+        }),
+
+    downloadChat: protectedProcedure
+        .input(z.object({ chatId: z.string() }))
+        .mutation(async ({ ctx, input }) => {
+            const { chatId } = input;
+
+            if (!hasPermission(ctx.session.user, PERMISSIONS.ADMINISTRATOR))
+                throw new TRPCError({
+                    code: "UNAUTHORIZED",
+                    message:
+                        "You don't have sufficient permissions to perform this action.",
+                    cause: "User lacks the ADMINISTRATOR permission.",
+                });
+
+            const chat = await ctx.prisma.chat.findUnique({
+                where: {
+                    id: chatId,
+                },
+                include: {
+                    participants: {
+                        select: {
+                            id: true,
+                            tag: true,
+                            name: true,
+                            permissions: true,
+                            roles: true,
+                        },
+                    },
+                    Messages: {
+                        select: {
+                            id: true,
+                            message: true,
+                            image: true,
+                            createdAt: true,
+                            sender: {
+                                select: {
+                                    id: true,
+                                    tag: true,
+                                    name: true,
+                                    permissions: true,
+                                    roles: true,
+                                },
+                            },
+                        },
+                    },
+                },
+            });
+
+            if (!chat)
+                throw new TRPCError({
+                    code: "NOT_FOUND",
+                    message: "Chat not found.",
+                    cause: "Chat with the specified ID does not exist.",
+                });
+
+            const isDownloadable = chat.participants.every(
+                (p) =>
+                    !hasPermission(p, PERMISSIONS.ADMINISTRATOR) ||
+                    p.id === ctx.session.user.id,
+            );
+
+            if (!isDownloadable)
+                throw new TRPCError({
+                    code: "FORBIDDEN",
+                    message: "You cannot download this chat.",
+                    cause: "Chat is protected.",
+                });
+
+            return [
+                `Participants:`,
+                ...chat.participants.map(
+                    (usr) =>
+                        `${usr.name} (@${usr.tag})${
+                            usr.roles.length > 0
+                                ? ` (${usr.roles
+                                      .map((r) => r.name)
+                                      .join(", ")})`
+                                : ""
+                        }`,
+                ),
+                "",
+                ...chat.Messages.map(
+                    (msg) =>
+                        `${msg.createdAt.toISOString()} ${msg.sender.name} (@${
+                            msg.sender.tag
+                        }): ${msg.message}` +
+                        (msg.image ? `\n  ${msg.image}` : ""),
+                ),
+            ].join("\n");
+        }),
 });

@@ -57,9 +57,20 @@ export default function AdminModal({
             ),
         },
     );
+    const { data: userChats } = api.admin.getUserChats.useQuery(
+        { id: userId },
+        {
+            enabled: hasPermission(
+                session?.user ?? { permissions: "0", roles: [] },
+                PERMISSIONS.MANAGE_USERS_EXTENDED,
+            ),
+        },
+    );
 
     const { mutate: _updateProfile, isLoading: isUpdatingProfile } =
         api.admin.updateProfile.useMutation();
+    const { mutate: _downloadChat, isLoading: isDownloadingChat } =
+        api.admin.downloadChat.useMutation();
 
     const updateProfile = useCallback<
         (params: { name?: string; tag?: string; email?: string }) => void
@@ -76,6 +87,28 @@ export default function AdminModal({
             );
         },
         [_updateProfile, _refetchUser, user],
+    );
+
+    const downloadChat = useCallback<(chatId: string) => void>(
+        (chatId) => {
+            _downloadChat(
+                { chatId: chatId },
+                {
+                    onSuccess: (data) => {
+                        const blob = new Blob([data], {
+                            type: "text/plain",
+                        });
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement("a");
+                        a.href = url;
+                        a.download = `${chatId}.txt`;
+                        a.click();
+                    },
+                    onError: (err) => alert(`${err.message}`),
+                },
+            );
+        },
+        [_downloadChat],
     );
 
     const [userRoles, setUserRoles] = useState<string[]>([]);
@@ -512,6 +545,32 @@ export default function AdminModal({
                 ),
             },
             {
+                name: "Chats",
+                element: (_user) => (
+                    <div className="w-full h-full py-4 px-2 overflow-y-auto">
+                        <div className="flex flex-col gap-2 w-min">
+                            {userChats?.map((c) => (
+                                <div
+                                    key={c.id}
+                                    className="flex justify-between items-center px-2 py-1 bg-neutral-800 rounded-md"
+                                >
+                                    <p className="mr-4 whitespace-nowrap">
+                                        {c.name}
+                                    </p>
+                                    <button
+                                        className="py-1 px-2 rounded-lg bg-accent-primary-500"
+                                        disabled={isDownloadingChat}
+                                        onClick={() => downloadChat(c.id)}
+                                    >
+                                        Download
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                ),
+            },
+            {
                 name: "Content",
                 element: (_user) => (
                     <div className="w-full h-full flex flex-col gap-2 py-4 px-2 overflow-y-auto overflow-x-hidden">
@@ -673,6 +732,9 @@ export default function AdminModal({
             isUpdatingProfile,
             userContent,
             openModal,
+            downloadChat,
+            userChats,
+            isDownloadingChat,
         ],
     );
 
