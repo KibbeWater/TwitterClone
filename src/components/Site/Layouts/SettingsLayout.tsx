@@ -22,6 +22,7 @@ export default function SettingsLayout({
     canBack = true,
     preventFolding,
 }: Props) {
+    const [activeTab, setActiveTab] = useState(-1);
     const [navVisible, setNavVisible] = useState(false);
 
     const router = useRouter();
@@ -36,6 +37,13 @@ export default function SettingsLayout({
     );
 
     const navRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const tab = tabs.find((tab) =>
+            router.asPath.startsWith(`/settings/${tab.slug}`),
+        );
+        if (tab) setActiveTab(tabs.indexOf(tab));
+    }, [router.asPath, tabs]);
 
     useEffect(() => {
         const handleResize = () => {
@@ -64,9 +72,9 @@ export default function SettingsLayout({
 
                 <div
                     ref={navRef}
-                    className={`lg:w-1/4 lg:block ${
-                        !preventFolding ? "hidden w-1/4" : "block w-full"
-                    } border-r-[1px] border-highlight-light dark:border-highlight-dark grow-0`}
+                    className={`lg:w-1/5 lg:block ${
+                        !preventFolding ? "hidden w-1/5" : "block w-full"
+                    } border-r-[1px] border-highlight-light dark:border-highlight-dark grow-0 flex-none`}
                 >
                     <div className="pb-6">
                         <h1 className="text-black dark:text-white font-semibold text-xl my-2 ml-4">
@@ -78,7 +86,13 @@ export default function SettingsLayout({
                             <Link
                                 key={`${tab.name}-${idx}`}
                                 href={`/settings/${tab.slug}`}
-                                className="flex justify-between items-center pl-4 pr-3 py-2 transition-colors bg-transparent duration-300 dark:hover:bg-neutral-700 hover:bg-neutral-200"
+                                className={[
+                                    "flex justify-between items-center pl-4 pr-3 py-2 border-r-[1px]",
+                                    "transition-colors bg-transparent duration-300 dark:hover:bg-neutral-700 hover:bg-neutral-200",
+                                    activeTab === idx
+                                        ? "border-accent-primary-500 dark:bg-neutral-700/30 bg-neutral-200/40"
+                                        : "border-transparent",
+                                ].join(" ")}
                             >
                                 <p>{tab.name}</p>
                                 <div className="h-6 w-6">
@@ -113,7 +127,7 @@ export default function SettingsLayout({
                         </p>
                     )}
 
-                    <main>{children}</main>
+                    <main className="overflow-hidden">{children}</main>
                 </div>
                 <div className="w-1/6 grow-0 border-l-[1px] lg:block hidden border-highlight-light dark:border-highlight-dark"></div>
             </div>

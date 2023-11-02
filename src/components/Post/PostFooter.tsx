@@ -66,11 +66,12 @@ export default function PostFooter({
                             />,
                         );
                     }}
+                    aria-label="Comment"
                     className={
                         "border-0 p-1 h-8 w-8 mr-1 rounded-full flex items-center justify-center transition-colors bg-black/0 cursor-pointer hover:bg-red-500/40 group/btnComment"
                     }
                 >
-                    <ChatBubbleOvalLeftEllipsisIcon className="text-black dark:text-white group-hover/btnComment:text-red-500" />
+                    <ChatBubbleOvalLeftEllipsisIcon className="text-black dark:text-white group-hover/btnComment:text-red-500 w-8 h-8" />
                 </button>
                 <p className="text-black dark:text-white text-sm">
                     {post.comments?.length ?? "ERR"}
@@ -96,7 +97,7 @@ export default function PostFooter({
                     }}
                     aria-label="Repost"
                 >
-                    <ArrowUturnRightIcon className="text-black dark:text-white group-hover/btnRetweet:text-green-500" />
+                    <ArrowUturnRightIcon className="text-black dark:text-white group-hover/btnRetweet:text-green-500 w-8 h-8" />
                 </button>
                 <p className="text-black dark:text-white text-sm">
                     {post.reposts?.length ?? "ERR"}
@@ -116,8 +117,8 @@ export default function PostFooter({
                     <HeartIcon
                         className={
                             hasLiked
-                                ? "text-red-500 group-hover/btnLike:text-black dark:group-hover/btnLike:text-white/60 transition-colors"
-                                : "text-black dark:text-white group-hover/btnLike:text-red-500 transition-colors"
+                                ? "text-red-500 group-hover/btnLike:text-black dark:group-hover/btnLike:text-white/60 transition-colors w-8 h-8"
+                                : "text-black dark:text-white group-hover/btnLike:text-red-500 transition-colors w-8 h-8"
                         }
                     />
                 </button>
@@ -133,7 +134,7 @@ export default function PostFooter({
                     aria-label="Share"
                     onClick={(e) => e.stopPropagation()}
                 >
-                    <ShareIcon className="text-black dark:text-white group-hover/btnShare:text-red-500" />
+                    <ShareIcon className="text-black dark:text-white group-hover/btnShare:text-red-500 w-8 h-8" />
                 </button>
             </div>
         </div>

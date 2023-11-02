@@ -4,6 +4,7 @@ import {
     UserIcon as UserOutline,
     UsersIcon as UsersOutline,
     Cog6ToothIcon as CogOutline,
+    EnvelopeIcon as EnvelopeOutline,
     CheckBadgeIcon,
 } from "@heroicons/react/24/outline";
 import {
@@ -16,6 +17,7 @@ import {
     Cog6ToothIcon as CogSolid,
     MoonIcon,
     SunIcon,
+    EnvelopeIcon as EnvelopeSolid,
 } from "@heroicons/react/24/solid";
 import { signIn, signOut, useSession } from "next-auth/react";
 import { useTheme } from "next-themes";
@@ -44,6 +46,11 @@ export default function Navbar() {
         { enabled: !!session },
     );
 
+    const { data: _hasUnreadChats } = api.chat.hasUnreadMessages.useQuery({});
+
+    const hasUnreadChats =
+        typeof _hasUnreadChats === "boolean" ? _hasUnreadChats : false;
+
     const router = useRouter();
 
     const links = useMemo<
@@ -52,7 +59,7 @@ export default function Navbar() {
             activeURLs: string[];
             href?: string;
             onClick?: () => void;
-            badgeCount?: number;
+            badge?: number | boolean;
             permission?: { requiredPerms: bigint | bigint[]; or?: boolean };
             iconSolid: React.ForwardRefExoticComponent<
                 Omit<React.SVGProps<SVGSVGElement>, "ref"> & {
@@ -67,8 +74,8 @@ export default function Navbar() {
                 } & React.RefAttributes<SVGSVGElement>
             >;
         }[]
-    >(() => {
-        return [
+    >(
+        () => [
             {
                 name: "Home",
                 href: "/home",
@@ -77,10 +84,28 @@ export default function Navbar() {
                 iconOutline: HomeOutline,
             },
             {
+                name: "Messages",
+                href: "/message",
+                activeURLs: ["/message"],
+                badge: hasUnreadChats ? true : undefined,
+                onClick: () => {
+                    if (!session)
+                        signIn(undefined, { callbackUrl: "/profile" }).catch(
+                            console.error,
+                        );
+                    else router.push(`/message`).catch(console.error);
+                },
+                iconSolid: EnvelopeSolid,
+                iconOutline: EnvelopeOutline,
+            },
+            {
                 name: "Notifications",
                 href: "/notifications",
                 activeURLs: ["/notifications"],
-                badgeCount: notifData?.count,
+                badge:
+                    notifData && notifData.count > 0
+                        ? notifData.count
+                        : undefined,
                 iconSolid: BellSolid,
                 iconOutline: BellOutline,
             },
@@ -142,8 +167,9 @@ export default function Navbar() {
                 iconSolid: CogSolid,
                 iconOutline: CogOutline,
             },
-        ];
-    }, [session, router, notifData?.count, setModal]);
+        ],
+        [session, router, notifData, hasUnreadChats, setModal],
+    );
 
     const user = session?.user;
 
@@ -194,19 +220,30 @@ export default function Navbar() {
                                                 .includes(
                                                     router.asPath.toLowerCase(),
                                                 ) ? (
-                                                <link.iconOutline className="text-2xl text-black dark:text-white" />
+                                                <link.iconOutline className="text-2xl text-black dark:text-white w-8 h-8" />
                                             ) : (
-                                                <link.iconSolid className="text-2xl text-black dark:text-white" />
+                                                <link.iconSolid className="text-2xl text-black dark:text-white w-8 h-8" />
                                             )}
-                                            {(link.badgeCount ?? 0) > 0 ? (
-                                                <div className="w-5 h-5 bg-red-500 rounded-full absolute left-2/4 bottom-2/4 z-20 border-2 dark:border-black border-white box-content">
-                                                    <div className="w-5 h-5 bg-red-500 rounded-full absolute top-0 bottom-0 left-0 right-0 m-auto animate-ping z-10" />
-                                                    <p className="text-white leading-5 text-center align-middle text-xs">
-                                                        {(link.badgeCount ??
-                                                            0) > 99
-                                                            ? "99+"
-                                                            : link.badgeCount}
-                                                    </p>
+                                            {link.badge !== undefined ? (
+                                                <div
+                                                    className={[
+                                                        typeof link.badge ===
+                                                        "boolean"
+                                                            ? "w-3 h-3 -right-1 -top-1"
+                                                            : "w-5 h-5 left-2/4 bottom-2/4",
+                                                        "bg-red-500 rounded-full absolute z-20 border-2 dark:border-black border-white box-content",
+                                                    ].join(" ")}
+                                                >
+                                                    <div className="w-full h-full bg-red-500 rounded-full absolute top-0 left-0 m-auto animate-ping z-10" />
+                                                    {typeof link.badge ===
+                                                        "number" && (
+                                                        <p className="text-white leading-5 text-center align-middle text-xs">
+                                                            {(link.badge ?? 0) >
+                                                            99
+                                                                ? "99+"
+                                                                : link.badge}
+                                                        </p>
+                                                    )}
                                                 </div>
                                             ) : null}
                                         </div>
@@ -230,18 +267,29 @@ export default function Navbar() {
                                             .includes(
                                                 router.asPath.toLowerCase(),
                                             ) ? (
-                                            <link.iconOutline className="text-2xl text-black dark:text-white" />
+                                            <link.iconOutline className="text-2xl text-black dark:text-white w-8 h-8" />
                                         ) : (
-                                            <link.iconSolid className="text-2xl text-black dark:text-white" />
+                                            <link.iconSolid className="text-2xl text-black dark:text-white w-8 h-8" />
                                         )}
-                                        {(link.badgeCount ?? 0) > 0 ? (
-                                            <div className="w-5 h-5 bg-red-500 rounded-full absolute left-2/4 bottom-2/4 z-20 border-2 dark:border-black border-white box-content">
+                                        {link.badge !== undefined ? (
+                                            <div
+                                                className={[
+                                                    typeof link.badge ===
+                                                    "boolean"
+                                                        ? "w-3 h-3 -right-1 -top-1"
+                                                        : "w-5 h-5 left-2/4 bottom-2/4",
+                                                    "bg-red-500 rounded-full absolute z-20 border-2 dark:border-black border-white box-content",
+                                                ].join(" ")}
+                                            >
                                                 <div className="w-5 h-5 bg-red-500 rounded-full absolute top-0 bottom-0 left-0 right-0 m-auto animate-ping z-10" />
-                                                <p className="text-white leading-5 text-center align-middle text-xs">
-                                                    {(link.badgeCount ?? 0) > 99
-                                                        ? "99+"
-                                                        : link.badgeCount}
-                                                </p>
+                                                {typeof link.badge ===
+                                                    "number" && (
+                                                    <p className="text-white leading-5 text-center align-middle text-xs">
+                                                        {(link.badge ?? 0) > 99
+                                                            ? "99+"
+                                                            : link.badge}
+                                                    </p>
+                                                )}
                                             </div>
                                         ) : null}
                                     </div>
@@ -260,7 +308,7 @@ export default function Navbar() {
                         onClick={() => setModal(<PostModal />)}
                         disabled={!session}
                     >
-                        <PencilIcon className="m-4 text-2xl text-white transition-all opacity-100 lg:opacity-0 block lg:!hidden" />
+                        <PencilIcon className="m-4 text-2xl text-white transition-all opacity-100 lg:opacity-0 block lg:!hidden w-8 h-8" />
                         <span className="hidden transition-all lg:block text-lg font-bold opacity-0 lg:opacity-100 text-white">
                             Twaat
                         </span>

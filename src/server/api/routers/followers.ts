@@ -19,4 +19,25 @@ export const followersRouter = createTRPCRouter({
                 },
             });
         }),
+
+    getFollowing: protectedProcedure
+        .input(z.object({}))
+        .query(async ({ ctx }) => {
+            return (
+                await ctx.prisma.user.findUnique({
+                    where: { id: ctx.session.user.id },
+                    select: {
+                        following: {
+                            select: {
+                                id: true,
+                                name: true,
+                                tag: true,
+                                image: true,
+                                verified: true,
+                            },
+                        },
+                    },
+                })
+            )?.following;
+        }),
 });

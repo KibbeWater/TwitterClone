@@ -1,6 +1,7 @@
 import { XMarkIcon } from "@heroicons/react/20/solid";
 import type { User } from "@prisma/client";
 import { useSession } from "next-auth/react";
+import Image from "next/image";
 import { useMemo, useCallback, useState, useEffect } from "react";
 
 import { useModal } from "~/components/Handlers/ModalHandler";
@@ -17,6 +18,7 @@ import {
     getAllPermissions,
     addPermission as _addPermission,
 } from "~/utils/permission";
+import ImageOnlyModal from "./ImageOnlyModal";
 
 export default function AdminModal({
     userId,
@@ -29,7 +31,7 @@ export default function AdminModal({
     const [userEmail, setUserEmail] = useState<string | null>(null);
     const [userName, setUserName] = useState<string | null>(null);
 
-    const { closeModal } = useModal();
+    const { openModal, closeModal } = useModal();
     const { data: session } = useSession();
 
     const [activeTab, setActiveTab] = useState(0);
@@ -46,9 +48,29 @@ export default function AdminModal({
             ),
         },
     );
+    const { data: userContent } = api.admin.listUserContent.useQuery(
+        { id: userId },
+        {
+            enabled: hasPermission(
+                session?.user ?? { permissions: "0", roles: [] },
+                PERMISSIONS.MANAGE_USERS_EXTENDED,
+            ),
+        },
+    );
+    const { data: userChats } = api.admin.getUserChats.useQuery(
+        { id: userId },
+        {
+            enabled: hasPermission(
+                session?.user ?? { permissions: "0", roles: [] },
+                PERMISSIONS.MANAGE_USERS_EXTENDED,
+            ),
+        },
+    );
 
     const { mutate: _updateProfile, isLoading: isUpdatingProfile } =
         api.admin.updateProfile.useMutation();
+    const { mutate: _downloadChat, isLoading: isDownloadingChat } =
+        api.admin.downloadChat.useMutation();
 
     const updateProfile = useCallback<
         (params: { name?: string; tag?: string; email?: string }) => void
@@ -65,6 +87,28 @@ export default function AdminModal({
             );
         },
         [_updateProfile, _refetchUser, user],
+    );
+
+    const downloadChat = useCallback<(chatId: string) => void>(
+        (chatId) => {
+            _downloadChat(
+                { chatId: chatId },
+                {
+                    onSuccess: (data) => {
+                        const blob = new Blob([data], {
+                            type: "text/plain",
+                        });
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement("a");
+                        a.href = url;
+                        a.download = `${chatId}.txt`;
+                        a.click();
+                    },
+                    onError: (err) => alert(`${err.message}`),
+                },
+            );
+        },
+        [_downloadChat],
     );
 
     const [userRoles, setUserRoles] = useState<string[]>([]);
@@ -231,7 +275,7 @@ export default function AdminModal({
             {
                 name: "Overview",
                 element: (_user) => (
-                    <div className="w-full h-full flex flex-col gap-4 p-4">
+                    <div className="w-full h-full flex flex-col gap-4 p-4 overflow-y-auto">
                         <div>
                             <p className="text-black dark:text-white">
                                 Verified:{" "}
@@ -501,6 +545,76 @@ export default function AdminModal({
                 ),
             },
             {
+                name: "Chats",
+                element: (_user) => (
+                    <div className="w-full h-full py-4 px-2 overflow-y-auto">
+                        <div className="flex flex-col gap-2 w-min">
+                            {userChats?.map((c) => (
+                                <div
+                                    key={c.id}
+                                    className="flex justify-between items-center px-2 py-1 bg-neutral-800 rounded-md"
+                                >
+                                    <p className="mr-4 whitespace-nowrap">
+                                        {c.name}
+                                    </p>
+                                    <button
+                                        className="py-1 px-2 rounded-lg bg-accent-primary-500"
+                                        disabled={isDownloadingChat}
+                                        onClick={() => downloadChat(c.id)}
+                                    >
+                                        Download
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                ),
+            },
+            {
+                name: "Content",
+                element: (_user) => (
+                    <div className="w-full h-full flex flex-col gap-2 py-4 px-2 overflow-y-auto overflow-x-hidden">
+                        {Object.entries(userContent ?? {}).map(([key, val]) => (
+                            <div
+                                key={`cnt-${key}`}
+                                className="flex flex-col w-full grow-0"
+                            >
+                                <p className="text-lg capitalize font-semibold">
+                                    {key}
+                                </p>
+                                <div className="overflow-hidden w-full rounded-md grow-0">
+                                    <div className="h-72 bg-neutral-800 flex gap-2 p-2 overflow-x-auto">
+                                        {val.map((v, idx) => (
+                                            <div
+                                                key={`${v.substring(
+                                                    v.length - 9,
+                                                )}-${idx}`}
+                                                className="w-56 h-full shrink-0 bg-black rounded-md relative overflow-hidden cursor-pointer"
+                                                onClick={() =>
+                                                    openModal(
+                                                        <ImageOnlyModal
+                                                            src={v}
+                                                        />,
+                                                    )
+                                                }
+                                            >
+                                                <Image
+                                                    src={v}
+                                                    alt={`Content "${key}" ${idx}`}
+                                                    sizes={"100vw"}
+                                                    fill
+                                                    className="object-cover"
+                                                />
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                ),
+            },
+            {
                 name: "Info",
                 element: (_user) => (
                     <div className="w-full h-full flex flex-1 flex-wrap gap-4 p-4">
@@ -616,6 +730,11 @@ export default function AdminModal({
             userName,
             updateProfile,
             isUpdatingProfile,
+            userContent,
+            openModal,
+            downloadChat,
+            userChats,
+            isDownloadingChat,
         ],
     );
 
@@ -629,7 +748,7 @@ export default function AdminModal({
             >
                 <XMarkIcon className={"text-black dark:text-white"} />
             </div>
-            <div className="flex grow-0 w-min h-full py-4 border-highlight-light dark:border-highlight-dark border-r-[1px] overflow-x-hidden overflow-y-auto">
+            <div className="flex shrink-0 grow-0 w-min h-full py-4 border-highlight-light dark:border-highlight-dark border-r-[1px] overflow-x-hidden overflow-y-auto">
                 <div className="h-full w-full min-w-[8rem] flex flex-col gap-1 whitespace-nowrap">
                     {menuOptions.map((option, idx) => (
                         <a
@@ -645,7 +764,7 @@ export default function AdminModal({
                 </div>
             </div>
             {user ? (
-                <div className="grow">
+                <div className="grow overflow-hidden">
                     {menuOptions[activeTab]!.element(user)}
                 </div>
             ) : (

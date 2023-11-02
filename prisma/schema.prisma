@@ -81,6 +81,11 @@ model User {
     followerIds         String[]       @db.ObjectId
     following           User[]         @relation(name: "FollowToUser", fields: [followingIds], references: [id])
     followingIds        String[]       @db.ObjectId
+    Chats               Chat[]         @relation(name: "Chat2User", fields: [chatIds], references: [id])
+    chatIds             String[]       @db.ObjectId
+    Messages            Message[]      @relation(name: "Sender2User")
+    ReadChats           Chat[]         @relation(name: "read", fields: [readChatIds], references: [id])
+    readChatIds         String[]       @db.ObjectId
 }
 
 model VerificationToken {
@@ -125,4 +130,26 @@ model StripeEvent {
     created          DateTime
     livemode         Boolean
     pending_webhooks Int
+}
+
+model Chat {
+    id             String    @id @default(auto()) @map("_id") @db.ObjectId
+    name           String
+    image          String?
+    participantIds String[]  @db.ObjectId
+    participants   User[]    @relation(name: "Chat2User", fields: [participantIds], references: [id])
+    Messages       Message[]
+    Read           User[]    @relation(name: "read", fields: [readUserIds], references: [id])
+    readUserIds    String[]  @db.ObjectId
+}
+
+model Message {
+    id        String   @id @default(auto()) @map("_id") @db.ObjectId
+    chat      Chat     @relation(fields: [chatId], references: [id])
+    sender    User     @relation(name: "Sender2User", fields: [userId], references: [id])
+    message   String
+    image     String?
+    chatId    String   @db.ObjectId
+    userId    String   @db.ObjectId
+    createdAt DateTime @default(now())
 }

@@ -14,11 +14,13 @@ type SetModalOptions = {
 type ModalContextType = {
     modal: React.ReactNode;
     setModal: (modal: React.ReactNode, opts?: SetModalOptions) => void;
+    openModal: (modal: React.ReactNode, opts?: SetModalOptions) => void;
     closeModal: () => void;
 };
 
 const defaultContext: ModalContextType = {
     setModal: () => React.Fragment,
+    openModal: () => React.Fragment,
     closeModal: () => React.Fragment,
     modal: null,
 };
@@ -27,11 +29,17 @@ const ModalContext = createContext<ModalContextType | undefined>(undefined);
 export const useModal = () => useContext(ModalContext) ?? defaultContext;
 const defaultBgColor = "rgba(50, 50, 50, 0.2)";
 
+type Modal = {
+    node: React.ReactNode;
+    bgOverride?: string;
+};
+
 export default function ModalHandler({
     children,
 }: {
     children: React.ReactNode;
 }) {
+    const [modalStack, setModalStack] = useState<Modal[]>([]);
     const [modal, setActiveModal] = useState<React.ReactNode>(null);
     const [bgOverride, setBgOverride] = useState<string | undefined>(undefined);
 
@@ -44,13 +52,30 @@ export default function ModalHandler({
         [],
     );
 
+    const openModal = useCallback(
+        (newModal: React.ReactNode, opts?: SetModalOptions) => {
+            const { bgOverride } = opts ?? {};
+            setModalStack((prev) => [...prev, { node: modal, bgOverride }]);
+            setModal(newModal, { bgOverride });
+        },
+        [setModal, modal],
+    );
+
     const closeModal = useCallback(() => {
-        setModal(null);
-    }, [setModal]);
+        const nextModal = modalStack[modalStack.length - 1];
+        setModalStack((prev) => prev.slice(0, prev.length - 1));
+        if (!nextModal) {
+            setActiveModal(null);
+            setBgOverride(undefined);
+        } else {
+            setActiveModal(nextModal.node);
+            setBgOverride(nextModal.bgOverride);
+        }
+    }, [modalStack]);
 
     const providerValue = useMemo<ModalContextType>(
-        () => ({ setModal, closeModal, modal }),
-        [modal, setModal, closeModal],
+        () => ({ setModal, openModal, closeModal, modal }),
+        [modal, setModal, openModal, closeModal],
     );
 
     useEffect(() => {
@@ -71,7 +96,7 @@ export default function ModalHandler({
                         style={{
                             backgroundColor: modal
                                 ? bgOverride ?? defaultBgColor
-                                : "rgba(50, 50, 50, 0)",
+                                : "rgba(100, 100, 100, 0)",
                         }}
                         onMouseDown={(e) => {
                             if (e.target === e.currentTarget) closeModal();

@@ -1,20 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useCallback } from "react";
 import TextareaAutosize from "react-textarea-autosize";
 
-export default function LabelledInput({
-    className = "",
-    label,
-    value,
-    placeholder,
-    small,
-    maxLength = -1,
-    minRows = -1,
-    maxRows = -1,
-    disabled = false,
-    validator,
-    softValidator,
-    onChange,
-}: {
+type LabelledInputProps = {
     className?: string;
     label: string;
     value?: string;
@@ -27,25 +14,36 @@ export default function LabelledInput({
     validator?: (text: string) => boolean;
     softValidator?: (text: string) => boolean;
     onChange?: (text: string) => void;
-}) {
-    const [text, setText] = useState(value ?? "");
+};
 
-    const handleTextChange = (newText: string) => {
-        if (newText.length > maxLength && maxLength !== -1) return;
-        if (validator && !validator(newText)) return;
-        setText(newText);
-    };
+export default function LabelledInput({
+    className = "",
+    label,
+    value: _val,
+    placeholder,
+    small,
+    maxLength = -1,
+    minRows = -1,
+    maxRows = -1,
+    disabled = false,
+    validator,
+    softValidator,
+    onChange,
+}: LabelledInputProps) {
+    const handleTextChange = useCallback(
+        (newText: string) => {
+            if (newText.length > maxLength && maxLength !== -1) return;
+            if (validator && !validator(newText)) return;
+            onChange?.(newText);
+        },
+        [maxLength, validator, onChange],
+    );
 
-    useEffect(() => {
-        onChange?.(text);
-    }, [text, onChange]);
-
-    useEffect(() => {
-        if (value !== undefined)
-            maxLength === -1
-                ? setText(value)
-                : setText(value.slice(0, maxLength));
-    }, [value, maxLength]);
+    const text = useCallback<() => string>(() => {
+        let text = _val ?? "";
+        if (maxLength !== -1) text = text.slice(0, maxLength);
+        return text;
+    }, [_val, maxLength]);
 
     const inputRef = useRef<HTMLInputElement>(null);
     const textAreaRef = useRef<HTMLTextAreaElement>(null);
@@ -62,11 +60,17 @@ export default function LabelledInput({
                 textAreaRef.current?.focus();
             }}
         >
-            <div className="flex justify-between">
+            <div
+                className={[
+                    "flex justify-between",
+                    disabled ? "cursor-default" : "cursor-text",
+                ].join(" ")}
+            >
                 <p
                     className={[
-                        "text-sm text-gray-500 group-focus-within/lbl:text-accent-primary-500 transition-colors",
+                        "text-sm text-gray-500 group-focus-within/lbl:text-accent-primary-500 transition-colors select-none",
                         small && "!text-xs leading-snug",
+                        disabled ? "cursor-default" : "cursor-text",
                     ].join(" ")}
                 >
                     {label}
@@ -74,12 +78,12 @@ export default function LabelledInput({
                 {maxLength !== -1 && (
                     <p
                         className={`${
-                            !softValidator || softValidator(text)
+                            !softValidator || softValidator(text())
                                 ? "text-gray-500"
                                 : "text-red-500"
                         } text-xs hidden group-focus-within/lbl:block`}
                     >
-                        {text.length}/{maxLength}
+                        {text().length}/{maxLength}
                     </p>
                 )}
             </div>
@@ -91,7 +95,7 @@ export default function LabelledInput({
                     ref={textAreaRef}
                     maxRows={maxRows === -1 ? undefined : maxRows}
                     minRows={maxRows === -1 ? undefined : minRows}
-                    value={text}
+                    value={text()}
                     disabled={disabled}
                     placeholder={placeholder}
                     onChange={(e) => handleTextChange(e.target.value)}
@@ -103,7 +107,7 @@ export default function LabelledInput({
                     } ${small ? "text-sm" : "text-base"}`}
                     type="text"
                     ref={inputRef}
-                    value={text}
+                    value={text()}
                     disabled={disabled}
                     placeholder={placeholder}
                     onChange={(e) => handleTextChange(e.target.value)}
