@@ -5,7 +5,7 @@ import {
     ShareIcon,
 } from "@heroicons/react/24/outline";
 import { HeartIcon as HeartSolid } from "@heroicons/react/24/solid";
-import type { Post } from "@prisma/client";
+import type { Post as _PostType } from "@prisma/client";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 
@@ -14,14 +14,39 @@ import PostModal from "~/components/Modals/PostModal";
 
 import { api } from "~/utils/api";
 
+type User = {
+    id: string;
+    name: string | null;
+    tag: string | null;
+    permissions: string;
+    roles: {
+        id: string;
+        permissions: string;
+    }[];
+    verified: boolean | null;
+    image: string | null;
+    followerIds: string[];
+    followingIds: string[];
+};
+
+type Post = _PostType & {
+    user: User;
+    quote:
+        | (_PostType & {
+              user: User;
+              quote: null;
+              reposts: { id: string; user: User }[];
+          })
+        | null;
+    reposts: { id: string; user: User }[];
+    comments?: { id: string }[];
+};
+
 export default function PostFooter({
     post,
     onPost,
 }: {
-    post: Post & {
-        comments?: { id: string }[];
-        reposts?: { id: string }[];
-    };
+    post: Post;
     onPost?: (post: Post) => boolean;
 }) {
     const user = useSession().data?.user;

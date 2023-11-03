@@ -1,6 +1,6 @@
 import { PhotoIcon } from "@heroicons/react/20/solid";
 import { XMarkIcon } from "@heroicons/react/24/solid";
-import type { Post } from "@prisma/client";
+import type { Post as _PostType } from "@prisma/client";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -10,6 +10,33 @@ import PostTextarea from "~/components/Post/PostTextarea";
 import PostComponent from "./Post";
 
 import { api } from "~/utils/api";
+
+type User = {
+    id: string;
+    name: string | null;
+    tag: string | null;
+    permissions: string;
+    roles: {
+        id: string;
+        permissions: string;
+    }[];
+    verified: boolean | null;
+    image: string | null;
+    followerIds: string[];
+    followingIds: string[];
+};
+
+type Post = _PostType & {
+    user: User;
+    quote:
+        | (_PostType & {
+              user: User;
+              quote: null;
+              reposts: { id: string; user: User }[];
+          })
+        | null;
+    reposts: { id: string; user: User }[];
+};
 
 type Props = {
     placeholder?: string;
@@ -40,7 +67,7 @@ export default function PostComposer({
 
     const { mutate: _sendPost, isLoading } = api.post.create.useMutation({
         onSuccess: (post) => {
-            onPost?.(post); // There is nothing I love more than this GOOFY ASS javascript syntax
+            onPost?.(post as Post); // There is nothing I love more than this GOOFY ASS javascript syntax
             setText("");
             setImages([]);
         },
@@ -211,7 +238,7 @@ export default function PostComposer({
                             }
                         >
                             <PostComponent
-                                post={quote}
+                                post={quote as unknown as Post}
                                 isRef={true}
                                 mini={true}
                             />

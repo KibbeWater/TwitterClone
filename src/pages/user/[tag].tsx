@@ -1,5 +1,4 @@
 import { LockClosedIcon } from "@heroicons/react/24/solid";
-import type { Post } from "@prisma/client";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { useRouter } from "next/router";
@@ -202,7 +201,7 @@ export default function Home() {
                                 profile,
                                 PERMISSIONS.HIDE_VERIFICATION,
                             ) ? (
-                                <VerifiedCheck className="ml-1   w-5 h-5" />
+                                <VerifiedCheck className="ml-1 w-5 h-5" />
                             ) : null}
                         </h3>
                         <p className="mt-[2px] text-base leading-none text-neutral-500">{`@${profile?.tag}`}</p>

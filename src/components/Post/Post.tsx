@@ -1,6 +1,6 @@
 import { TrashIcon } from "@heroicons/react/24/outline";
 import { EllipsisHorizontalIcon, UserIcon } from "@heroicons/react/24/solid";
-import type { Post } from "@prisma/client";
+import type { Post as _PostType } from "@prisma/client";
 import { m as motion } from "framer-motion";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
@@ -17,6 +17,34 @@ import VerifiedCheck from "~/components/Verified";
 import { api } from "~/utils/api";
 import { PERMISSIONS, hasPermission } from "~/utils/permission";
 import { isPremium } from "~/utils/user";
+
+type User = {
+    id: string;
+    name: string | null;
+    tag: string | null;
+    image: string | null;
+    permissions: string;
+    roles: {
+        id: string;
+        permissions: string;
+    }[];
+    verified: boolean | null;
+    followerIds: string[];
+    followingIds: string[];
+};
+
+type Post = _PostType & {
+    user: User;
+    quote:
+        | (_PostType & {
+              user: User;
+              quote: null;
+              reposts: { id: string; user: User }[];
+          })
+        | null;
+    reposts: { id: string; user: User }[];
+    comments?: { id: string }[];
+};
 
 function isUserFollowing(
     user: { id: string } | undefined,
@@ -48,32 +76,7 @@ function FormatDate(date: Date) {
 }
 
 export default function PostComponent(p: {
-    post: Post & {
-        user: {
-            id: string;
-            tag: string;
-            name: string;
-            image: string;
-            verified: boolean;
-            followerIds: string[];
-            permissions: string;
-            roles: { id: string; permissions: string }[];
-        };
-        reposts: { id: string }[];
-        quote?: Post & {
-            user: {
-                id: string;
-                tag: string;
-                name: string;
-                image: string;
-                verified: boolean;
-                followerIds: string[];
-                permissions: string;
-                roles: { id: string; permissions: string }[];
-            };
-            reposts: { id: string }[];
-        };
-    };
+    post: Post;
     isRef?: boolean;
     mini?: boolean;
     onMutate?: (post: Post) => void;
@@ -93,7 +96,7 @@ export default function PostComponent(p: {
     const { setModal } = useModal();
 
     const user = post.user;
-    const avatar = user.image || "/assets/imgs/default-avatar.png";
+    const avatar = user.image ?? "/assets/imgs/default-avatar.png";
 
     const images = post.images;
 
@@ -215,7 +218,9 @@ export default function PostComponent(p: {
                                             { id: post.id },
                                             {
                                                 onSuccess: () => onDeleted?.(),
-                                                onError: (err) => alert(err),
+                                                onError(err) {
+                                                    alert(err);
+                                                },
                                             },
                                         );
                                     }}
@@ -381,7 +386,9 @@ export default function PostComponent(p: {
                     </div>
                 )}
                 {!isRef && session && (
-                    <PostFooter post={post} onPost={handleMutation} />
+                    <>
+                        <PostFooter post={post} onPost={handleMutation} />
+                    </>
                 )}
             </div>
         </div>

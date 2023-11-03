@@ -1,10 +1,37 @@
 import { XMarkIcon } from "@heroicons/react/20/solid";
-import type { Post } from "@prisma/client";
+import type { Post as _PostType } from "@prisma/client";
 import { useRouter } from "next/router";
 import { useCallback } from "react";
 
 import { useModal } from "~/components/Handlers/ModalHandler";
 import PostComposer from "~/components/Post/PostComposer";
+
+type User = {
+    id: string;
+    name: string | null;
+    tag: string | null;
+    permissions: string;
+    roles: {
+        id: string;
+        permissions: string;
+    }[];
+    verified: boolean | null;
+    image: string | null;
+    followerIds: string[];
+    followingIds: string[];
+};
+
+type Post = _PostType & {
+    user: User;
+    quote:
+        | (_PostType & {
+              user: User;
+              quote: null;
+              reposts: { id: string; user: User }[];
+          })
+        | null;
+    reposts: { id: string; user: User }[];
+};
 
 export default function PostModal({
     quote,

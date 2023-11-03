@@ -246,18 +246,18 @@ export const userRouter = createTRPCRouter({
                 select: {
                     permissions: true,
                     roles: {
-                        select: { id: true },
+                        select: { id: true, permissions: true },
                     },
                     [input.followType]: {
                         select: {
                             id: true,
                             name: true,
                             tag: true,
-                            permissions: true,
                             verified: true,
                             image: true,
                             followerIds: true,
                             followingIds: true,
+                            permissions: true,
                             roles: {
                                 select: {
                                     id: true,

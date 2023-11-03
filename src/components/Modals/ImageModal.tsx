@@ -5,7 +5,7 @@ import {
     EllipsisHorizontalIcon,
     XMarkIcon,
 } from "@heroicons/react/24/solid";
-import type { Post } from "@prisma/client";
+import type { Post as _PostType } from "@prisma/client";
 import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
@@ -17,6 +17,34 @@ import PostComposer from "~/components/Post/PostComposer";
 import PostFooter from "~/components/Post/PostFooter";
 
 import { api } from "~/utils/api";
+
+type User = {
+    id: string;
+    name: string | null;
+    tag: string | null;
+    image: string | null;
+    permissions: string;
+    roles: {
+        id: string;
+        permissions: string;
+    }[];
+    verified: boolean | null;
+    followerIds: string[];
+    followingIds: string[];
+};
+
+type Post = _PostType & {
+    user: User;
+    quote:
+        | (_PostType & {
+              user: User;
+              quote: null;
+              reposts: { id: string; user: User }[];
+          })
+        | null;
+    reposts: { id: string; user: User }[];
+    comments?: { id: string }[];
+};
 
 export default function ImageModal({
     src,
@@ -57,7 +85,13 @@ export default function ImageModal({
     const posts = [
         ...localPosts,
         ...(data?.pages.reduce(
-            (acc, cur) => [...acc, ...cur.items],
+            (acc, cur) => [
+                ...acc,
+                ...cur.items.map((p) => ({
+                    ...p,
+                    quote: p.quote ? { ...p.quote, quote: null } : null,
+                })),
+            ],
             [] as Post[],
         ) ?? []),
     ]
@@ -219,7 +253,7 @@ export default function ImageModal({
                         <div className="h-px grow mt-3 bg-gray-200 dark:bg-gray-700" />
                     </PostComposer>
                 </div>
-                {posts.map((reply: Post) => (
+                {posts.map((reply) => (
                     <div
                         key={reply.id}
                         className="border-b-[1px] border-highlight-light dark:border-highlight-dark w-full"
