@@ -16,6 +16,7 @@ import VerifiedCheck from "~/components/Verified";
 
 import { api } from "~/utils/api";
 import { PERMISSIONS, hasPermission } from "~/utils/permission";
+import { isPremium } from "~/utils/user";
 
 function isUserFollowing(
     user: { id: string } | undefined,
@@ -47,7 +48,32 @@ function FormatDate(date: Date) {
 }
 
 export default function PostComponent(p: {
-    post: Post;
+    post: Post & {
+        user: {
+            id: string;
+            tag: string;
+            name: string;
+            image: string;
+            verified: boolean;
+            followerIds: string[];
+            permissions: string;
+            roles: { id: string; permissions: string }[];
+        };
+        reposts: { id: string }[];
+        quote?: Post & {
+            user: {
+                id: string;
+                tag: string;
+                name: string;
+                image: string;
+                verified: boolean;
+                followerIds: string[];
+                permissions: string;
+                roles: { id: string; permissions: string }[];
+            };
+            reposts: { id: string }[];
+        };
+    };
     isRef?: boolean;
     mini?: boolean;
     onMutate?: (post: Post) => void;
@@ -61,19 +87,7 @@ export default function PostComponent(p: {
     const { mutate: _setFollowing } = api.followers.setFollowing.useMutation();
     const { mutate: _deletePost } = api.post.delete.useMutation();
 
-    const { isRef, mini, onMutate, onDeleted } = p;
-    const post = p.post as Post & {
-        user: {
-            id: string;
-            tag: string;
-            name: string;
-            image: string;
-            verified: boolean;
-            followerIds: string[];
-        };
-        reposts: { id: string }[];
-        quote: Post;
-    };
+    const { isRef, mini, onMutate, onDeleted, post } = p;
 
     const router = useRouter();
     const { setModal } = useModal();
@@ -284,7 +298,9 @@ export default function PostComponent(p: {
                         }
                         href={`/@${user.tag}`}
                     >
-                        {user.verified ? (
+                        {user.verified &&
+                        isPremium(user) &&
+                        !hasPermission(user, PERMISSIONS.HIDE_VERIFICATION) ? (
                             <p className="mr-[5px] flex h-[1em] items-center">
                                 <VerifiedCheck />
                             </p>
@@ -349,7 +365,7 @@ export default function PostComponent(p: {
                             ),
                     )}
                 </div>
-                {!post.quoteId || isRef ? (
+                {!post.quote || isRef ? (
                     <></>
                 ) : (
                     <div

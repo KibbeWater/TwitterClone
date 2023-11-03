@@ -19,6 +19,8 @@ import Layout from "~/components/Site/Layouts/Layout";
 import VerifiedCheck from "~/components/Verified";
 
 import { api } from "~/utils/api";
+import { PERMISSIONS, hasPermission } from "~/utils/permission";
+import { isPremium } from "~/utils/user";
 
 function PostThreadSeparator({ isSmall }: { isSmall?: boolean }) {
     return isSmall ? (
@@ -76,6 +78,8 @@ export default function Page() {
         <Layout title="Twaat">
             {parents.map((parent, idx, arr) => (
                 <>
+                    {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
+                    {/* @ts-ignore */}
                     <PostComponent post={parent} isRef={true} />
                     <PostThreadSeparator isSmall={idx + 1 >= arr.length} />
                 </>
@@ -110,7 +114,14 @@ export default function Page() {
                                     className="text-base truncate mb-1 leading-none font-semibold m-0 text-black dark:text-white flex"
                                 >
                                     {user?.name}
-                                    {user.verified ? <VerifiedCheck /> : null}
+                                    {user.verified &&
+                                    isPremium(user) &&
+                                    !hasPermission(
+                                        user,
+                                        PERMISSIONS.HIDE_VERIFICATION,
+                                    ) ? (
+                                        <VerifiedCheck />
+                                    ) : null}
                                 </Link>
                                 <Link
                                     href={`/@${user.tag}`}

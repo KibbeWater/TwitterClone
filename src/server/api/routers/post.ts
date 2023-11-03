@@ -124,6 +124,12 @@ export const postRouter = createTRPCRouter({
                     name: true,
                     tag: true,
                     permissions: true,
+                    roles: {
+                        select: {
+                            id: true,
+                            permissions: true,
+                        },
+                    },
                     verified: true,
                     image: true,
                     followerIds: true,

@@ -22,7 +22,7 @@ export default function PremiumModal() {
                 <p className="text-2xl font-semibold">Subscribe</p>
             </div>
             {isPremium ? (
-                <div className="py-12 px-24 flex items-center">
+                <div className="w-full h-full flex items-center justify-center pb-8 pt-4 mt-12">
                     <CheckIcon className="w-8 h-8 text-green-500" />
                     <p>Hey! You are already a Twatter RED subscriber.</p>
                 </div>
@@ -37,7 +37,7 @@ export default function PremiumModal() {
                                 "Edit post",
                                 "Longer posts",
                                 "Undo post",
-                                "Upload videos",
+                                "Upload videos (PLANNED)",
                             ].map((item, idx) => (
                                 <div
                                     key={`enhc-ftr-${idx}`}

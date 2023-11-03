@@ -6,6 +6,13 @@ import {
     publicProcedure,
     protectedProcedure,
 } from "~/server/api/trpc";
+import {
+    PERMISSIONS,
+    addPermission,
+    hasPermission,
+    removePermission,
+} from "~/utils/permission";
+import { isPremium } from "~/utils/user";
 
 // TODO: Check over literally this entire fucking file
 export const userRouter = createTRPCRouter({
@@ -34,6 +41,12 @@ export const userRouter = createTRPCRouter({
                     bio: true,
                     tag: true,
                     permissions: true,
+                    roles: {
+                        select: {
+                            id: true,
+                            permissions: true,
+                        },
+                    },
                     protected: true,
                     verified: true,
                     image: true,
@@ -112,7 +125,20 @@ export const userRouter = createTRPCRouter({
                     cause: "User not found",
                 });
 
-            return user;
+            const HIDE_FOLLOWINGS =
+                hasPermission(user, PERMISSIONS.HIDE_FOLLOWINGS) &&
+                isPremium(user);
+            const HIDE_POSTS =
+                hasPermission(user, PERMISSIONS.HIDE_POSTS) && isPremium(user);
+
+            return {
+                ...user,
+                followerIds: !HIDE_FOLLOWINGS ? user.followerIds : [],
+                followingIds: !HIDE_FOLLOWINGS ? user.followingIds : [],
+                followers: !HIDE_FOLLOWINGS ? user.followers : [],
+                following: !HIDE_FOLLOWINGS ? user.following : [],
+                posts: !HIDE_POSTS ? user.posts : [],
+            };
         }),
     findUsers: publicProcedure
         .input(z.object({ query: z.string() }))
@@ -142,6 +168,12 @@ export const userRouter = createTRPCRouter({
                     permissions: true,
                     verified: true,
                     image: true,
+                    roles: {
+                        select: {
+                            id: true,
+                            permissions: true,
+                        },
+                    },
                 },
             });
 
@@ -159,7 +191,7 @@ export const userRouter = createTRPCRouter({
         )
         .mutation(async ({ ctx, input }) => {
             const { id } = ctx.session.user;
-            console.log(ctx.session);
+
             if (input.tag) {
                 const tag = input.tag.toLowerCase();
                 const tagExists = await ctx.prisma.user.findUnique({
@@ -212,6 +244,10 @@ export const userRouter = createTRPCRouter({
                     id: input.id,
                 },
                 select: {
+                    permissions: true,
+                    roles: {
+                        select: { id: true },
+                    },
                     [input.followType]: {
                         select: {
                             id: true,
@@ -222,6 +258,12 @@ export const userRouter = createTRPCRouter({
                             image: true,
                             followerIds: true,
                             followingIds: true,
+                            roles: {
+                                select: {
+                                    id: true,
+                                    permissions: true,
+                                },
+                            },
                         },
                     },
                 },
@@ -233,6 +275,23 @@ export const userRouter = createTRPCRouter({
                     message: "User not found.",
                     cause: "User not found.",
                 });
+
+            if (
+                hasPermission(
+                    user as unknown as {
+                        permissions: string;
+                        roles: { permissions: string }[];
+                    },
+                    PERMISSIONS.HIDE_FOLLOWINGS,
+                ) &&
+                isPremium(
+                    user as unknown as {
+                        permissions: string;
+                        roles: { id: string }[];
+                    },
+                )
+            )
+                return [];
 
             return user[input.followType];
         }),
@@ -305,8 +364,6 @@ export const userRouter = createTRPCRouter({
         .query(async ({ ctx }) => {
             const { id } = ctx.session.user;
 
-            console.log(ctx.session);
-
             const sessions = await ctx.prisma.session.findMany({
                 select: {
                     id: true,
@@ -376,6 +433,140 @@ export const userRouter = createTRPCRouter({
             return await ctx.prisma.user.update({
                 where: { id },
                 data: { protected: input.protected },
+            });
+        }),
+
+    setFollowingsProtected: protectedProcedure
+        .input(z.object({ protected: z.boolean() }))
+        .mutation(async ({ ctx, input }) => {
+            const { id } = ctx.session.user;
+
+            const user = await ctx.prisma.user.findUnique({
+                where: { id },
+                select: {
+                    permissions: true,
+                    roles: {
+                        select: {
+                            id: true,
+                        },
+                    },
+                },
+            });
+
+            if (!user)
+                throw new TRPCError({
+                    code: "NOT_FOUND",
+                    message: "User not found.",
+                    cause: "User not found.",
+                });
+
+            if (!isPremium(user))
+                throw new TRPCError({
+                    code: "BAD_REQUEST",
+                    message: "You must be premium to hide your verification.",
+                    cause: "Not premium.",
+                });
+
+            return await ctx.prisma.user.update({
+                where: { id },
+                data: {
+                    permissions: input.protected
+                        ? addPermission(
+                              { ...user, roles: [] },
+                              PERMISSIONS.HIDE_FOLLOWINGS,
+                          ).toString()
+                        : removePermission(
+                              { ...user, roles: [] },
+                              PERMISSIONS.HIDE_FOLLOWINGS,
+                          ).toString(),
+                },
+            });
+        }),
+
+    setPostsProtected: protectedProcedure
+        .input(z.object({ protected: z.boolean() }))
+        .mutation(async ({ ctx, input }) => {
+            const { id } = ctx.session.user;
+
+            const user = await ctx.prisma.user.findUnique({
+                where: { id },
+                select: {
+                    permissions: true,
+                    roles: {
+                        select: {
+                            id: true,
+                        },
+                    },
+                },
+            });
+
+            if (!user)
+                throw new TRPCError({
+                    code: "NOT_FOUND",
+                    message: "User not found.",
+                    cause: "User not found.",
+                });
+
+            if (!isPremium(user))
+                throw new TRPCError({
+                    code: "BAD_REQUEST",
+                    message: "You must be premium to hide your verification.",
+                    cause: "Not premium.",
+                });
+
+            return await ctx.prisma.user.update({
+                where: { id },
+                data: {
+                    permissions: input.protected
+                        ? addPermission(
+                              { ...user, roles: [] },
+                              PERMISSIONS.HIDE_POSTS,
+                          ).toString()
+                        : removePermission(
+                              { ...user, roles: [] },
+                              PERMISSIONS.HIDE_POSTS,
+                          ).toString(),
+                },
+            });
+        }),
+
+    setVerificationProtected: protectedProcedure
+        .input(z.object({ protected: z.boolean() }))
+        .mutation(async ({ ctx, input }) => {
+            const { id } = ctx.session.user;
+
+            const user = await ctx.prisma.user.findUnique({
+                where: { id },
+                select: {
+                    permissions: true,
+                    roles: {
+                        select: {
+                            id: true,
+                        },
+                    },
+                },
+            });
+
+            if (!user)
+                throw new TRPCError({
+                    code: "NOT_FOUND",
+                    message: "User not found.",
+                    cause: "User not found.",
+                });
+
+            return await ctx.prisma.user.update({
+                where: { id },
+                data: {
+                    permissions: input.protected
+                        ? addPermission(
+                              { ...user, roles: [] },
+                              PERMISSIONS.HIDE_VERIFICATION,
+                          ).toString()
+                        : removePermission(
+                              { ...user, roles: [] },
+                              PERMISSIONS.HIDE_VERIFICATION,
+                          ).toString(),
+                },
             });
         }),
 });

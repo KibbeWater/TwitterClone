@@ -23,6 +23,9 @@ export const PERMISSIONS = {
     MANAGE_POSTS: setBit(0n, 3),
 
     PROTECTED_PROFILE: setBit(0n, 6),
+    HIDE_POSTS: setBit(0n, 7),
+    HIDE_FOLLOWINGS: setBit(0n, 8),
+    HIDE_VERIFICATION: setBit(0n, 9),
 
     ADMINISTRATOR: setBit(0n, 52), // All permissions, use with caution
 };

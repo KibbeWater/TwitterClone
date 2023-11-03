@@ -1,3 +1,4 @@
+import { LockClosedIcon } from "@heroicons/react/24/solid";
 import type { Post } from "@prisma/client";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
@@ -16,6 +17,7 @@ import VerifiedCheck from "~/components/Verified";
 
 import { api } from "~/utils/api";
 import { PERMISSIONS, hasPermission } from "~/utils/permission";
+import { isPremium } from "~/utils/user";
 
 function isUserFollowing(
     user: { id: string } | undefined,
@@ -194,7 +196,12 @@ export default function Home() {
                     <div className="mx-3 pb-3">
                         <h3 className="font-bold leading-none text-lg text-black dark:text-white flex items-center">
                             {profile?.name}
-                            {profile?.verified ? (
+                            {profile?.verified &&
+                            isPremium(profile) &&
+                            !hasPermission(
+                                profile,
+                                PERMISSIONS.HIDE_VERIFICATION,
+                            ) ? (
                                 <VerifiedCheck className="ml-1   w-5 h-5" />
                             ) : null}
                         </h3>
@@ -204,44 +211,50 @@ export default function Home() {
                                 <PostContent post={{ content: bio }} />
                             </div>
                         )}
-                        <div className="flex my-2 text-sm">
-                            <p
-                                className="m-0 mr-2 text-neutral-500 hover:underline cursor-pointer"
-                                onClick={() =>
-                                    setModal(
-                                        <FollowingModal
-                                            user={profile}
-                                            followType={"following"}
-                                        />,
-                                    )
-                                }
-                            >
-                                <span className="font-bold text-black dark:text-white">
-                                    {profile?.followingIds.length ?? 0}
-                                </span>{" "}
-                                Following
-                            </p>
-                            <p
-                                className="m-0 mr-2 text-neutral-500 hover:underline cursor-pointer"
-                                onClick={() =>
-                                    setModal(
-                                        <FollowingModal
-                                            user={profile}
-                                            followType={"followers"}
-                                        />,
-                                    )
-                                }
-                            >
-                                <span className="font-bold text-black dark:text-white">
-                                    {profile?.followerIds.length ?? 0}
-                                </span>{" "}
-                                Followers
-                            </p>
-                        </div>
+                        {!hasPermission(
+                            profile,
+                            PERMISSIONS.HIDE_FOLLOWINGS,
+                        ) && (
+                            <div className="flex my-2 text-sm">
+                                <p
+                                    className="m-0 mr-2 text-neutral-500 hover:underline cursor-pointer"
+                                    onClick={() =>
+                                        setModal(
+                                            <FollowingModal
+                                                user={profile}
+                                                followType={"following"}
+                                            />,
+                                        )
+                                    }
+                                >
+                                    <span className="font-bold text-black dark:text-white">
+                                        {profile?.followingIds.length ?? 0}
+                                    </span>{" "}
+                                    Following
+                                </p>
+                                <p
+                                    className="m-0 mr-2 text-neutral-500 hover:underline cursor-pointer"
+                                    onClick={() =>
+                                        setModal(
+                                            <FollowingModal
+                                                user={profile}
+                                                followType={"followers"}
+                                            />,
+                                        )
+                                    }
+                                >
+                                    <span className="font-bold text-black dark:text-white">
+                                        {profile?.followerIds.length ?? 0}
+                                    </span>{" "}
+                                    Followers
+                                </p>
+                            </div>
+                        )}
                     </div>
                 </div>
                 <div className="flex flex-col items-center">
-                    {profile?.posts.length !== undefined
+                    {profile?.posts.length !== undefined &&
+                    !hasPermission(profile, PERMISSIONS.HIDE_POSTS)
                         ? profile.posts.map((post) => {
                               if (!post) return null;
                               return (
@@ -249,11 +262,19 @@ export default function Home() {
                                       key={post.id}
                                       className="border-b-[1px] border-highlight-light dark:border-highlight-dark w-full"
                                   >
-                                      <PostComponent post={post as Post} />
+                                      {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
+                                      {/* @ts-ignore */}
+                                      <PostComponent post={post} />
                                   </div>
                               );
                           })
                         : null}
+                    {hasPermission(profile, PERMISSIONS.HIDE_POSTS) && (
+                        <div className="py-2 flex items-center justify-center w-full gap-1">
+                            <LockClosedIcon className="h-5 text-neutral-500" />
+                            <p className="text-neutral-500">Posts Hidden</p>
+                        </div>
+                    )}
                 </div>
             </div>
         </Layout>
