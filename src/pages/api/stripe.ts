@@ -39,13 +39,109 @@ export default async function handler(
             // Handle the event
             switch (event.type) {
                 case "invoice.paid":
-                    // Used to provision services after the trial has ended.
-                    // The status of the invoice will show up as paid. Store the status in your database to reference when a user accesses your service to avoid hitting rate limits.
-                    /* await handleInvoicePaid({
-                        event,
-                        stripe,
-                        prisma,
-                    }); */
+                    const invoice = event.data.object;
+                    const subscriptionId = invoice.subscription;
+                    const invoiceSub = await stripe.subscriptions.retrieve(
+                        subscriptionId as string,
+                    );
+
+                    const invoiceCustomerId =
+                        typeof invoiceSub.customer === "string"
+                            ? invoiceSub.customer
+                            : invoiceSub.customer.id;
+
+                    try {
+                        const newSub = await prisma.subscription.upsert({
+                            where: {
+                                stripeId: invoiceSub.id,
+                            },
+                            update: {
+                                status: invoiceSub.status,
+                                startDate: new Date(
+                                    invoiceSub.start_date * 1000,
+                                ),
+                                endDate: new Date(
+                                    invoiceSub.current_period_end * 1000,
+                                ),
+                            },
+                            create: {
+                                stripeId: invoiceSub.id,
+                                status: invoiceSub.status,
+                                startDate: new Date(
+                                    invoiceSub.start_date * 1000,
+                                ),
+                                endDate: new Date(
+                                    invoiceSub.current_period_end * 1000,
+                                ),
+                                customer: {
+                                    connectOrCreate: {
+                                        where: {
+                                            stripeCustomerId: invoiceCustomerId,
+                                        },
+                                        create: {
+                                            stripeCustomerId: invoiceCustomerId,
+                                            user: {
+                                                connect: {
+                                                    id: invoiceSub.metadata
+                                                        .userId,
+                                                },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                            include: {
+                                customer: true,
+                            },
+                        });
+
+                        if (!env.PREMIUM_ROLE_ID) break;
+
+                        const premiumRole = await prisma.role.findUnique({
+                            where: {
+                                id: env.PREMIUM_ROLE_ID,
+                            },
+                        });
+
+                        const user = await prisma.user.findUnique({
+                            where: {
+                                id: newSub.customer.userId,
+                            },
+                            include: {
+                                stripeCustomer: {
+                                    include: {
+                                        subscriptions: true,
+                                    },
+                                },
+                            },
+                        });
+
+                        if (!premiumRole || !user) break;
+
+                        const hasPremium =
+                            user.stripeCustomer?.subscriptions.some(
+                                (s) =>
+                                    (s.status === "active" ||
+                                        s.status === "trialing") &&
+                                    s.endDate > new Date(),
+                            );
+
+                        await prisma.user.update({
+                            where: {
+                                id: user.id,
+                            },
+                            data: {
+                                roles: {
+                                    [hasPremium ? "connect" : "disconnect"]: {
+                                        id: premiumRole.id,
+                                    },
+                                },
+                            },
+                        });
+                    } catch (error) {
+                        console.error(error);
+                    }
+
                     break;
                 case "customer.subscription.deleted":
                 case "customer.subscription.updated":
