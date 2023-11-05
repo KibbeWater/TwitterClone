@@ -192,6 +192,12 @@ export const postRouter = createTRPCRouter({
                     quote: {
                         include: {
                             user: userSelect,
+                            reposts: {
+                                select: {
+                                    id: true,
+                                    user: userSelect,
+                                },
+                            },
                         },
                     },
                     comments: {

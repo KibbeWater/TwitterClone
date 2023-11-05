@@ -46,13 +46,7 @@ type Post = _PostType & {
     comments?: { id: string }[];
 };
 
-export default function ImageModal({
-    src,
-    post,
-}: {
-    src: string;
-    post: Post & { reposts: { id: string }[] };
-}) {
+export default function ImageModal({ src, post }: { src: string; post: Post }) {
     const [commentsOpen, setCommentsOpen] = useState(true);
     const [localPosts, setLocalPosts] = useState<Post[]>([]);
     const [deletedPosts, setDeletedPosts] = useState<string[]>([]);

@@ -84,10 +84,10 @@ export default async function handler(
                     api_version: event.api_version,
                     account: event.account,
                     created: new Date(event.created * 1000),
-                    data: {
+                    data: /* {
                         object: event.data.object,
                         previous_attributes: event.data.previous_attributes,
-                    },
+                    } */ "",
                     livemode: event.livemode,
                     pending_webhooks: event.pending_webhooks,
                     request: {

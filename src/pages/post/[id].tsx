@@ -2,7 +2,7 @@ import {
     ArrowPathIcon,
     EllipsisHorizontalIcon,
 } from "@heroicons/react/24/solid";
-import type { Post } from "@prisma/client";
+import type { Post as _PostType } from "@prisma/client";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
@@ -21,6 +21,34 @@ import VerifiedCheck from "~/components/Verified";
 import { api } from "~/utils/api";
 import { PERMISSIONS, hasPermission } from "~/utils/permission";
 import { isPremium } from "~/utils/user";
+
+type User = {
+    id: string;
+    name: string | null;
+    tag: string | null;
+    image: string | null;
+    permissions: string;
+    roles: {
+        id: string;
+        permissions: string;
+    }[];
+    verified: boolean | null;
+    followerIds: string[];
+    followingIds: string[];
+};
+
+type Post = _PostType & {
+    user: User;
+    quote:
+        | (_PostType & {
+              user: User;
+              quote: null;
+              reposts: { id: string; user: User }[];
+          })
+        | null;
+    reposts: { id: string; user: User }[];
+    comments?: { id: string }[];
+};
 
 function PostThreadSeparator({ isSmall }: { isSmall?: boolean }) {
     return isSmall ? (
@@ -176,7 +204,7 @@ export default function Page() {
                                             setModal(
                                                 <ImageModal
                                                     src={img}
-                                                    post={post}
+                                                    post={post as Post}
                                                 />,
                                                 {
                                                     bgOverride:
@@ -196,7 +224,7 @@ export default function Page() {
                             }
                         >
                             <PostComponent
-                                post={quote}
+                                post={quote as Post}
                                 isRef={true}
                                 mini={true}
                             />
@@ -237,12 +265,12 @@ export default function Page() {
                     {session && (
                         <>
                             <div className="h-px grow mx-3 my-3 bg-gray-200 dark:bg-gray-700" />
-                            <PostFooter post={post} />
+                            <PostFooter post={post as Post} />
                             <div className="h-px grow mx-3 my-3 bg-gray-200 dark:bg-gray-700" />
                         </>
                     )}
                 </div>
-                <PostComments post={post} />
+                <PostComments post={post as Post} />
             </div>
         </Layout>
     );
