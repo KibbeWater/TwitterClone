@@ -52,6 +52,11 @@ export default function Navbar() {
     const hasUnreadChats =
         typeof _hasUnreadChats === "boolean" ? _hasUnreadChats : false;
 
+    const isVerified =
+        session?.user &&
+        ((session.user.verified ?? false) || isPremium(session.user)) &&
+        !hasPermission(session.user, PERMISSIONS.HIDE_VERIFICATION);
+
     const router = useRouter();
 
     const links = useMemo<
@@ -350,12 +355,7 @@ export default function Navbar() {
                                             <p className="hidden transition-all lg:block font-bold opacity-0 lg:opacity-100 text-black dark:text-white leading-none truncate whitespace-nowrap">
                                                 {user?.name}
                                             </p>
-                                            {(session.user.verified ??
-                                                (isPremium(session.user) &&
-                                                    !hasPermission(
-                                                        session.user,
-                                                        PERMISSIONS.HIDE_VERIFICATION,
-                                                    ))) && <VerifiedCheck />}
+                                            {isVerified && <VerifiedCheck />}
                                         </div>
 
                                         <p className="hidden transition-all lg:block opacity-0 lg:opacity-100 w-min text-gray-600 leading-[1.1]">{`@${user?.tag}`}</p>

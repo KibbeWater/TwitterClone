@@ -96,6 +96,10 @@ export default function PostComponent(p: {
     const user = post.user;
     const avatar = user.image ?? "/assets/imgs/default-avatar.png";
 
+    const isVerified =
+        ((user.verified ?? false) || isPremium(user)) &&
+        !hasPermission(user, PERMISSIONS.HIDE_VERIFICATION);
+
     const images = post.images;
 
     const isMe =
@@ -277,7 +281,7 @@ export default function PostComponent(p: {
                     <a
                         className={
                             "text-black dark:text-white " +
-                            (!user.verified ? "mr-[5px] " : "") +
+                            (!isVerified ? "mr-[5px] " : "") +
                             "cursor-pointer no-underline font-semibold hover:underline truncate max-w-full max-h-min items-center"
                         }
                         href={`/@${user.tag}`}
@@ -291,12 +295,7 @@ export default function PostComponent(p: {
                         }
                         href={`/@${user.tag}`}
                     >
-                        {user.verified ??
-                        (isPremium(user) &&
-                            !hasPermission(
-                                user,
-                                PERMISSIONS.HIDE_VERIFICATION,
-                            )) ? (
+                        {isVerified ? (
                             <p className="mr-[5px] flex h-[1em] items-center">
                                 <VerifiedCheck />
                             </p>

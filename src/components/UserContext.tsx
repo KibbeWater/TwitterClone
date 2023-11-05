@@ -21,6 +21,10 @@ export default function UserContext({
     className?: string;
     onClick?: (e: React.MouseEvent<HTMLDivElement>) => void;
 }) {
+    const isVerified =
+        ((user.verified ?? false) || isPremium(user)) &&
+        !hasPermission(user, PERMISSIONS.HIDE_VERIFICATION);
+
     return (
         <div
             className={[
@@ -43,11 +47,7 @@ export default function UserContext({
                     <p className="font-bold text-black dark:text-white leading-tight truncate">
                         {user.name}
                     </p>
-                    {user.verified ??
-                    (isPremium(user) &&
-                        !hasPermission(user, PERMISSIONS.HIDE_VERIFICATION)) ? (
-                        <VerifiedCheck />
-                    ) : null}
+                    {isVerified ? <VerifiedCheck /> : null}
                 </div>
                 <p className="text-gray-500 leading-tight truncate">
                     @{user.tag}

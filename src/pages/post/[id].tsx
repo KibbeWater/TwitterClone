@@ -75,6 +75,10 @@ export default function Page() {
     const user = post?.user;
     const quote = post?.quote;
     const images = post?.images ?? [];
+    const isVerified =
+        post?.user &&
+        ((post.user.verified ?? false) || isPremium(post.user)) &&
+        !hasPermission(post.user, PERMISSIONS.HIDE_VERIFICATION);
 
     const parents = useMemo(() => {
         const parents = [];
@@ -142,14 +146,7 @@ export default function Page() {
                                     className="text-base truncate mb-1 leading-none font-semibold m-0 text-black dark:text-white flex"
                                 >
                                     {user?.name}
-                                    {user.verified ??
-                                    (isPremium(user) &&
-                                        !hasPermission(
-                                            user,
-                                            PERMISSIONS.HIDE_VERIFICATION,
-                                        )) ? (
-                                        <VerifiedCheck />
-                                    ) : null}
+                                    {isVerified ? <VerifiedCheck /> : null}
                                 </Link>
                                 <Link
                                     href={`/@${user.tag}`}

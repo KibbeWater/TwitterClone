@@ -121,7 +121,12 @@ export const postRouter = createTRPCRouter({
         .query(async ({ ctx, input }) => {
             const post = await ctx.prisma.post.findUnique({
                 where: { id: input.id },
-                include: postShape,
+                include: {
+                    ...postShape,
+                    parent: {
+                        include: postShape,
+                    },
+                },
             });
 
             if (!post) return null;

@@ -70,6 +70,10 @@ export default function Home() {
 
     const isMe = user?.id === profile?.id && user?.id !== undefined;
     const bio = profile?.bio ?? "";
+    const isVerified =
+        profile &&
+        ((profile.verified ?? false) || isPremium(profile)) &&
+        !hasPermission(profile, PERMISSIONS.HIDE_VERIFICATION);
 
     if (!profile) return <ProfileSkeleton />;
 
@@ -195,12 +199,7 @@ export default function Home() {
                     <div className="mx-3 pb-3">
                         <h3 className="font-bold leading-none text-lg text-black dark:text-white flex items-center">
                             {profile?.name}
-                            {profile?.verified ??
-                            (isPremium(profile) &&
-                                !hasPermission(
-                                    profile,
-                                    PERMISSIONS.HIDE_VERIFICATION,
-                                )) ? (
+                            {isVerified ? (
                                 <VerifiedCheck className="ml-1 w-5 h-5" />
                             ) : null}
                         </h3>
