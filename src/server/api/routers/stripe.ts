@@ -4,6 +4,12 @@ import { env } from "~/env.mjs";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { stripe } from "~/server/stripe/client";
 
+const getBaseUrl = () => {
+    if (typeof window !== "undefined") return ""; // browser should use relative url
+    if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`; // SSR should use vercel url
+    return `http://localhost:${process.env.PORT ?? 3000}`; // dev SSR should use localhost
+};
+
 export const stripeRouter = createTRPCRouter({
     openPremiumLink: protectedProcedure
         .input(z.object({}))
@@ -38,7 +44,7 @@ export const stripeRouter = createTRPCRouter({
             const link = await stripe.checkout.sessions.create({
                 mode: "subscription",
                 customer: customerId,
-                success_url: `${env.NEXTAUTH_URL}/`,
+                success_url: `${getBaseUrl()}/`,
                 client_reference_id: user.id,
                 subscription_data: {
                     metadata: {
