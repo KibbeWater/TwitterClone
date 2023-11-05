@@ -8,7 +8,7 @@ import { useModal } from "~/components/Handlers/ModalHandler";
 import AdminModal from "~/components/Modals/AdminModal";
 import FollowingModal from "~/components/Modals/FollowingModal";
 import ProfileEditor from "~/components/Modals/ProfileEditor";
-import PostComponent from "~/components/Post/Post";
+import PostComponent, { type PostComponentShape } from "~/components/Post/Post";
 import PostContent from "~/components/Post/PostContent";
 import Layout from "~/components/Site/Layouts/Layout";
 import ProfileSkeleton from "~/components/Skeletons/ProfileSkeleton";
@@ -195,12 +195,12 @@ export default function Home() {
                     <div className="mx-3 pb-3">
                         <h3 className="font-bold leading-none text-lg text-black dark:text-white flex items-center">
                             {profile?.name}
-                            {profile?.verified &&
-                            isPremium(profile) &&
-                            !hasPermission(
-                                profile,
-                                PERMISSIONS.HIDE_VERIFICATION,
-                            ) ? (
+                            {profile?.verified ??
+                            (isPremium(profile) &&
+                                !hasPermission(
+                                    profile,
+                                    PERMISSIONS.HIDE_VERIFICATION,
+                                )) ? (
                                 <VerifiedCheck className="ml-1 w-5 h-5" />
                             ) : null}
                         </h3>
@@ -261,9 +261,9 @@ export default function Home() {
                                       key={post.id}
                                       className="border-b-[1px] border-highlight-light dark:border-highlight-dark w-full"
                                   >
-                                      {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
-                                      {/* @ts-ignore */}
-                                      <PostComponent post={post} />
+                                      <PostComponent
+                                          post={post as PostComponentShape}
+                                      />
                                   </div>
                               );
                           })

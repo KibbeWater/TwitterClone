@@ -1,6 +1,5 @@
 import { TrashIcon } from "@heroicons/react/24/outline";
 import { EllipsisHorizontalIcon, UserIcon } from "@heroicons/react/24/solid";
-import type { Post as _PostType } from "@prisma/client";
 import { m as motion } from "framer-motion";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
@@ -18,33 +17,32 @@ import { api } from "~/utils/api";
 import { PERMISSIONS, hasPermission } from "~/utils/permission";
 import { isPremium } from "~/utils/user";
 
-type User = {
+export type PostComponentShape = {
     id: string;
-    name: string | null;
-    tag: string | null;
-    image: string | null;
-    permissions: string;
-    roles: {
+    images: string[];
+    createdAt: Date;
+    content: string;
+    user: {
         id: string;
+        tag: string | null;
+        name: string | null;
+        verified: boolean | null;
+        image: string | null;
+        followerIds: string[];
         permissions: string;
-    }[];
-    verified: boolean | null;
-    followerIds: string[];
-    followingIds: string[];
+        roles: {
+            id: string;
+            permissions: string;
+        }[];
+    };
+    userId: string;
+    quote: PostComponentShape | null;
+    likeIDs: string[];
+    comments?: { id: string }[];
+    reposts: { id: string }[];
 };
 
-type Post = _PostType & {
-    user: User;
-    quote:
-        | (_PostType & {
-              user: User;
-              quote: null;
-              reposts: { id: string; user: User }[];
-          })
-        | null;
-    reposts: { id: string; user: User }[];
-    comments?: { id: string }[];
-};
+type Post = PostComponentShape;
 
 function isUserFollowing(
     user: { id: string } | undefined,
@@ -79,7 +77,7 @@ export default function PostComponent(p: {
     post: Post;
     isRef?: boolean;
     mini?: boolean;
-    onMutate?: (post: Post) => void;
+    onMutate?: (post: PostComponentShape) => void;
     onDeleted?: () => void;
 }) {
     const [optionsActive, setOptionsActive] = useState(false);
@@ -102,16 +100,6 @@ export default function PostComponent(p: {
 
     const isMe =
         post.user.id === session?.user.id && session?.user !== undefined;
-
-    const handleMutation = useCallback(
-        (post: Post) => {
-            if (onMutate) {
-                onMutate?.(post);
-                return true;
-            } else return false;
-        },
-        [onMutate],
-    );
 
     const [isFollowing, setIsFollowing] = useState(
         isUserFollowing(session?.user, post.user),
@@ -303,9 +291,12 @@ export default function PostComponent(p: {
                         }
                         href={`/@${user.tag}`}
                     >
-                        {user.verified &&
-                        isPremium(user) &&
-                        !hasPermission(user, PERMISSIONS.HIDE_VERIFICATION) ? (
+                        {user.verified ??
+                        (isPremium(user) &&
+                            !hasPermission(
+                                user,
+                                PERMISSIONS.HIDE_VERIFICATION,
+                            )) ? (
                             <p className="mr-[5px] flex h-[1em] items-center">
                                 <VerifiedCheck />
                             </p>
@@ -387,7 +378,15 @@ export default function PostComponent(p: {
                 )}
                 {!isRef && session && (
                     <>
-                        <PostFooter post={post} onPost={handleMutation} />
+                        <PostFooter
+                            post={post}
+                            onPost={(post) => {
+                                if (onMutate) {
+                                    onMutate?.(post);
+                                    return true;
+                                } else return false;
+                            }}
+                        />
                     </>
                 )}
             </div>

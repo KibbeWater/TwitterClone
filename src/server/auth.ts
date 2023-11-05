@@ -75,8 +75,13 @@ export const authOptions: NextAuthOptions = {
             // TODO: We probably should not do this, investigate later
             const usr = await prisma.user.findUnique({
                 where: { id: user.id },
-                select: { roles: true },
+                select: {
+                    roles: {
+                        select: { id: true, name: true, permissions: true },
+                    },
+                },
             });
+
             await prisma.session.updateMany({
                 where: { expires: session.expires },
                 data: { lastAccessed: new Date() },

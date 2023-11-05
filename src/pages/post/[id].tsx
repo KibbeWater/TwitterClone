@@ -142,12 +142,12 @@ export default function Page() {
                                     className="text-base truncate mb-1 leading-none font-semibold m-0 text-black dark:text-white flex"
                                 >
                                     {user?.name}
-                                    {user.verified &&
-                                    isPremium(user) &&
-                                    !hasPermission(
-                                        user,
-                                        PERMISSIONS.HIDE_VERIFICATION,
-                                    ) ? (
+                                    {user.verified ??
+                                    (isPremium(user) &&
+                                        !hasPermission(
+                                            user,
+                                            PERMISSIONS.HIDE_VERIFICATION,
+                                        )) ? (
                                         <VerifiedCheck />
                                     ) : null}
                                 </Link>

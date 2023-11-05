@@ -1,6 +1,8 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
+import { postShape } from "~/server/api/routers/post";
+
 import {
     createTRPCRouter,
     publicProcedure,
@@ -58,45 +60,7 @@ export const userRouter = createTRPCRouter({
                         where: {
                             parent: null,
                         },
-                        include: {
-                            user: {
-                                select: {
-                                    id: true,
-                                    name: true,
-                                    tag: true,
-                                    image: true,
-                                    followerIds: true,
-                                    followingIds: true,
-                                },
-                            },
-                            quote: {
-                                include: {
-                                    user: {
-                                        select: {
-                                            id: true,
-                                            name: true,
-                                            tag: true,
-                                            permissions: true,
-                                            verified: true,
-                                            image: true,
-                                            followerIds: true,
-                                            followingIds: true,
-                                        },
-                                    },
-                                },
-                            },
-                            parent: true,
-                            comments: {
-                                select: {
-                                    id: true,
-                                },
-                            },
-                            reposts: {
-                                select: {
-                                    id: true,
-                                },
-                            },
-                        },
+                        include: postShape,
                     },
                     followers: {
                         select: {

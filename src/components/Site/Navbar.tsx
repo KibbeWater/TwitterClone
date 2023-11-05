@@ -33,6 +33,7 @@ import { api } from "~/utils/api";
 import VerifiedCheck from "../Verified";
 import { PERMISSIONS, hasPermission } from "~/utils/permission";
 import PremiumModal from "../Modals/PremiumModal";
+import { isPremium } from "~/utils/user";
 
 export default function Navbar() {
     const [activateUserPanel, setActivateUserPanel] = useState(false);
@@ -349,9 +350,12 @@ export default function Navbar() {
                                             <p className="hidden transition-all lg:block font-bold opacity-0 lg:opacity-100 text-black dark:text-white leading-none truncate whitespace-nowrap">
                                                 {user?.name}
                                             </p>
-                                            {session.user.verified && (
-                                                <VerifiedCheck />
-                                            )}
+                                            {(session.user.verified ??
+                                                (isPremium(session.user) &&
+                                                    !hasPermission(
+                                                        session.user,
+                                                        PERMISSIONS.HIDE_VERIFICATION,
+                                                    ))) && <VerifiedCheck />}
                                         </div>
 
                                         <p className="hidden transition-all lg:block opacity-0 lg:opacity-100 w-min text-gray-600 leading-[1.1]">{`@${user?.tag}`}</p>

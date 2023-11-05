@@ -43,9 +43,9 @@ export default function UserContext({
                     <p className="font-bold text-black dark:text-white leading-tight truncate">
                         {user.name}
                     </p>
-                    {user.verified &&
-                    isPremium(user) &&
-                    !hasPermission(user, PERMISSIONS.HIDE_VERIFICATION) ? (
+                    {user.verified ??
+                    (isPremium(user) &&
+                        !hasPermission(user, PERMISSIONS.HIDE_VERIFICATION)) ? (
                         <VerifiedCheck />
                     ) : null}
                 </div>

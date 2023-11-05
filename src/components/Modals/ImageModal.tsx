@@ -5,7 +5,6 @@ import {
     EllipsisHorizontalIcon,
     XMarkIcon,
 } from "@heroicons/react/24/solid";
-import type { Post as _PostType } from "@prisma/client";
 import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
@@ -15,36 +14,11 @@ import { useModal } from "~/components/Handlers/ModalHandler";
 import PostComponent from "~/components/Post/Post";
 import PostComposer from "~/components/Post/PostComposer";
 import PostFooter from "~/components/Post/PostFooter";
+import type { PostComponentShape } from "~/components/Post/Post";
 
 import { api } from "~/utils/api";
 
-type User = {
-    id: string;
-    name: string | null;
-    tag: string | null;
-    image: string | null;
-    permissions: string;
-    roles: {
-        id: string;
-        permissions: string;
-    }[];
-    verified: boolean | null;
-    followerIds: string[];
-    followingIds: string[];
-};
-
-type Post = _PostType & {
-    user: User;
-    quote:
-        | (_PostType & {
-              user: User;
-              quote: null;
-              reposts: { id: string; user: User }[];
-          })
-        | null;
-    reposts: { id: string; user: User }[];
-    comments?: { id: string }[];
-};
+type Post = PostComponentShape;
 
 export default function ImageModal({ src, post }: { src: string; post: Post }) {
     const [commentsOpen, setCommentsOpen] = useState(true);
@@ -81,7 +55,7 @@ export default function ImageModal({ src, post }: { src: string; post: Post }) {
         ...(data?.pages.reduce(
             (acc, cur) => [
                 ...acc,
-                ...cur.items.map((p) => ({
+                ...(cur.items as Post[]).map((p) => ({
                     ...p,
                     quote: p.quote ? { ...p.quote, quote: null } : null,
                 })),
