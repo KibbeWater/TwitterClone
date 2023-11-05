@@ -1,5 +1,5 @@
 import { CheckIcon } from "@heroicons/react/20/solid";
-import { useCallback, useEffect, useState } from "react";
+
 import type { SettingComponentProps } from "~/types/settings";
 
 export default function SettingsCheckbox({
@@ -7,28 +7,13 @@ export default function SettingsCheckbox({
     title,
     description,
     onChange,
-    value: _val,
+    value,
+    disabled,
 }: SettingComponentProps & {
     onChange?: (newValue: boolean) => void;
     value?: boolean;
+    disabled?: boolean;
 }) {
-    const [value, setValue] = useState(_val ?? false);
-
-    const handleChange = useCallback(
-        (e: boolean) => {
-            onChange?.(e);
-        },
-        [onChange],
-    );
-
-    useEffect(() => {
-        if (_val !== undefined && _val != value) setValue(_val);
-    }, [_val, value]);
-
-    useEffect(() => {
-        onChange?.(value);
-    }, [value, onChange]);
-
     return (
         <div
             className={[
@@ -42,11 +27,12 @@ export default function SettingsCheckbox({
                     <div className="flex justify-between items-center">
                         <h3 className="font-semibold text-sm">{title}</h3>
                         <div
-                            onClick={() => handleChange(!value)}
+                            onClick={() => !disabled && onChange?.(!value)}
                             className={[
-                                "h-5 w-5 border-[2px] border-highlight-light dark:border-highlight-dark bg-transparent transition-colors rounded-[.2rem]",
+                                "h-5 w-5 border-[2px] border-neutral-400 dark:border-neutral-600 bg-transparent transition-colors cursor-pointer rounded-[.2rem]",
                                 value &&
                                     "!bg-accent-primary-500 !border-transparent",
+                                disabled && "!cursor-default opacity-50",
                             ].join(" ")}
                         >
                             <CheckIcon

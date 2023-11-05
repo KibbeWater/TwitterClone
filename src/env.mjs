@@ -32,6 +32,13 @@ export const env = createEnv({
         GOOGLE_ID: z.string().min(1),
         GOOGLE_SECRET: z.string().min(1),
 
+        STRIPE_SK: z.string().min(1),
+        STRIPE_PK: z.string().min(1),
+        STRIPE_WEBHOOK_SECRET: z.string().min(1),
+
+        STRIPE_PREMIUM_PRICE_ID: z.string().min(1),
+        PREMIUM_ROLE_ID: z.string().optional(),
+
         AWS_S3_REGION: z.string().min(1),
         AWS_S3_BUCKET: z.string().min(1),
         AWS_ACCESS_KEY_ID: z.string().min(1),
@@ -55,6 +62,8 @@ export const env = createEnv({
     client: {
         NEXT_PUBLIC_PUSHER_KEY: z.string().min(1),
         NEXT_PUBLIC_PUSHER_CLUSTER: z.string().min(1),
+
+        NEXT_PUBLIC_PREMIUM_ROLE: z.string().optional(),
     },
 
     /**
@@ -79,6 +88,12 @@ export const env = createEnv({
         GOOGLE_ID: process.env.GOOGLE_ID,
         GOOGLE_SECRET: process.env.GOOGLE_SECRET,
 
+        STRIPE_SK: process.env.STRIPE_SK,
+        STRIPE_PK: process.env.STRIPE_PK,
+        STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
+        STRIPE_PREMIUM_PRICE_ID: process.env.STRIPE_PREMIUM_PRICE_ID,
+        PREMIUM_ROLE_ID: process.env.PREMIUM_ROLE_ID,
+
         AWS_S3_REGION: process.env.AWS_S3_REGION,
         AWS_S3_BUCKET: process.env.AWS_S3_BUCKET,
         AWS_ACCESS_KEY_ID: process.env.AWS_ACCESS_KEY_ID,
@@ -95,6 +110,8 @@ export const env = createEnv({
 
         NEXT_PUBLIC_PUSHER_KEY: process.env.NEXT_PUBLIC_PUSHER_KEY,
         NEXT_PUBLIC_PUSHER_CLUSTER: process.env.NEXT_PUBLIC_PUSHER_CLUSTER,
+
+        NEXT_PUBLIC_PREMIUM_ROLE: process.env.NEXT_PUBLIC_PREMIUM_ROLE,
     },
     /**
      * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation.

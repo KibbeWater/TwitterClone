@@ -1,25 +1,29 @@
 import { XMarkIcon } from "@heroicons/react/20/solid";
-import type { Post } from "@prisma/client";
 import { useRouter } from "next/router";
 import { useCallback } from "react";
 
 import { useModal } from "~/components/Handlers/ModalHandler";
 import PostComposer from "~/components/Post/PostComposer";
+import type { PostComponentShape } from "~/components/Post/Post";
+
+type Post = {
+    id: string;
+};
 
 export default function PostModal({
     quote,
     parent,
     onPost,
 }: {
-    quote?: Post;
+    quote?: PostComponentShape;
     parent?: Post;
-    onPost?: (post: Post) => boolean;
+    onPost?: (post: PostComponentShape) => boolean;
 }) {
     const { reload } = useRouter();
     const { closeModal } = useModal();
 
     const handleOnPost = useCallback(
-        (post: Post) => {
+        (post: PostComponentShape) => {
             if (onPost?.(post) === false || onPost === undefined) reload();
             closeModal();
         },

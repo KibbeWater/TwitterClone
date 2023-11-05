@@ -1,6 +1,8 @@
 import Image from "next/image";
 
 import VerifiedCheck from "~/components/Verified";
+import { PERMISSIONS, hasPermission } from "~/utils/permission";
+import { isPremium } from "~/utils/user";
 
 export default function UserContext({
     user,
@@ -13,10 +15,16 @@ export default function UserContext({
         tag: string | null;
         image: string | null;
         verified: boolean | null;
+        roles: { id: string; permissions: string }[];
+        permissions: string;
     };
     className?: string;
     onClick?: (e: React.MouseEvent<HTMLDivElement>) => void;
 }) {
+    const isVerified =
+        ((user.verified ?? false) || isPremium(user)) &&
+        !hasPermission(user, PERMISSIONS.HIDE_VERIFICATION);
+
     return (
         <div
             className={[
@@ -39,7 +47,7 @@ export default function UserContext({
                     <p className="font-bold text-black dark:text-white leading-tight truncate">
                         {user.name}
                     </p>
-                    {user.verified ? <VerifiedCheck /> : null}
+                    {isVerified ? <VerifiedCheck /> : null}
                 </div>
                 <p className="text-gray-500 leading-tight truncate">
                     @{user.tag}

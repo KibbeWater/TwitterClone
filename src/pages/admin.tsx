@@ -5,6 +5,7 @@ import { useCallback, useMemo, useState } from "react";
 
 import Layout from "~/components/Site/Layouts/Layout";
 import UserContext from "~/components/UserContext";
+import { env } from "~/env.mjs";
 
 import { authOptions, getServerAuthSession } from "~/server/auth";
 import { api } from "~/utils/api";
@@ -244,7 +245,17 @@ export default function Admin({
                                             <button
                                                 key={r.id}
                                                 onClick={() => selectRole(r.id)}
-                                                className="w-full h-12 flex items-center px-5 transition-colors hover:bg-black/20 dark:hover:bg-white/5"
+                                                className={[
+                                                    "w-full h-12 flex items-center px-5 transition-colors hover:bg-black/20 dark:hover:bg-white/5",
+                                                    env.NEXT_PUBLIC_PREMIUM_ROLE ===
+                                                    r.id
+                                                        ? "text-yellow-500 font-semibold"
+                                                        : undefined,
+                                                ]
+                                                    .filter(
+                                                        (i) => i !== undefined,
+                                                    )
+                                                    .join(" ")}
                                             >
                                                 <p>{r.name}</p>
                                             </button>

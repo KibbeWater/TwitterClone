@@ -2,7 +2,7 @@ import {
     ArrowPathIcon,
     EllipsisHorizontalIcon,
 } from "@heroicons/react/24/solid";
-import type { Post } from "@prisma/client";
+import type { Post as _PostType } from "@prisma/client";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
@@ -19,6 +19,36 @@ import Layout from "~/components/Site/Layouts/Layout";
 import VerifiedCheck from "~/components/Verified";
 
 import { api } from "~/utils/api";
+import { PERMISSIONS, hasPermission } from "~/utils/permission";
+import { isPremium } from "~/utils/user";
+
+type User = {
+    id: string;
+    name: string | null;
+    tag: string | null;
+    image: string | null;
+    permissions: string;
+    roles: {
+        id: string;
+        permissions: string;
+    }[];
+    verified: boolean | null;
+    followerIds: string[];
+    followingIds: string[];
+};
+
+type Post = _PostType & {
+    user: User;
+    quote:
+        | (_PostType & {
+              user: User;
+              quote: null;
+              reposts: { id: string; user: User }[];
+          })
+        | null;
+    reposts: { id: string; user: User }[];
+    comments?: { id: string }[];
+};
 
 function PostThreadSeparator({ isSmall }: { isSmall?: boolean }) {
     return isSmall ? (
@@ -45,6 +75,10 @@ export default function Page() {
     const user = post?.user;
     const quote = post?.quote;
     const images = post?.images ?? [];
+    const isVerified =
+        post?.user &&
+        ((post.user.verified ?? false) || isPremium(post.user)) &&
+        !hasPermission(post.user, PERMISSIONS.HIDE_VERIFICATION);
 
     const parents = useMemo(() => {
         const parents = [];
@@ -76,6 +110,8 @@ export default function Page() {
         <Layout title="Twaat">
             {parents.map((parent, idx, arr) => (
                 <>
+                    {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
+                    {/* @ts-ignore */}
                     <PostComponent post={parent} isRef={true} />
                     <PostThreadSeparator isSmall={idx + 1 >= arr.length} />
                 </>
@@ -110,7 +146,7 @@ export default function Page() {
                                     className="text-base truncate mb-1 leading-none font-semibold m-0 text-black dark:text-white flex"
                                 >
                                     {user?.name}
-                                    {user.verified ? <VerifiedCheck /> : null}
+                                    {isVerified ? <VerifiedCheck /> : null}
                                 </Link>
                                 <Link
                                     href={`/@${user.tag}`}
@@ -165,7 +201,7 @@ export default function Page() {
                                             setModal(
                                                 <ImageModal
                                                     src={img}
-                                                    post={post}
+                                                    post={post as Post}
                                                 />,
                                                 {
                                                     bgOverride:
@@ -185,7 +221,7 @@ export default function Page() {
                             }
                         >
                             <PostComponent
-                                post={quote}
+                                post={quote as Post}
                                 isRef={true}
                                 mini={true}
                             />
@@ -226,12 +262,12 @@ export default function Page() {
                     {session && (
                         <>
                             <div className="h-px grow mx-3 my-3 bg-gray-200 dark:bg-gray-700" />
-                            <PostFooter post={post} />
+                            <PostFooter post={post as Post} />
                             <div className="h-px grow mx-3 my-3 bg-gray-200 dark:bg-gray-700" />
                         </>
                     )}
                 </div>
-                <PostComments post={post} />
+                <PostComments post={post as Post} />
             </div>
         </Layout>
     );

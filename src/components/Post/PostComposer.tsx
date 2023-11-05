@@ -1,25 +1,24 @@
 import { PhotoIcon } from "@heroicons/react/20/solid";
 import { XMarkIcon } from "@heroicons/react/24/solid";
-import type { Post } from "@prisma/client";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { useImageUploader } from "~/components/Hooks/ImageUpload";
 import PostTextarea from "~/components/Post/PostTextarea";
-import PostComponent from "./Post";
+import PostComponent, { type PostComponentShape } from "~/components/Post/Post";
 
 import { api } from "~/utils/api";
 
 type Props = {
     placeholder?: string;
     btnText?: string;
-    onPost?: (post: Post) => void;
+    onPost?: (post: PostComponentShape) => void;
     children?: React.ReactNode;
     inline?: boolean;
     avatarSize?: number;
     padding?: number;
-    quote?: Post;
+    quote?: PostComponentShape | null;
     parent?: string;
 };
 
@@ -40,7 +39,7 @@ export default function PostComposer({
 
     const { mutate: _sendPost, isLoading } = api.post.create.useMutation({
         onSuccess: (post) => {
-            onPost?.(post); // There is nothing I love more than this GOOFY ASS javascript syntax
+            onPost?.(post as PostComponentShape); // There is nothing I love more than this GOOFY ASS javascript syntax
             setText("");
             setImages([]);
         },

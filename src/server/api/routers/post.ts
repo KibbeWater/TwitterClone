@@ -7,6 +7,56 @@ import {
 } from "~/server/api/trpc";
 import { PERMISSIONS, hasPermission } from "~/utils/permission";
 
+const userSelect = {
+    select: {
+        id: true,
+        name: true,
+        tag: true,
+        permissions: true,
+        roles: {
+            select: {
+                id: true,
+                permissions: true,
+            },
+        },
+        verified: true,
+        image: true,
+        followerIds: true,
+        followingIds: true,
+    },
+};
+
+export const postShape = {
+    user: userSelect,
+    quote: {
+        include: {
+            user: userSelect,
+            comments: {
+                select: {
+                    id: true,
+                },
+            },
+            reposts: {
+                select: {
+                    id: true,
+                    user: userSelect,
+                },
+            },
+        },
+    },
+    comments: {
+        select: {
+            id: true,
+        },
+    },
+    reposts: {
+        select: {
+            id: true,
+            user: userSelect,
+        },
+    },
+};
+
 export const postRouter = createTRPCRouter({
     // DEPRECATED
     /* getPage: publicProcedure
@@ -53,56 +103,7 @@ export const postRouter = createTRPCRouter({
                 where: {
                     parent: null,
                 },
-                include: {
-                    user: {
-                        select: {
-                            id: true,
-                            name: true,
-                            tag: true,
-                            permissions: true,
-                            verified: true,
-                            image: true,
-                            followerIds: true,
-                            followingIds: true,
-                        },
-                    },
-                    quote: {
-                        include: {
-                            user: {
-                                select: {
-                                    id: true,
-                                    name: true,
-                                    tag: true,
-                                    permissions: true,
-                                    verified: true,
-                                    image: true,
-                                    followerIds: true,
-                                    followingIds: true,
-                                },
-                            },
-                            comments: {
-                                select: {
-                                    id: true,
-                                },
-                            },
-                            reposts: {
-                                select: {
-                                    id: true,
-                                },
-                            },
-                        },
-                    },
-                    comments: {
-                        select: {
-                            id: true,
-                        },
-                    },
-                    reposts: {
-                        select: {
-                            id: true,
-                        },
-                    },
-                },
+                include: postShape,
             });
             let nextCursor: typeof cursor | undefined = undefined;
             if (items.length > (limit ?? 10)) {
@@ -118,63 +119,12 @@ export const postRouter = createTRPCRouter({
     getPost: publicProcedure
         .input(z.object({ id: z.string() }))
         .query(async ({ ctx, input }) => {
-            const userSelect = {
-                select: {
-                    id: true,
-                    name: true,
-                    tag: true,
-                    permissions: true,
-                    verified: true,
-                    image: true,
-                    followerIds: true,
-                    followingIds: true,
-                },
-            };
-
             const post = await ctx.prisma.post.findUnique({
                 where: { id: input.id },
                 include: {
-                    user: userSelect,
-                    quote: {
-                        include: {
-                            user: userSelect,
-                        },
-                    },
-                    comments: {
-                        select: {
-                            id: true,
-                        },
-                    },
-                    reposts: {
-                        select: {
-                            id: true,
-                        },
-                    },
+                    ...postShape,
                     parent: {
-                        include: {
-                            user: userSelect,
-                            quote: {
-                                include: {
-                                    user: userSelect,
-                                    comments: {
-                                        select: {
-                                            id: true,
-                                        },
-                                    },
-                                    reposts: {
-                                        select: {
-                                            id: true,
-                                        },
-                                    },
-                                },
-                            },
-                            parent: {
-                                include: {
-                                    user: userSelect,
-                                    quote: true,
-                                },
-                            },
-                        },
+                        include: postShape,
                     },
                 },
             });
@@ -195,6 +145,7 @@ export const postRouter = createTRPCRouter({
         )
         .query(async ({ ctx, input }) => {
             const { limit, skip, cursor } = input;
+
             const items = await ctx.prisma.post.findMany({
                 take: (limit ?? 10) + 1,
                 skip: skip,
@@ -205,56 +156,7 @@ export const postRouter = createTRPCRouter({
                 where: {
                     parentId: input.id,
                 },
-                include: {
-                    user: {
-                        select: {
-                            id: true,
-                            name: true,
-                            tag: true,
-                            permissions: true,
-                            verified: true,
-                            image: true,
-                            followerIds: true,
-                            followingIds: true,
-                        },
-                    },
-                    quote: {
-                        include: {
-                            user: {
-                                select: {
-                                    id: true,
-                                    name: true,
-                                    tag: true,
-                                    permissions: true,
-                                    verified: true,
-                                    image: true,
-                                    followerIds: true,
-                                    followingIds: true,
-                                },
-                            },
-                            comments: {
-                                select: {
-                                    id: true,
-                                },
-                            },
-                            reposts: {
-                                select: {
-                                    id: true,
-                                },
-                            },
-                        },
-                    },
-                    comments: {
-                        select: {
-                            id: true,
-                        },
-                    },
-                    reposts: {
-                        select: {
-                            id: true,
-                        },
-                    },
-                },
+                include: postShape,
             });
             let nextCursor: typeof cursor | undefined = undefined;
             if (items.length > (limit ?? 10)) {
@@ -285,56 +187,7 @@ export const postRouter = createTRPCRouter({
                     quoteId: input.quote,
                     images: input.images,
                 },
-                include: {
-                    user: {
-                        select: {
-                            id: true,
-                            name: true,
-                            tag: true,
-                            permissions: true,
-                            verified: true,
-                            image: true,
-                            followerIds: true,
-                            followingIds: true,
-                        },
-                    },
-                    quote: {
-                        include: {
-                            user: {
-                                select: {
-                                    id: true,
-                                    name: true,
-                                    tag: true,
-                                    permissions: true,
-                                    verified: true,
-                                    image: true,
-                                    followerIds: true,
-                                    followingIds: true,
-                                },
-                            },
-                            comments: {
-                                select: {
-                                    id: true,
-                                },
-                            },
-                            reposts: {
-                                select: {
-                                    id: true,
-                                },
-                            },
-                        },
-                    },
-                    comments: {
-                        select: {
-                            id: true,
-                        },
-                    },
-                    reposts: {
-                        select: {
-                            id: true,
-                        },
-                    },
-                },
+                include: postShape,
             });
 
             try {

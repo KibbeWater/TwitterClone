@@ -5,7 +5,6 @@ import {
     EllipsisHorizontalIcon,
     XMarkIcon,
 } from "@heroicons/react/24/solid";
-import type { Post } from "@prisma/client";
 import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
@@ -15,16 +14,13 @@ import { useModal } from "~/components/Handlers/ModalHandler";
 import PostComponent from "~/components/Post/Post";
 import PostComposer from "~/components/Post/PostComposer";
 import PostFooter from "~/components/Post/PostFooter";
+import type { PostComponentShape } from "~/components/Post/Post";
 
 import { api } from "~/utils/api";
 
-export default function ImageModal({
-    src,
-    post,
-}: {
-    src: string;
-    post: Post & { reposts: { id: string }[] };
-}) {
+type Post = PostComponentShape;
+
+export default function ImageModal({ src, post }: { src: string; post: Post }) {
     const [commentsOpen, setCommentsOpen] = useState(true);
     const [localPosts, setLocalPosts] = useState<Post[]>([]);
     const [deletedPosts, setDeletedPosts] = useState<string[]>([]);
@@ -57,7 +53,13 @@ export default function ImageModal({
     const posts = [
         ...localPosts,
         ...(data?.pages.reduce(
-            (acc, cur) => [...acc, ...cur.items],
+            (acc, cur) => [
+                ...acc,
+                ...(cur.items as Post[]).map((p) => ({
+                    ...p,
+                    quote: p.quote ? { ...p.quote, quote: null } : null,
+                })),
+            ],
             [] as Post[],
         ) ?? []),
     ]
@@ -219,7 +221,7 @@ export default function ImageModal({
                         <div className="h-px grow mt-3 bg-gray-200 dark:bg-gray-700" />
                     </PostComposer>
                 </div>
-                {posts.map((reply: Post) => (
+                {posts.map((reply) => (
                     <div
                         key={reply.id}
                         className="border-b-[1px] border-highlight-light dark:border-highlight-dark w-full"

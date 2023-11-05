@@ -5,6 +5,7 @@ import {
     UsersIcon as UsersOutline,
     Cog6ToothIcon as CogOutline,
     EnvelopeIcon as EnvelopeOutline,
+    CheckBadgeIcon,
 } from "@heroicons/react/24/outline";
 import {
     BellIcon as BellSolid,
@@ -31,6 +32,8 @@ import PostModal from "~/components/Modals/PostModal";
 import { api } from "~/utils/api";
 import VerifiedCheck from "../Verified";
 import { PERMISSIONS, hasPermission } from "~/utils/permission";
+import PremiumModal from "../Modals/PremiumModal";
+import { isPremium } from "~/utils/user";
 
 export default function Navbar() {
     const [activateUserPanel, setActivateUserPanel] = useState(false);
@@ -48,6 +51,11 @@ export default function Navbar() {
 
     const hasUnreadChats =
         typeof _hasUnreadChats === "boolean" ? _hasUnreadChats : false;
+
+    const isVerified =
+        session?.user &&
+        ((session.user.verified ?? false) || isPremium(session.user)) &&
+        !hasPermission(session.user, PERMISSIONS.HIDE_VERIFICATION);
 
     const router = useRouter();
 
@@ -144,6 +152,15 @@ export default function Navbar() {
                 iconOutline: UserOutline,
             },
             {
+                name: "Premium",
+                activeURLs: [],
+                onClick: () => {
+                    setModal(<PremiumModal />);
+                },
+                iconSolid: CheckBadgeIcon,
+                iconOutline: CheckBadgeIcon,
+            },
+            {
                 name: "Settings",
                 activeURLs: [`/settings`],
                 onClick: () => {
@@ -157,7 +174,7 @@ export default function Navbar() {
                 iconOutline: CogOutline,
             },
         ],
-        [session, router, notifData, hasUnreadChats],
+        [session, router, notifData, hasUnreadChats, setModal],
     );
 
     const user = session?.user;
@@ -338,9 +355,7 @@ export default function Navbar() {
                                             <p className="hidden transition-all lg:block font-bold opacity-0 lg:opacity-100 text-black dark:text-white leading-none truncate whitespace-nowrap">
                                                 {user?.name}
                                             </p>
-                                            {session.user.verified && (
-                                                <VerifiedCheck />
-                                            )}
+                                            {isVerified && <VerifiedCheck />}
                                         </div>
 
                                         <p className="hidden transition-all lg:block opacity-0 lg:opacity-100 w-min text-gray-600 leading-[1.1]">{`@${user?.tag}`}</p>

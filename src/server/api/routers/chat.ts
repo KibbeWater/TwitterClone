@@ -78,6 +78,13 @@ export const chatRouter = createTRPCRouter({
                             image: true,
                             verified: true,
                             followerIds: true,
+                            permissions: true,
+                            roles: {
+                                select: {
+                                    id: true,
+                                    permissions: true,
+                                },
+                            },
                         },
                     },
                 },

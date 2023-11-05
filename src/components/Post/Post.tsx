@@ -1,6 +1,5 @@
 import { TrashIcon } from "@heroicons/react/24/outline";
 import { EllipsisHorizontalIcon, UserIcon } from "@heroicons/react/24/solid";
-import type { Post } from "@prisma/client";
 import { m as motion } from "framer-motion";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
@@ -16,6 +15,34 @@ import VerifiedCheck from "~/components/Verified";
 
 import { api } from "~/utils/api";
 import { PERMISSIONS, hasPermission } from "~/utils/permission";
+import { isPremium } from "~/utils/user";
+
+export type PostComponentShape = {
+    id: string;
+    images: string[];
+    createdAt: Date;
+    content: string;
+    user: {
+        id: string;
+        tag: string | null;
+        name: string | null;
+        verified: boolean | null;
+        image: string | null;
+        followerIds: string[];
+        permissions: string;
+        roles: {
+            id: string;
+            permissions: string;
+        }[];
+    };
+    userId: string;
+    quote: PostComponentShape | null;
+    likeIDs: string[];
+    comments?: { id: string }[];
+    reposts: { id: string }[];
+};
+
+type Post = PostComponentShape;
 
 function isUserFollowing(
     user: { id: string } | undefined,
@@ -50,7 +77,7 @@ export default function PostComponent(p: {
     post: Post;
     isRef?: boolean;
     mini?: boolean;
-    onMutate?: (post: Post) => void;
+    onMutate?: (post: PostComponentShape) => void;
     onDeleted?: () => void;
 }) {
     const [optionsActive, setOptionsActive] = useState(false);
@@ -61,40 +88,22 @@ export default function PostComponent(p: {
     const { mutate: _setFollowing } = api.followers.setFollowing.useMutation();
     const { mutate: _deletePost } = api.post.delete.useMutation();
 
-    const { isRef, mini, onMutate, onDeleted } = p;
-    const post = p.post as Post & {
-        user: {
-            id: string;
-            tag: string;
-            name: string;
-            image: string;
-            verified: boolean;
-            followerIds: string[];
-        };
-        reposts: { id: string }[];
-        quote: Post;
-    };
+    const { isRef, mini, onMutate, onDeleted, post } = p;
 
     const router = useRouter();
     const { setModal } = useModal();
 
     const user = post.user;
-    const avatar = user.image || "/assets/imgs/default-avatar.png";
+    const avatar = user.image ?? "/assets/imgs/default-avatar.png";
+
+    const isVerified =
+        ((user.verified ?? false) || isPremium(user)) &&
+        !hasPermission(user, PERMISSIONS.HIDE_VERIFICATION);
 
     const images = post.images;
 
     const isMe =
         post.user.id === session?.user.id && session?.user !== undefined;
-
-    const handleMutation = useCallback(
-        (post: Post) => {
-            if (onMutate) {
-                onMutate?.(post);
-                return true;
-            } else return false;
-        },
-        [onMutate],
-    );
 
     const [isFollowing, setIsFollowing] = useState(
         isUserFollowing(session?.user, post.user),
@@ -201,7 +210,9 @@ export default function PostComponent(p: {
                                             { id: post.id },
                                             {
                                                 onSuccess: () => onDeleted?.(),
-                                                onError: (err) => alert(err),
+                                                onError(err) {
+                                                    alert(err);
+                                                },
                                             },
                                         );
                                     }}
@@ -270,7 +281,7 @@ export default function PostComponent(p: {
                     <a
                         className={
                             "text-black dark:text-white " +
-                            (!user.verified ? "mr-[5px] " : "") +
+                            (!isVerified ? "mr-[5px] " : "") +
                             "cursor-pointer no-underline font-semibold hover:underline truncate max-w-full max-h-min items-center"
                         }
                         href={`/@${user.tag}`}
@@ -284,7 +295,7 @@ export default function PostComponent(p: {
                         }
                         href={`/@${user.tag}`}
                     >
-                        {user.verified ? (
+                        {isVerified ? (
                             <p className="mr-[5px] flex h-[1em] items-center">
                                 <VerifiedCheck />
                             </p>
@@ -349,7 +360,7 @@ export default function PostComponent(p: {
                             ),
                     )}
                 </div>
-                {!post.quoteId || isRef ? (
+                {!post.quote || isRef ? (
                     <></>
                 ) : (
                     <div
@@ -365,7 +376,17 @@ export default function PostComponent(p: {
                     </div>
                 )}
                 {!isRef && session && (
-                    <PostFooter post={post} onPost={handleMutation} />
+                    <>
+                        <PostFooter
+                            post={post}
+                            onPost={(post) => {
+                                if (onMutate) {
+                                    onMutate?.(post);
+                                    return true;
+                                } else return false;
+                            }}
+                        />
+                    </>
                 )}
             </div>
         </div>

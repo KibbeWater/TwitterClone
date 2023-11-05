@@ -31,7 +31,7 @@ export default function SettingsLayout({
         () => [
             { name: "Your account", slug: "account" },
             { name: "Security and account access", slug: "security" },
-            /* { name: "Privacy and safety", slug: "privacy" }, */
+            { name: "Privacy and safety", slug: "privacy" },
         ],
         [],
     );

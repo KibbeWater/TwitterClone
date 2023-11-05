@@ -111,6 +111,7 @@ export default function Notification({
 
     if (notif.type == "reply" || notif.type == "mention") {
         if (!post) return <PostSkeleton />;
+        // @ts-expect-error Fuck typescript sometimes tbh
         else return <PostComponent post={post} />;
     }
 

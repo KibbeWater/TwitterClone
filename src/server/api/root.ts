@@ -10,6 +10,7 @@ import { roleRouter } from "./routers/role";
 import { s3Router } from "./routers/s3";
 import { userRouter } from "./routers/user";
 import { chatRouter } from "./routers/chat";
+import { stripeRouter } from "./routers/stripe";
 
 /**
  * This is the primary router for your server.
@@ -27,6 +28,7 @@ export const appRouter = createTRPCRouter({
     role: roleRouter,
     ai: aiRouter,
     chat: chatRouter,
+    stripe: stripeRouter,
 });
 
 // export type definition of API

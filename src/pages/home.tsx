@@ -1,5 +1,4 @@
 import { ArrowPathIcon } from "@heroicons/react/24/solid";
-import type { Post } from "@prisma/client";
 import { useSession } from "next-auth/react";
 import { useCallback, useEffect, useState, useMemo } from "react";
 import { useInView } from "react-intersection-observer";
@@ -8,8 +7,11 @@ import PostComponent from "~/components/Post/Post";
 import PostComposer from "~/components/Post/PostComposer";
 import Layout from "~/components/Site/Layouts/Layout";
 import PostSkeleton from "~/components/Skeletons/PostSkeleton";
+import type { PostComponentShape } from "~/components/Post/Post";
 
 import { api } from "~/utils/api";
+
+type Post = PostComponentShape;
 
 export default function Home() {
     const [localPosts, setLocalPosts] = useState<Post[]>([]);
@@ -49,9 +51,15 @@ export default function Home() {
             [
                 ...localPosts,
                 ...(data?.pages.reduce(
-                    (acc, cur) => [...acc, ...cur.items],
+                    (acc, cur) => [
+                        ...acc,
+                        ...cur.items.map((p) => ({
+                            ...p,
+                            quote: p.quote ? { ...p.quote, quote: null } : null,
+                        })),
+                    ],
                     [] as Post[],
-                ) ?? []),
+                ) ?? ([] as Post[])),
             ]
                 .filter((post, index, self) => {
                     return index === self.findIndex((p) => p.id === post.id);

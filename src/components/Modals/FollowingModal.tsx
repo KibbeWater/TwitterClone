@@ -53,7 +53,17 @@ export default function FollowingModal({
                 {data?.map((u) => (
                     <UserContext
                         key={`${followType}-${u.id}`}
-                        user={u}
+                        user={
+                            u as unknown as {
+                                name: string | null;
+                                id: string;
+                                tag: string | null;
+                                image: string | null;
+                                verified: boolean | null;
+                                roles: { id: string; permissions: string }[];
+                                permissions: string;
+                            }
+                        }
                         className="cursor-pointer"
                         onClick={() => {
                             push(`/@${user?.tag}`).catch(console.error);

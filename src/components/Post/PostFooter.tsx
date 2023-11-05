@@ -5,24 +5,23 @@ import {
     ShareIcon,
 } from "@heroicons/react/24/outline";
 import { HeartIcon as HeartSolid } from "@heroicons/react/24/solid";
-import type { Post } from "@prisma/client";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 
 import { useModal } from "~/components/Handlers/ModalHandler";
 import PostModal from "~/components/Modals/PostModal";
+import type { PostComponentShape } from "~/components/Post/Post";
 
 import { api } from "~/utils/api";
+
+type Post = PostComponentShape;
 
 export default function PostFooter({
     post,
     onPost,
 }: {
-    post: Post & {
-        comments?: { id: string }[];
-        reposts?: { id: string }[];
-    };
-    onPost?: (post: Post) => boolean;
+    post: Post;
+    onPost?: (post: PostComponentShape) => boolean;
 }) {
     const user = useSession().data?.user;
     const { setModal } = useModal();

@@ -86,6 +86,7 @@ model User {
     Messages            Message[]      @relation(name: "Sender2User")
     ReadChats           Chat[]         @relation(name: "read", fields: [readChatIds], references: [id])
     readChatIds         String[]       @db.ObjectId
+    stripeCustomer      Customer?      @relation(name: "CustomerToUser")
 }
 
 model VerificationToken {
@@ -117,6 +118,51 @@ model Role {
     userIds     String[] @db.ObjectId
     createdAt   DateTime @default(now())
     updatedAt   DateTime @default(now())
+}
+
+model Customer {
+    id               String         @id @default(auto()) @map("_id") @db.ObjectId
+    stripeCustomerId String         @unique
+    user             User           @relation(name: "CustomerToUser", fields: [userId], references: [id], onDelete: Cascade)
+    userId           String         @unique @db.ObjectId
+    subscriptions    Subscription[]
+
+    @@unique([stripeCustomerId, userId])
+}
+
+enum SubscriptionStatus {
+    incomplete
+    incomplete_expired
+    trialing
+    active
+    past_due
+    canceled
+    unpaid
+    paused
+}
+
+model Subscription {
+    id         String             @id @default(auto()) @map("_id") @db.ObjectId
+    stripeId   String             @unique
+    customer   Customer           @relation(fields: [customerId], references: [id])
+    customerId String             @db.ObjectId
+    status     SubscriptionStatus
+    startDate  DateTime
+    endDate    DateTime
+}
+
+model StripeEvent {
+    id               String   @id @default(auto()) @map("_id") @db.ObjectId
+    stripeId         String   @unique
+    api_version      String?
+    data             Json
+    request          Json?
+    type             String
+    object           String
+    account          String?
+    created          DateTime
+    livemode         Boolean
+    pending_webhooks Int
 }
 
 model Chat {
