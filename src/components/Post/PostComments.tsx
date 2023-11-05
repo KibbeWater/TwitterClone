@@ -1,40 +1,13 @@
 import { ArrowPathIcon } from "@heroicons/react/24/solid";
-import type { Post as _PostType } from "@prisma/client";
 import { useCallback, useEffect, useState } from "react";
 import { useInView } from "react-intersection-observer";
 
-import PostComponent from "~/components/Post/Post";
+import PostComponent, { type PostComponentShape } from "~/components/Post/Post";
 import PostComposer from "~/components/Post/PostComposer";
 
 import { api } from "~/utils/api";
 
-type User = {
-    id: string;
-    name: string | null;
-    tag: string | null;
-    image: string | null;
-    permissions: string;
-    roles: {
-        id: string;
-        permissions: string;
-    }[];
-    verified: boolean | null;
-    followerIds: string[];
-    followingIds: string[];
-};
-
-type Post = _PostType & {
-    user: User;
-    quote:
-        | (_PostType & {
-              user: User;
-              quote: null;
-              reposts: { id: string; user: User }[];
-          })
-        | null;
-    reposts: { id: string; user: User }[];
-    comments?: { id: string }[];
-};
+type Post = PostComponentShape;
 
 export default function PostComments({
     post,
