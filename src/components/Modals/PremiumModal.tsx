@@ -1,14 +1,36 @@
 import { XMarkIcon, CheckIcon } from "@heroicons/react/20/solid";
-import { useModal } from "../Handlers/ModalHandler";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/router";
+
+import { useModal } from "~/components/Handlers/ModalHandler";
+
 import { isPremium as _isPremium } from "~/utils/user";
+import { api } from "~/utils/api";
+import { useCallback } from "react";
 
 export default function PremiumModal() {
     const { closeModal } = useModal();
+    const router = useRouter();
 
     const { data: session } = useSession();
 
+    const {
+        mutate: _generatePaymentSession,
+        isLoading: isGeneratingPaymentSession,
+    } = api.stripe.openPremiumLink.useMutation();
+
     const isPremium = _isPremium(session?.user);
+
+    const generatePaymentSession = useCallback(() => {
+        _generatePaymentSession(
+            {},
+            {
+                onSuccess: (link: string | null) => {
+                    if (link) router.push(link).catch(console.error);
+                },
+            },
+        );
+    }, [_generatePaymentSession, router]);
 
     return (
         <div className="bg-white dark:bg-black shadow-xl rounded-2xl relative flex flex-col overflow-hidden max-w-[600px] max-h-[80vh] w-full">
@@ -69,7 +91,11 @@ export default function PremiumModal() {
                         </div>
                     </div>
                     <div className="flex-none grow-0 py-4 px-8 w-full shadow-[0_-35px_60px_-15px_rgba(0,0,0,0.35)] dark:shadow-[0_-35px_60px_-15px_rgba(255,255,255,0.1)] border-t-[1px] border-highlight-light dark:border-highlight-dark">
-                        <button className="w-full rounded-full bg-black dark:bg-white text-white dark:text-black font-semibold py-1">
+                        <button
+                            onClick={generatePaymentSession}
+                            disabled={isGeneratingPaymentSession}
+                            className="w-full rounded-full bg-black dark:bg-white text-white dark:text-black font-semibold py-1"
+                        >
                             Subscribe & Pay
                         </button>
                     </div>

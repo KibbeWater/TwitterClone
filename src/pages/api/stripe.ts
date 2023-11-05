@@ -24,12 +24,17 @@ export default async function handler(
 
         let event: Stripe.Event;
 
+        console.log("Received event:", sig);
+
         try {
             event = stripe.webhooks.constructEvent(
                 buf,
                 sig as string,
                 webhookSecret,
             );
+
+            console.log("Event constructed");
+            console.log("Switching event type:", event.type);
 
             // Handle the event
             switch (event.type) {
@@ -42,19 +47,108 @@ export default async function handler(
                         prisma,
                     }); */
                     break;
-                case "customer.subscription.created":
-                    // Used to provision services as they are added to a subscription.
-                    /* await handleSubscriptionCreatedOrUpdated({
-                        event,
-                        prisma,
-                    }); */
-                    break;
+                case "customer.subscription.deleted":
                 case "customer.subscription.updated":
-                    // Used to provision services as they are updated.
-                    /* await handleSubscriptionCreatedOrUpdated({
-                        event,
-                        prisma,
-                    }); */
+                case "customer.subscription.created":
+                    const subscription = event.data.object;
+
+                    const customerId =
+                        typeof subscription.customer === "string"
+                            ? subscription.customer
+                            : subscription.customer.id;
+
+                    try {
+                        const newSub = await prisma.subscription.upsert({
+                            where: {
+                                stripeId: subscription.id,
+                            },
+                            update: {
+                                status: subscription.status,
+                                startDate: new Date(
+                                    subscription.start_date * 1000,
+                                ),
+                                endDate: new Date(
+                                    subscription.current_period_end * 1000,
+                                ),
+                            },
+                            create: {
+                                stripeId: subscription.id,
+                                status: subscription.status,
+                                startDate: new Date(
+                                    subscription.start_date * 1000,
+                                ),
+                                endDate: new Date(
+                                    subscription.current_period_end * 1000,
+                                ),
+                                customer: {
+                                    connectOrCreate: {
+                                        where: {
+                                            stripeCustomerId: customerId,
+                                        },
+                                        create: {
+                                            stripeCustomerId: customerId,
+                                            user: {
+                                                connect: {
+                                                    id: subscription.metadata
+                                                        .userId,
+                                                },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                            include: {
+                                customer: true,
+                            },
+                        });
+
+                        if (!env.PREMIUM_ROLE_ID) break;
+
+                        const premiumRole = await prisma.role.findUnique({
+                            where: {
+                                id: env.PREMIUM_ROLE_ID,
+                            },
+                        });
+
+                        const user = await prisma.user.findUnique({
+                            where: {
+                                id: newSub.customer.userId,
+                            },
+                            include: {
+                                stripeCustomer: {
+                                    include: {
+                                        subscriptions: true,
+                                    },
+                                },
+                            },
+                        });
+
+                        if (!premiumRole || !user) break;
+
+                        const hasPremium =
+                            user.stripeCustomer?.subscriptions.some(
+                                (s) =>
+                                    (s.status === "active" ||
+                                        s.status === "trialing") &&
+                                    s.endDate > new Date(),
+                            );
+
+                        await prisma.user.update({
+                            where: {
+                                id: user.id,
+                            },
+                            data: {
+                                roles: {
+                                    [hasPremium ? "connect" : "disconnect"]: {
+                                        id: premiumRole.id,
+                                    },
+                                },
+                            },
+                        });
+                    } catch (error) {
+                        console.error(error);
+                    }
+
                     break;
                 case "invoice.payment_failed":
                     // If the payment fails or the customer does not have a valid payment method,
@@ -63,14 +157,6 @@ export default async function handler(
                     // failed and to retrieve new card details.
                     // Can also have Stripe send an email to the customer notifying them of the failure. See settings: https://dashboard.stripe.com/settings/billing/automatic
                     break;
-                case "customer.subscription.deleted":
-                    // handle subscription cancelled automatically based
-                    // upon your subscription settings.
-                    /* await handleSubscriptionCanceled({
-                        event,
-                        prisma,
-                    }); */
-                    break;
                 default:
                 // Unexpected event type
             }
@@ -78,16 +164,16 @@ export default async function handler(
             // record the event in the database
             await prisma.stripeEvent.create({
                 data: {
-                    id: event.id,
+                    stripeId: event.id,
                     type: event.type,
                     object: event.object,
                     api_version: event.api_version,
                     account: event.account,
                     created: new Date(event.created * 1000),
-                    data: /* {
+                    data: JSON.stringify({
                         object: event.data.object,
                         previous_attributes: event.data.previous_attributes,
-                    } */ "",
+                    }),
                     livemode: event.livemode,
                     pending_webhooks: event.pending_webhooks,
                     request: {
@@ -100,6 +186,7 @@ export default async function handler(
             res.json({ received: true });
         } catch (err) {
             res.status(400).send(err);
+            console.log(err);
             return;
         }
     } else {
