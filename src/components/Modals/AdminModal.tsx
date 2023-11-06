@@ -19,6 +19,7 @@ import {
     addPermission as _addPermission,
 } from "~/utils/permission";
 import ImageOnlyModal from "./ImageOnlyModal";
+import { env } from "~/env.mjs";
 
 export default function AdminModal({
     userId,
@@ -481,7 +482,12 @@ export default function AdminModal({
                                                 .map((r) => (
                                                     <p
                                                         key={r.id}
-                                                        className={`bg-black dark:bg-white text-white dark:text-black px-2 select-none text-sm rounded-full relative cursor-pointer`}
+                                                        className={[
+                                                            `bg-black dark:bg-white text-white dark:text-black px-2 select-none text-sm rounded-full relative cursor-pointer`,
+                                                            env.NEXT_PUBLIC_PREMIUM_ROLE ===
+                                                                r.id &&
+                                                                "!bg-yellow-500 !text-white font-semibold",
+                                                        ].join(" ")}
                                                         onClick={() =>
                                                             setUserRoles(
                                                                 (roles) => [
@@ -505,7 +511,12 @@ export default function AdminModal({
                                                 .map((r) => (
                                                     <p
                                                         key={r.id}
-                                                        className={`bg-black dark:bg-white text-white select-none dark:text-black pl-2 pr-6 text-sm rounded-full relative`}
+                                                        className={[
+                                                            `bg-black dark:bg-white text-white select-none dark:text-black pl-2 pr-6 text-sm rounded-full relative`,
+                                                            env.NEXT_PUBLIC_PREMIUM_ROLE ===
+                                                                r.id &&
+                                                                "!bg-yellow-500 !text-white font-semibold",
+                                                        ].join(" ")}
                                                     >
                                                         {r.name}
                                                         <span
