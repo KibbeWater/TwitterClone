@@ -12,6 +12,7 @@ import GoogleProvide from "next-auth/providers/google";
 
 import { env } from "~/env.mjs";
 import { prisma } from "~/server/db";
+import { isPremium } from "~/utils/user";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -76,8 +77,20 @@ export const authOptions: NextAuthOptions = {
             const usr = await prisma.user.findUnique({
                 where: { id: user.id },
                 select: {
+                    id: true,
                     roles: {
                         select: { id: true, name: true, permissions: true },
+                    },
+                    stripeCustomer: {
+                        select: {
+                            subscriptions: {
+                                select: {
+                                    status: true,
+                                    startDate: true,
+                                    endDate: true,
+                                },
+                            },
+                        },
                     },
                 },
             });
@@ -86,6 +99,28 @@ export const authOptions: NextAuthOptions = {
                 where: { expires: session.expires },
                 data: { lastAccessed: new Date() },
             });
+
+            const hasActiveSubscription =
+                usr?.stripeCustomer?.subscriptions.some(
+                    (sub) =>
+                        sub.status === "active" &&
+                        sub.endDate > new Date() &&
+                        sub.startDate < new Date(),
+                );
+            const hasPremiumRole = usr ? isPremium(usr) : false;
+
+            if (hasActiveSubscription && !hasPremiumRole && usr)
+                await prisma.user.update({
+                    where: { id: usr.id },
+                    data: { roles: { connect: { id: env.PREMIUM_ROLE_ID } } },
+                });
+            else if (!hasActiveSubscription && hasPremiumRole && usr)
+                await prisma.user.update({
+                    where: { id: usr.id },
+                    data: {
+                        roles: { disconnect: { id: env.PREMIUM_ROLE_ID } },
+                    },
+                });
 
             return {
                 ...session,
