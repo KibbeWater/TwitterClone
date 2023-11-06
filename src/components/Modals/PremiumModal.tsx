@@ -21,16 +21,19 @@ export default function PremiumModal() {
 
     const isPremium = _isPremium(session?.user);
 
-    const generatePaymentSession = useCallback(() => {
-        _generatePaymentSession(
-            {},
-            {
-                onSuccess: (link: string | null) => {
-                    if (link) router.push(link).catch(console.error);
+    const generatePaymentSession = useCallback(
+        ({ trial }: { trial?: boolean }) => {
+            _generatePaymentSession(
+                { trial },
+                {
+                    onSuccess: (link: string | null) => {
+                        if (link) router.push(link).catch(console.error);
+                    },
                 },
-            },
-        );
-    }, [_generatePaymentSession, router]);
+            );
+        },
+        [_generatePaymentSession, router],
+    );
 
     return (
         <div className="bg-white dark:bg-black shadow-xl rounded-2xl relative flex flex-col overflow-hidden max-w-[600px] max-h-[80vh] w-full">
@@ -90,13 +93,22 @@ export default function PremiumModal() {
                             ))}
                         </div>
                     </div>
-                    <div className="flex-none grow-0 py-4 px-8 w-full shadow-[0_-35px_60px_-15px_rgba(0,0,0,0.35)] dark:shadow-[0_-35px_60px_-15px_rgba(255,255,255,0.1)] border-t-[1px] border-highlight-light dark:border-highlight-dark">
+                    <div className="flex-none flex gap-4 grow-0 py-4 px-8 w-full shadow-[0_-35px_60px_-15px_rgba(0,0,0,0.35)] dark:shadow-[0_-35px_60px_-15px_rgba(255,255,255,0.1)] border-t-[1px] border-highlight-light dark:border-highlight-dark">
                         <button
-                            onClick={generatePaymentSession}
+                            onClick={() => generatePaymentSession({})}
                             disabled={isGeneratingPaymentSession}
-                            className="w-full rounded-full bg-black dark:bg-white text-white dark:text-black font-semibold py-1"
+                            className="w-full rounded-full bg-black dark:bg-white dark:hover:bg-white/80 hover:bg-black/80 transition-colors text-white dark:text-black disabled:!bg-neutral-500 font-semibold py-1"
                         >
                             Subscribe & Pay
+                        </button>
+                        <button
+                            onClick={() =>
+                                generatePaymentSession({ trial: true })
+                            }
+                            disabled={isGeneratingPaymentSession}
+                            className="w-full rounded-full border-black dark:border-white hover:bg-black/10 dark:hover:bg-white/10 transition-colors border-[2px] dark:text-white text-black font-semibold py-1"
+                        >
+                            Try out for 14 days
                         </button>
                     </div>
                 </div>

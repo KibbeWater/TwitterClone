@@ -103,7 +103,8 @@ export const authOptions: NextAuthOptions = {
             const hasActiveSubscription =
                 usr?.stripeCustomer?.subscriptions.some(
                     (sub) =>
-                        sub.status === "active" &&
+                        (sub.status === "active" ||
+                            sub.status === "trialing") &&
                         sub.endDate > new Date() &&
                         sub.startDate < new Date(),
                 );

@@ -12,8 +12,8 @@ const getBaseUrl = () => {
 
 export const stripeRouter = createTRPCRouter({
     openPremiumLink: protectedProcedure
-        .input(z.object({}))
-        .mutation(async ({ ctx }) => {
+        .input(z.object({ trial: z.boolean().optional() }))
+        .mutation(async ({ ctx, input }) => {
             const { user } = ctx.session;
 
             const fullUser = await ctx.prisma.user.findUnique({
@@ -47,6 +47,7 @@ export const stripeRouter = createTRPCRouter({
                 success_url: `${getBaseUrl()}/`,
                 client_reference_id: user.id,
                 subscription_data: {
+                    trial_period_days: input.trial ? 14 : undefined,
                     metadata: {
                         userId: user.id,
                     },
