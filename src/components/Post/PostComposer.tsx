@@ -9,6 +9,50 @@ import PostTextarea from "~/components/Post/PostTextarea";
 import PostComponent, { type PostComponentShape } from "~/components/Post/Post";
 
 import { api } from "~/utils/api";
+import { isPremium } from "~/utils/user";
+
+function ProgBar({ progress }: { progress: number }) {
+    return (
+        <svg
+            height="100%"
+            viewBox="0 0 20 20"
+            width="100%"
+            className="overflow-visible"
+        >
+            <defs>
+                <clipPath id="clp">
+                    <rect height="100%" width="0" x="0"></rect>
+                </clipPath>
+            </defs>
+            <circle
+                cx="50%"
+                cy="50%"
+                fill="none"
+                r="10"
+                stroke="#2F3336"
+                stroke-width="2"
+            ></circle>
+            <circle
+                cx="50%"
+                cy="50%"
+                fill="none"
+                r="10"
+                stroke="#1D9BF0"
+                stroke-dasharray="100"
+                stroke-dashoffset={`${progress * 100}`}
+                stroke-linecap="round"
+                stroke-width="2"
+            ></circle>
+            <circle
+                cx="50%"
+                cy="50%"
+                clip-path="url(#clp)"
+                fill="#1D9BF0"
+                r="0"
+            ></circle>
+        </svg>
+    );
+}
 
 type Props = {
     placeholder?: string;
@@ -163,6 +207,9 @@ export default function PostComposer({
         };
     }, [maxSizes.image, types, images]);
 
+    const isUserPremium = isPremium(session?.user);
+    const maxLen = isUserPremium ? 1000 : 300;
+
     if (!user) return null;
 
     return (
@@ -200,6 +247,7 @@ export default function PostComposer({
                         placeholder={placeholder ?? "What's happening?"}
                         inline={inline}
                         value={text}
+                        maxLength={maxLen}
                         onChange={receiveTextUpdate}
                         ref={textareaRef}
                     />
@@ -290,7 +338,12 @@ export default function PostComposer({
                                 className="hidden"
                             />
                         </div>
-                        <div>
+                        <div className="flex gap-4 items-center">
+                            <div className="h-8">
+                                <div className="h-8 w-8 rounded-full bg-red-500 p-1">
+                                    <ProgBar progress={text.length / maxLen} />
+                                </div>
+                            </div>
                             <button
                                 className={
                                     "py-[6px] px-4 rounded-full border-0 bg-accent-primary-500 text-white cursor-pointer text-md font-bold transition-colors " +
