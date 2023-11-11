@@ -204,9 +204,10 @@ export default function Message() {
     const getTimestamp = useCallback<(date: Date) => string>((timestamp) => {
         const date = new Date();
 
+        const dte = date.getTime() - timestamp.getTime();
+
         // is today?
-        const isWithing24Hours: boolean =
-            (timestamp.getTime() - date.getTime()) / 1000 / 60 / 60 < 24;
+        const isWithing24Hours: boolean = dte / 1000 / 60 / 60 < 24;
         if (
             date.getFullYear() === timestamp.getFullYear() &&
             date.getMonth() === timestamp.getMonth() &&
