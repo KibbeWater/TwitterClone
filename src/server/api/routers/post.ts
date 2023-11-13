@@ -1,3 +1,4 @@
+import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
 import {
@@ -6,6 +7,7 @@ import {
     publicProcedure,
 } from "~/server/api/trpc";
 import { PERMISSIONS, hasPermission } from "~/utils/permission";
+import { isPremium } from "~/utils/user";
 
 const userSelect = {
     select: {
@@ -179,6 +181,21 @@ export const postRouter = createTRPCRouter({
             }),
         )
         .mutation(async ({ ctx, input }) => {
+            if (!isPremium(ctx.session.user) && input.content.length > 300)
+                throw new TRPCError({
+                    code: "BAD_REQUEST",
+                    message:
+                        "Posts are limited to 300 characters for free users",
+                    cause: "Posts are limited to 300 characters for free users",
+                });
+
+            if (isPremium(ctx.session.user) && input.content.length > 1000)
+                throw new TRPCError({
+                    code: "BAD_REQUEST",
+                    message: "Posts are limited to 1000 characters",
+                    cause: "Posts are limited to 1000 characters",
+                });
+
             const newPost = await ctx.prisma.post.create({
                 data: {
                     content: input.content,

@@ -59,9 +59,9 @@ export default function PremiumModal() {
                                 Enhanced Experience
                             </h3>
                             {[
-                                "Edit post",
+                                /* "Edit post", */
                                 "Longer posts",
-                                "Undo post",
+                                /* "Undo post", */
                                 "Upload videos (PLANNED)",
                             ].map((item, idx) => (
                                 <div
