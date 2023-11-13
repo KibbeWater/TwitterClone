@@ -12,12 +12,19 @@ import { api } from "~/utils/api";
 import { isPremium } from "~/utils/user";
 
 function ProgBar({ progress }: { progress: number }) {
+    const radius = 10;
+
+    const arcLen = 2 * Math.PI * radius;
+    const arcOff = arcLen * (1 - progress);
+
+    const color = "#f01d1d";
+
     return (
         <svg
             height="100%"
             viewBox="0 0 20 20"
             width="100%"
-            className="overflow-visible"
+            className="overflow-visible -rotate-90"
         >
             <defs>
                 <clipPath id="clp">
@@ -28,7 +35,7 @@ function ProgBar({ progress }: { progress: number }) {
                 cx="50%"
                 cy="50%"
                 fill="none"
-                r="10"
+                r={radius}
                 stroke="#2F3336"
                 stroke-width="2"
             ></circle>
@@ -36,10 +43,10 @@ function ProgBar({ progress }: { progress: number }) {
                 cx="50%"
                 cy="50%"
                 fill="none"
-                r="10"
-                stroke="#1D9BF0"
-                stroke-dasharray="100"
-                stroke-dashoffset={`${progress * 100}`}
+                r={radius}
+                stroke={color}
+                stroke-dasharray={arcLen}
+                stroke-dashoffset={arcOff}
                 stroke-linecap="round"
                 stroke-width="2"
             ></circle>
@@ -47,7 +54,7 @@ function ProgBar({ progress }: { progress: number }) {
                 cx="50%"
                 cy="50%"
                 clip-path="url(#clp)"
-                fill="#1D9BF0"
+                fill={color}
                 r="0"
             ></circle>
         </svg>
@@ -87,7 +94,10 @@ export default function PostComposer({
             setText("");
             setImages([]);
         },
-        onError: () => setTempDisabled(true),
+        onError: (err) => {
+            setTempDisabled(true);
+            alert(err.message);
+        },
     });
 
     const { uploadImage, rules, isUploading } = useImageUploader();
@@ -340,7 +350,7 @@ export default function PostComposer({
                         </div>
                         <div className="flex gap-4 items-center">
                             <div className="h-8">
-                                <div className="h-8 w-8 rounded-full bg-red-500 p-1">
+                                <div className="h-8 w-8 rounded-full p-1">
                                     <ProgBar progress={text.length / maxLen} />
                                 </div>
                             </div>
