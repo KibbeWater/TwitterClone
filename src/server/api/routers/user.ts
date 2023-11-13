@@ -180,7 +180,11 @@ export const userRouter = createTRPCRouter({
                 const now = new Date();
                 const diff = now.getTime() - lastTagReset.getTime();
 
-                if (diff > 2592000000) {
+                const resetLength = isPremium(ctx.session.user)
+                    ? 14 * 24 * 60 * 60 * 1000 // 14 days
+                    : 30 * 24 * 60 * 60 * 1000; // 30 days
+
+                if (diff > resetLength) {
                     return await ctx.prisma.user.update({
                         where: { id },
                         data: { tag, lastTagReset: now.toISOString() },
@@ -188,7 +192,11 @@ export const userRouter = createTRPCRouter({
                 } else
                     throw new TRPCError({
                         code: "TOO_MANY_REQUESTS",
-                        message: "You can only change your tag once a month.",
+                        message: `You can only change your tag once every ${
+                            isPremium(ctx.session.user) ? "14 days" : "30 days"
+                        }. Please try again in ${Math.round(
+                            (resetLength - diff) / 1000 / 60 / 60,
+                        )} hours.`,
                         cause: "Tag change cooldown",
                     });
             }

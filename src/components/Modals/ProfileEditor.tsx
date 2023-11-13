@@ -19,6 +19,7 @@ import LabelledInput from "~/components/LabelledInput";
 
 import { api } from "~/utils/api";
 import { usernameRegex } from "~/utils/regexStandards";
+import { isPremium } from "~/utils/user";
 
 export default function ProfileEditor({
     name: defName,
@@ -212,10 +213,13 @@ export default function ProfileEditor({
     const tagRegex = useMemo(() => /^[a-zA-Z0-9_-]{0,16}$/, []);
     const softTagRegex = useMemo(() => usernameRegex, []);
 
+    const resetLength = isPremium(session?.user)
+        ? 14 * 24 * 60 * 60 * 1000 // 14 days
+        : 30 * 24 * 60 * 60 * 1000; // 30 days
+
     // TODO: This is based on the session, we need pass it in as a prop
     const tagResetDate = new Date(
-        new Date(session?.user.lastTagReset ?? 0).getTime() +
-            30 * 24 * 60 * 60 * 1000,
+        new Date(session?.user.lastTagReset ?? 0).getTime() + resetLength,
     );
 
     const isTagResetPast = tagResetDate.getTime() < Date.now();
