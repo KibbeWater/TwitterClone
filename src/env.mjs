@@ -52,6 +52,10 @@ export const env = createEnv({
         PUSHER_APP_KEY: z.string().min(1),
         PUSHER_APP_SECRET: z.string().min(1),
         PUSHER_APP_CLUSTER: z.string().min(1),
+
+        UPSTASH_REDIS_REST_TOKEN: z.string().min(1),
+        UPSTASH_REDIS_REST_URL: z.string().min(1),
+        REDIS_URL: z.string().min(1),
     },
 
     /**
@@ -107,6 +111,10 @@ export const env = createEnv({
         PUSHER_APP_KEY: process.env.PUSHER_APP_KEY,
         PUSHER_APP_SECRET: process.env.PUSHER_APP_SECRET,
         PUSHER_APP_CLUSTER: process.env.PUSHER_APP_CLUSTER,
+
+        UPSTASH_REDIS_REST_TOKEN: process.env.UPSTASH_REDIS_REST_TOKEN,
+        UPSTASH_REDIS_REST_URL: process.env.UPSTASH_REDIS_REST_URL,
+        REDIS_URL: process.env.REDIS_URL,
 
         NEXT_PUBLIC_PUSHER_KEY: process.env.NEXT_PUBLIC_PUSHER_KEY,
         NEXT_PUBLIC_PUSHER_CLUSTER: process.env.NEXT_PUBLIC_PUSHER_CLUSTER,
