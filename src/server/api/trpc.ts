@@ -14,6 +14,7 @@ import superjson from "superjson";
 import { ZodError } from "zod";
 
 import { getServerAuthSession } from "~/server/auth";
+import { ratelimits } from "~/server/ratelimits";
 import { prisma, redis } from "~/server/db";
 
 /**
@@ -42,7 +43,8 @@ const createInnerTRPCContext = (opts: CreateContextOptions) => {
   return {
     session: opts.session,
     prisma,
-    redis
+    redis,
+    ratelimits,
   };
 };
 

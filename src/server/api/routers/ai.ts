@@ -1,8 +1,10 @@
+import { TRPCError } from "@trpc/server";
 import OpenAI from "openai";
 import { z } from "zod";
 
 import { env } from "~/env.mjs";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
+import { isPremium } from "~/utils/user";
 
 const openai = new OpenAI({ apiKey: env.OPENAI_API_KEY });
 const model = "gpt-3.5-turbo";
@@ -16,6 +18,15 @@ export const aiRouter = createTRPCRouter({
         )
         .mutation(async ({ ctx, input }) => {
             const { draftBio: draft } = input;
+
+            const rateLimiter = isPremium(ctx.session.user)
+                ? ctx.ratelimits.AI.premium!
+                : ctx.ratelimits.AI.regular;
+            if ((await rateLimiter.limit(ctx.session.user.id)).success)
+                throw new TRPCError({
+                    code: "TOO_MANY_REQUESTS",
+                    message: "You are sending too many requests.",
+                });
 
             const user = await ctx.prisma.user.findUnique({
                 where: {
