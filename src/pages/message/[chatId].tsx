@@ -28,9 +28,14 @@ type DM = {
     };
 };
 
+type LocalDM = DM & {
+    status?: "sending" | "sent" | "failed";
+    error?: string;
+};
+
 export default function Message() {
     const [streamedMessages, setStreamedMessages] = useState<DM[]>([]);
-    const [localMessages, setLocalMessages] = useState<DM[]>([]);
+    const [localMessages, setLocalMessages] = useState<LocalDM[]>([]);
 
     const [image, setImage] = useState<string | undefined | null>(undefined);
     const [imageFile, setImageFile] = useState<File | undefined>(undefined);
@@ -60,6 +65,7 @@ export default function Message() {
         },
         {
             enabled: !!chatId,
+            keepPreviousData: true,
             getNextPageParam: (lastPage) => lastPage.nextCursor,
         },
     );
@@ -134,16 +140,23 @@ export default function Message() {
         const channelName = `chat-${chatId}`;
         const channel = pusher.subscribe(channelName);
 
-        channel.bind("new-message", () => refetchMessages());
+        channel.bind("new-message", (senderId: string) => {
+            if (senderId !== session?.user.id)
+                refetchMessages().catch(console.error);
+        });
 
         return () => {
             channel.unbind("new-message");
 
             pusher.unsubscribe(channelName);
         };
-    }, [chatId, refetchMessages]);
+    }, [chatId, refetchMessages, session?.user.id]);
 
-    const msgs = [...(messages ?? []), ...streamedMessages, ...localMessages]
+    const msgs: LocalDM[] = [
+        ...(messages ?? []),
+        ...streamedMessages,
+        ...localMessages,
+    ]
         .sort(
             (a, b) =>
                 new Date(a.createdAt).getTime() -
@@ -154,43 +167,87 @@ export default function Message() {
         });
 
     const batchedMsgs = useMemo(() => {
-        const batches: DM[][] = [];
+        const batches: LocalDM[][] = [];
         msgs.forEach((msg) => {
             const lastBatch = batches[batches.length - 1] ?? [];
             const lastMsg = lastBatch[lastBatch.length - 1];
+
+            const lastStatus = lastMsg?.status ?? "sent";
+            const curStatus = msg.status ?? "sent";
 
             if (
                 lastMsg &&
                 new Date(msg.createdAt).getTime() -
                     new Date(lastMsg.createdAt).getTime() <
                     1000 * 60 * 5 &&
-                lastMsg.userId === msg.userId
-            ) {
+                lastMsg.userId === msg.userId &&
+                lastStatus === curStatus
+            )
                 lastBatch.push(msg);
-            } else {
-                batches.push([msg]);
-            }
+            else batches.push([msg]);
         });
         return batches;
     }, [msgs]);
 
     const sendChat = useCallback<(message: string) => void>(
         async (msg) => {
+            if (!text && !image) return;
+            if (!session?.user) return;
+
+            const tempId = Math.random().toString(36).substr(2, 9);
+            const tempChat: LocalDM = {
+                id: tempId,
+                createdAt: new Date(),
+                image: image ?? null,
+                status: "sending",
+                userId: session.user.id,
+                message: msg,
+                sender: {
+                    id: session.user.id,
+                    name: session.user.name ?? null,
+                    tag: session.user.tag,
+                    image: session.user.image ?? null,
+                },
+            };
+
+            setLocalMessages((prev) => [...prev, tempChat]);
+
             let img: string | null = null;
             if (imageFile) img = await uploadImage(imageFile, "chat");
+
+            setText("");
+            setImage(undefined);
+            setImageFile(undefined);
+
             _sendChat(
                 { chatId, message: msg, image: img ?? undefined },
                 {
                     onSuccess(data) {
-                        setLocalMessages((prev) => [...prev, data]);
-                        setText("");
-                        setImage(undefined);
-                        setImageFile(undefined);
+                        setLocalMessages((prev) =>
+                            [...prev, data].filter((msg) => msg.id !== tempId),
+                        );
+                    },
+                    onError(err) {
+                        setLocalMessages((prev) =>
+                            prev.map((msg) => {
+                                if (msg.id === tempId)
+                                    return {
+                                        ...msg,
+                                        status: "failed",
+                                        error:
+                                            err.data?.code ===
+                                            "TOO_MANY_REQUESTS"
+                                                ? "You are sending too many messages."
+                                                : "Failed to send message",
+                                    };
+                                return msg;
+                            }),
+                        );
                     },
                 },
             );
         },
-        [_sendChat, imageFile, chatId, uploadImage],
+        [_sendChat, imageFile, text, image, session?.user, chatId, uploadImage],
     );
 
     const isSender = useCallback<(msg: { userId: string }) => boolean>(
@@ -367,7 +424,6 @@ export default function Message() {
                                 <input
                                     type="text"
                                     ref={inputRef}
-                                    disabled={isSendingChat}
                                     value={text}
                                     onChange={(e) => setText(e.target.value)}
                                     placeholder="Start a new message"
@@ -386,9 +442,7 @@ export default function Message() {
                         </div>
                     </div>
                     <button
-                        disabled={
-                            isSendingChat || isUploading || (!text && !image)
-                        }
+                        disabled={isUploading || (!text && !image)}
                         onClick={() => sendChat(text)}
                         className="h-8 w-8 p-1 bg-transparent hover:bg-neutral-500/50 disabled:hover:bg-transparent disabled:text-neutral-500 rounded-full transition-colors"
                     >
@@ -477,7 +531,10 @@ export default function Message() {
                                                         className={[
                                                             "px-4 py-2 rounded-t-3xl overflow-hidden text-white text-right",
                                                             isSender(msg)
-                                                                ? "bg-accent-primary-500"
+                                                                ? msg.status ===
+                                                                  "sending"
+                                                                    ? "bg-accent-primary-500/50"
+                                                                    : "bg-accent-primary-500"
                                                                 : "bg-neutral-800",
                                                             idx ===
                                                             arr.length - 1
@@ -495,11 +552,21 @@ export default function Message() {
                                     </div>
                                 ))}
                             </div>
-                            {batch[0] && (
-                                <p className="text-sm text-neutral-500">
-                                    {getTimestamp(batch[0].createdAt)}
-                                </p>
-                            )}
+                            {batch[0] &&
+                                (batch[0].status === "sending" ? (
+                                    <p className="text-sm text-neutral-500">
+                                        Sending...
+                                    </p>
+                                ) : batch[0].status === "failed" ? (
+                                    <p className="text-sm text-red-500">
+                                        {batch[0].error ??
+                                            "Failed to send message"}
+                                    </p>
+                                ) : (
+                                    <p className="text-sm text-neutral-500">
+                                        {getTimestamp(batch[0].createdAt)}
+                                    </p>
+                                ))}
                         </div>
                     ))}
                 </div>

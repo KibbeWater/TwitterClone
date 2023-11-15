@@ -182,7 +182,7 @@ export const postRouter = createTRPCRouter({
         )
         .mutation(async ({ ctx, input }) => {
             if (
-                (
+                !(
                     await ctx.ratelimits.post.create.regular.limit(
                         ctx.session.user.id,
                     )

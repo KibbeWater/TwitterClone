@@ -22,7 +22,7 @@ export const aiRouter = createTRPCRouter({
             const rateLimiter = isPremium(ctx.session.user)
                 ? ctx.ratelimits.AI.premium!
                 : ctx.ratelimits.AI.regular;
-            if ((await rateLimiter.limit(ctx.session.user.id)).success)
+            if (!(await rateLimiter.limit(ctx.session.user.id)).success)
                 throw new TRPCError({
                     code: "TOO_MANY_REQUESTS",
                     message: "You are sending too many requests.",
