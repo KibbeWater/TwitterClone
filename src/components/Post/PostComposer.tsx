@@ -350,7 +350,13 @@ export default function PostComposer({
                         </div>
                         <div className="flex gap-4 items-center">
                             <div className="h-8">
-                                <div className="h-8 w-8 rounded-full p-1">
+                                <div
+                                    className={`h-8 w-8 rounded-full p-1 transition-opacity ${
+                                        text.length !== 0
+                                            ? "opacity-100"
+                                            : "opacity-0"
+                                    }`}
+                                >
                                     <ProgBar progress={text.length / maxLen} />
                                 </div>
                             </div>
