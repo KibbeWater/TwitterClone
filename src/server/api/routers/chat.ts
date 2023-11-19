@@ -180,6 +180,19 @@ export const chatRouter = createTRPCRouter({
         .mutation(async ({ ctx, input }) => {
             const { participants: _participants } = input;
 
+            if (
+                !(
+                    await ctx.ratelimits.chat.create.regular.limit(
+                        ctx.session.user.id,
+                    )
+                ).success
+            )
+                throw new TRPCError({
+                    code: "TOO_MANY_REQUESTS",
+                    message: "You are creating chats too fast.",
+                    cause: "You are creating chats too fast.",
+                });
+
             const participants = [
                 ..._participants.filter((p) => p !== ctx.session.user.id),
                 ctx.session.user.id,
@@ -230,6 +243,19 @@ export const chatRouter = createTRPCRouter({
         )
         .mutation(async ({ ctx, input }) => {
             const { chatId, message, image } = input;
+            console.log(ctx.session.user.id);
+            if (
+                !(
+                    await ctx.ratelimits.chat.send.regular.limit(
+                        ctx.session.user.id,
+                    )
+                ).success
+            )
+                throw new TRPCError({
+                    code: "TOO_MANY_REQUESTS",
+                    message: "You are sending messages too fast.",
+                    cause: "You are sending messages too fast.",
+                });
 
             const chat = await ctx.prisma.chat.findUnique({
                 where: {
@@ -299,7 +325,7 @@ export const chatRouter = createTRPCRouter({
                 await pusherServer.trigger(
                     [`chat-${newMessage.chatId}`, ...chat.participantIds],
                     "new-message",
-                    null,
+                    ctx.session.user.id,
                 );
             } catch (err) {
                 console.error(err);
