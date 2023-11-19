@@ -181,6 +181,18 @@ export const postRouter = createTRPCRouter({
             }),
         )
         .mutation(async ({ ctx, input }) => {
+            if (
+                !(
+                    await ctx.ratelimits.post.create.regular.limit(
+                        ctx.session.user.id,
+                    )
+                ).success
+            )
+                throw new TRPCError({
+                    code: "TOO_MANY_REQUESTS",
+                    message: "You are sending too many requests.",
+                });
+
             if (!isPremium(ctx.session.user) && input.content.length > 300)
                 throw new TRPCError({
                     code: "BAD_REQUEST",
