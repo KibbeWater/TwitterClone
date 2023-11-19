@@ -48,8 +48,12 @@ export default function Message() {
     const { data: session } = useSession();
     const { setModal } = useModal();
 
-    const { mutate: _sendChat, isLoading: isSendingChat } =
-        api.chat.sendChatMessage.useMutation();
+    const {
+        mutate: _sendChat,
+        isLoading: isSendingChat,
+        isError: errorSending,
+        error: sendingErrorMsg,
+    } = api.chat.sendChatMessage.useMutation();
 
     const { data: chat } = api.chat.fetchChat.useQuery(
         { chatId },
@@ -168,9 +172,21 @@ export default function Message() {
 
     const batchedMsgs = useMemo(() => {
         const batches: LocalDM[][] = [];
-        msgs.forEach((msg) => {
+        msgs.forEach((_msg) => {
             const lastBatch = batches[batches.length - 1] ?? [];
             const lastMsg = lastBatch[lastBatch.length - 1];
+
+            let msg = _msg;
+
+            if (msg.status === "sending" && errorSending)
+                msg = {
+                    ...msg,
+                    status: "failed",
+                    error:
+                        sendingErrorMsg.data?.code === "TOO_MANY_REQUESTS"
+                            ? "Sending too many messages"
+                            : "Failed to send message(s)",
+                };
 
             const lastStatus = lastMsg?.status ?? "sent";
             const curStatus = msg.status ?? "sent";
@@ -187,7 +203,7 @@ export default function Message() {
             else batches.push([msg]);
         });
         return batches;
-    }, [msgs]);
+    }, [msgs, errorSending, sendingErrorMsg]);
 
     const sendChat = useCallback<(message: string) => void>(
         async (msg) => {
@@ -238,7 +254,7 @@ export default function Message() {
                                             err.data?.code ===
                                             "TOO_MANY_REQUESTS"
                                                 ? "You are sending too many messages."
-                                                : "Failed to send message",
+                                                : "Failed to send message(s)",
                                     };
                                 return msg;
                             }),
@@ -534,6 +550,9 @@ export default function Message() {
                                                                 ? msg.status ===
                                                                   "sending"
                                                                     ? "bg-accent-primary-500/50"
+                                                                    : msg.status ===
+                                                                      "failed"
+                                                                    ? "bg-accent-primary-500/50"
                                                                     : "bg-accent-primary-500"
                                                                 : "bg-neutral-800",
                                                             idx ===
@@ -560,7 +579,7 @@ export default function Message() {
                                 ) : batch[0].status === "failed" ? (
                                     <p className="text-sm text-red-500">
                                         {batch[0].error ??
-                                            "Failed to send message"}
+                                            "Failed to send message(s)"}
                                     </p>
                                 ) : (
                                     <p className="text-sm text-neutral-500">
