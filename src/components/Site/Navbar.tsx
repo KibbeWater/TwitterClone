@@ -345,7 +345,7 @@ export default function Navbar() {
                                                 alt={"Your Avatar"}
                                                 sizes={"100vw"}
                                                 fill
-                                                className={"rounded-full"}
+                                                className={"rounded-full object-cover"}
                                             />
                                         </div>
                                     </div>
