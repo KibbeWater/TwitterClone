@@ -1,15 +1,14 @@
 import { useSession } from "next-auth/react";
 import Image from "next/image";
-import { useRouter } from "next/router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDropzone } from "react-dropzone";
 
 import {
-    XMarkIcon,
-    SparklesIcon,
-    ChevronLeftIcon,
     CheckIcon,
+    ChevronLeftIcon,
     ChevronRightIcon,
+    SparklesIcon,
+    XMarkIcon,
 } from "@heroicons/react/20/solid";
 import { CameraIcon } from "@heroicons/react/24/outline";
 
@@ -26,11 +25,13 @@ export default function ProfileEditor({
     bio: defBio,
     avatar: defAvatar,
     banner: defBanner,
+    onSave,
 }: {
     name: string;
     bio: string;
     avatar: string;
     banner: string | undefined | null;
+    onSave?: () => void;
 }) {
     const [name, setName] = useState(defName);
     const [tag, setTag] = useState<string | undefined>(undefined);
@@ -42,16 +43,18 @@ export default function ProfileEditor({
     const [aiBio, setAIBio] = useState<string[]>([]);
     const [aiBioIndex, setAIBioIndex] = useState<number>(0);
 
-    const { data: session, update: _updateSession } = useSession();
-    const router = useRouter();
+    const [isSaving, setIsSaving] = useState<boolean>(false);
 
-    const { mutate: _updateProfile } = api.user.updateProfile.useMutation();
+    const { data: session, update: _updateSession } = useSession();
+
+    const { mutate: _updateProfile, isLoading: isUpdatingProfile } =
+        api.user.updateProfile.useMutation();
     const { mutate: _generateBio, isLoading: isGeneratingAiBio } =
         api.ai.generateBio.useMutation({
             onSuccess: (data) => setAIBio(data),
         });
 
-    const { uploadImage, rules } = useImageUploader();
+    const { uploadImage, rules, isUploading } = useImageUploader();
     const { sizes: maxSizes } = rules;
 
     const { closeModal } = useModal();
@@ -147,6 +150,7 @@ export default function ProfileEditor({
     }, [session?.user]);
 
     const handleSave = useCallback(async () => {
+        setIsSaving(true);
         const newURLs: { avatar?: string; banner?: string } = {};
         if (bannerFile)
             newURLs.banner = await uploadImage(bannerFile, "banner");
@@ -162,14 +166,19 @@ export default function ProfileEditor({
             },
             {
                 onSuccess: () => {
-                    if (tag !== session?.user?.tag)
-                        router
-                            .push("/")
-                            .then(() => _updateSession())
-                            .catch(console.error);
-                    closeModal();
+                    _updateSession()
+                        .then(() => {
+                            closeModal();
+                            onSave?.();
+                            setTimeout(() => setIsSaving(false), 250);
+                        })
+                        .catch(() => {
+                            setIsSaving(false);
+                            alert("Failed to update session");
+                        });
                 },
                 onError: (e) => {
+                    setIsSaving(false);
                     console.error(e);
                     alert(e.message);
                 },
@@ -187,8 +196,8 @@ export default function ProfileEditor({
         avatarFile,
         uploadImage,
         closeModal,
-        router,
         _updateSession,
+        onSave,
     ]);
 
     useEffect(() => {
@@ -246,7 +255,12 @@ export default function ProfileEditor({
                                 console.error("Failed to save"),
                             );
                         }}
-                        className="dark:bg-white bg-black dark:hover:bg-gray-200 hover:bg-gray-700 transition-colors duration-300 dark:text-black text-white px-4 py-1 font-semibold rounded-full"
+                        disabled={isUploading ?? isUpdatingProfile ?? isSaving}
+                        className={[
+                            "dark:bg-white bg-black dark:hover:bg-gray-200 hover:bg-gray-700 rounded-full",
+                            "transition-colors duration-300 dark:text-black text-white px-4 py-1 font-semibold",
+                            "disabled:!bg-gray-500 disabled:cursor-default",
+                        ].join(" ")}
                     >
                         Save
                     </button>

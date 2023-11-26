@@ -126,6 +126,11 @@ export default function Home() {
                                                     bio={bio}
                                                     avatar={profile.image!}
                                                     banner={profile.banner}
+                                                    onSave={() => {
+                                                        refetch().catch(
+                                                            console.error,
+                                                        );
+                                                    }}
                                                 />,
                                             )
                                         }
