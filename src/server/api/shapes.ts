@@ -20,6 +20,9 @@ export const fullUserShape = {
 };
 
 export const postShape = {
+    id: true,
+    content: true,
+    createdAt: true,
     user: { select: userShape },
     quote: {
         include: {
