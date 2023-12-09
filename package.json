@@ -32,6 +32,7 @@
     "@types/ua-parser-js": "^0.7.38",
     "@upstash/ratelimit": "^0.4.4",
     "@upstash/redis": "^1.25.1",
+    "@vercel/speed-insights": "^1.0.1",
     "bcrypt": "^5.1.1",
     "framer-motion": "^10.16.4",
     "micro": "^10.0.1",
