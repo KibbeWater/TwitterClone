@@ -1,7 +1,6 @@
 import { ChevronRightIcon, PlusIcon } from "@heroicons/react/20/solid";
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
 import { ArrowLeftIcon } from "@heroicons/react/24/solid";
-import { SpeedInsights } from "@vercel/speed-insights/next";
 import { useSession } from "next-auth/react";
 import Head from "next/head";
 import Image from "next/image";
@@ -163,7 +162,7 @@ export default function MessagesLayout({
             <Head>
                 <title>Twatter - Messages</title>
             </Head>
-            <body className="parent w-screen h-screen flex relative bg-white dark:bg-black">
+            <div className="parent w-screen h-screen flex relative bg-white dark:bg-black">
                 <Navbar />
 
                 <div
@@ -303,8 +302,7 @@ export default function MessagesLayout({
                     </main>
                 </div>
                 <div className="w-1/6 grow-0 shrink-0 border-l-[1px] lg:block hidden border-highlight-light dark:border-highlight-dark"></div>
-                <SpeedInsights />
-            </body>
+            </div>
         </>
     );
 }

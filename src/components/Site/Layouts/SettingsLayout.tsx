@@ -4,7 +4,6 @@ import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { SpeedInsights } from "@vercel/speed-insights/next";
 
 import Navbar from "../Navbar";
 
@@ -68,7 +67,7 @@ export default function SettingsLayout({
             <Head>
                 <title>Twatter - Settings</title>
             </Head>
-            <body className="parent w-screen h-screen flex relative bg-white dark:bg-black">
+            <div className="parent w-screen h-screen flex relative bg-white dark:bg-black">
                 <Navbar />
 
                 <div
@@ -131,8 +130,7 @@ export default function SettingsLayout({
                     <main className="overflow-hidden">{children}</main>
                 </div>
                 <div className="w-1/6 grow-0 border-l-[1px] lg:block hidden border-highlight-light dark:border-highlight-dark"></div>
-                <SpeedInsights />
-            </body>
+            </div>
         </>
     );
 }
