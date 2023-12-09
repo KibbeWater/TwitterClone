@@ -1,4 +1,5 @@
 import Head from "next/head";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 import Navbar from "../Navbar";
 import Filters from "../Filters";
@@ -22,7 +23,7 @@ export default function Layout({ title, children }: LayoutProps) {
             <Head>
                 <title>{`Twatter${title ? ` - ${title}` : ""}`}</title>
             </Head>
-            <div className="parent w-screen h-screen flex relative">
+            <body className="parent w-screen h-screen flex relative">
                 <Navbar />
                 <div
                     className={
@@ -62,7 +63,8 @@ export default function Layout({ title, children }: LayoutProps) {
                         <LoginBanner />
                     </div>
                 )}
-            </div>
+                <SpeedInsights />
+            </body>
         </>
     );
 }
