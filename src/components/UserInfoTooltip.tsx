@@ -63,7 +63,7 @@ export default function UserInfoTooltip({ user }: { user: User }) {
 
     return (
         <div
-            className="flex flex-col gap-2 rounded-xl bg-white dark:bg-black shadow-white min-w-[18rem] p-4 cursor-default"
+            className="flex flex-col gap-2 rounded-xl bg-white dark:bg-black shadow-white min-w-[18rem] max-w-sm p-4 cursor-default"
             onClick={(e) => e.stopPropagation()}
         >
             <div className="flex justify-between">
