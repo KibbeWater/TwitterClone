@@ -52,6 +52,7 @@
     "react-fontawesome-svg-icon": "^1.1.2",
     "react-intersection-observer": "^9.5.2",
     "react-textarea-autosize": "^8.5.3",
+    "react-tooltip": "^5.25.0",
     "sharp": "^0.32.6",
     "stripe": "^13.10.0",
     "superjson": "^1.13.1",

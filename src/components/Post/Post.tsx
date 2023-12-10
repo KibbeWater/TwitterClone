@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { useCallback, useEffect, useState } from "react";
+import { Tooltip } from "react-tooltip";
 
 import { useModal } from "~/components/Handlers/ModalHandler";
 import { LazyMotionWrapper } from "~/components/LazyMotionWrapper";
@@ -16,6 +17,7 @@ import VerifiedCheck from "~/components/Verified";
 import { api } from "~/utils/api";
 import { PERMISSIONS, hasPermission } from "~/utils/permission";
 import { isPremium } from "~/utils/user";
+import UserInfoTooltip from "../UserInfoTooltip";
 
 export type PostComponentShape = {
     id: string;
@@ -26,9 +28,11 @@ export type PostComponentShape = {
         id: string;
         tag: string | null;
         name: string | null;
+        bio: string | null;
         verified: boolean | null;
         image: string | null;
         followerIds: string[];
+        followingIds: string[];
         permissions: string;
         roles: {
             id: string;
@@ -261,6 +265,9 @@ export default function PostComponent(p: {
             >
                 <div
                     onClick={(e) => e.stopPropagation()}
+                    data-tooltip-id={`${post.id}-usernames`}
+                    data-tooltip-place="bottom-start"
+                    data-tooltip-delay-show={750}
                     className={
                         "max-w-full w-full pr-9 flex-nowrap flex overflow-hidden items-center"
                     }
@@ -311,6 +318,15 @@ export default function PostComponent(p: {
                         {FormatDate(post.createdAt)}
                     </span>
                 </div>
+                <Tooltip
+                    id={`${post.id}-usernames`}
+                    clickable
+                    arrowColor="transparent"
+                    opacity={1}
+                    style={{ background: "0", zIndex: 10 }}
+                >
+                    <UserInfoTooltip user={user} />
+                </Tooltip>
                 <PostContent post={post} />
                 <div
                     className="w-9/12 aspect-[5/3] mb-2 grid grid-cols-2 rounded-xl overflow-hidden gap-[2px] justify-self-center border-[1px] border-highlight-light dark:border-highlight-dark"
