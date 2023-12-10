@@ -14,6 +14,7 @@ const userSelect = {
         id: true,
         name: true,
         tag: true,
+        bio: true,
         permissions: true,
         roles: {
             select: {

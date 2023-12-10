@@ -26,6 +26,7 @@ type User = {
     id: string;
     name: string | null;
     tag: string | null;
+    bio: string | null;
     image: string | null;
     permissions: string;
     roles: {

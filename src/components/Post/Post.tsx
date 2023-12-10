@@ -32,6 +32,7 @@ export type PostComponentShape = {
         verified: boolean | null;
         image: string | null;
         followerIds: string[];
+        followingIds: string[];
         permissions: string;
         roles: {
             id: string;
@@ -266,6 +267,7 @@ export default function PostComponent(p: {
                     onClick={(e) => e.stopPropagation()}
                     data-tooltip-id={`${post.id}-usernames`}
                     data-tooltip-place="bottom-start"
+                    data-tooltip-delay-show={750}
                     className={
                         "max-w-full w-full pr-9 flex-nowrap flex overflow-hidden items-center"
                     }
@@ -321,7 +323,7 @@ export default function PostComponent(p: {
                     clickable
                     arrowColor="transparent"
                     opacity={1}
-                    style={{ background: "0" }}
+                    style={{ background: "0", zIndex: 10 }}
                 >
                     <UserInfoTooltip user={user} />
                 </Tooltip>
