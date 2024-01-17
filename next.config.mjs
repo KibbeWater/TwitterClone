@@ -37,6 +37,8 @@ const config = {
         locales: ["en"],
         defaultLocale: "en",
     },
+
+    output: process.env.DOCKER_BUILD ? "standalone" : undefined,
 };
 
 export default withBundleAnalyzer({
