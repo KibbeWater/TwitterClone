@@ -18,6 +18,13 @@ RUN \
     else echo "Lockfile not found." && exit 1; \
     fi
 
+RUN \
+    if [ -f yarn.lock ]; then yarn add sharp; \
+    elif [ -f package-lock.json ]; then npm i sharp; \
+    elif [ -f pnpm-lock.yaml ]; then yarn global add pnpm && pnpm i sharp; \
+    else echo "Lockfile not found." && exit 1; \
+    fi
+
 ##### BUILDER
 
 FROM --platform=linux/amd64 node:20-alpine AS builder
@@ -35,17 +42,7 @@ ARG PUSHER_KEY
 ARG UPSTASH_TOKEN
 ARG UPSTASH_URL
 
-ENV NEXT_PUBLIC_PUSHER_CLUSTER $PUSHER_CLUSTER
-ENV NEXT_PUBLIC_PUSHER_KEY $PUSHER_KEY
-ENV UPSTASH_REDIS_REST_TOKEN $UPSTASH_TOKEN
-ENV UPSTASH_REDIS_REST_URL $UPSTASH_URL
-
-RUN \
-    if [ -f yarn.lock ]; then SKIP_ENV_VALIDATION=1 yarn build; \
-    elif [ -f package-lock.json ]; then SKIP_ENV_VALIDATION=1 npm run build; \
-    elif [ -f pnpm-lock.yaml ]; then yarn global add pnpm && SKIP_ENV_VALIDATION=1 pnpm run build; \
-    else echo "Lockfile not found." && exit 1; \
-    fi
+RUN SKIP_ENV_VALIDATION=1 NEXT_PUBLIC_PUSHER_CLUSTER=$PUSHER_CLUSTER NEXT_PUBLIC_PUSHER_KEY=$PUSHER_KEY UPSTASH_REDIS_REST_TOKEN="$UPSTASH_TOKEN" UPSTASH_REDIS_REST_URL="$UPSTASH_URL" npm run build
 
 ##### RUNNER
 
