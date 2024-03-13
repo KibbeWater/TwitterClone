@@ -61,6 +61,8 @@ export default function SecuritySessions() {
         [sessions, session?.expires, sessionUAMapper],
     );
 
+    console.log(otherSessions?.map((s) => s.userAgent.getUA()));
+
     const logOutOtherSessions = useCallback(() => {
         if (!otherSessions) return;
         _deleteSessions({
@@ -69,12 +71,22 @@ export default function SecuritySessions() {
     }, [otherSessions, _deleteSessions]);
 
     const getPlatform = (agent: UAParser.UAParserInstance) => {
-        if (agent.getDevice().type) return "mobile";
+        console.log(agent.getDevice(), agent.getUA());
+        if (
+            agent.getDevice().type === "mobile" ||
+            agent.getUA() === "Twatter for iOS"
+        )
+            return "mobile";
         const isCommonDesktopArch = ["ia32", "ia64", "amd64"].includes(
             agent.getCPU().architecture ?? "undef",
         );
         if (isCommonDesktopArch) return "desktop";
         return "unknown";
+    };
+
+    const getBrowser = (agent: UAParser.UAParserInstance) => {
+        if (agent.getUA() === "Twatter for iOS") return "Twatter for iOS";
+        return agent.getBrowser().name;
     };
 
     const getLastAccessed = (lastAccess: Date) => {
@@ -111,8 +123,8 @@ export default function SecuritySessions() {
                             <DeviceInfo
                                 sessionId={currentSession.id ?? "unknown"}
                                 name={
-                                    currentSession?.userAgent.getBrowser()
-                                        .name ?? "Unknown"
+                                    getBrowser(currentSession.userAgent) ??
+                                    "Unknown"
                                 }
                                 device={getPlatform(currentSession?.userAgent)}
                                 active={true}
@@ -168,14 +180,9 @@ export default function SecuritySessions() {
                             <DeviceInfo
                                 key={s.id}
                                 sessionId={s.id}
-                                name={
-                                    currentSession?.userAgent.getBrowser()
-                                        .name ?? "Unknown"
-                                }
+                                name={getBrowser(s?.userAgent) ?? "Unknown"}
                                 device={
-                                    currentSession
-                                        ? getPlatform(currentSession.userAgent)
-                                        : "unknown"
+                                    s ? getPlatform(s.userAgent) : "unknown"
                                 }
                                 active={getLastAccessed(s.lastAccessed)}
                             />
