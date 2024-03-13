@@ -23,8 +23,8 @@ export default function DeviceInfo({
         device === "desktop"
             ? ComputerDesktopIcon
             : device === "mobile"
-            ? DevicePhoneMobileIcon
-            : GlobeAmericasIcon;
+              ? DevicePhoneMobileIcon
+              : GlobeAmericasIcon;
 
     return !noNav ? (
         <Link
