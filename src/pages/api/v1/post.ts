@@ -187,6 +187,7 @@ export const apiPublicUserShape = {
 export const apiFullUserShape = {
     ...apiPublicUserShape,
     email: true,
+    lastTagReset: true,
 };
 
 export const apiPostShape = {
