@@ -65,7 +65,7 @@ async function getPosts(req: NextApiRequest, res: NextApiResponse) {
                 id: z.string().optional(),
                 name: z.string().optional(),
                 tag: z.string().optional(),
-                size: z
+                limit: z
                     .string()
                     .optional()
                     .transform((value) => Number(value))
@@ -81,7 +81,7 @@ async function getPosts(req: NextApiRequest, res: NextApiResponse) {
             ),
         z.object({
             page: z.number(),
-            size: z
+            limit: z
                 .string()
                 .optional()
                 .transform((value) => Number(value))
@@ -97,16 +97,14 @@ async function getPosts(req: NextApiRequest, res: NextApiResponse) {
             .status(400)
             .send({ success: false, message: body.error.message });
 
-    console.log(body.data);
-
     const input = body.data;
 
     if ("page" in input)
         return res.status(200).send({
             success: true,
             data: await prisma.post.findMany({
-                take: input.size,
-                skip: input.page * (input.size ?? 10),
+                take: input.limit,
+                skip: input.page * (input.limit ?? 10),
                 orderBy: {
                     createdAt: "desc",
                 },
@@ -138,7 +136,7 @@ async function getPosts(req: NextApiRequest, res: NextApiResponse) {
                         ],
                     },
                 },
-                take: input.size ?? 10,
+                take: input.limit ?? 10,
                 orderBy: {
                     createdAt: "desc",
                 },
@@ -155,7 +153,7 @@ export default async function handler(
         case "POST":
             return await createPost(req, res);
         case "GET":
-            return getPosts(req, res);
+            return await getPosts(req, res);
         default:
             return res.status(405).send({ message: "Method not allowed" });
     }
