@@ -48,7 +48,7 @@ async function getUser(req: NextApiRequest, res: NextApiResponse) {
     else if (session) {
         return res.status(200).send({
             success: true,
-            data: await prisma.user.findMany({
+            data: await prisma.user.findFirst({
                 where: {
                     id: session.user.id,
                 },
