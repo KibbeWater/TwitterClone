@@ -27,6 +27,7 @@ export const env = createEnv({
         SALT_ROUNDS: z.string().default("10"),
         // Add `.min(1) on ID and SECRET if you want to make sure they're not empty
         APPLE_ID: z.string().min(1),
+        APPLE_APP_ID: z.string().optional(),
         APPLE_SECRET: z.string().min(1),
 
         GOOGLE_ID: z.string().min(1),
@@ -87,6 +88,7 @@ export const env = createEnv({
         SALT_ROUNDS: process.env.SALT_ROUNDS,
 
         APPLE_ID: process.env.APPLE_ID,
+        APPLE_APP_ID: process.env.APPLE_APP_ID,
         APPLE_SECRET: process.env.APPLE_SECRET,
 
         GOOGLE_ID: process.env.GOOGLE_ID,
