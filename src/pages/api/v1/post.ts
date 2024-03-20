@@ -74,13 +74,21 @@ async function getPosts(req: NextApiRequest, res: NextApiResponse) {
                     }),
             })
             .refine(
-                (data) => Object.values(data).some((value) => value != null),
+                (data) =>
+                    Object.entries(data).some(
+                        ([key, value]) => value != null && key != "limit",
+                    ),
                 {
                     message: "At least one field must be non-null",
                 },
             ),
         z.object({
-            page: z.number(),
+            page: z
+                .string()
+                .transform((value) => Number(value))
+                .refine((value) => !isNaN(value), {
+                    message: "Size must be a number",
+                }),
             limit: z
                 .string()
                 .optional()
@@ -99,7 +107,7 @@ async function getPosts(req: NextApiRequest, res: NextApiResponse) {
 
     const input = body.data;
 
-    if ("page" in input)
+    if ("page" in input) {
         return res.status(200).send({
             success: true,
             data: await prisma.post.findMany({
@@ -111,7 +119,7 @@ async function getPosts(req: NextApiRequest, res: NextApiResponse) {
                 select: apiPostShape,
             }),
         });
-    else
+    } else
         return res.status(200).send({
             success: true,
             data: await prisma.post.findMany({
