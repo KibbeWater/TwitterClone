@@ -204,6 +204,58 @@ export const apiPostShape = {
     user: {
         select: apiPublicUserShape,
     },
+    comments: {
+        select: {
+            id: true,
+            content: true,
+            user: {
+                select: apiPublicUserShape,
+            },
+            parent: {
+                select: {
+                    user: {
+                        select: apiPublicUserShape,
+                    },
+                    id: true,
+                    content: true,
+                    quote: {
+                        select: {
+                            user: {
+                                select: apiPublicUserShape,
+                            },
+                            id: true,
+                            content: true,
+                            likeIDs: true,
+                            images: true,
+                            videos: true,
+                            createdAt: true,
+                        },
+                    },
+                    likeIDs: true,
+                    images: true,
+                    videos: true,
+                    createdAt: true,
+                },
+            },
+            quote: {
+                select: {
+                    user: {
+                        select: apiPublicUserShape,
+                    },
+                    id: true,
+                    content: true,
+                    likeIDs: true,
+                    images: true,
+                    videos: true,
+                    createdAt: true,
+                },
+            },
+            likeIDs: true,
+            images: true,
+            videos: true,
+            createdAt: true,
+        },
+    },
     parent: {
         select: {
             user: {
