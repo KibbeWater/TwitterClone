@@ -65,6 +65,7 @@ async function getPosts(req: NextApiRequest, res: NextApiResponse) {
                 id: z.string().optional(),
                 name: z.string().optional(),
                 tag: z.string().optional(),
+                parent: z.string().optional(),
                 limit: z
                     .string()
                     .optional()
@@ -124,25 +125,36 @@ async function getPosts(req: NextApiRequest, res: NextApiResponse) {
             success: true,
             data: await prisma.post.findMany({
                 where: {
-                    user: {
-                        OR: [
-                            input.id
-                                ? {
+                    OR: [
+                        input.id
+                            ? {
+                                  user: {
                                       id: input.id,
-                                  }
-                                : {},
-                            input.name
-                                ? {
+                                  },
+                              }
+                            : {},
+                        input.name
+                            ? {
+                                  user: {
                                       name: input.name,
-                                  }
-                                : {},
-                            input.tag
-                                ? {
+                                  },
+                              }
+                            : {},
+                        input.tag
+                            ? {
+                                  user: {
                                       tag: input.tag,
-                                  }
-                                : {},
-                        ],
-                    },
+                                  },
+                              }
+                            : {},
+                        input.parent
+                            ? {
+                                  parent: {
+                                      id: input.parent,
+                                  },
+                              }
+                            : {},
+                    ],
                 },
                 take: input.limit ?? 10,
                 orderBy: {
