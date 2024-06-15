@@ -1,4 +1,5 @@
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
+import { render } from "@react-email/components";
 import { type GetServerSidePropsContext } from "next";
 import {
     getServerSession,
@@ -9,10 +10,13 @@ import AppleProvider from "next-auth/providers/apple";
 // import CredentialsProvider from "next-auth/providers/credentials";
 import EmailProvider from "next-auth/providers/email";
 import GoogleProvide from "next-auth/providers/google";
+import { createTransport } from "nodemailer";
 
 import { env } from "~/env.mjs";
 import { prisma } from "~/server/db";
 import { isPremium } from "~/utils/user";
+
+import MagicLink from "~/components/Mail/MagicLink";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -201,6 +205,41 @@ export const authOptions: NextAuthOptions = {
         EmailProvider({
             server: env.EMAIL_SERVER,
             from: env.EMAIL_FROM,
+            async sendVerificationRequest(params) {
+                const {
+                    identifier: email,
+                    url,
+                    provider: { server, from },
+                } = params as {
+                    identifier: string;
+                    url: string;
+                    provider: {
+                        server: string;
+                        from: string;
+                    };
+                };
+
+                const { host } = new URL(url);
+
+                const transport = createTransport(server);
+                const result = await transport.sendMail({
+                    to: email,
+                    from: from,
+                    subject: `Sign in to ${host}`,
+                    text: render(<MagicLink url={url} />, {
+                        plainText: true,
+                    }),
+                    html: render(<MagicLink url={url} />),
+                });
+                const failed = result.rejected
+                    .concat(result.pending)
+                    .filter(Boolean);
+                if (failed.length) {
+                    throw new Error(
+                        `Email(s) (${failed.join(", ")}) could not be sent`,
+                    );
+                }
+            },
         }),
         AppleProvider({
             clientId: env.APPLE_ID,
