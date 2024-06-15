@@ -20,7 +20,7 @@ export default function Filters() {
     return (
         <div
             className={
-                "h-full w-[37%] border-l-[1px] border-highlight-light dark:border-highlight-dark hidden lg:block bg-white dark:bg-black"
+                "h-full w-[30%] border-l-[1px] border-highlight-light dark:border-highlight-dark hidden lg:block bg-white dark:bg-black"
             }
         >
             <div className={"h-full w-[70%] ml-8 pt-1"}>
